@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  backend:
+    container_name: food-monks-backend
+    build: 
+      context: ../../../backend
+      dockerfile: ../../../docker/backend/Dockerfile
+    ports:
+      - "9001:9001"
+    env_file:
+      - .env_java
+    restart: always
+
+  frontend:
+    container_name: food-monks-frontend
+    build:
+      context: ../../../frontend
+      dockerfile: ../../../docker/frontend/Dockerfile
+    ports:
+      - "80:80"
+    restart: always
+
+networks:
+  default:
+    external: true
+    name: java-react

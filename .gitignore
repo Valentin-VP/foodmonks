@@ -82,3 +82,5 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
+### Docker ###
+docker/compose/dev/.env_java
