@@ -1,9 +1,12 @@
 package org.foodmonks.backend.Cliente;
 
+
+import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.datatypes.DtDireccion;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import java.time.LocalDate;
@@ -17,6 +20,8 @@ public class Cliente extends Usuario {
    // private List<DtDireccion> direcciones = new ArrayList<DtDireccion>();
     private EstadoCliente estado;
     private String mobileToken;
+    @OneToMany(mappedBy="cliente",cascade=CascadeType.ALL,orphanRemoval=true)
+	private List<Pedido> pedidos = new ArrayList<>();
 
     public Cliente() {
     }
@@ -60,4 +65,22 @@ public class Cliente extends Usuario {
     public void setMobileToken(String mobileToken) {
         this.mobileToken = mobileToken;
     }
+
+	public List<Pedido> getPedidos() {
+		return pedidos;
+	}
+
+	public void setPedidos(List<Pedido> pedidos) {
+		this.pedidos = pedidos;
+	}
+	
+	//Para dar soporte a la bidireccion
+	public void agregarPedido(Pedido pedido) {
+				pedidos.add(pedido);
+				pedido.setCliente(this);
+	}
+	public void eliminarPedido(Pedido pedido) {
+				pedidos.remove(pedido);
+				pedido.setCliente(null);
+	}
 }

@@ -1,11 +1,18 @@
 package org.foodmonks.backend.Restaurante;
 
+import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.datatypes.DtDireccion;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Restaurante extends Usuario {
@@ -19,6 +26,11 @@ public class Restaurante extends Usuario {
     private String descripcion;
     private  String cuentaPaypal;
     private String imagen;
+    @OneToMany(mappedBy="restaurante",cascade=CascadeType.ALL,orphanRemoval=true)
+	private List<Pedido> pedidos = new ArrayList<>();
+    //Cambios en cascada y el orphanRemoval, nos garantiza que el ciclo de vida de un Reclamo depende del ciclo de vida del Restaurante con el que está asociado. cascade a nivel de base de datos, la entidad se eleiminará con orphanRemoval en true si ya no tiene referencias de la clase primaria
+  	@OneToMany(cascade=CascadeType.ALL,orphanRemoval=true)
+  	private List<Reclamo>reclamos = new ArrayList<>();
 
     public Restaurante() {
     }
@@ -107,4 +119,31 @@ public class Restaurante extends Usuario {
     public void setImagen(String imagen) {
         this.imagen = imagen;
     }
+
+	public List<Pedido> getPedidos() {
+		return pedidos;
+	}
+
+	public void setPedidos(List<Pedido> pedidos) {
+		this.pedidos = pedidos;
+	}
+	//Para dar soporte a la bidireccion
+		public void agregarPedido(Pedido pedido) {
+					pedidos.add(pedido);
+					pedido.setRestaurante(this);
+		}
+		public void eliminarPedido(Pedido pedido) {
+					pedidos.remove(pedido);
+					pedido.setRestaurante(null);
+		}
+
+	public List<Reclamo> getReclamos() {
+		return reclamos;
+	}
+
+	public void setReclamos(List<Reclamo> reclamos) {
+		this.reclamos = reclamos;
+	}
+	
+	
 }
