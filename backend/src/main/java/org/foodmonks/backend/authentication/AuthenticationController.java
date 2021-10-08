@@ -46,4 +46,22 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/auth/userinfo")
+    public ResponseEntity<?> getUserInfo(Principal user){//el username le tiene que llegar de otro forma, variable de clase???
+        //no puedo instanciar Usuario por ser abstracta
+        //reemplazar por el casteo del usuario al tipo correspondiente(try-catchs) usando CustomService
+        User userObj=(User) userDetailsService.loadUserByUsername(user.getName());
+
+        InfoUsuario userInfo=new InfoUsuario();
+        userInfo.setFirstName(userObj.getFirstName());
+        userInfo.setLastName(userObj.getLastName());
+        userInfo.setRoles(userObj.getAuthorities().toArray());
+
+
+        return ResponseEntity.ok(userInfo);
+
+
+
+    }
 }
