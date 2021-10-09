@@ -1,8 +1,10 @@
 package org.foodmonks.backend.authentication;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,10 +17,10 @@ import java.io.IOException;
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private TokenHelper tokenHelper;
-    private CustomService customService;
+    private UserDetailsService customService;
     private boolean testing = true;
 
-    public AuthenticationFilter(CustomService customService, TokenHelper tokenHelper) {
+    public AuthenticationFilter(UserDetailsService customService, TokenHelper tokenHelper) {
         this.tokenHelper = tokenHelper;
         this.customService = customService;
     }
@@ -42,13 +44,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
             if(null!=userName) {
 
-                //no puedo instanciar Usuario por ser abstracta
-                //reemplazar por el casteo del usuario al tipo correspondiente(try-catchs) usando CustomService
-                UserDetails userDetails=userDetailsService.loadUserByUsername(userName);
+                UserDetails userDetails=customService.loadUserByUsername(userName);
 
                 if(tokenHelper.validateToken(authToken, userDetails)) {
-                    //las authorities es el rol y de esta forma queda enevidencia dado que sabemos que tipo de usuario es
-                    //todas las authorities pasan a ser Strings
                     UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetails(request));
 

@@ -1,25 +1,25 @@
 package org.foodmonks.backend.authentication;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomService {
+public class CustomService implements UserDetailsService {
 
     //@Autowired
     //repo
 
-    //implementar funcion que devuelva un usuario dependiendo de su userName
-    //una funcion por tipo de usuario
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // TODO Auto-generated method stub
 
-//    public Cliente loadClienteByUserName(String userName) {
-//
-//    }
-//
-//    public Restaurante loadRestauranteByUserName(String userName) {
-//
-//    }
-//
-//    public Admin loadAdminByUserName(String userName) {
-//
-//    }
+        Usuario usuario=repo.findByUserName(username);
+
+        if(null==usuario) {
+            throw new UsernameNotFoundException("User Not Found with userName "+username);
+        }
+        return usuario;
+    }
 }

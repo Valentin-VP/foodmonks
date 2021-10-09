@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
@@ -23,9 +24,8 @@ public class AuthenticationController {
     TokenHelper tokenHelper;
 
     @Autowired
-    private CustomService CustomService;
+    private UserDetailsService CustomService;
 
-    private String authority;
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
@@ -36,11 +36,9 @@ public class AuthenticationController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        //no puedo instanciar Usuario por ser abstracta
-        //reemplazar por el casteo del usuario al tipo correspondiente(try-catchs) usando CustomService
-        User user=(User)authentication.getPrincipal();
+        Usuario usuario=(Usuario)authentication.getPrincipal();
 
-        String jwtToken=tokenHelper.generateToken(user.getUsername(), authority);
+        String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());//no se como funcionaria el tema de las autoridades
         AuthenticationResponse response=new AuthenticationResponse();
         response.setToken(jwtToken);
 
@@ -48,10 +46,8 @@ public class AuthenticationController {
     }
 
     @GetMapping("/auth/userinfo")
-    public ResponseEntity<?> getUserInfo(Principal user){//el username le tiene que llegar de otro forma, variable de clase???
-        //no puedo instanciar Usuario por ser abstracta
-        //reemplazar por el casteo del usuario al tipo correspondiente(try-catchs) usando CustomService
-        User userObj=(User) userDetailsService.loadUserByUsername(user.getName());
+    public ResponseEntity<?> getUserInfo(Principal user){
+        Usuario userObj=(Usuario) CustomService.loadUserByUsername(usuario.getName());
 
         InfoUsuario userInfo=new InfoUsuario();
         userInfo.setFirstName(userObj.getFirstName());

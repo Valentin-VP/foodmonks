@@ -4,11 +4,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Collection;
 import java.util.Date;
 
 @Component
@@ -52,7 +55,7 @@ public class TokenHelper {
         return username;
     }
 
-    public String generateToken(String username, String authority) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public String generateToken(String username, Collection<? extends GrantedAuthority> authority) throws InvalidKeySpecException, NoSuchAlgorithmException {
         return Jwts.builder()
                 .setIssuer( appName )
                 .setSubject(username)
@@ -67,7 +70,7 @@ public class TokenHelper {
         return new Date(new Date().getTime() + expiresIn * 1000);
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {//puedo usar Usuario??, otra opcion es usar Object(chanchuyo, no tanto)
+    public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (
                 username != null &&
