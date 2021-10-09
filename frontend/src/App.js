@@ -1,5 +1,5 @@
-import logo from './logo.svg';
 import './App.css';
+import React from 'react';
 import {
   BrowserRouter,
   Switch,
@@ -7,10 +7,9 @@ import {
   Link
 } from "react-router-dom";
 import  LoginPage from './pages/LoginPage';
-import { Dashboard } from './pages/dashboard/dashboard';
-import { ShowUsers } from './pages/showUsers/showUsers';
-import ResetPassword from './pages/passwordRecovery/PasswordReset';
-import ConfirmPassword from './pages/passwordRecovery/PasswordConfirm';
+import { Principal } from './pages/principal/principal';
+/*import ResetPassword from './pages/passwordRecovery/PasswordReset';
+import ConfirmPassword from './pages/passwordRecovery/PasswordConfirm';*/
 
 
 function App() {
@@ -18,8 +17,7 @@ function App() {
       <BrowserRouter>
         <Switch>
           <Route exact path="/" component={LoginPage}/>
-          <Route exact path="/dashboard" component={Dashboard}/>
-          <Route exact path="/showUsers" component={ShowUsers}/>
+          <Route exact path="/principal" component={Principal}/>
           {/*<Route exact path="/forgot" component={ResetPassword}/>
           <Route exact path="/reset/:token?" component={ConfirmPassword}/>*/}
         </Switch>

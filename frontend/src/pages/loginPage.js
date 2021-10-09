@@ -1,4 +1,4 @@
-import react,{useState} from 'react';
+import React,{useState} from 'react';
 import { connect } from 'react-redux';
 import { authenticate, authFailure, authSuccess } from '../redux/authActions';
 import './loginpage.css';
@@ -23,10 +23,10 @@ const LoginPage=({loading,error,...props})=>{
             console.log("response",response);
             if(response.status===200){
                 props.setUser(response.data);
-                props.history.push('/dashboard');
+                props.history.push('/principal');
             }
             else{
-               props.loginFailure('Something Wrong!Please Try Again'); 
+               props.loginFailure('Algo salio mal! Pruebe nuevamente'); 
             }
 
 
@@ -37,16 +37,16 @@ const LoginPage=({loading,error,...props})=>{
             switch(err.response.status){
                 case 401:
                     console.log("401 status");
-                    props.loginFailure("Authentication Failed.Bad Credentials");
+                    props.loginFailure("Fallo en autenticacion. Credenciales incorrectas");
                     break;
                 default:
-                    props.loginFailure('Something Wrong!Please Try Again'); 
+                    props.loginFailure('Algo salio mal! Pruebe nuevamente'); 
 
             }
 
             }
             else{
-                props.loginFailure('Something Wrong!Please Try Again');
+                props.loginFailure('Algo salio mal! Pruebe nuevamente');
             }
                 
 

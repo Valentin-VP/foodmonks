@@ -9,7 +9,7 @@ const MainWrapper=styled.div`
     padding-top:40px;
 `;
 
-export const Dashboard=(props)=>{
+export const Principal=(props)=>{
 
     const dispatch=useDispatch();
     const [loading,setLoading]=useState(false);
@@ -36,7 +36,7 @@ export const Dashboard=(props)=>{
             <MainWrapper>
                 <h4>Hello {data && `${data.firstName} ${data.lastName}`}</h4>{/*falta imprimir los usuarios(arreglar)*/}
                 <br></br>
-                {data && data.roles && data.roles.filter(value => value.authority==='ROLE_ADMIN').length>0 && <Button type="variant" onClick={() =>{props.history.push('/showUsers')}}>show users</Button>}
+                {data && data.roles && data.roles.filter(value => value.authority==='ROLE_ADMIN').length>0 && <Button type="variant" onClick={() =>{console.log("soy admin XD")}}>Admin</Button>}
                 <br></br>
                 <Button style={{marginTop:'5px'}} onClick={() =>logOut()}>Logout</Button>
             </MainWrapper>
