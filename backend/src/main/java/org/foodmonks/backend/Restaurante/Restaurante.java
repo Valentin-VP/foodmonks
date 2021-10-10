@@ -148,6 +148,14 @@ public class Restaurante extends Usuario {
 	public void setReclamos(List<Reclamo> reclamos) {
 		this.reclamos = reclamos;
 	}
+
+	public List<Menu> getMenus() {
+		return menus;
+	}
+
+	public void setMenus(List<Menu> menus) {
+		this.menus = menus;
+	}
 	
 	
 }

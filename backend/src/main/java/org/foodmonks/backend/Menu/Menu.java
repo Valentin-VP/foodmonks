@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Menu;
 
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.persistencia.MenuID;
 
 import javax.persistence.*;
@@ -18,6 +19,8 @@ public class Menu {
 	private Boolean visible;
 	private Float multiplicadorPromocion;
 	private String imagen;
+	@Enumerated(value = EnumType.STRING)
+	private CategoriaMenu categoria;
 	@ManyToOne
 	private Restaurante restaurante;
 	
@@ -25,8 +28,10 @@ public class Menu {
 		// TODO Auto-generated constructor stub
 	}
 
+	
+
 	public Menu(String nombre, Float precio, String descripcion, Boolean visible, Float multiplicadorPromocion,
-			String imagen) {
+			String imagen, CategoriaMenu categoria) {
 		super();
 		this.nombre = nombre;
 		this.precio = precio;
@@ -34,7 +39,10 @@ public class Menu {
 		this.visible = visible;
 		this.multiplicadorPromocion = multiplicadorPromocion;
 		this.imagen = imagen;
+		this.categoria = categoria;
 	}
+
+
 
 	public Long getId() {
 		return id;
@@ -90,6 +98,28 @@ public class Menu {
 
 	public void setImagen(String imagen) {
 		this.imagen = imagen;
+	}
+
+	public CategoriaMenu getCategoria() {
+		return categoria;
+	}
+
+
+
+	public void setCategoria(CategoriaMenu categoria) {
+		this.categoria = categoria;
+	}
+
+
+
+	public Restaurante getRestaurante() {
+		return restaurante;
+	}
+
+
+
+	public void setRestaurante(Restaurante restaurante) {
+		this.restaurante = restaurante;
 	}
 	
 	
