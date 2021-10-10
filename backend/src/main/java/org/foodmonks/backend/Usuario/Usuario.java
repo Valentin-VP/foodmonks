@@ -7,12 +7,10 @@ import java.time.LocalDate;
 @DiscriminatorColumn(name="rol")
 public abstract class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //genera automaticamente el id
-    private Long id;
+	@Id
+	private String correo;
     private String nombre;
     private String apellido;
-    private String correo;
     private String contrasenia;
     private LocalDate fechaRegistro;
 
@@ -27,13 +25,6 @@ public abstract class Usuario {
         this.fechaRegistro = fechaRegistro;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getNombre() {
         return nombre;

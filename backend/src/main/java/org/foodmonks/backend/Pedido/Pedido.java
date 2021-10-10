@@ -18,6 +18,7 @@ import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.datatypes.DtCalificacion;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
@@ -34,6 +35,8 @@ public class Pedido  {
     private String nombre;
     @Enumerated(value = EnumType.STRING)
     private EstadoPedido estado;
+    private DtCalificacion calificacionCliente;
+    private DtCalificacion calificacionRestaurante;
     private LocalDate fechaHoraProcesado;
     private Float total;
     @Enumerated(value = EnumType.STRING)
@@ -41,7 +44,7 @@ public class Pedido  {
     private LocalDate fechaHoraEntrega;
 	@ManyToOne
     private Direccion direccion;
-    private DtOrdenPaypal ordenPaypal; // ver lo de los dt, falta tambien agregar lo de las calificaciones que tambien es un dt en el modelo
+    private DtOrdenPaypal ordenPaypal;
     @ManyToOne
 	private  Cliente cliente;
     @ManyToOne
@@ -171,7 +174,24 @@ public class Pedido  {
 	public void setReclamo(Reclamo reclamo) {
 		this.reclamo = reclamo;
 	}
-	//PARA LA BIDIRECCION
+	
+	public DtCalificacion getCalificacionCliente() {
+		return calificacionCliente;
+	}
+
+	public void setCalificacionCliente(DtCalificacion calificacionCliente) {
+		this.calificacionCliente = calificacionCliente;
+	}
+
+	public DtCalificacion getCalificacionRestaurante() {
+		return calificacionRestaurante;
+	}
+
+	public void setCalificacionRestaurante(DtCalificacion calificacionRestaurante) {
+		this.calificacionRestaurante = calificacionRestaurante;
+	}
+
+		//PARA LA BIDIRECCION
 		public void agregarReclamo(Reclamo reclamo) {
 			reclamo.setPedido(this);
 			this.reclamo=reclamo;
