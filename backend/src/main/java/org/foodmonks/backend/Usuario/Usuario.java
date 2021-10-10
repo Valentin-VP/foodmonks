@@ -3,7 +3,8 @@ package org.foodmonks.backend.Usuario;
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@MappedSuperclass
+@Entity
+@DiscriminatorColumn(name="rol")
 public abstract class Usuario {
 
     @Id

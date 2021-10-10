@@ -16,7 +16,7 @@ public class AdminConfig {
     @Bean
     CommandLineRunner commandLineRunnerAdmin(AdminRepository repository) {
         return args ->{
-            Admin admin =  new Admin("nombreDelCliente", "apellidoDelCliente", "correoDelCliente", "admin123", LocalDate.now());
+            Admin admin =  new Admin("nombreDelAdmin", "apellidoDelAdmin", "correoDelAdmin", "admin123", LocalDate.now());
 
             repository.saveAll(List.of(admin));
         };
