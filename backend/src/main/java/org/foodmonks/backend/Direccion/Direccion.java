@@ -1,21 +1,39 @@
-package org.foodmonks.backend.datatypes;
+package org.foodmonks.backend.Direccion;
 
 import lombok.EqualsAndHashCode;
+import org.foodmonks.backend.Cliente.Cliente;
+import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.persistencia.DireccionID;
 
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DtDireccion implements Serializable {
+@Entity
+@IdClass(DireccionID.class)
+public class Direccion{
 
-    private static final long serialVersionUID = 1L;
     private Integer numero;
     private String calle;
     private String esquina;
     private String detalles;
+    @Id
     private String latitud;
+    @Id
     private String longitud;
+    @ManyToMany
+    private List<Cliente> cliente = new ArrayList<>();
+    @OneToOne
+    private Restaurante restaurante;
+    @OneToMany
+    private List<Pedido> pedido = new ArrayList<>();
 
-    public DtDireccion(Integer numero, String calle, String esquina, String detalles, String latitud, String longitud) {
+    public Direccion() {
+    }
+
+    public Direccion(Integer numero, String calle, String esquina, String detalles, String latitud, String longitud) {
         this.numero = numero;
         this.calle = calle;
         this.esquina = esquina;

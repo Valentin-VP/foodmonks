@@ -1,11 +1,12 @@
 package org.foodmonks.backend.Menu;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.persistencia.MenuID;
+
+import javax.persistence.*;
 
 @Entity
+@IdClass(MenuID.class)
 public class Menu {
 	
 	@Id
@@ -17,6 +18,8 @@ public class Menu {
 	private Boolean visible;
 	private Float multiplicadorPromocion;
 	private String imagen;
+	@ManyToOne
+	private Restaurante restaurante;
 	
 	public Menu() {
 		// TODO Auto-generated constructor stub

@@ -1,4 +1,4 @@
-package org.foodmonks.backend.enumeradores;
+package org.foodmonks.backend.datatypes;
 
 public enum EstadoPedido {
     PENDIENTE,

@@ -1,41 +1,45 @@
 package org.foodmonks.backend.Restaurante;
 
+import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Usuario.Usuario;
-import org.foodmonks.backend.datatypes.DtDireccion;
+import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@DiscriminatorValue("restaurante")
 public class Restaurante extends Usuario {
 
     private Float calificacion;
     private String nombreRestaurante;
     private Integer rut;
-    private DtDireccion direccion;
+    @OneToOne(cascade=CascadeType.ALL)
+    private Direccion direccion;
     private EstadoRestaurante estado;
     private Integer telefono;
     private String descripcion;
     private  String cuentaPaypal;
     private String imagen;
-    @OneToMany(mappedBy="restaurante",cascade=CascadeType.ALL,orphanRemoval=true)
+    @OneToMany(mappedBy="restaurante")//,cascade=CascadeType.ALL,orphanRemoval=true)
 	private List<Pedido> pedidos = new ArrayList<>();
     //Cambios en cascada y el orphanRemoval, nos garantiza que el ciclo de vida de un Reclamo depende del ciclo de vida del Restaurante con el que está asociado. cascade a nivel de base de datos, la entidad se eleiminará con orphanRemoval en true si ya no tiene referencias de la clase primaria
   	@OneToMany(cascade=CascadeType.ALL,orphanRemoval=true)
   	private List<Reclamo>reclamos = new ArrayList<>();
+    @OneToMany
+    private List<Menu> menus = new ArrayList<>();
+
 
     public Restaurante() {
     }
 
-    public Restaurante(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, String nombreRestaurante, Integer rut, DtDireccion direccion, EstadoRestaurante estado, Integer telefono, String descripcion, String cuentaPaypal, String imagen) {
+    public Restaurante(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, String nombreRestaurante, Integer rut, Direccion direccion, EstadoRestaurante estado, Integer telefono, String descripcion, String cuentaPaypal, String imagen) {
         super(nombre, apellido, correo, contrasenia, fechaRegistro);
         this.calificacion = calificacion;
         this.nombreRestaurante = nombreRestaurante;
@@ -72,11 +76,11 @@ public class Restaurante extends Usuario {
         this.rut = rut;
     }
 
-    public DtDireccion getDireccion() {
+    public Direccion getDireccion() {
         return direccion;
     }
 
-    public void setDireccion(DtDireccion direccion) {
+    public void setDireccion(Direccion direccion) {
         this.direccion = direccion;
     }
 

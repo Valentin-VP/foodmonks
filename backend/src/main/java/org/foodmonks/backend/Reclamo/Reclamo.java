@@ -2,15 +2,13 @@ package org.foodmonks.backend.Reclamo;
 
 import java.time.LocalDate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.persistencia.ReclamoID;
 
 @Entity
+@IdClass(ReclamoID.class)
 public class Reclamo {
 	
 	@Id

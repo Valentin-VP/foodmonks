@@ -3,21 +3,21 @@ package org.foodmonks.backend.Cliente;
 
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Usuario.Usuario;
-import org.foodmonks.backend.datatypes.DtDireccion;
+import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@DiscriminatorValue("cliente")
 public class Cliente extends Usuario {
 
     private Float calificacion;
-   // private List<DtDireccion> direcciones = new ArrayList<DtDireccion>();
+    @ManyToMany(cascade=CascadeType.ALL)
+    private List<Direccion> direcciones = new ArrayList<>();
     private EstadoCliente estado;
     private String mobileToken;
     @OneToMany(mappedBy="cliente",cascade=CascadeType.ALL,orphanRemoval=true)
@@ -26,10 +26,21 @@ public class Cliente extends Usuario {
     public Cliente() {
     }
 
-    public Cliente(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, DtDireccion direccion, EstadoCliente estado, String mobileToken) {
+    //CONSTRUCTOR CON UN LIST DE DIRECCIONS
+    public Cliente(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, List<Direccion> direcciones, EstadoCliente estado, String mobileToken, List<Pedido> pedidos) {
         super(nombre, apellido, correo, contrasenia, fechaRegistro);
         this.calificacion = calificacion;
-        //this.direcciones.add(direccion); //se agrega la direccion que se pasa ya que nunca agregamos mas de una direccion
+        this.direcciones = direcciones;
+        this.estado = estado;
+        this.mobileToken = mobileToken;
+        this.pedidos = pedidos;
+    }
+
+    //CONSTRUCTOR CON UNA DIRECCION
+    public Cliente(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, Direccion direccion, EstadoCliente estado, String mobileToken) {
+        super(nombre, apellido, correo, contrasenia, fechaRegistro);
+        this.calificacion = calificacion;
+        this.direcciones.add(direccion); //se agrega la direccion que se pasa ya que nunca agregamos mas de una direccion
         this.estado = estado;
         this.mobileToken = mobileToken;
     }
@@ -42,13 +53,17 @@ public class Cliente extends Usuario {
         this.calificacion = calificacion;
     }
 
-//    public List<DtDireccion> getDirecciones() {
-//        return direcciones;
-//    }
+    public List<Direccion> getDirecciones() {
+        return direcciones;
+    }
 
-//    public void setDirecciones(DtDireccion direccion) {
-//        this.direcciones.add(direccion); //se agrega la direccion que se pasa ya que nunca agregamos mas de una direccion
-//    }
+    public void setDirecciones(List<Direccion> direcciones) {
+        this.direcciones = direcciones;
+    }
+
+    public void addDireccion(Direccion direccion){
+        this.direcciones.add(direccion);
+    }
 
     public EstadoCliente getEstado() {
         return estado;

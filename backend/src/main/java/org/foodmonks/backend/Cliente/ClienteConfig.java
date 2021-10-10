@@ -1,6 +1,5 @@
 package org.foodmonks.backend.Cliente;
 
-import org.foodmonks.backend.datatypes.DtDireccion;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;

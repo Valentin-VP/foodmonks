@@ -17,10 +17,10 @@ import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.datatypes.DtDireccion;
+import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
-import org.foodmonks.backend.enumeradores.EstadoPedido;
-import org.foodmonks.backend.enumeradores.MedioPago;
+import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.MedioPago;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,8 +28,8 @@ import java.util.List;
 
 @Entity
 public class Pedido  {
-	 @Id
-	 @GeneratedValue(strategy = GenerationType.IDENTITY)
+ 	@Id
+ 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
     @Enumerated(value = EnumType.STRING)
@@ -39,7 +39,8 @@ public class Pedido  {
     @Enumerated(value = EnumType.STRING)
     private MedioPago medioPago;
     private LocalDate fechaHoraEntrega;
-    private DtDireccion direccion;
+	@ManyToOne
+    private Direccion direccion;
     private DtOrdenPaypal ordenPaypal; // ver lo de los dt, falta tambien agregar lo de las calificaciones que tambien es un dt en el modelo
     @ManyToOne
 	private  Cliente cliente;
@@ -55,7 +56,7 @@ public class Pedido  {
     }
     
     public Pedido(String nombre, EstadoPedido estado, LocalDate fechaHoraProcesado, Float total,
-			MedioPago medioPago, LocalDate fechaHoraEntrega, DtDireccion direccion, DtOrdenPaypal ordenPaypal) {
+				  MedioPago medioPago, LocalDate fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
 		super();
 		this.nombre = nombre;
 		this.estado = estado;
@@ -123,11 +124,11 @@ public class Pedido  {
 		this.fechaHoraEntrega = fechaHoraEntrega;
 	}
 
-	public DtDireccion getDireccion() {
+	public Direccion getDireccion() {
 		return direccion;
 	}
 
-	public void setDireccion(DtDireccion direccion) {
+	public void setDireccion(Direccion direccion) {
 		this.direccion = direccion;
 	}
 
