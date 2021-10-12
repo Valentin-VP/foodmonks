@@ -66,6 +66,8 @@ public class TokenHelper {
                 .compact();
     }
 
+    //funcion para generar el refreshToken
+
     private Date generateExpirationDate() {
         return new Date(new Date().getTime() + expiresIn * 1000);
     }
@@ -78,6 +80,8 @@ public class TokenHelper {
                         !isTokenExpired(token)
         );
     }
+
+    //funcion para validar el refreshToken
 
     public boolean isTokenExpired(String token) {
         Date expireDate=getExpirationDate(token);
@@ -118,6 +122,8 @@ public class TokenHelper {
 
         return null;
     }
+
+    //funcion para obtener el refreshToken
 
     public String getAuthHeaderFromHeader( HttpServletRequest request ) {
         return request.getHeader("Authorization");
