@@ -1,9 +1,11 @@
 package org.foodmonks.backend.authentication;
 
+import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Admin.AdminRepository;
+import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteRepository;
+import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
-import org.foodmonks.backend.Usuario.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,13 +27,32 @@ public class CustomService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String correo) throws UsernameNotFoundException {
 
-        //aqui va el try-catch, necesito funciones en los repos correspondientes que busquen a un Usuario por su correo
+        try {
 
-        Usuario usuario=repo.findByUserName(correo);
+            Admin admin = adminRepository.findByCorreo(correo);
+            if(null==admin) {
+                throw new UsernameNotFoundException("User Not Found with userName " + correo);
+            }
+            return admin;
 
-        if(null==usuario) {
-            throw new UsernameNotFoundException("User Not Found with userName "+correo);
+        } catch(Exception a) {
+
+            try {
+                Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+                if(null==restaurante) {
+                    throw new UsernameNotFoundException("User Not Found with userName " + correo);
+                }
+                return restaurante;
+
+            } catch(Exception r) {
+
+                Cliente cliente = clienteRepository.findByCorreo(correo);
+                if(null==cliente) {
+                    throw new UsernameNotFoundException("User Not Found with userName " + correo);
+                }
+                return cliente;
+            }
         }
-        return usuario;
     }
+
 }

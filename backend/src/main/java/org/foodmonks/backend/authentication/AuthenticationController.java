@@ -1,12 +1,15 @@
 package org.foodmonks.backend.authentication;
 
-import org.foodmonks.backend.Usuario.Usuario;
+import org.foodmonks.backend.Admin.Admin;
+import org.foodmonks.backend.Cliente.Cliente;
+import org.foodmonks.backend.Restaurante.Restaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +29,7 @@ public class AuthenticationController {
     TokenHelper tokenHelper;
 
     @Autowired
-    private UserDetailsService CustomService;
+    private UserDetailsService customService;
 
 
     @PostMapping("/auth/login")
@@ -38,10 +41,10 @@ public class AuthenticationController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        Usuario usuario=(Usuario)authentication.getPrincipal();
-        //Principal es el correo?? puedo manejar un UserDetails a Cliente, Restaurante y Admin???
+        //Usuario usuario=(Usuario)authentication.getPrincipal(); ***
+        UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getCorreo());//alternativa: try-catch con ***
 
-        String jwtToken=tokenHelper.generateToken(usuario.getCorreo(), usuario.getAuthorities());
+        String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
         //falta generar el refreshToken y agregarselo a la response
         AuthenticationResponse response=new AuthenticationResponse();
         response.setToken(jwtToken);
@@ -49,22 +52,42 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
-    //endpoint para renovar los tokens
+    //endpoint para renovar los tokens, debe recibir el correo del usuario(esta en el refreshToken)
 
     @GetMapping("/auth/userinfo")
-    public ResponseEntity<?> getUserInfo(Principal user){
-        Usuario userObj=(Usuario) CustomService.loadUserByUsername(user.getName());
-        //puedo manejar un UserDetails a Cliente, Restaurante y Admin???
+    public ResponseEntity<?> getUserInfo(Principal user){//proximamente: ver una forma de ahorrar codigo
+        InfoUsuario userInfo = new InfoUsuario();
 
-        InfoUsuario userInfo=new InfoUsuario();
-        userInfo.setFirstName(userObj.getNombre());
-        userInfo.setLastName(userObj.getApellido());
-        userInfo.setRoles(userObj.getAuthorities().toArray());
-
+        try{
+            Admin admin = (Admin) user;
+            userInfo.setFirstName(admin.getNombre());
+            userInfo.setLastName(admin.getApellido());
+            userInfo.setRoles(admin.getAuthorities().toArray());
+        } catch(ClassCastException a) {
+            try {
+                Restaurante restaurante = (Restaurante) user;
+                userInfo.setFirstName(restaurante.getNombre());
+                userInfo.setLastName(restaurante.getApellido());
+                userInfo.setRoles(restaurante.getAuthorities().toArray());
+            } catch(ClassCastException r) {
+                Cliente cliente = (Cliente) user;
+                userInfo.setFirstName(cliente.getNombre());
+                userInfo.setLastName(cliente.getApellido());
+                userInfo.setRoles(cliente.getAuthorities().toArray());
+            }
+        }
 
         return ResponseEntity.ok(userInfo);
 
-
-
     }
+
+//    public InfoUsuario getInfoUsuario(Usuario user) {
+//        InfoUsuario userInfo=new InfoUsuario();
+//
+//        userInfo.setFirstName(user.getNombre());
+//        userInfo.setLastName(user.getApellido());
+//        userInfo.setRoles(user.getAuthorities().toArray());
+//
+//        return userInfo;
+//    }
 }

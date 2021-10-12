@@ -55,10 +55,10 @@ public class TokenHelper {
         return username;
     }
 
-    public String generateToken(String username, Collection<? extends GrantedAuthority> authority) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public String generateToken(String correo, Collection<? extends GrantedAuthority> authority) throws InvalidKeySpecException, NoSuchAlgorithmException {
         return Jwts.builder()
                 .setIssuer( appName )
-                .setSubject(username)
+                .setSubject(correo)
                 .claim("authorities", authority)
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate())
