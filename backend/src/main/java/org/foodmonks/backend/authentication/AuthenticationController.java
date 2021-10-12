@@ -41,7 +41,7 @@ public class AuthenticationController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        //Usuario usuario=(Usuario)authentication.getPrincipal(); ***
+        //Usuario usuario=(Usuario)authentication.getPrincipal();// ***
         UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getCorreo());//alternativa: try-catch con ***
 
         String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
@@ -58,7 +58,7 @@ public class AuthenticationController {
     public ResponseEntity<?> getUserInfo(Principal user){//proximamente: ver una forma de ahorrar codigo
         InfoUsuario userInfo = new InfoUsuario();
 
-        try{
+        try {
             Admin admin = (Admin) user;
             userInfo.setFirstName(admin.getNombre());
             userInfo.setLastName(admin.getApellido());

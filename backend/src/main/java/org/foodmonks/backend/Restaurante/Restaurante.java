@@ -6,12 +6,14 @@ import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @DiscriminatorValue("restaurante")
@@ -34,6 +36,8 @@ public class Restaurante extends Usuario {
   	private List<Reclamo>reclamos = new ArrayList<>();
     @OneToMany
     private List<Menu> menus = new ArrayList<>();
+
+    private String rol = "ROLE_RESTAURANTE";
 
 
     public Restaurante() {
@@ -156,6 +160,47 @@ public class Restaurante extends Usuario {
 	public void setMenus(List<Menu> menus) {
 		this.menus = menus;
 	}
-	
-	
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String[] roles = new String[0];
+        roles[0] = this.rol;
+        Set<SimpleGrantedAuthority> rol = Arrays.stream(roles)
+                .map(role -> new SimpleGrantedAuthority(role))
+                .collect(Collectors.toSet());
+        return rol;
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return getCorreo();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 }
