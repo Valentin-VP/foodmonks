@@ -168,10 +168,10 @@ public class Restaurante extends Usuario {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String[] roles = new String[0];
-        roles[0] = this.roles;
-        Set<SimpleGrantedAuthority> rol = Arrays.stream(roles)
-                .map(role -> new SimpleGrantedAuthority(role))
+        String[] autoridades = new String[1];
+        autoridades[0] = this.roles;
+        Set<SimpleGrantedAuthority> rol = Arrays.stream(autoridades)
+                .map(autoridad -> new SimpleGrantedAuthority(autoridad))
                 .collect(Collectors.toSet());
         return rol;
     }
@@ -180,7 +180,7 @@ public class Restaurante extends Usuario {
 
     @Override
     public String getPassword() {
-        return null;
+        return getContrasenia();
     }
 
     @Override
@@ -190,21 +190,21 @@ public class Restaurante extends Usuario {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

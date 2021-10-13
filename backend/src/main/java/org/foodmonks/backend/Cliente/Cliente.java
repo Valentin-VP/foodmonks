@@ -109,10 +109,10 @@ public class Cliente extends Usuario {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String[] roleses = new String[1];
-        roleses[0] = this.roles;
-        Set<SimpleGrantedAuthority> rol = Arrays.stream(roleses)
-                .map(role -> new SimpleGrantedAuthority(role))
+        String[] autoridades = new String[1];
+        autoridades[0] = this.roles;
+        Set<SimpleGrantedAuthority> rol = Arrays.stream(autoridades)
+                .map(autoridad -> new SimpleGrantedAuthority(autoridad))
                 .collect(Collectors.toSet());
         return rol;
     }
