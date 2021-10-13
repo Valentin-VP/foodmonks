@@ -18,7 +18,6 @@ public class RestauranteService {
 
     public void createRestaurante(Restaurante restaurante) {
         restauranteRepository.save(restaurante);
-        System.out.println(restaurante.getNombre());
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -28,21 +27,9 @@ public class RestauranteService {
     public Restaurante buscarRestaurante(String correo) {
         Restaurante aux = restauranteRepository.findByCorreo(correo);
         if (aux == null) {
-            System.out.println("el auxiliar esta vacio");
             return null;
-        }else {
-            System.out.println(aux.getNombre());
+        } else {
             return aux;
-        }
-    }
-
-    public void eliminarRestaurante(Long id) {
-        Optional<Restaurante> aux = restauranteRepository.findById(id);
-        if (aux.isEmpty()) {
-            System.out.println("el auxiliar esta vacio");
-        }else {
-            System.out.println(aux.get().getNombre());
-            restauranteRepository.delete(aux.get());
         }
     }
 

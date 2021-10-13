@@ -18,7 +18,6 @@ public class ClienteController {
 
     @PostMapping//CREAR CLIENTE
     public void createCliente(@RequestBody Cliente cliente) {
-        System.out.println("Entro al post");
         clienteService.crearCliente(cliente);
     }
 
@@ -30,24 +29,17 @@ public class ClienteController {
 
     @GetMapping("/buscar")
     public void buscarCliente(@RequestParam String correo) {
-        System.out.println(correo);
         clienteService.buscarCliente(correo);
     }
 
     @DeleteMapping//ELIMINAR CLIENTE
     public void elimiarCliente(@RequestParam Long id) {
-        System.out.println(id);
-        clienteService.eliminarCliente(id);
+        //clienteService.eliminarCliente(id);
     }
 
     @PutMapping//EDITAR CLIENTE
     public void modificarCliente(@RequestBody Cliente cliente) {
-        if (cliente == null) {
-            System.out.println("no existe el cliente");
-        }else {
-            System.out.println(cliente.getNombre());
-            clienteService.modificarCliente(cliente);
-        }
+        clienteService.modificarCliente(cliente);
 
     }
 

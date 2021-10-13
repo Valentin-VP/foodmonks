@@ -28,21 +28,9 @@ public class AdminService {
     public Admin buscarAdmin(String correo) {
         Admin aux = adminRepository.findByCorreo(correo);
         if (aux == null) {
-            System.out.println("No existe ese administrador");
             return null;
         }else{
-            System.out.println(aux.getNombre());
             return aux;
-        }
-    }
-
-    public void eliminarAdmin(Long id) {
-        Optional<Admin> aux = adminRepository.findById(id);
-        if (aux.isEmpty())
-            System.out.println("No existe ese administrador");
-        else {
-            System.out.println(aux.get().getNombre());
-            adminRepository.delete(aux.get());
         }
     }
 

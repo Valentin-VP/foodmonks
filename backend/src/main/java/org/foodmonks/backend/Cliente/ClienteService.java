@@ -27,21 +27,9 @@ public class ClienteService {
     public Cliente buscarCliente(String correo) {
         Cliente aux = clienteRepository.findByCorreo(correo);
         if (aux == null) {
-            System.out.println("No existe ese cliente");
             return null;
         }else{
-            System.out.println(aux.getNombre());
             return aux;
-        }
-    }
-
-    public void eliminarCliente(Long id) {
-        Optional<Cliente> aux = clienteRepository.findById(id);
-        if (aux.isEmpty())
-            System.out.println("No existe ese cliente");
-        else {
-            System.out.println(aux.get().getNombre());
-            clienteRepository.delete(aux.get());
         }
     }
 
