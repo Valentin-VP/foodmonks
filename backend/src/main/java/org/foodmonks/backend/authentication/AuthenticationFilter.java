@@ -58,7 +58,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
             }
 
-        }
+        }//si authtoken es null, tengo que validar el refreshToken
 
         filterChain.doFilter(request, response);
 

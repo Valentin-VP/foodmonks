@@ -6,12 +6,14 @@ import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @DiscriminatorValue("restaurante")
@@ -34,6 +36,8 @@ public class Restaurante extends Usuario {
   	private List<Reclamo>reclamos = new ArrayList<>();
     @OneToMany
     private List<Menu> menus = new ArrayList<>();
+
+    private String roles = "ROLE_RESTAURANTE";
 
 
     public Restaurante() {
@@ -156,6 +160,51 @@ public class Restaurante extends Usuario {
 	public void setMenus(List<Menu> menus) {
 		this.menus = menus;
 	}
-	
-	
+
+    public String getRoles() {
+        return this.roles;
+    }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String[] autoridades = new String[1];
+        autoridades[0] = this.roles;
+        Set<SimpleGrantedAuthority> rol = Arrays.stream(autoridades)
+                .map(autoridad -> new SimpleGrantedAuthority(autoridad))
+                .collect(Collectors.toSet());
+        return rol;
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public String getPassword() {
+        return getContrasenia();
+    }
+
+    @Override
+    public String getUsername() {
+        return getCorreo();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
