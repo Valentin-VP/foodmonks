@@ -4,6 +4,7 @@ import styled from "styled-components";
 import foodlogo from "../../assets/foodLogo.png"; // Tell webpack this JS file uses this image
 import cartIcon from "../../assets/cartIcon.png";
 import { Noti } from "../../components/Notification";
+import { clearState } from "../../services/Requests";
 
 console.log(foodlogo);
 
@@ -68,7 +69,7 @@ export const NavigationBar = () => (
               <Nav.Link onClick={Noti}>Notificacion</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link>Cerrar Sesion</Nav.Link>
+              <Nav.Link onClick={clearState}>Cerrar Sesion</Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <div className="carrito">

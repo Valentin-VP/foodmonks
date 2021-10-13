@@ -25,7 +25,7 @@ public class Cliente extends Usuario {
     @OneToMany(mappedBy="cliente",cascade=CascadeType.ALL,orphanRemoval=true)
 	private List<Pedido> pedidos = new ArrayList<>();
 
-    private String rol = "ROLE_CLIENTE";
+    private String roles = "ROLE_CLIENTE";
 
     public Cliente() {
     }
@@ -103,11 +103,15 @@ public class Cliente extends Usuario {
 				pedido.setCliente(null);
 	}
 
+    public String getRoles() {
+        return this.roles;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String[] roles = new String[0];
-        roles[0] = this.rol;
-        Set<SimpleGrantedAuthority> rol = Arrays.stream(roles)
+        String[] roleses = new String[1];
+        roleses[0] = this.roles;
+        Set<SimpleGrantedAuthority> rol = Arrays.stream(roleses)
                 .map(role -> new SimpleGrantedAuthority(role))
                 .collect(Collectors.toSet());
         return rol;
@@ -117,7 +121,7 @@ public class Cliente extends Usuario {
 
     @Override
     public String getPassword() {
-        return null;
+        return getContrasenia();
     }
 
     @Override
@@ -127,21 +131,21 @@ public class Cliente extends Usuario {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

@@ -29,9 +29,9 @@ public class RestauranteController {
     }
 
     @GetMapping("/buscar")
-    public void buscarRestaurante(@RequestParam Long id) {
-        System.out.println(id);
-        restauranteService.buscarRestaurante(id);
+    public void buscarRestaurante(@RequestParam String correo) {
+        System.out.println(correo);
+        restauranteService.buscarRestaurante(correo);
     }
 
     @DeleteMapping//ELIMINAR RESTAURANTE

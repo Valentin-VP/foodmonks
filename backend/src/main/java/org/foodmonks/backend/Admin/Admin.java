@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @DiscriminatorValue("admin")
 public class Admin extends Usuario {
 
-    private String rol = "ROLE_ADMIN";
+    private String roles = "ROLE_ADMIN";
 
     public Admin() {
     }
@@ -25,10 +25,14 @@ public class Admin extends Usuario {
         super(nombre, apellido, correo, contrasenia, fechaRegistro);
     }
 
+    public String getRoles() {
+        return this.roles;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String[] roles = new String[0];
-        roles[0] = this.rol;
+        roles[0] = this.roles;
         Set<SimpleGrantedAuthority> rol = Arrays.stream(roles)
                 .map(role -> new SimpleGrantedAuthority(role))
                 .collect(Collectors.toSet());

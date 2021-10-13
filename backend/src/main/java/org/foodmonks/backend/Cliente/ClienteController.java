@@ -29,9 +29,9 @@ public class ClienteController {
     }
 
     @GetMapping("/buscar")
-    public void buscarCliente(@RequestParam Long id) {
-        System.out.println(id);
-        clienteService.buscarCliente(id);
+    public void buscarCliente(@RequestParam String correo) {
+        System.out.println(correo);
+        clienteService.buscarCliente(correo);
     }
 
     @DeleteMapping//ELIMINAR CLIENTE

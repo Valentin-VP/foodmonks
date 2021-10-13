@@ -25,13 +25,14 @@ public class RestauranteService {
         return restauranteRepository.findAll();
     }
 
-    public void buscarRestaurante(Long id) {
-        Optional<Restaurante> aux = restauranteRepository.findById(id);
-        if (aux.isEmpty()) {
+    public Restaurante buscarRestaurante(String correo) {
+        Restaurante aux = restauranteRepository.findByCorreo(correo);
+        if (aux == null) {
             System.out.println("el auxiliar esta vacio");
+            return null;
         }else {
-            System.out.println(aux.get().getNombre());
-            restauranteRepository.delete(aux.get());
+            System.out.println(aux.getNombre());
+            return aux;
         }
     }
 

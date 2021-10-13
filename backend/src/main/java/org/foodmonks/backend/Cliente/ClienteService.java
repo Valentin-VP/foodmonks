@@ -24,14 +24,14 @@ public class ClienteService {
         return clienteRepository.findAll();
     }
 
-    public Cliente buscarCliente(Long id) {
-        Optional<Cliente> aux = clienteRepository.findById(id);
-        if (aux.isEmpty()) {
+    public Cliente buscarCliente(String correo) {
+        Cliente aux = clienteRepository.findByCorreo(correo);
+        if (aux == null) {
             System.out.println("No existe ese cliente");
             return null;
         }else{
-            System.out.println(aux.get().getNombre());
-            return aux.get();
+            System.out.println(aux.getNombre());
+            return aux;
         }
     }
 

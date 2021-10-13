@@ -1,5 +1,13 @@
 import axios from "axios";
 
+//esta funcion es para cerrar sesion
+export const clearState = () => {
+  localStorage.removeItem("token");
+  window.location.replace("/");
+};
+
+//----------------------------------------------------------------------------------
+
 export const getToken = () => {
   return localStorage.getItem("token");
 };

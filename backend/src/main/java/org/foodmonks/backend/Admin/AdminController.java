@@ -29,9 +29,9 @@ public class AdminController {
     }
 
     @GetMapping("/buscar")
-    public void buscarAdmin(@RequestParam Long id) {
-        System.out.println(id);
-        adminService.buscarAdmin(id);
+    public void buscarAdmin(@RequestParam String correo) {
+        System.out.println(correo);
+        adminService.buscarAdmin(correo);
     }
 
     @DeleteMapping

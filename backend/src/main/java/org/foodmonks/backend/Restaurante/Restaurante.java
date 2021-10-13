@@ -37,7 +37,7 @@ public class Restaurante extends Usuario {
     @OneToMany
     private List<Menu> menus = new ArrayList<>();
 
-    private String rol = "ROLE_RESTAURANTE";
+    private String roles = "ROLE_RESTAURANTE";
 
 
     public Restaurante() {
@@ -161,11 +161,15 @@ public class Restaurante extends Usuario {
 		this.menus = menus;
 	}
 
+    public String getRoles() {
+        return this.roles;
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String[] roles = new String[0];
-        roles[0] = this.rol;
+        roles[0] = this.roles;
         Set<SimpleGrantedAuthority> rol = Arrays.stream(roles)
                 .map(role -> new SimpleGrantedAuthority(role))
                 .collect(Collectors.toSet());

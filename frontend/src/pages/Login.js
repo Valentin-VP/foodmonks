@@ -47,7 +47,7 @@ const Styles = styled.div`
 function Login() {
   const [values, setValues] = useState({
     email: "",
-    password: "",
+    password: ""
   });
 
   const handleChange = (e) => {
@@ -92,6 +92,7 @@ function Login() {
               <div className="form-floating">
                 <input
                   type="email"
+                  name="email"
                   className="form-control"
                   id="email"
                   placeholder="name@example.com"
@@ -103,6 +104,7 @@ function Login() {
               <div className="form-floating">
                 <input
                   type="password"
+                  name="password"
                   className="form-control"
                   id="password"
                   placeholder="Password"

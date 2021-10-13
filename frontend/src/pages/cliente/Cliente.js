@@ -13,6 +13,7 @@ import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
 import { CartProvider } from "react-use-cart";
 import styled from "styled-components";
+import { getToken } from "../../services/Requests"
 
 const Styles = styled.div`
   #page-container {

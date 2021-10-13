@@ -1,9 +1,13 @@
 package org.foodmonks.backend.authentication;
 
 import org.foodmonks.backend.Admin.Admin;
+import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Cliente.Cliente;
+import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,20 +35,29 @@ public class AuthenticationController {
     @Autowired
     private UserDetailsService customService;
 
+    @Autowired
+    private AdminService adminService;
+
+    @Autowired
+    private ClienteService clienteService;
+
+    @Autowired
+    private RestauranteService restauranteService;
+
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
-        System.out.println(authenticationRequest.getCorreo());
         final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                authenticationRequest.getCorreo(), authenticationRequest.getPassword()));
+                authenticationRequest.getEmail(), authenticationRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        //Usuario usuario=(Usuario)authentication.getPrincipal();// ***
-        UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getCorreo());//alternativa: try-catch con ***
+        UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getEmail());
 
         String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
+        System.out.println("el token es: " + jwtToken);
+
         //falta generar el refreshToken y agregarselo a la response
         AuthenticationResponse response=new AuthenticationResponse();
         response.setToken(jwtToken);
@@ -55,39 +68,32 @@ public class AuthenticationController {
     //endpoint para renovar los tokens, debe recibir el correo del usuario(esta en el refreshToken)
 
     @GetMapping("/auth/userinfo")
-    public ResponseEntity<?> getUserInfo(Principal user){//proximamente: ver una forma de ahorrar codigo
+    public ResponseEntity<?> getUserInfo(Authentication user) {
         InfoUsuario userInfo = new InfoUsuario();
 
-        try {
-            Admin admin = (Admin) user;
+        if (adminService.buscarAdmin(user.getName()) != null) {
+            Admin admin = adminService.buscarAdmin(user.getName());
             userInfo.setFirstName(admin.getNombre());
             userInfo.setLastName(admin.getApellido());
             userInfo.setRoles(admin.getAuthorities().toArray());
-        } catch(ClassCastException a) {
-            try {
-                Restaurante restaurante = (Restaurante) user;
-                userInfo.setFirstName(restaurante.getNombre());
-                userInfo.setLastName(restaurante.getApellido());
-                userInfo.setRoles(restaurante.getAuthorities().toArray());
-            } catch(ClassCastException r) {
-                Cliente cliente = (Cliente) user;
-                userInfo.setFirstName(cliente.getNombre());
-                userInfo.setLastName(cliente.getApellido());
-                userInfo.setRoles(cliente.getAuthorities().toArray());
-            }
+            return new ResponseEntity<>(userInfo, HttpStatus.OK);
+
+        } else if (restauranteService.buscarRestaurante(user.getName()) != null) {
+            Restaurante restaurante = restauranteService.buscarRestaurante(user.getName());
+            userInfo.setFirstName(restaurante.getNombre());
+            userInfo.setLastName(restaurante.getApellido());
+            userInfo.setRoles(restaurante.getAuthorities().toArray());
+            return new ResponseEntity<>(userInfo, HttpStatus.OK);
+
+        } else if (clienteService.buscarCliente(user.getName()) != null) {
+            Cliente cliente = clienteService.buscarCliente(user.getName());
+            System.out.println(cliente.getUsername());
+            userInfo.setFirstName(cliente.getNombre());
+            userInfo.setLastName(cliente.getApellido());
+            userInfo.setRoles(cliente.getAuthorities().toArray());
+            return new ResponseEntity<>(userInfo, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("no se encontro ningun tipo de usuario", HttpStatus.BAD_REQUEST);
         }
-
-        return ResponseEntity.ok(userInfo);
-
     }
-
-//    public InfoUsuario getInfoUsuario(Usuario user) {
-//        InfoUsuario userInfo=new InfoUsuario();
-//
-//        userInfo.setFirstName(user.getNombre());
-//        userInfo.setLastName(user.getApellido());
-//        userInfo.setRoles(user.getAuthorities().toArray());
-//
-//        return userInfo;
-//    }
 }

@@ -25,14 +25,14 @@ public class AdminService {
         return adminRepository.findAll();
     }
 
-    public Admin buscarAdmin(Long id) {
-        Optional<Admin> aux = adminRepository.findById(id);
-        if (aux.isEmpty()) {
+    public Admin buscarAdmin(String correo) {
+        Admin aux = adminRepository.findByCorreo(correo);
+        if (aux == null) {
             System.out.println("No existe ese administrador");
             return null;
         }else{
-            System.out.println(aux.get().getNombre());
-            return aux.get();
+            System.out.println(aux.getNombre());
+            return aux;
         }
     }
 
