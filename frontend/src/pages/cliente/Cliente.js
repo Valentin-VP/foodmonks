@@ -1,9 +1,14 @@
 import { React, Fragment } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  useLocation,
+} from "react-router-dom";
 import { Home } from "./Home";
 import { Cart } from "./Cart";
 import { Grafico } from "../Grafico";
-import { NoMatch } from "../NoMatch";
+
 import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
 import { CartProvider } from "react-use-cart";
@@ -28,10 +33,10 @@ function Cliente() {
               <CartProvider>
                 {/* el home tiene su propio layout*/}
                 <Route exact path="/" component={Home} />
-                <Route exact path="/cart" component={Cart} />
+                <Route path="/cart" component={Cart} />
               </CartProvider>
-              <Route exact path="/grafica" component={Grafico} />
-              <Route path="*" component={NoMatch} />
+              <Route path="/grafica" component={Grafico} />
+              {/* <Route path="no-match" component={NoMatch} /> */}
             </Fragment>
           </Switch>
         </Router>
@@ -42,3 +47,15 @@ function Cliente() {
 }
 
 export default Cliente;
+
+function NoMatch() {
+  let location = useLocation();
+
+  return (
+    <div>
+      <h3 className="text-center">
+        No se encontro nada para <code>{location.pathname}</code>
+      </h3>
+    </div>
+  );
+}
