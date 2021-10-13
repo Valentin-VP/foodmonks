@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private UserDetailsService userService;
+    private UserDetailsService customService;
 
     @Autowired
     private TokenHelper tokenHelper;
@@ -33,7 +33,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(customService).passwordEncoder(passwordEncoder());
 
     }
 
@@ -56,7 +56,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login").permitAll()
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new AuthenticationFilter(userService, tokenHelper),
+                .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
                         UsernamePasswordAuthenticationFilter.class);
 
         http.csrf().disable();

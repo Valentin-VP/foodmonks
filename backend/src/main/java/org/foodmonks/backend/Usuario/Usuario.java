@@ -1,11 +1,13 @@
 package org.foodmonks.backend.Usuario;
 
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
 @DiscriminatorColumn(name="rol")
-public abstract class Usuario {
+public abstract class Usuario implements UserDetails {
 
 	@Id
 	private String correo;

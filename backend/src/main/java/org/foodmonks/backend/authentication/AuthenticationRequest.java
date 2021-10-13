@@ -2,10 +2,10 @@ package org.foodmonks.backend.authentication;
 
 public class AuthenticationRequest {
 
-    private String userName;
+    private String correo;
     private String password;
-    public String getUserName() {
-        return userName;
+    public String getCorreo() {
+        return correo;
     }
 
     public String getPassword() {
