@@ -24,24 +24,12 @@ public class ClienteService {
         return clienteRepository.findAll();
     }
 
-    public Cliente buscarCliente(Long id) {
-        Optional<Cliente> aux = clienteRepository.findById(id);
-        if (aux.isEmpty()) {
-            System.out.println("No existe ese cliente");
+    public Cliente buscarCliente(String correo) {
+        Cliente aux = clienteRepository.findByCorreo(correo);
+        if (aux == null) {
             return null;
         }else{
-            System.out.println(aux.get().getNombre());
-            return aux.get();
-        }
-    }
-
-    public void eliminarCliente(Long id) {
-        Optional<Cliente> aux = clienteRepository.findById(id);
-        if (aux.isEmpty())
-            System.out.println("No existe ese cliente");
-        else {
-            System.out.println(aux.get().getNombre());
-            clienteRepository.delete(aux.get());
+            return aux;
         }
     }
 

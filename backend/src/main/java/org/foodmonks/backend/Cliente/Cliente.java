@@ -5,11 +5,13 @@ import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.datatypes.EstadoCliente;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @DiscriminatorValue("cliente")
@@ -22,6 +24,8 @@ public class Cliente extends Usuario {
     private String mobileToken;
     @OneToMany(mappedBy="cliente",cascade=CascadeType.ALL,orphanRemoval=true)
 	private List<Pedido> pedidos = new ArrayList<>();
+
+    private String roles = "ROLE_CLIENTE";
 
     public Cliente() {
     }
@@ -98,4 +102,50 @@ public class Cliente extends Usuario {
 				pedidos.remove(pedido);
 				pedido.setCliente(null);
 	}
+
+    public String getRoles() {
+        return this.roles;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String[] autoridades = new String[1];
+        autoridades[0] = this.roles;
+        Set<SimpleGrantedAuthority> rol = Arrays.stream(autoridades)
+                .map(autoridad -> new SimpleGrantedAuthority(autoridad))
+                .collect(Collectors.toSet());
+        return rol;
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public String getPassword() {
+        return getContrasenia();
+    }
+
+    @Override
+    public String getUsername() {
+        return getCorreo();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

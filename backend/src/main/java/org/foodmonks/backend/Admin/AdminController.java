@@ -18,7 +18,6 @@ public class AdminController {
 
     @PostMapping
     public void createAdmin(@RequestBody Admin admin) {
-        System.out.println("Entro al post");
         adminService.crearAdmin(admin);
     }
 
@@ -29,26 +28,18 @@ public class AdminController {
     }
 
     @GetMapping("/buscar")
-    public void buscarAdmin(@RequestParam Long id) {
-        System.out.println(id);
-        adminService.buscarAdmin(id);
+    public void buscarAdmin(@RequestParam String correo) {
+        adminService.buscarAdmin(correo);
     }
 
     @DeleteMapping
     public void elimiarAdmin(@RequestParam Long id) {
-        System.out.println(id);
-        adminService.eliminarAdmin(id);
+        //adminService.eliminarAdmin(id);
     }
 
     @PutMapping
     public void modificarAdmin(@RequestBody Admin admin) {
-        if (admin == null) {
-            System.out.println("no existe el cliente");
-        }else {
-            System.out.println(admin.getNombre());
-            adminService.modificarAdmin(admin);
-        }
-
+        adminService.modificarAdmin(admin);
     }
 
 }
