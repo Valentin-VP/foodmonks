@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -55,16 +56,18 @@ public class TokenHelper {
         return username;
     }
 
-    public String generateToken(String username, Collection<? extends GrantedAuthority> authority) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public String generateToken(String correo, Collection<? extends GrantedAuthority> authority) throws InvalidKeySpecException, NoSuchAlgorithmException {
         return Jwts.builder()
                 .setIssuer( appName )
-                .setSubject(username)
+                .setSubject(correo)
                 .claim("authorities", authority)
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate())
                 .signWith( SIGNATURE_ALGORITHM, secretKey )
                 .compact();
     }
+
+    //funcion para generar el refreshToken
 
     private Date generateExpirationDate() {
         return new Date(new Date().getTime() + expiresIn * 1000);
@@ -78,6 +81,8 @@ public class TokenHelper {
                         !isTokenExpired(token)
         );
     }
+
+    //funcion para validar el refreshToken
 
     public boolean isTokenExpired(String token) {
         Date expireDate=getExpirationDate(token);
@@ -118,6 +123,8 @@ public class TokenHelper {
 
         return null;
     }
+
+    //funcion para obtener el refreshToken
 
     public String getAuthHeaderFromHeader( HttpServletRequest request ) {
         return request.getHeader("Authorization");
