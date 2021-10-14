@@ -17,15 +17,19 @@ import org.thymeleaf.context.Context;
 @Service 
 public class EmailService {
 	private Log logger = LogFactory.getLog(getClass());
-	@Autowired
-    private JavaMailSender emailSender;
-	@Autowired
-	private TemplateEngine templateEngine;
+	private final JavaMailSender emailSender;
+	private final TemplateEngine templateEngine;
 	
 	//@Value("${mail.username}")
     private String mailReclamos = System.getenv("mail.username");
-	
-	
+
+	@Autowired
+	public EmailService(JavaMailSender emailSender, TemplateEngine templateEngine) {
+		this.emailSender = emailSender;
+		this.templateEngine = templateEngine;
+	}
+
+
 	public Boolean enviarMail (String destinatario, String asunto, String contenido) {
 		
 		Context context = new Context();
