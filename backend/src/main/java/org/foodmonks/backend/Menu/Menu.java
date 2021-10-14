@@ -25,10 +25,7 @@ public class Menu {
 	private Restaurante restaurante;
 	
 	public Menu() {
-		// TODO Auto-generated constructor stub
 	}
-
-	
 
 	public Menu(String nombre, Float precio, String descripcion, Boolean visible, Float multiplicadorPromocion,
 			String imagen, CategoriaMenu categoria) {
