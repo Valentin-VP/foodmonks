@@ -16,10 +16,11 @@ public class MenuService {
 
     private final MenuRepository menuRepository;
     private final RestauranteRepository restauranteRepository;
+    private final ConvertidorMenu convertidorMenu;
 
     @Autowired
-    public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository)
-    { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; }
+    public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, ConvertidorMenu convertidorMenu)
+    { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.convertidorMenu = convertidorMenu; }
 
     public boolean altaMenu(String nombre, Float precio, String descripcion, Boolean visible,
                             Float multiplicadorPromocion, String imagen, CategoriaMenu categoria,
@@ -72,4 +73,10 @@ public class MenuService {
         }
     }
 
+    public List<DtMenu> listarMenu(String correoRestaurante){
+
+        return convertidorMenu.connvertirMenu(menuRepository.findByRestaurante(
+                restauranteRepository.findByCorreo(correoRestaurante)));
+
+    }
 }
