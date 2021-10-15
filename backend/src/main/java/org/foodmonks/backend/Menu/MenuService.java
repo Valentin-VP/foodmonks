@@ -13,12 +13,15 @@ import java.util.Optional;
 public class MenuService {
 
     private final MenuRepository menuRepository;
+    private final RestauranteRepository restauranteRepository;
 
     @Autowired
-    public MenuService(MenuRepository menuRepository) { this.menuRepository = menuRepository; }
+    public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository)
+    { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; }
 
-    public boolean altaMenu(Menu menu, Restaurante restaurante) {
+    public boolean altaMenu(Menu menu, String correoRestaurante) {
         try{
+            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             if (!menuRepository.existsByNombreAndRestaurante(menu.getNombre(),restaurante)){
                 menu.setRestaurante(restaurante);
                 menuRepository.save(menu);
@@ -31,8 +34,9 @@ public class MenuService {
     }
 
 
-    public boolean eliminarMenu(Long idMenu, Restaurante restaurante) {
+    public boolean eliminarMenu(Long idMenu, String correoRestaurante) {
         try {
+            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             Menu menu = menuRepository.findByIdAndRestaurante(idMenu, restaurante);
             menuRepository.delete(menu);
             return  true;
@@ -41,8 +45,9 @@ public class MenuService {
         }
     }
 
-    public boolean modificarMenu(Menu menu, Restaurante restaurante){
+    public boolean modificarMenu(Menu menu, String correoRestaurante){
         try {
+            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             Menu menuAux = menuRepository.findByIdAndRestaurante(menu.getId(),restaurante);
             if ( menuAux != null && !menuRepository.existsByNombreAndRestaurante(menu.getNombre(),restaurante)) {
                 menuAux.setNombre(menu.getNombre());
