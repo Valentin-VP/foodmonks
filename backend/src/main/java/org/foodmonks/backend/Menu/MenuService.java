@@ -6,6 +6,8 @@ import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +21,13 @@ public class MenuService {
     public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository)
     { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; }
 
-    public boolean altaMenu(Menu menu, String correoRestaurante) {
+    public boolean altaMenu(String nombre, Float precio, String descripcion, Boolean visible,
+                            Float multiplicadorPromocion, String imagen, CategoriaMenu categoria,
+                            String correoRestaurante) {
+
         try{
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+            Menu menu = new Menu(nombre, precio, descripcion, visible, multiplicadorPromocion, imagen, categoria);
             if (!menuRepository.existsByNombreAndRestaurante(menu.getNombre(),restaurante)){
                 menu.setRestaurante(restaurante);
                 menuRepository.save(menu);
