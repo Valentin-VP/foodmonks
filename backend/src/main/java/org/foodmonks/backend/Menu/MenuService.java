@@ -39,7 +39,6 @@ public class MenuService {
         }
     }
 
-
     public boolean eliminarMenu(Long idMenu, String correoRestaurante) {
         try {
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
@@ -51,18 +50,19 @@ public class MenuService {
         }
     }
 
-    public boolean modificarMenu(Menu menu, String correoRestaurante){
+    public boolean modificarMenu(Long id, String nombre, Float precio, String descripcion, Boolean visible,
+                                 Float multiplicadorPromocion, String imagen, CategoriaMenu categoria, String correoRestaurante){
         try {
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
-            Menu menuAux = menuRepository.findByIdAndRestaurante(menu.getId(),restaurante);
-            if ( menuAux != null && !menuRepository.existsByNombreAndRestaurante(menu.getNombre(),restaurante)) {
-                menuAux.setNombre(menu.getNombre());
-                menuAux.setPrecio(menu.getPrecio());
-                menuAux.setDescripcion(menu.getDescripcion());
-                menuAux.setVisible(menu.getVisible());
-                menuAux.setMultiplicadorPromocion(menu.getMultiplicadorPromocion());
-                menuAux.setImagen(menu.getImagen());
-                menuAux.setCategoria(menu.getCategoria());
+            Menu menuAux = menuRepository.findByIdAndRestaurante(id,restaurante);
+            if ( menuAux != null && !menuRepository.existsByNombreAndRestaurante(nombre,restaurante)) {
+                menuAux.setNombre(nombre);
+                menuAux.setPrecio(precio);
+                menuAux.setDescripcion(descripcion);
+                menuAux.setVisible(visible);
+                menuAux.setMultiplicadorPromocion(multiplicadorPromocion);
+                menuAux.setImagen(imagen);
+                menuAux.setCategoria(categoria);
                 menuRepository.save(menuAux);
                 return true;
             }
