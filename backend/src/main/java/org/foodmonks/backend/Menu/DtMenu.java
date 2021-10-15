@@ -8,7 +8,7 @@ import javax.persistence.Enumerated;
 public class DtMenu {
     private Long id;
     private String nombre;
-    private Float precio;
+    private Float price;
     private String descripcion;
     private Boolean visible;
     private Float multiplicadorPromocion;
@@ -22,17 +22,17 @@ public class DtMenu {
     public DtMenu(Menu menu){
         this.id = menu.getId();
         this.nombre = menu.getNombre();
-        this.precio = menu.getPrecio();
+        this.price = menu.getPrice();
         this.descripcion = menu.getDescripcion();
         this.visible = menu.getVisible();
         this.multiplicadorPromocion = menu.getMultiplicadorPromocion();
         this.imagen = menu.getImagen();
         this.categoria = menu.getCategoria();
     }
-    public DtMenu(Long id, String nombre, Float precio, String descripcion, Boolean visible, Float multiplicadorPromocion, String imagen, CategoriaMenu categoria) {
+    public DtMenu(Long id, String nombre, Float price, String descripcion, Boolean visible, Float multiplicadorPromocion, String imagen, CategoriaMenu categoria) {
         this.id = id;
         this.nombre = nombre;
-        this.precio = precio;
+        this.price = price;
         this.descripcion = descripcion;
         this.visible = visible;
         this.multiplicadorPromocion = multiplicadorPromocion;
@@ -56,12 +56,12 @@ public class DtMenu {
         this.nombre = nombre;
     }
 
-    public Float getPrecio() {
-        return precio;
+    public Float getPrice() {
+        return price;
     }
 
-    public void setPrecio(Float precio) {
-        this.precio = precio;
+    public void setPrice(Float price) {
+        this.price = price;
     }
 
     public String getDescripcion() {

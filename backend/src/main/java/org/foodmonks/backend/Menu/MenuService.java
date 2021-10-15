@@ -22,13 +22,13 @@ public class MenuService {
     public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, ConvertidorMenu convertidorMenu)
     { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.convertidorMenu = convertidorMenu; }
 
-    public boolean altaMenu(String nombre, Float precio, String descripcion, Boolean visible,
+    public boolean altaMenu(String nombre, Float price, String descripcion, Boolean visible,
                             Float multiplicadorPromocion, String imagen, CategoriaMenu categoria,
                             String correoRestaurante) {
 
         try{
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
-            Menu menu = new Menu(nombre, precio, descripcion, visible, multiplicadorPromocion, imagen, categoria);
+            Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria);
             if (!menuRepository.existsByNombreAndRestaurante(menu.getNombre(),restaurante)){
                 menu.setRestaurante(restaurante);
                 menuRepository.save(menu);
@@ -51,14 +51,14 @@ public class MenuService {
         }
     }
 
-    public boolean modificarMenu(Long id, String nombre, Float precio, String descripcion, Boolean visible,
+    public boolean modificarMenu(Long id, String nombre, Float price, String descripcion, Boolean visible,
                                  Float multiplicadorPromocion, String imagen, CategoriaMenu categoria, String correoRestaurante){
         try {
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             Menu menuAux = menuRepository.findByIdAndRestaurante(id,restaurante);
             if ( menuAux != null && !menuRepository.existsByNombreAndRestaurante(nombre,restaurante)) {
                 menuAux.setNombre(nombre);
-                menuAux.setPrecio(precio);
+                menuAux.setPrice(price);
                 menuAux.setDescripcion(descripcion);
                 menuAux.setVisible(visible);
                 menuAux.setMultiplicadorPromocion(multiplicadorPromocion);

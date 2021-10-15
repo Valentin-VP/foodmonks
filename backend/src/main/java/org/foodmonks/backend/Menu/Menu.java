@@ -14,7 +14,7 @@ public class Menu {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; 
 	private String nombre;
-	private Float precio;
+	private Float price;
 	private String descripcion;
 	private Boolean visible;
 	private Float multiplicadorPromocion;
@@ -27,11 +27,11 @@ public class Menu {
 	public Menu() {
 	}
 
-	public Menu(String nombre, Float precio, String descripcion, Boolean visible, Float multiplicadorPromocion,
+	public Menu(String nombre, Float price, String descripcion, Boolean visible, Float multiplicadorPromocion,
 			String imagen, CategoriaMenu categoria) {
 		super();
 		this.nombre = nombre;
-		this.precio = precio;
+		this.price = price;
 		this.descripcion = descripcion;
 		this.visible = visible;
 		this.multiplicadorPromocion = multiplicadorPromocion;
@@ -57,12 +57,10 @@ public class Menu {
 		this.nombre = nombre;
 	}
 
-	public Float getPrecio() {
-		return precio;
-	}
+	public Float getPrice() {return price; }
 
-	public void setPrecio(Float precio) {
-		this.precio = precio;
+	public void setPrice(Float price) {
+		this.price = price;
 	}
 
 	public String getDescripcion() {
