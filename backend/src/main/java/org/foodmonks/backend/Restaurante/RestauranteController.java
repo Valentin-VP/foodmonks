@@ -65,6 +65,58 @@ public class RestauranteController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PutMapping(path = "/modificarMenu")
+    public ResponseEntity<?> updateMenu(String infoMenu) {
+        Long id;
+        String nombreMenu = "";
+        Double auxDouble;
+        Float precioMenu;
+        String descripcionMenu = "";
+        Boolean visibilidadMenu = false;
+        Float multiplicadorMenu;
+        String imagenMenu = "";
+        CategoriaMenu categoriaMenu = null;
+        String correoRestaurante = "";
+        try {
+            JSONObject jsonMenu = new JSONObject(infoMenu);
+            id = jsonMenu.getLong("id");
+            nombreMenu = jsonMenu.getString("nombre");
+
+            auxDouble = jsonMenu.getDouble("price");
+            precioMenu = auxDouble.floatValue();
+
+            descripcionMenu = jsonMenu.getString("descripcion");
+            visibilidadMenu = jsonMenu.getBoolean("visibilidad");
+
+            auxDouble = jsonMenu.getDouble("multiplicador");
+            multiplicadorMenu = auxDouble.floatValue();
+
+            imagenMenu = jsonMenu.getString("imagen");
+            categoriaMenu = CategoriaMenu.valueOf(jsonMenu.getString("categoria"));
+            correoRestaurante = jsonMenu.getString("restaurante");
+
+            menuService.modificarMenu(id, nombreMenu, precioMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correoRestaurante);
+        } catch(JSONException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping(path = "/eliminarMenu")
+    public ResponseEntity<?> deleteMenu(String infoMenu) {
+        Long id;
+        String correoRestaurante = "";
+        try {
+            JSONObject jsonMenu = new JSONObject(infoMenu);
+            id = jsonMenu.getLong("id");
+            correoRestaurante = jsonMenu.getString("restaurante");
+            menuService.eliminarMenu(id, correoRestaurante);
+        } catch(JSONException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping//LISTAR RESTAURANTES
     //@GetMapping("/rutaEspecifica")
     public List<Restaurante> listarRestaurante(){
