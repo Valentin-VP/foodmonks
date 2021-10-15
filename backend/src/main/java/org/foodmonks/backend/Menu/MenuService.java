@@ -6,21 +6,18 @@ import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MenuService {
 
     private final MenuRepository menuRepository;
     private final RestauranteRepository restauranteRepository;
-    private final ConvertidorMenu convertidorMenu;
+    private final MenuConvertidor menuConvertidor;
 
     @Autowired
-    public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, ConvertidorMenu convertidorMenu)
-    { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.convertidorMenu = convertidorMenu; }
+    public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, MenuConvertidor menuConvertidor)
+    { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConvertidor = menuConvertidor; }
 
     public boolean altaMenu(String nombre, Float price, String descripcion, Boolean visible,
                             Float multiplicadorPromocion, String imagen, CategoriaMenu categoria,
@@ -75,7 +72,7 @@ public class MenuService {
 
     public List<DtMenu> listarMenu(String correoRestaurante){
 
-        return convertidorMenu.connvertirMenu(menuRepository.findByRestaurante(
+        return menuConvertidor.connvertirMenu(menuRepository.findByRestaurante(
                 restauranteRepository.findByCorreo(correoRestaurante)));
 
     }

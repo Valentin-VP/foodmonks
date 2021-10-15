@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ConvertidorMenu {
+public class MenuConvertidor {
 
     public List<DtMenu> connvertirMenu(List<Menu> menus){
         List<DtMenu> dtMenus = new ArrayList<>();
