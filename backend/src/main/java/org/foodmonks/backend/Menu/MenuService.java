@@ -42,7 +42,7 @@ public class MenuService {
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             Menu menu = menuRepository.findByIdAndRestaurante(idMenu, restaurante);
             menuRepository.delete(menu);
-            return  true;
+            return true;
         } catch (Exception e){
             return false;
         }
