@@ -9,12 +9,12 @@ public class MenuID implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Long id;
-    private Long restaurante;
+    private String restaurante;
 
     public MenuID() {
     }
 
-    public MenuID(Long id, Long restaurante) {
+    public MenuID(Long id, String restaurante) {
         this.id = id;
         this.restaurante = restaurante;
     }
@@ -27,11 +27,11 @@ public class MenuID implements Serializable {
         this.id = id;
     }
 
-    public Long getRestaurante() {
+    public String getRestaurante() {
         return restaurante;
     }
 
-    public void setRestaurante(Long restaurante) {
+    public void setRestaurante(String restaurante) {
         this.restaurante = restaurante;
     }
 }

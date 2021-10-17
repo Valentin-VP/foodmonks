@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled from "styled-components";
 import { Home } from "./Home";
 import { Menu } from "./Menu";
+import { ModificarMenu } from "./ModificarMenu";
 import { Footer } from "../../components/Footer";
 import { NavigationBar } from "./NavBar";
 
@@ -24,6 +25,7 @@ function Restaurante() {
             {/* el home tiene su propio layout*/}
             <Route exact path="/" component={Home} />
             <Route exact path="/menu" component={Menu} />
+            <Route exact path="/modificarMenu" component={ModificarMenu} />
             {/* <Route path="no-match" component={NoMatch} /> */}
           </Switch>
         </Router>

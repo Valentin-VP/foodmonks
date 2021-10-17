@@ -17,29 +17,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class RestauranteConfig {
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    MenuRepository menuRepository;
-
     @Bean
-    CommandLineRunner commandLineRunnerRestaurante(RestauranteRepository repository) {
+    CommandLineRunner commandLineRunnerRestaurante(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder) {
         return args ->{
             Direccion dir = new Direccion(111, "calle1", "calle2", null, "2", "2");
             Float calificacion = 5.0f;
             LocalDate ahora = LocalDate.now();
             Restaurante  restaurante =  new Restaurante("nombreDelRestaurante",
                     "apellidoDelRestaurante", "restaurante@gmail.com",
-                    passwordEncoder.encode("admin123"), ahora, calificacion, "NombreRestaurante", 123456, dir, EstadoRestaurante.ABIERTO, 23487123, "DescripcionRestaurante", "CuentaDePaypal", null);
+                    passwordEncoder.encode("restaurante123"), ahora, calificacion, "NombreRestaurante", 123456, dir, EstadoRestaurante.ABIERTO, 23487123, "DescripcionRestaurante", "CuentaDePaypal", null);
+            restauranteRepository.saveAll(List.of(restaurante));
             //ejemplo para dar de alta un restaurante
-
-            Menu menu = new Menu("papas fritas",123.34F,"",true,0F,"", CategoriaMenu.OTROS);
-            menu.setRestaurante(restaurante);
-            // ejemplo dar de alta menu
-
-            menuRepository.save(menu);
-            repository.saveAll(List.of(restaurante));
         };
     }
 

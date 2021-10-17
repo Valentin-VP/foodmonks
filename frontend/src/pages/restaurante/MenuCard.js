@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Button, ButtonGroup } from "react-bootstrap";
+import { eliminarMenu } from "../../services/Requests";
 
 const Styles = styled.div`
   .card {
@@ -43,9 +44,10 @@ const MenuCard = (props) => {
           <p className="card-text">{props.desc}</p>
           <div className="grupoBotones">
             <ButtonGroup aria-label="Basic example">
-              <Button id="eliminar" className="btn-primary margin-auto">
+              <Button id="eliminar" className="btn-primary margin-auto" onClick={eliminarMenu(props.id)}>
                 Eliminar
               </Button>
+              {/*tengo redireccionar a modificarMenu */}
               <Button id="modificar" className="btn-primary margin-auto">
                 Modificar
               </Button>

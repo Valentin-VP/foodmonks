@@ -3,6 +3,7 @@ package org.foodmonks.backend.Menu;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
+import org.foodmonks.backend.persistencia.MenuID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +25,15 @@ public class MenuService {
                             String correoRestaurante) {
 
         try{
-            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+            Restaurante restaurante = restauranteRepository.findById(correoRestaurante).orElseGet(null);
+            System.out.println("########### " + restauranteRepository.findById(correoRestaurante).orElseGet(null).getNombreRestaurante());
             Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria);
-            if (!menuRepository.existsByNombreAndRestaurante(menu.getNombre(),restaurante)){
+            //if (!menuRepository.existsById(new MenuID(menu.getId(), restaurante.getCorreo()))){
                 menu.setRestaurante(restaurante);
                 menuRepository.save(menu);
                 return true;
-            }
-            return false;
+            //}
+            //return false;
         } catch (Exception e) {
             return false;
         }

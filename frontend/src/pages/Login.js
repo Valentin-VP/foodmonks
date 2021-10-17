@@ -2,6 +2,7 @@ import { React, Fragment, useState } from "react";
 import styled from "styled-components";
 import logo from "../assets/foodMonks-sinfondo.png";
 import { userLogin } from "../services/Requests";
+import { LoginFailure } from "./LoginFailure";
 
 const Styles = styled.div`
   .text-center {
@@ -50,6 +51,8 @@ function Login() {
     password: ""
   });
 
+  const [error, setError] = useState(null);
+
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
@@ -62,12 +65,24 @@ function Login() {
     e.preventDefault();
     userLogin(values).then((response) => {
       if (response.status === 200) {
-        //props.setUser(response.data);
+        setError(null);
         localStorage.setItem("token", response.data.token);
         window.location.replace("/");
       } else {
-        //props.loginFailure("Algo salio mal! Pruebe nuevamente");
-        window.location.replace("/asdasd");
+        setError("Algo salio mal! Prueba de nuevo");
+      }
+    }).catch((err) => {
+      if(err && err.response) {
+        switch(err.response.status) {
+          case 401:
+            console.log("401 status");
+            setError("Correo o contraseña incorrecto Prueba de nuevo!");
+            break;
+          default:
+            setError("Algo salio mal! Prueba de nuevo");
+        } 
+      } else {
+        setError("Algo salio mal! Prueba de nuevo");
       }
     });
   };
@@ -126,6 +141,7 @@ function Login() {
                 ¿No tienes cuenta?<a href="/register">Registrate</a>
               </p>
             </form>
+            {error && <LoginFailure error={error} />}
           </main>
         </div>
       </Fragment>

@@ -8,7 +8,6 @@ import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,14 +20,13 @@ public class RestauranteController {
 
     private final RestauranteService restauranteService;
     private final MenuService menuService;
+    private final TokenHelper tokenHelp;
 
     @Autowired
-    TokenHelper tokenHelp;
-
-    @Autowired
-    RestauranteController(RestauranteService restauranteService, MenuService menuService) {
+    RestauranteController(RestauranteService restauranteService, MenuService menuService, TokenHelper tokenHelper) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
+        this.tokenHelp = tokenHelper;
     }
 
     @PostMapping//CREAR RESTAURANTE
@@ -59,9 +57,11 @@ public class RestauranteController {
     }
 
     @PostMapping(path = "/agregarMenu")
-    public ResponseEntity<?> createMenu(String infoMenu) {
+    public ResponseEntity<?> createMenu(@RequestHeader("Authorization") String token, @RequestBody String infoMenu) {
+        String aux;
+        String newToken = "";
+
         String nombreMenu = "";
-        Double auxDouble;
         Float precioMenu;
         String descripcionMenu = "";
         Boolean visibilidadMenu = false;
@@ -70,21 +70,25 @@ public class RestauranteController {
         CategoriaMenu categoriaMenu = null;
         String correoRestaurante = "";
         try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            correoRestaurante = tokenHelp.getUsernameFromToken(newToken);
+
             JSONObject jsonMenu = new JSONObject(infoMenu);
             nombreMenu = jsonMenu.getString("nombre");
 
-            auxDouble = jsonMenu.getDouble("price");
-            precioMenu = auxDouble.floatValue();
+            aux = jsonMenu.getString("price");
+            precioMenu = Float.valueOf(aux);
 
             descripcionMenu = jsonMenu.getString("descripcion");
             visibilidadMenu = jsonMenu.getBoolean("visibilidad");
 
-            auxDouble = jsonMenu.getDouble("multiplicador");
-            multiplicadorMenu = auxDouble.floatValue();
+            aux = jsonMenu.getString("multiplicador");
+            multiplicadorMenu = Float.valueOf(aux);
 
             imagenMenu = jsonMenu.getString("imagen");
             categoriaMenu = CategoriaMenu.valueOf(jsonMenu.getString("categoria"));
-            correoRestaurante = jsonMenu.getString("restaurante");
 
             menuService.altaMenu(nombreMenu, precioMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correoRestaurante);
         } catch(JSONException e) {
@@ -118,11 +122,11 @@ public class RestauranteController {
         } catch (JSONException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<JSONArray>(menus, HttpStatus.OK);
+        return new ResponseEntity<>(menus, HttpStatus.OK);
     }
 
     @PutMapping(path = "/modificarMenu")
-    public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, String updatedMenu) {
+    public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @RequestBody String updatedMenu) {
         String newtoken = "";
         Long id;
         String nombreMenu = "";
@@ -158,15 +162,15 @@ public class RestauranteController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/eliminarMenu")
-    public ResponseEntity<?> deleteMenu(@RequestHeader("Authorization") String token, Long id) {
+    @DeleteMapping(path = "/eliminarMenu/{menuId}")
+    public ResponseEntity<?> deleteMenu(@RequestHeader("Authorization") String token, @RequestAttribute Long menuId) {
         String newtoken = "";
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(newtoken);
-            menuService.eliminarMenu(id, correo);
+            menuService.eliminarMenu(menuId, correo);
         } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Menu;
 
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.persistencia.MenuID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
