@@ -25,9 +25,9 @@ public class Direccion{
     private String longitud;
     @ManyToMany
     private List<Cliente> cliente = new ArrayList<>();
-    @OneToOne
+    @OneToOne(mappedBy="direccion")
     private Restaurante restaurante;
-    @OneToMany
+    @OneToMany(mappedBy="direccion")
     private List<Pedido> pedido = new ArrayList<>();
 
     public Direccion() {

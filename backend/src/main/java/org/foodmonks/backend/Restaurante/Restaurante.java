@@ -34,13 +34,14 @@ public class Restaurante extends Usuario {
     //Cambios en cascada y el orphanRemoval, nos garantiza que el ciclo de vida de un Reclamo depende del ciclo de vida del Restaurante con el que está asociado. cascade a nivel de base de datos, la entidad se eleiminará con orphanRemoval en true si ya no tiene referencias de la clase primaria
   	@OneToMany(cascade=CascadeType.ALL,orphanRemoval=true)
   	private List<Reclamo>reclamos = new ArrayList<>();
-    @OneToMany
+    @OneToMany(cascade=CascadeType.ALL,orphanRemoval=true)
     private List<Menu> menus = new ArrayList<>();
 
     private String roles = "ROLE_RESTAURANTE";
 
 
     public Restaurante() {
+        super();
     }
 
     public Restaurante(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, String nombreRestaurante, Integer rut, Direccion direccion, EstadoRestaurante estado, Integer telefono, String descripcion, String cuentaPaypal, String imagen) {

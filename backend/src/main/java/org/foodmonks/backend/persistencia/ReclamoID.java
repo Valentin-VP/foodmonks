@@ -16,6 +16,7 @@ public class ReclamoID implements Serializable {
     private Long pedido;
 
     public ReclamoID() {
+        super();
     }
 
     public ReclamoID(Long id, Long pedido) {

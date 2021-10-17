@@ -37,7 +37,6 @@ public class Menu {
 		this.multiplicadorPromocion = multiplicadorPromocion;
 		this.imagen = imagen;
 		this.categoria = categoria;
-		this.restaurante = restaurante;
 	}
 
 

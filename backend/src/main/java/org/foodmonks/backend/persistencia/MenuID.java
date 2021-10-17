@@ -12,6 +12,7 @@ public class MenuID implements Serializable {
     private String restaurante;
 
     public MenuID() {
+        super();
     }
 
     public MenuID(Long id, String restaurante) {

@@ -1,17 +1,7 @@
 package org.foodmonks.backend.Pedido;
 
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Menu.Menu;
@@ -22,6 +12,7 @@ import org.foodmonks.backend.datatypes.DtCalificacion;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
+import org.springframework.boot.context.properties.bind.Name;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,6 +20,7 @@ import java.util.List;
 
 @Entity
 public class Pedido  {
+
  	@Id
  	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,7 +43,7 @@ public class Pedido  {
 	private  Restaurante restaurante;
     @ManyToMany(cascade= {CascadeType.PERSIST,CascadeType.MERGE})
 	private List<Menu> menus = new ArrayList<>();
-    @OneToOne(mappedBy="pedido",cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+    @OneToOne(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
     
     public Pedido () {

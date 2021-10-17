@@ -22,12 +22,13 @@ public class Cliente extends Usuario {
     private List<Direccion> direcciones = new ArrayList<>();
     private EstadoCliente estado;
     private String mobileToken;
-    @OneToMany(mappedBy="cliente",cascade=CascadeType.ALL,orphanRemoval=true)
+    @OneToMany(mappedBy="cliente")
 	private List<Pedido> pedidos = new ArrayList<>();
 
     private String roles = "ROLE_CLIENTE";
 
     public Cliente() {
+        super();
     }
 
     //CONSTRUCTOR CON UN LIST DE DIRECCIONS

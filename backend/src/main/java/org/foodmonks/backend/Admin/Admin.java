@@ -19,6 +19,7 @@ public class Admin extends Usuario {
     private String roles = "ROLE_ADMIN";
 
     public Admin() {
+        super();
     }
 
     public Admin(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro) {

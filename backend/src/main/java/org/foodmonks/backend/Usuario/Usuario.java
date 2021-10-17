@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+//@MappedSuperclass
 @DiscriminatorColumn(name="rol")
 public abstract class Usuario implements UserDetails {
 
