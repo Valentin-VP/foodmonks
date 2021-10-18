@@ -1,13 +1,12 @@
 import { React } from "react";
 import { getMenuInfo } from "../../services/Requests";
 
-function ModificarMenu() {
-  const menu = ["Saab", "Volvo", "BMW"];
-  // getMenuInfo(menuId).then((response) => {
-  //   console.log(response);
-  //   setMenu(response);
-  // });
+// let menu = null;
+// getMenuInfo(menuId).then((response) => {
+//   menu = response.data;
+// });
 
+function ModificarMenu() {
   <div>
     <h2>Pagina en construccion</h2>
   </div>;

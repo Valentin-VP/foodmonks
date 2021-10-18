@@ -44,7 +44,8 @@ const MenuCard = (props) => {
           <p className="card-text">{props.descripcion}</p>
           <div className="grupoBotones">
             <ButtonGroup aria-label="Basic example">
-              <Button id="eliminar" className="btn-primary margin-auto">
+              {/*se elimina el menu, pero falta actualizar la pagina */}
+              <Button id="eliminar" className="btn-primary margin-auto" onClick={() => {eliminarMenu(props.id)}}>
                 Eliminar
               </Button>
               {/*tengo redireccionar a modificarMenu */}

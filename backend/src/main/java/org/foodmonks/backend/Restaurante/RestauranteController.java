@@ -129,10 +129,11 @@ public class RestauranteController {
 
     @PutMapping(path = "/modificarMenu")
     public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @RequestBody String updatedMenu) {
+        String aux;
         String newtoken = "";
+
         Long id;
         String nombreMenu = "";
-        Double auxDouble;
         Float priceMenu;
         String descripcionMenu = "";
         Boolean visibilidadMenu = false;
@@ -148,12 +149,12 @@ public class RestauranteController {
 
             id = jsonMenu.getLong("id");
             nombreMenu = jsonMenu.getString("nombre");
-            auxDouble = jsonMenu.getDouble("price");
-            priceMenu = auxDouble.floatValue();
+            aux = jsonMenu.getString("price");
+            priceMenu = Float.valueOf(aux);
             descripcionMenu = jsonMenu.getString("descripcion");
             visibilidadMenu = jsonMenu.getBoolean("visibilidad");
-            auxDouble = jsonMenu.getDouble("multiplicador");
-            multiplicadorMenu = auxDouble.floatValue();
+            aux = jsonMenu.getString("multiplicador");
+            multiplicadorMenu = Float.valueOf(aux);
             imagenMenu = jsonMenu.getString("imagen");
             categoriaMenu = CategoriaMenu.valueOf(jsonMenu.getString("categoria"));
 
@@ -165,7 +166,7 @@ public class RestauranteController {
     }
 
     @DeleteMapping(path = "/eliminarMenu/{menuId}")
-    public ResponseEntity<?> deleteMenu(@RequestHeader("Authorization") String token, @RequestAttribute Long menuId) {
+    public ResponseEntity<?> deleteMenu(@RequestHeader("Authorization") String token, @PathVariable Long menuId) {
         String newtoken = "";
         try {
             if ( token != null && token.startsWith("Bearer ")) {
@@ -177,6 +178,22 @@ public class RestauranteController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(path = "getInfoMenu/{menuId}")
+    public ResponseEntity<?> getMenuInfo(@RequestHeader("Authorization") String token, @PathVariable Long menuId) {
+        String newtoken = "";
+        DtMenu dtMenu = new DtMenu();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            dtMenu = menuService.infoMenu(menuId, correo);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(dtMenu, HttpStatus.OK);
     }
 
 }

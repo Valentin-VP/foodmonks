@@ -61,7 +61,7 @@ export const fetchMenus = () => {
   });
 };
 
-export const getMenuInfo = (menuId) => {//falta
+export const getMenuInfo = (menuId) => {
   return axios({
     method: "GET",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/getInfoMenu/${menuId}`,

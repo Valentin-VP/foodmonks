@@ -51,8 +51,6 @@ function Login() {
     password: ""
   });
 
-  const [error, setError] = useState(null);
-
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
@@ -61,31 +59,38 @@ function Login() {
     }));
   };
 
+  const [error, guardarError] = useState("");
+
   const handleSubmit = (e) => {
     e.preventDefault();
     userLogin(values).then((response) => {
       if (response.status === 200) {
-        setError(null);
         localStorage.setItem("token", response.data.token);
         window.location.replace("/");
       } else {
-        setError("Algo salio mal! Prueba de nuevo");
+        guardarError("Algo salio mal!!");
       }
     }).catch((err) => {
       if(err && err.response) {
         switch(err.response.status) {
           case 401:
-            console.log("401 status");
-            setError("Correo o contraseña incorrecto Prueba de nuevo!");
+            guardarError("Algo salio mal!! correo o contraseña incorrectos");
             break;
           default:
-            setError("Algo salio mal! Prueba de nuevo");
+            guardarError("Algo salio mal!!");
         } 
       } else {
-        setError("Algo salio mal! Prueba de nuevo");
+        guardarError("Algo salio mal!!");
       }
     });
   };
+
+  let componente;
+  if(error != "") {
+    componente = <LoginFailure error={error}/>
+  } else {
+    componente = null;
+  }
 
   return (
     <Styles>
@@ -137,11 +142,13 @@ function Login() {
               <button className="w-100 btn btn-lg btn-primary" type="submit">
                 Entrar
               </button>
+              <div>
+                {componente}
+              </div>
               <p className="mt-5 mb-3 text-muted">
                 ¿No tienes cuenta?<a href="/register">Registrate</a>
               </p>
             </form>
-            {error && <LoginFailure error={error} />}
           </main>
         </div>
       </Fragment>
