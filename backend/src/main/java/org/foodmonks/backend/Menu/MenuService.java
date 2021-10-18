@@ -82,8 +82,8 @@ public class MenuService {
 
     public List<DtMenu> listarMenu(String correoRestaurante){
 
-        return menuConvertidor.connvertirMenu(menuRepository.findByRestaurante(
-                restauranteRepository.findByCorreo(correoRestaurante)));
+        return menuConvertidor.connvertirMenu(menuRepository.findMenusByRestaurante(
+                restauranteRepository.findById(correoRestaurante).get()));
 
     }
 }

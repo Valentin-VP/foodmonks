@@ -9,9 +9,11 @@ import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -100,29 +102,29 @@ public class RestauranteController {
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        JSONArray menus = new JSONArray();
+        List<DtMenu> listaMenu = new ArrayList<DtMenu>();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(newtoken);
-            List<DtMenu> listaMenu = menuService.listarMenu(correo);
-            for(int i=0;i<listaMenu.size();i++) {
-                JSONObject menu = new JSONObject();
-                menu.put("id",listaMenu.get(i).getId());
-                menu.put("nombre",listaMenu.get(i).getNombre());
-                menu.put("descripcion",listaMenu.get(i).getDescripcion());
-                menu.put("precio",listaMenu.get(i).getPrice());
-                menu.put("visible",listaMenu.get(i).getVisible());
-                menu.put("multiplicadorPromocion", listaMenu.get(i).getMultiplicadorPromocion());
-                menu.put("imagen", listaMenu.get(i).getImagen());
-                menu.put("categoria", listaMenu.get(i).getCategoria());
-                menus.put(menu);
-            }
-        } catch (JSONException e) {
+            listaMenu = menuService.listarMenu(correo);
+//            for(int i=0;i<listaMenu.size();i++) {
+//                JSONObject menu = new JSONObject();
+//                menu.put("id",listaMenu.get(i).getId());
+//                menu.put("nombre",listaMenu.get(i).getNombre());
+//                menu.put("descripcion",listaMenu.get(i).getDescripcion());
+//                menu.put("price",listaMenu.get(i).getPrice());
+//                menu.put("visible",listaMenu.get(i).getVisible());
+//                menu.put("multiplicadorPromocion", listaMenu.get(i).getMultiplicadorPromocion());
+//                menu.put("imagen", listaMenu.get(i).getImagen());
+//                menu.put("categoria", listaMenu.get(i).getCategoria());
+//                menus.add(menu);
+//            }
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(menus, HttpStatus.OK);
+        return new ResponseEntity<>(listaMenu, HttpStatus.OK);
     }
 
     @PutMapping(path = "/modificarMenu")

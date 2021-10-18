@@ -41,7 +41,7 @@ const MenuCard = (props) => {
             $ {props.price} - {props.multiplicador}%
           </h5>
           <h6 className="card-subtitle">{props.categoria}</h6>
-          <p className="card-text">{props.desc}</p>
+          <p className="card-text">{props.descripcion}</p>
           <div className="grupoBotones">
             <ButtonGroup aria-label="Basic example">
               <Button id="eliminar" className="btn-primary margin-auto" onClick={eliminarMenu(props.id)}>

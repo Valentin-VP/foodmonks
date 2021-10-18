@@ -1,7 +1,7 @@
 import { React } from "react";
 import { getMenuInfo } from "../../services/Requests";
 
-function ModificarMenu(menuId) {
+function ModificarMenu() {
   const menu = ["Saab", "Volvo", "BMW"];
   // getMenuInfo(menuId).then((response) => {
   //   console.log(response);
@@ -13,4 +13,4 @@ function ModificarMenu(menuId) {
   </div>;
 }
 
-export default ModificarMenu();
+export default ModificarMenu;
