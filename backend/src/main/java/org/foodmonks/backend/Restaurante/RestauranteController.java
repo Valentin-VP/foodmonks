@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Restaurante;
 
+import com.google.gson.*;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -103,36 +104,36 @@ public class RestauranteController {
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
         List<DtMenu> listaMenu = new ArrayList<DtMenu>();
+        JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             listaMenu = menuService.listarMenu(correo);
-//            for(int i=0;i<listaMenu.size();i++) {
-//                JSONObject menu = new JSONObject();
-//                menu.put("id",listaMenu.get(i).getId());
-//                menu.put("nombre",listaMenu.get(i).getNombre());
-//                menu.put("descripcion",listaMenu.get(i).getDescripcion());
-//                menu.put("price",listaMenu.get(i).getPrice());
-//                menu.put("visible",listaMenu.get(i).getVisible());
-//                menu.put("multiplicadorPromocion", listaMenu.get(i).getMultiplicadorPromocion());
-//                menu.put("imagen", listaMenu.get(i).getImagen());
-//                menu.put("categoria", listaMenu.get(i).getCategoria());
-//                menus.add(menu);
-//            }
-        } catch (Exception e) {
+            for(int i=0;i<listaMenu.size();i++) {
+                JsonObject menu = new JsonObject();
+                menu.addProperty("id",listaMenu.get(i).getId());
+                menu.addProperty("nombre",listaMenu.get(i).getNombre());
+                menu.addProperty("descripcion",listaMenu.get(i).getDescripcion());
+                menu.addProperty("price",listaMenu.get(i).getPrice());
+                menu.addProperty("visible",listaMenu.get(i).getVisible());
+                menu.addProperty("multiplicadorPromocion", listaMenu.get(i).getMultiplicadorPromocion());
+                menu.addProperty("imagen", listaMenu.get(i).getImagen());
+                menu.addProperty("categoria", listaMenu.get(i).getCategoria().toString());
+                jsonArray.add(menu);
+            }
+        } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(listaMenu, HttpStatus.OK);
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
     @PutMapping(path = "/modificarMenu/{menuId}")
-    public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @PathVariable String menuId, @RequestBody String updatedMenu) {
-        String aux;
+    public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @PathVariable Long menuId, @RequestBody String updatedMenu) {
         String newtoken = "";
+        JsonObject jsonMenu = new JsonObject();
 
-        Long id;
         String nombreMenu = "";
         Float priceMenu;
         String descripcionMenu = "";
@@ -145,21 +146,20 @@ public class RestauranteController {
                 newtoken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(newtoken);
-            JSONObject jsonMenu = new JSONObject(updatedMenu);
 
-            id = jsonMenu.getLong("id");
-            nombreMenu = jsonMenu.getString("nombre");
-            aux = jsonMenu.getString("price");
-            priceMenu = Float.valueOf(aux);
-            descripcionMenu = jsonMenu.getString("descripcion");
-            visibilidadMenu = jsonMenu.getBoolean("visibilidad");
-            aux = jsonMenu.getString("multiplicador");
-            multiplicadorMenu = Float.valueOf(aux);
-            imagenMenu = jsonMenu.getString("imagen");
-            categoriaMenu = CategoriaMenu.valueOf(jsonMenu.getString("categoria"));
+            // Transformar json string en JsonObject
+            jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
 
-            menuService.modificarMenu(Long.valueOf(menuId), nombreMenu, priceMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correo);
-        } catch(JSONException e) {
+            nombreMenu = jsonMenu.get("nombre").getAsString();
+            priceMenu = jsonMenu.get("price").getAsFloat();
+            descripcionMenu = jsonMenu.get("descripcion").getAsString();
+            visibilidadMenu = jsonMenu.get("visibilidad").getAsBoolean();
+            multiplicadorMenu = jsonMenu.get("multiplicador").getAsFloat();
+            imagenMenu = jsonMenu.get("imagen").getAsString();
+            categoriaMenu = CategoriaMenu.valueOf(jsonMenu.get("categoria").getAsString());
+
+            menuService.modificarMenu(menuId, nombreMenu, priceMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correo);
+        } catch(JsonParseException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
