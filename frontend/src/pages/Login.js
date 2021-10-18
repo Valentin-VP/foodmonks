@@ -43,6 +43,10 @@ const Styles = styled.div`
     }
   }
 
+  #loginError {
+    margin-top: 20px;
+  }
+
 `;
 
 function Login() {
@@ -142,10 +146,13 @@ function Login() {
               <button className="w-100 btn btn-lg btn-primary" type="submit">
                 Entrar
               </button>
-              <div>
+              <div id="loginError">
                 {componente}
               </div>
               <p className="mt-5 mb-3 text-muted">
+                <a href="/register">Olvide mi contraseña</a>
+              </p>
+              <p className="mt-2 mb-3 text-muted">
                 ¿No tienes cuenta?<a href="/register">Registrate</a>
               </p>
             </form>

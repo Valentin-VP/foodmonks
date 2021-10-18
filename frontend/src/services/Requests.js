@@ -70,3 +70,13 @@ export const getMenuInfo = (menuId) => {
     },
   });
 };
+
+export const altaMenu = (menu) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/agregarMenu`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+};

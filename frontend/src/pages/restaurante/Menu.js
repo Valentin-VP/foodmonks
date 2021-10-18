@@ -4,7 +4,6 @@ import MenuCard from "./MenuCard";
 import styled from "styled-components";
 import imgPrueba from "../../assets/productos/hamburguesa.jpg";
 import { fetchMenus } from "../../services/Requests";
-import { render } from "@testing-library/react";
 
 const Styles = styled.div`
   #titulo {
@@ -33,6 +32,9 @@ function Menu() {
       <Layout>
         {/* {console.log(menus)} */}
         <h2 id="titulo">Mis Menús</h2>
+        <button className="btn-success">
+          {" + "}
+        </button>
         <div className="row justify-content-center">
           {menus.map((menu) => {
             return (
