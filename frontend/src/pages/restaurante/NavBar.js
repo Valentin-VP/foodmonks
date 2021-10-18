@@ -2,8 +2,6 @@ import React from "react";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import styled from "styled-components";
 import foodlogo from "../../assets/foodLogo.png"; // Tell webpack this JS file uses this image
-import cartIcon from "../../assets/cartIcon.png";
-import { Noti } from "../../components/Notification";
 import { clearState } from "../../services/Requests";
 
 console.log(foodlogo);
@@ -76,25 +74,15 @@ export const NavigationBar = () => (
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
             <Nav.Item>
-              <Nav.Link onClick={Noti}>Notificacion</Nav.Link>
+              <Nav.Link href="/menu">Menús</Nav.Link>
             </Nav.Item>
-            <NavDropdown title="Cliente" menuVariant="color">
+            <NavDropdown title="Restaurante" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
                 Cerrar Sesion
               </NavDropdown.Item>
             </NavDropdown>
-            <Nav.Item>
-              <div className="carrito">
-                <a href="/cart">
-                  <img src={cartIcon} alt="carrito" width="35px" />
-                  <span id="span" className="badge rounded-pill ">
-                    1
-                  </span>
-                </a>
-              </div>
-            </Nav.Item>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

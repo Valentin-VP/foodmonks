@@ -1,6 +1,6 @@
 package org.foodmonks.backend.authentication;
 
-public class InfoUsuario {
+public class InfoCliente {
 
     private String firstName;
     private String lastName;

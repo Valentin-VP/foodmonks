@@ -1,6 +1,8 @@
 package org.foodmonks.backend.Direccion;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Restaurante.Restaurante;
@@ -11,6 +13,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 @IdClass(DireccionID.class)
 public class Direccion{
@@ -25,9 +29,9 @@ public class Direccion{
     private String longitud;
     @ManyToMany
     private List<Cliente> cliente = new ArrayList<>();
-    @OneToOne
+    @OneToOne(mappedBy="direccion")
     private Restaurante restaurante;
-    @OneToMany
+    @OneToMany(mappedBy="direccion")
     private List<Pedido> pedido = new ArrayList<>();
 
     public Direccion() {
@@ -42,53 +46,6 @@ public class Direccion{
         this.longitud = longitud;
     }
 
-    public Integer getNumero() {
-        return numero;
-    }
-
-    public void setNumero(Integer numero) {
-        this.numero = numero;
-    }
-
-    public String getCalle() {
-        return calle;
-    }
-
-    public void setCalle(String calle) {
-        this.calle = calle;
-    }
-
-    public String getEsquina() {
-        return esquina;
-    }
-
-    public void setEsquina(String esquina) {
-        this.esquina = esquina;
-    }
-
-    public String getDetalles() {
-        return detalles;
-    }
-
-    public void setDetalles(String detalles) {
-        this.detalles = detalles;
-    }
-
-    public String getLatitud() {
-        return latitud;
-    }
-
-    public void setLatitud(String latitud) {
-        this.latitud = latitud;
-    }
-
-    public String getLongitud() {
-        return longitud;
-    }
-
-    public void setLongitud(String longitud) {
-        this.longitud = longitud;
-    }
 
 
 }
