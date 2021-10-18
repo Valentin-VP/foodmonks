@@ -11,13 +11,13 @@ import { getToken, fetchUserData } from "./services/Requests";
 
 toast.configure(); //esto esta para poder enviar las notificaciones
 function App() {
-  const [tipoUser, setTipoUser] = useState();
-  if (getToken() != null && tipoUser == null) {
-    fetchUserData().then((response) => {
-      setTipoUser(response.data.roles[0].authority);
-    });
-    console.log(tipoUser);
-  }
+  const [tipoUser, setTipoUser] = useState("ROLE_RESTAURANTE");
+  // if (getToken() != null && tipoUser == null) {
+  //   fetchUserData().then((response) => {
+  //     setTipoUser(response.data.roles[0].authority);
+  //   });
+  //   console.log(tipoUser);
+  // }
 
   switch (tipoUser) {
     case "ROLE_CLIENTE":
