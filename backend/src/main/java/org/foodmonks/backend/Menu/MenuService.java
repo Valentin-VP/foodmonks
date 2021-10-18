@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Menu;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
@@ -25,16 +26,23 @@ public class MenuService {
                             String correoRestaurante) {
 
         try{
-            Restaurante restaurante = restauranteRepository.findById(correoRestaurante).orElseGet(null);
-            System.out.println("########### " + restauranteRepository.findById(correoRestaurante).orElseGet(null).getNombreRestaurante());
-            Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria);
-            //if (!menuRepository.existsById(new MenuID(menu.getId(), restaurante.getCorreo()))){
-                menu.setRestaurante(restaurante);
-                menuRepository.save(menu);
-                return true;
-            //}
-            //return false;
+            System.out.println("Entro a crear");
+            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+            if (restaurante != null){
+                if (!menuRepository.existsByNombreAndRestaurante(nombre, restaurante)){
+                    Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria, restaurante);
+                    menuRepository.save(menu);
+                    System.out.println("Creo");
+                    return true;
+                }
+                System.out.println("Menu ya creado");
+                return false;
+           // System.out.println("########### " + restauranteRepository.findById(correoRestaurante).orElseGet(null).getNombreRestaurante());
+            }
+            System.out.println("Restaurante null");
+            return false;
         } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
             return false;
         }
     }

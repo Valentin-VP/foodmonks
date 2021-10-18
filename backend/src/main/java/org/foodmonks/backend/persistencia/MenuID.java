@@ -1,9 +1,13 @@
 package org.foodmonks.backend.persistencia;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
+@Getter
+@Setter
 @EqualsAndHashCode
 public class MenuID implements Serializable {
 
@@ -20,19 +24,4 @@ public class MenuID implements Serializable {
         this.restaurante = restaurante;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getRestaurante() {
-        return restaurante;
-    }
-
-    public void setRestaurante(String restaurante) {
-        this.restaurante = restaurante;
-    }
 }

@@ -1,17 +1,22 @@
 package org.foodmonks.backend.Menu;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.persistencia.MenuID;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Entity
 @IdClass(MenuID.class)
 public class Menu {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy= GenerationType.AUTO)
     private Long id; 
 	private String nombre;
 	private Float price;
@@ -21,15 +26,15 @@ public class Menu {
 	private String imagen;
 	@Enumerated(value = EnumType.STRING)
 	private CategoriaMenu categoria;
+	@Id
 	@ManyToOne
+	@JoinColumn(
+			insertable=false,
+			updatable=false
+	)
 	private Restaurante restaurante;
-	
-	public Menu() {
-	}
 
-	public Menu(String nombre, Float price, String descripcion, Boolean visible, Float multiplicadorPromocion,
-			String imagen, CategoriaMenu categoria) {
-		super();
+	public Menu(String nombre, Float price, String descripcion, Boolean visible, Float multiplicadorPromocion, String imagen, CategoriaMenu categoria, Restaurante restaurante) {
 		this.nombre = nombre;
 		this.price = price;
 		this.descripcion = descripcion;
@@ -37,86 +42,10 @@ public class Menu {
 		this.multiplicadorPromocion = multiplicadorPromocion;
 		this.imagen = imagen;
 		this.categoria = categoria;
-	}
-
-
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-
-	public Float getPrice() {return price; }
-
-	public void setPrice(Float price) {
-		this.price = price;
-	}
-
-	public String getDescripcion() {
-		return descripcion;
-	}
-
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	public Boolean getVisible() {
-		return visible;
-	}
-
-	public void setVisible(Boolean visible) {
-		this.visible = visible;
-	}
-
-	public Float getMultiplicadorPromocion() {
-		return multiplicadorPromocion;
-	}
-
-	public void setMultiplicadorPromocion(Float multiplicadorPromocion) {
-		this.multiplicadorPromocion = multiplicadorPromocion;
-	}
-
-	public String getImagen() {
-		return imagen;
-	}
-
-	public void setImagen(String imagen) {
-		this.imagen = imagen;
-	}
-
-	public CategoriaMenu getCategoria() {
-		return categoria;
-	}
-
-
-
-	public void setCategoria(CategoriaMenu categoria) {
-		this.categoria = categoria;
-	}
-
-
-
-	public Restaurante getRestaurante() {
-		return restaurante;
-	}
-
-
-
-	public void setRestaurante(Restaurante restaurante) {
 		this.restaurante = restaurante;
 	}
-	
-	
 
+	public Menu() {
+
+	}
 }

@@ -1,5 +1,7 @@
 package org.foodmonks.backend.Admin;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,6 +14,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Getter
+@Setter
 @Entity
 @DiscriminatorValue("admin")
 public class Admin extends Usuario {
@@ -71,4 +75,5 @@ public class Admin extends Usuario {
     public boolean isEnabled() {
         return true;
     }
+
 }

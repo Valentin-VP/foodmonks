@@ -21,7 +21,7 @@ public class ClienteConfig {
         return args ->{
             Cliente cliente =  new Cliente("nombreDelCliente",
                     "apellidoDelCliente",
-                    "cliente@gmail.com", passwordEncoder.encode("cliente123"), LocalDate.now(), 5.0f, null, EstadoCliente.ACTIVO, null);
+                    "cliente@gmail.com", passwordEncoder.encode("cliente123"), LocalDate.now(), 5.0f, null, EstadoCliente.ACTIVO, null, null);
             repository.saveAll(List.of(cliente));
         };
     }
