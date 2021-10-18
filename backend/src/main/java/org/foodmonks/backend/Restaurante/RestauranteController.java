@@ -127,8 +127,8 @@ public class RestauranteController {
         return new ResponseEntity<>(listaMenu, HttpStatus.OK);
     }
 
-    @PutMapping(path = "/modificarMenu")
-    public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @RequestBody String updatedMenu) {
+    @PutMapping(path = "/modificarMenu/{menuId}")
+    public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @PathVariable String menuId, @RequestBody String updatedMenu) {
         String aux;
         String newtoken = "";
 
@@ -158,7 +158,7 @@ public class RestauranteController {
             imagenMenu = jsonMenu.getString("imagen");
             categoriaMenu = CategoriaMenu.valueOf(jsonMenu.getString("categoria"));
 
-            menuService.modificarMenu(id, nombreMenu, priceMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correo);
+            menuService.modificarMenu(Long.valueOf(menuId), nombreMenu, priceMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correo);
         } catch(JSONException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
