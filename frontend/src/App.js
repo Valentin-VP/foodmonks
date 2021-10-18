@@ -16,7 +16,6 @@ function App() {
      fetchUserData().then((response) => {
        setTipoUser(response.data.roles[0].authority);
      });
-     console.log(tipoUser);
    }
 
   switch (tipoUser) {

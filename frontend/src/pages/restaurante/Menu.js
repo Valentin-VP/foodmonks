@@ -15,37 +15,41 @@ const Styles = styled.div`
     padding-top: 20px;
     padding-bottom: 20px;
   }
+
+  .column {
+    padding-bottom: 35px;
+  }
 `;
 
-function Menu() {
-  let menus = []
-  fetchMenus().then((response) => {
-    console.log(response.data);
-    menus = response.data;
-    console.log(menus[0]);
-  });
+//las llamadas de a axios van afuera de la funcion
+let menus = [];
+fetchMenus().then((response) => {
+  menus = response.data;
+});
 
+function Menu() {
   return (
     <Styles>
       <Layout>
-        {console.log(menus)}
+        {/* {console.log(menus)} */}
         <h2 id="titulo">Mis Menús</h2>
         <div className="row justify-content-center">
-          <div className="column">
-            {menus.map((menu) => {
-              console.log("sgsdgbdshdsn");
+          {menus.map((menu) => {
+            return (
+              <div className="column">
                 <MenuCard
                   key={menu.id}
                   id={menu.id}
-                  imagen={imgPrueba} //menu.imagen
+                  img={imgPrueba} //menu.imagen
                   nombre={menu.nombre}
                   descripcion={menu.descripcion}
-                  price={menu.precio}
+                  price={menu.price}
                   multiplicador={menu.multiplicadorPromocion}
                   categoria={menu.categoria}
                 />
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </Layout>
     </Styles>
@@ -53,12 +57,3 @@ function Menu() {
 }
 
 export default Menu;
-
-// const Example = () => {
-//   // Puedes usar Hooks aquí!
-//   const [menus, setMenus] = useState();
-//   fetchMenus().then((response) => {
-//     console.log(response);
-//     setMenus(response);
-//   });
-// };

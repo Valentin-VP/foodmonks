@@ -34,7 +34,7 @@ const MenuCard = (props) => {
   return (
     <Styles>
       <div className="card">
-        <img src={props.imagen} alt="productimg" height="200" />
+        <img src={props.img} alt="productimg" height="200" />
         <div className="card-body">
           <h5 className="card-title">{props.nombre}</h5>
           <h5 className="card-subtitle">
@@ -44,7 +44,7 @@ const MenuCard = (props) => {
           <p className="card-text">{props.descripcion}</p>
           <div className="grupoBotones">
             <ButtonGroup aria-label="Basic example">
-              <Button id="eliminar" className="btn-primary margin-auto" onClick={eliminarMenu(props.id)}>
+              <Button id="eliminar" className="btn-primary margin-auto">
                 Eliminar
               </Button>
               {/*tengo redireccionar a modificarMenu */}
