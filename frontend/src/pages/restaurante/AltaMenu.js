@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { Button, FloatingLabel, Form } from "react-bootstrap";
-import firebase from 'firebase/app';
+import { storage } from "../../Firebase";
+import { altaMenu } from "../../services/Requests";
+import { Error } from "../../components/Error";
 
 const Styles = styled.div`
   * {
@@ -63,24 +65,25 @@ const Styles = styled.div`
 
 `;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDvrThrk2nY5W72KxDIGzJWfknCT6NCCVA",
-  authDomain: "foodmonks-70c28.firebaseapp.com",
-  projectId: "foodmonks-70c28",
-  storageBucket: "foodmonks-70c28.appspot.com",
-  messagingSenderId: "655150989440",
-  appId: "1:655150989440:web:22d752a743e8df5e592665",
-};
-
 function AltaMenu() {
   const state = {
     nombre: "",
     price: "",
     descripcion: "",
-    multiplicadorPromocion: 1,
+    descuento: 0,
     categoria: "",
     img: "",
-    imgLink: "",
+    imgUrl: "",
+  };
+
+  let menu = {
+    nombre: "",
+    price: "",
+    descripcion: "",
+    multiplicador: "",
+    categoria: "",
+    visibilidad: true,
+    imagen: "",
   };
 
   let categorias = [
@@ -96,6 +99,8 @@ function AltaMenu() {
     { nombre: "OTROS" },
   ];
 
+  let componente = null;
+
   const handleUpload = (data) => {
     state.img = data.target.files[0];
   };
@@ -103,13 +108,42 @@ function AltaMenu() {
   const handleChange = (e) => {
     e.persist();
     state[e.target.name] = e.target.value;
-    // console.log(`${e.target.name}: ${e.target.value}`);
+    //console.log(`${e.target.name}: ${e.target.value}`);
   };
 
   const onSubmit = () => {
-    console.log("manuel");
-    console.log(state.img);
-    // firebase.initializeApp(firebaseConfig).storage
+    const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {}, //el snapshot tiene que ir
+      (error) => {
+        console.log(error.message);
+        componente = <Error error="Error al subir la imagen" />;
+      },
+      () => {
+        componente = null;
+        storage
+          .ref("menus")
+          .child(state.img.name)
+          .getDownloadURL()
+          .then((url) => {
+            state.imgUrl = url;
+            //ahora cargo el json y hago el alta
+            menu.nombre = state.nombre;
+            menu.categoria = state.categoria;
+            menu.descripcion = state.descripcion;
+            menu.imagen = state.imgUrl;
+            menu.multiplicador = state.descuento;
+            menu.price = state.price;
+            altaMenu(menu).then((response) => {
+              console.log(response);
+            });
+          });
+      }
+    );
+    uploadTask.then(() => {
+      //para despues que suba la imagen y obtenga el link
+    });
   };
 
   return (
@@ -155,18 +189,17 @@ function AltaMenu() {
             />
             <label for="floatingInput">Descripción</label>
           </div>
-          {/*multiplicadorPromocion*/}
+          {/*descuento*/}
           <div className="form-floating">
             <input
               className="form-control"
               type="number"
-              name="multiplicadorPromocion"
-              id="multiplicadorPromocion"
+              name="descuento"
+              id="descuento"
               placeholder="Descuento"
-              step="0.01"
-              max="1"
+              max="100"
               min="0"
-              defaultValue="1"
+              defaultValue="0"
               onChange={handleChange}
             />
             <label for="floatingInput">Descuento</label>
@@ -188,6 +221,7 @@ function AltaMenu() {
           <label className="mb-2">Imágen del menú</label>
           {/* image uploader */}
           <Form.Control type="file" onChange={handleUpload} />
+          {componente}
           <Button onClick={onSubmit}>Alta</Button>
         </Form>
       </section>

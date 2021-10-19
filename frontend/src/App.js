@@ -14,9 +14,10 @@ function App() {
   const [tipoUser, setTipoUser] = useState();
    if (getToken() != null && tipoUser == null) {
      fetchUserData().then((response) => {
-       setTipoUser(response.data.roles[0].authority);
+       setTipoUser(response.data.roles[0].role);
      });
    }
+
 
   switch (tipoUser) {
     case "ROLE_CLIENTE":
