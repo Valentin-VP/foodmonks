@@ -72,9 +72,11 @@ export const getMenuInfo = (menuId) => {
 };
 
 export const altaMenu = (menu) => {
+  console.log(menu);
   return axios({
     method: "POST",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/agregarMenu`,
+    data: menu,
     headers: {
       Authorization: "Bearer " + getToken(),
     },

@@ -2,7 +2,7 @@ import { React, Fragment, useState } from "react";
 import styled from "styled-components";
 import logo from "../assets/foodMonks-sinfondo.png";
 import { userLogin } from "../services/Requests";
-import { LoginFailure } from "./LoginFailure";
+import { Error } from "../components/Error";
 
 const Styles = styled.div`
   .text-center {
@@ -90,8 +90,8 @@ function Login() {
   };
 
   let componente;
-  if(error != "") {
-    componente = <LoginFailure error={error}/>
+  if(error !== "") {
+    componente = <Error error={error}/>
   } else {
     componente = null;
   }
