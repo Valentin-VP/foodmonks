@@ -1,15 +1,20 @@
-import { React } from "react";
+import { React, useState } from "react";
 import { getMenuInfo } from "../../services/Requests";
 
-// let menu = null;
+// let menu;
 // getMenuInfo(menuId).then((response) => {
 //   menu = response.data;
 // });
 
 function ModificarMenu() {
-  <div>
-    <h2>Pagina en construccion</h2>
-  </div>;
+  const [menuId, setMenuId] = useState();
+  setMenuId(sessionStorage.getItem("menuId"));
+  console.log(menuId);
+  return (
+    <div>
+      <h2>Pagina en construccion</h2>
+    </div>
+  );
 }
 
 export default ModificarMenu;

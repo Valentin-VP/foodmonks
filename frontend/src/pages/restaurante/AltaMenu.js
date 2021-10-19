@@ -138,12 +138,10 @@ function AltaMenu() {
             altaMenu(menu).then((response) => {
               console.log(response);
             });
+            window.location.reload();
           });
       }
     );
-    uploadTask.then(() => {
-      //para despues que suba la imagen y obtenga el link
-    });
   };
 
   return (
