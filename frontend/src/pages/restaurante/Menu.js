@@ -21,12 +21,16 @@ const Styles = styled.div`
 `;
 
 //las llamadas de a axios van afuera de la funcion
-let menus = [];
-fetchMenus().then((response) => {
-  menus = response.data;
-});
+
+
 
 function Menu() {
+  let menus = [];
+  fetchMenus().then((response) => {
+    console.log("paso por fetch");
+    menus = response.data;
+  });
+
   return (
     <Styles>
       <Layout>
