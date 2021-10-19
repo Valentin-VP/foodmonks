@@ -1,7 +1,9 @@
 package org.foodmonks.backend.Restaurante;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.web.bind.annotation.*;
+import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
 import java.util.List;
 
@@ -42,5 +44,10 @@ public class RestauranteController {
         restauranteService.editarRestaurante(restaurante);
 
     }
-
+/*
+    @PutMapping("/cambiarEstado")
+    public void modificarEstado(String correo,EstadoRestaurante estado){
+        restauranteService.modificarEstado(correo,estado);
+    }
+*/
 }
