@@ -18,25 +18,25 @@ import org.thymeleaf.context.Context;
 public class EmailService {
 	private Log logger = LogFactory.getLog(getClass());
 	private final JavaMailSender emailSender;
-	private final TemplateEngine templateEngine;
+	//private final TemplateEngine templateEngine;
 	
 	//@Value("${mail.username}")
     private String mailReclamos = System.getenv("mail.username");
 
 	@Autowired
-	public EmailService(JavaMailSender emailSender, TemplateEngine templateEngine) {
+	public EmailService(JavaMailSender emailSender) {
 		this.emailSender = emailSender;
-		this.templateEngine = templateEngine;
+		//this.templateEngine = templateEngine;
 	}
 
 
-	public Boolean enviarMail (String destinatario, String asunto, String contenido) {
+	public void enviarMail (String destinatario, String asunto, String htmlContent) throws EmailNoEnviadoException {
 		
-		Context context = new Context();
-		context.setVariable("contenido", contenido);
-		String htmlContent = templateEngine.process("index", context);
+		//ARMAR EL CONTENIDO DEL MAIL SE DEBE ENCARGAR EL CASO DE USO QUE LO REQUIERA. ESTO VA AHI.
+				//Context context = new Context();
+				//context.setVariable("contenido", contenido);
+				//String htmlContent = templateEngine.process("index", context);
 		
-		logger.info(mailReclamos);
 		MimeMessage mimeMessage = emailSender.createMimeMessage();
 		MimeMessageHelper message;
 		try {
@@ -46,11 +46,10 @@ public class EmailService {
 		message.setSubject(asunto);
 		message.setText(htmlContent, true);
 		emailSender.send(mimeMessage);
-		return true; 
+		 
 		//logger.info("El correo se envio de manera exitosa!!");
 		} catch (MessagingException e) {
-			return false;
-			//logger.info(e.getMessage());
+			throw new EmailNoEnviadoException("No se pudo enviar el mail");
 		}
 		
 		
