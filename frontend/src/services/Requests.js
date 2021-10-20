@@ -6,6 +6,11 @@ export const clearState = () => {
   window.location.replace("/");
 };
 
+//retorna la id del menu para el modificarMenu
+export const getMenuId = () => {
+  return sessionStorage.getItem("menuId");
+};
+
 //----------------------------------------------------------------------------------
 
 export const getToken = () => {
@@ -40,10 +45,10 @@ export const eliminarMenu = (menuId) => {
   });
 };
 
-export const modMenu = (menuInfo) => {
+export const modMenu = (menuInfo, id) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/modificarMenu`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/modificarMenu/${id}`,
     data: menuInfo,
     headers: {
       Authorization: "Bearer " + getToken(),
@@ -61,7 +66,8 @@ export const fetchMenus = () => {
   });
 };
 
-export const getMenuInfo = (menuId) => {
+export const getMenuInfo = () => {
+  const menuId = getMenuId();
   return axios({
     method: "GET",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/getInfoMenu/${menuId}`,
