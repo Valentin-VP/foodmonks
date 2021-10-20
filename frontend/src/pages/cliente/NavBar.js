@@ -76,7 +76,7 @@ export const NavigationBar = () => (
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
             <Nav.Item>
-              <Nav.Link onClick={Noti}>Notificacion</Nav.Link>
+              <Nav.Link onClick={Noti("esto es un mensaje de prueba")}>Notificacion</Nav.Link>
             </Nav.Item>
             <NavDropdown title="Cliente" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>

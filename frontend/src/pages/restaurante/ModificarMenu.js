@@ -4,6 +4,7 @@ import { Button, FloatingLabel, Form } from "react-bootstrap";
 import { storage } from "../../Firebase";
 import { getMenuInfo, modMenu } from "../../services/Requests";
 import { Error } from "../../components/Error";
+import { Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   * {
@@ -71,7 +72,8 @@ function ModificarMenu() {
 
   useEffect(() => {
     getMenuInfo().then((response) => {
-      console.log("paso por fetch");
+      console.log("paso por fetch de modificar");
+      console.log(response.data);
       setMenu(response.data);
       setLoading(false);
     });
@@ -97,7 +99,7 @@ function ModificarMenu() {
     price: "",
     descripcion: "",
     visibilidad: true,
-    multiplicador: 0,
+    multiplicador: "",
     categoria: "",
     imagen: "",
   }
@@ -135,8 +137,6 @@ function ModificarMenu() {
     menuRetorno.descripcion = state.descripcion;
     menuRetorno.multiplicador = state.descuento;
     menuRetorno.price = state.price;
-    console.log(state.imgUrl);
-    console.log(menuRetorno);
     if(state.img !== "") {//si se selecciona una imagen
       const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
       uploadTask.on(
@@ -158,18 +158,23 @@ function ModificarMenu() {
               state.imgUrl = url;
               menuRetorno.imagen = state.imgUrl;
               console.log(menuRetorno);
+              console.log(state.id);
+              modMenu(menuRetorno, state.id).then((response) => {//llamo al back
+                console.log(response);
+                sessionStorage.removeItem("menuId");
+              });
             });
         }
       );
     } else {//sino
-      console.log("entro al else");
       menuRetorno.imagen = state.imgUrl;//cargo la imagen que ya estaba
+      modMenu(menuRetorno, state.id).then((response) => {//llamo al back
+        console.log(response);
+        sessionStorage.removeItem("menuId");
+      });
     }
-    modMenu(menuRetorno, state.id).then((response) => {//llamo al back
-      console.log(response);
-      sessionStorage.removeItem("menuId");
-    });
-    window.location.reload();//recargo pagina
+    Noti("se modifico el menu correctamente");
+    //window.location.replace("/menu");//recargo pagina
   };
 
   return (

@@ -63,7 +63,7 @@ public class MenuService {
         try {
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             Menu menuAux = menuRepository.findByIdAndRestaurante(id,restaurante);
-            if ( menuAux != null && !menuRepository.existsByNombreAndRestaurante(nombre,restaurante)) {
+            if ( menuAux != null && menuRepository.existsByNombreAndRestaurante(nombre,restaurante)) {
                 menuAux.setNombre(nombre);
                 menuAux.setPrice(price);
                 menuAux.setDescripcion(descripcion);

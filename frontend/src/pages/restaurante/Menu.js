@@ -3,6 +3,7 @@ import { Layout } from "../../components/Layout";
 import { Button, InputGroup } from "react-bootstrap";
 import styled from "styled-components";
 import { fetchMenus, eliminarMenu } from "../../services/Requests";
+import { Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   #cabecera {
