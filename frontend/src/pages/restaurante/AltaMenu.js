@@ -111,7 +111,8 @@ function AltaMenu() {
     //console.log(`${e.target.name}: ${e.target.value}`);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
     const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
     uploadTask.on(
       "state_changed",

@@ -183,17 +183,25 @@ public class RestauranteController {
     @GetMapping(path = "getInfoMenu/{menuId}")
     public ResponseEntity<?> getMenuInfo(@RequestHeader("Authorization") String token, @PathVariable Long menuId) {
         String newtoken = "";
-        DtMenu dtMenu = new DtMenu();
+        JsonObject retorno = new JsonObject();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(newtoken);
-            dtMenu = menuService.infoMenu(menuId, correo);
+            DtMenu dtMenu = menuService.infoMenu(menuId, correo);
+            retorno.addProperty("nombre", dtMenu.getNombre());
+            retorno.addProperty("id", dtMenu.getId());
+            retorno.addProperty("categoria", dtMenu.getCategoria().name());
+            retorno.addProperty("multiplicadorPromocion", dtMenu.getMultiplicadorPromocion());
+            retorno.addProperty("descripcion", dtMenu.getDescripcion());
+            retorno.addProperty("price", dtMenu.getPrice());
+            retorno.addProperty("imagen", dtMenu.getImagen());
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(dtMenu, HttpStatus.OK);
+        return new ResponseEntity<>(retorno, HttpStatus.OK);
     }
 
 }

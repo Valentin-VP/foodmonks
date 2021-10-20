@@ -81,15 +81,26 @@ function ModificarMenu() {
     return <div className="App">Cargando...</div>;
   }
 
-  const state = {
+  const state = {//valores cargados del menu a modificar
+    id: menu.id,
+    nombre: menu.nombre,
+    price: menu.price,
+    descripcion: menu.descripcion,
+    descuento: menu.multiplicadorPromocion,
+    categoria: menu.categoria,
+    img: "",
+    imgUrl: menu.imagen,
+  };
+
+  const menuRetorno = {
     nombre: "",
     price: "",
     descripcion: "",
-    descuento: 0,
+    visibilidad: true,
+    multiplicador: 0,
     categoria: "",
-    img: "",
-    imgUrl: "",
-  };
+    imagen: "",
+  }
 
 
   let categorias = [
@@ -118,38 +129,47 @@ function ModificarMenu() {
   };
 
   const onSubmit = () => {
-    const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {}, //el snapshot tiene que ir
-      (error) => {
-        console.log(error.message);
-        componente = <Error error="Error al subir la imagen" />;
-      },
-      () => {
-        componente = null;
-        console.log("entro al storage");
-        storage
-          .ref("menus")
-          .child(state.img.name)
-          .getDownloadURL()
-          .then((url) => {
-            state.imgUrl = url;
-            //ahora cargo el json y hago el alta
-            menu.nombre = state.nombre;
-            menu.categoria = state.categoria;
-            menu.descripcion = state.descripcion;
-            menu.imagen = state.imgUrl;
-            menu.multiplicador = state.descuento;
-            menu.price = state.price;
-            console.log(menu);
-            modMenu(menu, menu.id).then((response) => {
-              console.log(response);
+    //cargo todo menos la imagen
+    menuRetorno.nombre = state.nombre;
+    menuRetorno.categoria = state.categoria;
+    menuRetorno.descripcion = state.descripcion;
+    menuRetorno.multiplicador = state.descuento;
+    menuRetorno.price = state.price;
+    console.log(state.imgUrl);
+    console.log(menuRetorno);
+    if(state.img !== "") {//si se selecciona una imagen
+      const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {}, //el snapshot tiene que ir
+        (error) => {
+          console.log(error.message);
+          componente = <Error error="Error al subir la imagen" />;
+        },
+        () => {
+          componente = null;
+          console.log("entro al storage");
+          storage
+            .ref("menus")
+            .child(state.img.name)
+            .getDownloadURL()
+            .then((url) => {
+              //cambio la imagen
+              state.imgUrl = url;
+              menuRetorno.imagen = state.imgUrl;
+              console.log(menuRetorno);
             });
-            // window.location.reload();
-          });
-      }
-    );
+        }
+      );
+    } else {//sino
+      console.log("entro al else");
+      menuRetorno.imagen = state.imgUrl;//cargo la imagen que ya estaba
+    }
+    modMenu(menuRetorno, state.id).then((response) => {//llamo al back
+      console.log(response);
+      sessionStorage.removeItem("menuId");
+    });
+    window.location.reload();//recargo pagina
   };
 
   return (
@@ -168,7 +188,7 @@ function ModificarMenu() {
               placeholder="Nombre del Menú"
               onChange={handleChange}
             />
-            <label for="floatingInput">{menu.nombre}</label>
+            <label for="floatingInput">{state.nombre}</label>
           </div>
           {/*Precio*/}
           <div className="form-floating">
@@ -181,7 +201,7 @@ function ModificarMenu() {
               min="1"
               onChange={handleChange}
             />
-            <label for="floatingInput">{menu.price}</label>
+            <label for="floatingInput">{state.price}</label>
           </div>
           {/*descripcion*/}
           <div className="form-floating">
@@ -193,7 +213,7 @@ function ModificarMenu() {
               placeholder="Descripcion"
               onChange={handleChange}
             />
-            <label for="floatingInput">{menu.descripcion}</label>
+            <label for="floatingInput">{state.descripcion}</label>
           </div>
           {/*descuento*/}
           <div className="form-floating">
@@ -216,7 +236,7 @@ function ModificarMenu() {
               name="categoria"
               onChange={handleChange}
             >
-              <option>{menu.categoria}</option>
+              <option>{state.categoria}</option>
               {categorias.map((categoria) => (
                 <option key={categoria.nombre} value={categoria.nombre}>
                   {categoria.nombre}
