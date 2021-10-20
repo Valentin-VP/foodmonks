@@ -70,3 +70,33 @@ export const getMenuInfo = (menuId) => {//falta
     },
   });
 };
+
+export const fetchUsuariosBusqueda = (datos) => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/listaUsuarios`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+};
+export const actualizarEstadoUsuario = (userInfo) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/actualizarEstado/${userInfo.correo}`,
+    data: userInfo,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+};
+export const setEstadoUsuarioEliminado = (correo) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/eliminarUsuario/${correo}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+};

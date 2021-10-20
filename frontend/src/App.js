@@ -15,6 +15,8 @@ function App() {
    if (getToken() != null && tipoUser == null) {
      fetchUserData().then((response) => {
        setTipoUser(response.data.roles[0].authority);
+     }).catch((error)=>{
+      setTipoUser(null);
      });
      console.log(tipoUser);
    }
