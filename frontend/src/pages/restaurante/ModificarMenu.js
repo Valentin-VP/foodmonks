@@ -128,6 +128,7 @@ function ModificarMenu() {
       },
       () => {
         componente = null;
+        console.log("entro al storage");
         storage
           .ref("menus")
           .child(state.img.name)
@@ -141,10 +142,11 @@ function ModificarMenu() {
             menu.imagen = state.imgUrl;
             menu.multiplicador = state.descuento;
             menu.price = state.price;
+            console.log(menu);
             modMenu(menu, menu.id).then((response) => {
               console.log(response);
             });
-            window.location.reload();
+            // window.location.reload();
           });
       }
     );
@@ -203,7 +205,7 @@ function ModificarMenu() {
               placeholder="Descuento"
               max="100"
               min="0"
-              defaultValue={menu.multiplicadoPromocion}
+              defaultValue="0"
               onChange={handleChange}
             />
             <label for="floatingInput">Descuento</label>

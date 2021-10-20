@@ -1,8 +1,8 @@
 import { React, useState, useEffect } from "react";
 import { Layout } from "../../components/Layout";
-import { ButtonGroup, Button, InputGroup } from "react-bootstrap";
+import { Button, InputGroup } from "react-bootstrap";
 import styled from "styled-components";
-import { fetchMenus } from "../../services/Requests";
+import { fetchMenus, eliminarMenu } from "../../services/Requests";
 
 const Styles = styled.div`
   #cabecera {
@@ -60,7 +60,6 @@ const Styles = styled.div`
   }
 `;
 
-
 function Menu() {
   const [menus, setMenus] = useState();
   const [isLoading, setLoading] = useState(true);
@@ -72,6 +71,13 @@ function Menu() {
       setLoading(false);
     });
   }, []);
+
+  const onEliminar = (id) => {
+    eliminarMenu(id).then((response) => {
+      console.log(response.data);
+      window.location.reload();
+    });
+  };
 
   const onModificar = (id) => {
     sessionStorage.setItem("menuId", id);
@@ -99,24 +105,40 @@ function Menu() {
                   return (
                     <tr key={index}>
                       <td>
-                        <img src={menu.imagen} alt="productimg" width="150" hight="150" />
+                        <img
+                          src={menu.imagen}
+                          alt="productimg"
+                          width="150"
+                          hight="150"
+                        />
                       </td>
                       <td>{menu.nombre}</td>
                       <td>${menu.price}</td>
                       {menu.multiplicadorPromocion !== 0 ? (
                         <td>descuento: {menu.multiplicadorPromocion}%</td>
-                      ) : null}
+                      ) : (
+                        <td>descuento: 0%</td>
+                      )}
                       <td>Descripcion: {menu.descripcion}</td>
                       <td>Categoria: {menu.categoria}</td>
                       <td>
                         <div className="row">
-                          <Button className="miBoton">Eliminar</Button>
+                          <Button
+                            className="miBoton"
+                            onClick={() => {
+                              onEliminar(menu.id);
+                            }}
+                          >
+                            Eliminar
+                          </Button>
                         </div>
                         <div className="row">
                           <Button
                             className="miBoton"
                             href="/modificarMenu"
-                            onClick={() => {onModificar(menu.id)}}
+                            onClick={() => {
+                              onModificar(menu.id);
+                            }}
                           >
                             Modificar
                           </Button>

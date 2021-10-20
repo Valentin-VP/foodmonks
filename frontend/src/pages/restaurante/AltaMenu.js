@@ -218,7 +218,7 @@ function AltaMenu() {
           </FloatingLabel>
           <label className="mb-2">Imágen del menú</label>
           {/* image uploader */}
-          <Form.Control type="file" onChange={handleUpload} />
+          <Form.Control type="file" onChange={handleUpload} required/>
           {componente}
           <Button onClick={onSubmit}>Alta</Button>
         </Form>
