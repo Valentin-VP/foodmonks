@@ -1,19 +1,12 @@
 import { React, Fragment } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { Home } from "./Home";
 import { Cart } from "./Cart";
 import { Grafico } from "../Grafico";
-
 import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
 import { CartProvider } from "react-use-cart";
 import styled from "styled-components";
-import { getToken } from "../../services/Requests"
 
 const Styles = styled.div`
   #page-container {
@@ -49,14 +42,14 @@ function Cliente() {
 
 export default Cliente;
 
-function NoMatch() {
-  let location = useLocation();
+// function NoMatch() {
+//   let location = useLocation();
 
-  return (
-    <div>
-      <h3 className="text-center">
-        No se encontro nada para <code>{location.pathname}</code>
-      </h3>
-    </div>
-  );
-}
+//   return (
+//     <div>
+//       <h3 className="text-center">
+//         No se encontro nada para <code>{location.pathname}</code>
+//       </h3>
+//     </div>
+//   );
+// }

@@ -16,6 +16,7 @@ public class DireccionID implements Serializable {
     private String longitud;
 
     public DireccionID() {
+        super();
     }
 
     public DireccionID(String latitud, String longitud) {

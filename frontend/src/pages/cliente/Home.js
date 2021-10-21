@@ -61,7 +61,7 @@ export const Home = () => (
                   img={item.img}
                   title={item.title}
                   desc={item.desc}
-                  precio={item.price}
+                  price={item.price}
                   item={item}
                 />
               </div>
