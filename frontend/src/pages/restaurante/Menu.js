@@ -116,9 +116,7 @@ function Menu() {
                       <td>${menu.price}</td>
                       {menu.multiplicadorPromocion !== 0 ? (
                         <td>descuento: {menu.multiplicadorPromocion}%</td>
-                      ) : (
-                        <td>descuento: No aplica</td>
-                      )}
+                      ) : null}
                       <td>Descripcion: {menu.descripcion}</td>
                       <td>Categoria: {menu.categoria}</td>
                       <td>

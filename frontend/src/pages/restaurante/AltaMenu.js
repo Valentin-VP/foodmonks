@@ -144,8 +144,8 @@ function AltaMenu() {
         }
       );
     } else {
-      menu.imagen =
-        "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to"; //cargo la imagen generica
+      /* "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to" */
+      menu.imagen = process.env.REACT_APP_GENERIC_MENU;//cargo la imagen generica
       console.log(menu);
       altaMenu(menu).then((response) => {
         //llamo al back
