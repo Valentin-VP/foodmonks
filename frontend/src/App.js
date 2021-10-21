@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import { toast } from "react-toastify";
 import Admin from "./pages/admin/Admin";
 import Cliente from "./pages/cliente/Cliente";
-import Register from "./pages/Login";
+import { Register } from "./pages/Register";
 import Restaurante from "./pages/restaurante/Restaurante";
 import { getToken, fetchUserData } from "./services/Requests";
 import { Spinner } from "react-bootstrap";

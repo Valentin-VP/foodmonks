@@ -1,6 +1,6 @@
 import { React, Fragment } from "react";
 import styled from "styled-components";
-import logo from "./assets/foodMonks-sinfondo.png";
+import logo from "../assets/foodMonks-sinfondo.png";
 
 const Styles = styled.div`
   .text-center {

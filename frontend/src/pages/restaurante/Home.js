@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import { Layout } from "../../components/Layout";
 import styled from "styled-components";
 import { Noti } from "../../components/Notification";
+import { cambiarEstado } from "../../services/Requests";
 // import ItemCard from "../../components/itemCard";
 // import prods from "../../productos";
 
@@ -35,10 +36,16 @@ function Home() {
     setEstado(!estado);
     if(estado) {
       //llamo al backend con estado ABIERTO
-      Noti("ABIERTO!!");
+      cambiarEstado("ABIERTO").then((response) => {
+        console.log(response);
+        Noti("ABIERTO!!");
+      });
     } else {
       //llamo al backend con estado CERRADO
-      Noti("CERRADO!!");
+      cambiarEstado("CERRADO").then((response) => {
+        console.log(response);
+        Noti("CERRADO!!");
+      });
     }
   }
 
