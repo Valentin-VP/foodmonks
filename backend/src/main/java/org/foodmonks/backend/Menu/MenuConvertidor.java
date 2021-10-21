@@ -16,4 +16,8 @@ public class MenuConvertidor {
         return dtMenus;
     }
 
+    public DtMenu getDtMenu(Menu menu) {
+        return new DtMenu(menu);
+    }
+
 }
