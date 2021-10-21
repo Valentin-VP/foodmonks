@@ -205,10 +205,20 @@ public class RestauranteController {
         }
         return new ResponseEntity<>(retorno, HttpStatus.OK);
     }
-/*
-    @PutMapping("/cambiarEstado")
-    public void modificarEstado(String correo,EstadoRestaurante estado){
-        restauranteService.modificarEstado(correo,estado);
+
+    @PutMapping(path = "/modificarEstado/{estado}")
+    public ResponseEntity<?> modificarEstado(@RequestHeader("Authorization") String token, @PathVariable String estado){
+        String newtoken = "";
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+        } catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-*/
+
 }
