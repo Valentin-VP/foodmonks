@@ -91,7 +91,6 @@ function Menu() {
   return (
     <Styles>
       <Layout>
-        {/* {console.log(menus)} */}
         <InputGroup id="cabecera">
           <h2 id="titulo">Mis Menús</h2>
           <Button id="alta" variant="success" href="/altaMenu">

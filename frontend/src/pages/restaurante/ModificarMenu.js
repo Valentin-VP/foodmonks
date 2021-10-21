@@ -127,7 +127,6 @@ function ModificarMenu() {
   const handleChange = (e) => {
     e.persist();
     state[e.target.name] = e.target.value;
-    //console.log(`${e.target.name}: ${e.target.value}`);
   };
 
   const onSubmit = () => {
@@ -159,7 +158,7 @@ function ModificarMenu() {
               menuRetorno.imagen = state.imgUrl;
               console.log(menuRetorno);
               console.log(state.id);
-              modMenu(menuRetorno, state.id).then((response) => {//llamo al back
+              modMenu(menuRetorno, state.id).then((response) => {//request al backend
                 console.log(response);
                 sessionStorage.removeItem("menuId");
               });
@@ -168,13 +167,12 @@ function ModificarMenu() {
       );
     } else {//sino
       menuRetorno.imagen = state.imgUrl;//cargo la imagen que ya estaba
-      modMenu(menuRetorno, state.id).then((response) => {//llamo al back
+      modMenu(menuRetorno, state.id).then((response) => {//request al backend
         console.log(response);
         sessionStorage.removeItem("menuId");
       });
     }
     Noti("se modifico el menu correctamente");
-    //window.location.replace("/menu");//recargo pagina
   };
 
   return (

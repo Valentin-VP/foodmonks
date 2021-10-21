@@ -108,7 +108,6 @@ function AltaMenu() {
   const handleChange = (e) => {
     e.persist();
     state[e.target.name] = e.target.value;
-    //console.log(`${e.target.name}: ${e.target.value}`);
   };
 
   const onSubmit = () => {

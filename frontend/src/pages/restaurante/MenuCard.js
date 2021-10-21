@@ -44,14 +44,12 @@ const MenuCard = (props) => {
           <p className="card-text">{props.descripcion}</p>
           <div className="grupoBotones">
             <ButtonGroup aria-label="Basic example">
-              {/*se elimina el menu, pero falta actualizar la pagina */}
               <Button id="eliminar" className="btn-primary margin-auto" onClick={() => {eliminarMenu(props.id).then((response) => {
                 console.log(response);
                 window.location.reload();
               })}}>
                 Eliminar
               </Button>
-              {/*tengo redireccionar a modificarMenu */}
               <Button id="modificar" className="btn-primary margin-auto">
                 Modificar
               </Button>
