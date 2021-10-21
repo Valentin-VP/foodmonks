@@ -118,7 +118,7 @@ function Menu() {
                       {menu.multiplicadorPromocion !== 0 ? (
                         <td>descuento: {menu.multiplicadorPromocion}%</td>
                       ) : (
-                        <td>descuento: 0%</td>
+                        <td>descuento: No aplica</td>
                       )}
                       <td>Descripcion: {menu.descripcion}</td>
                       <td>Categoria: {menu.categoria}</td>

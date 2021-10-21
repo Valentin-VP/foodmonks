@@ -2,12 +2,12 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDvrThrk2nY5W72KxDIGzJWfknCT6NCCVA",
-  authDomain: "foodmonks-70c28.firebaseapp.com",
-  projectId: "foodmonks-70c28",
-  storageBucket: "foodmonks-70c28.appspot.com",
-  messagingSenderId: "655150989440",
-  appId: "1:655150989440:web:22d752a743e8df5e592665",
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROYECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
 };
 
 
