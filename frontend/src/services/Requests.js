@@ -78,7 +78,6 @@ export const getMenuInfo = () => {
 };
 
 export const altaMenu = (menu) => {
-  console.log(menu);
   return axios({
     method: "POST",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/agregarMenu`,
@@ -86,5 +85,15 @@ export const altaMenu = (menu) => {
     headers: {
       Authorization: "Bearer " + getToken(),
     },
+  });
+};
+
+export const cambiarEstado = (estado) => {
+  return axios ({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/modificarEstado/${estado}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    }
   });
 };

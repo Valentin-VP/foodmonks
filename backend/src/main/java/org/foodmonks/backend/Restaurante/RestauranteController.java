@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.web.bind.annotation.*;
+import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -202,6 +204,21 @@ public class RestauranteController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(retorno, HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/modificarEstado/{estado}")
+    public ResponseEntity<?> modificarEstado(@RequestHeader("Authorization") String token, @PathVariable String estado){
+        String newtoken = "";
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+        } catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
