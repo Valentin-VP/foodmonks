@@ -28,6 +28,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+backend/.env
 
 ### STS ###
 .apt_generated
@@ -82,4 +83,9 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
 ### Docker ###
+docker/compose/dev/.env
 docker/compose/dev/.env_java
+frontend/.env
+.gitignore
+.gitignore
+frontend/package-lock.json
