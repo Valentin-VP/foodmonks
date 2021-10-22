@@ -55,7 +55,7 @@ function Home() {
       <Layout>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="aperturaCierreSwitch" onClick={onClick}></input>
-          <label class="form-check-label" for="aperturaCierreSwitch" id="aperturaCierreLabel">Indicar apertura/cierre</label>
+          <label class="form-check-label" for="aperturaCierreSwitch" id="aperturaCierreLabel">El restaurante esta {estado ? "Cerrado" : "Abierto"}</label>
         </div>
         <h2 id="titulo">Esto es de un restaurante</h2>
       </Layout>
