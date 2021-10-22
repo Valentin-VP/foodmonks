@@ -1,18 +1,15 @@
 package org.foodmonks.backend.EmailService;
 
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 @Service 
 public class EmailService {
@@ -30,7 +27,7 @@ public class EmailService {
 	}
 
 
-	public void enviarMail (String destinatario, String asunto, String htmlContent) throws EmailNoEnviadoException {
+	public void enviarMail (String destinatario, String asunto, String htmlContent, String[] Cc) throws EmailNoEnviadoException {
 		
 		//ARMAR EL CONTENIDO DEL MAIL SE DEBE ENCARGAR EL CASO DE USO QUE LO REQUIERA. ESTO VA AHI.
 				//Context context = new Context();
@@ -44,6 +41,7 @@ public class EmailService {
 		message.setTo(destinatario);
 		message.setFrom(mailReclamos);
 		message.setSubject(asunto);
+		if (Cc != null) message.setCc(Cc);
 		message.setText(htmlContent, true);
 		emailSender.send(mimeMessage);
 		 

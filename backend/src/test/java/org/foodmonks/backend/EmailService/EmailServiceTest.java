@@ -58,7 +58,7 @@ class EmailServiceTest {
 
         //doNothing().when(javaMailSender).send(message);
 
-        emailService.enviarMail("a","g","d");
+        emailService.enviarMail("a","g","d", null);
 
         verify(javaMailSender).send((mimeMessageArgumentCaptor.capture()));
         assertThat(mimeMessageArgumentCaptor.getValue()).isEqualTo(message);
@@ -70,7 +70,7 @@ class EmailServiceTest {
         //when(templateEngine.process(anyString(), any(Context.class))).thenReturn("");
         when(javaMailSender.createMimeMessage()).thenReturn(message);
 
-        assertThatThrownBy(()->emailService.enviarMail("","",""))
+        assertThatThrownBy(()->emailService.enviarMail("","","",null))
                 .isInstanceOf(EmailNoEnviadoException.class).hasMessageContaining("No se pudo enviar el mail");
 
         verify(javaMailSender, never()).send(any(MimeMessage.class));
