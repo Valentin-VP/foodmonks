@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Home } from "./Home";
 import { Footer } from "../../components/Footer";
 import { NavigationBar } from "../admin/NavBar";
+import BuscarRegistrados from "../admin/BuscarRegistrados"
 
 const Styles = styled.div`
   #page-container {
@@ -22,6 +23,7 @@ function Admin() {
           <Switch>
             {/* el home tiene su propio layout*/}
             <Route exact path="/" component={Home} />
+            <Route exact path="/buscarUsuarios" component={BuscarRegistrados} />
             {/* <Route path="no-match" component={NoMatch} /> */}
           </Switch>
         </Router>
