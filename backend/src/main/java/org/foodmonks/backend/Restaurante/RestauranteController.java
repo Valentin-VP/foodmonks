@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,44 +46,52 @@ public class RestauranteController {
         this.tokenHelp = tokenHelper;
     }
 
-
+    @Operation(summary = "Crear Restaurante", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping//CREAR RESTAURANTE
     public void createRestaurante(@RequestBody Restaurante restaurante) {
         restauranteService.createRestaurante(restaurante);
     }
 
+    @Operation(summary = "Listar Restaurantes", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping//LISTAR RESTAURANTES
     //@GetMapping("/rutaEspecifica")
     public List<Restaurante> listarRestaurante(){
         return restauranteService.listarRestaurante();
     }
 
+    @Operation(summary = "Buscar Restaurante", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/buscar")
     public void buscarRestaurante(@RequestParam String correo) {
         restauranteService.buscarRestaurante(correo);
     }
 
-    @PutMapping//EDITAR RESTAURANTE
+    @Operation(summary = "Modificar Restaurante", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping//MODIFICAR RESTAURANTE
     public void modificarRestaurante(@RequestBody Restaurante restaurante) {
         restauranteService.editarRestaurante(restaurante);
 
     }
 
+    @Operation(summary = "Eliminar Restaurante", security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping//ELIMINAR RESTAURANTE
     public void elimiarRestaurante(@RequestParam Long id) {
         //restauranteService.eliminarRestaurante(id);
     }
 
-    @Operation(summary = "Crea un nuevo Menu", description = "Agrega un nuevo Menu al Restaurante"/*, security = {
-            @SecurityRequirement(name = "petstore_auth", scopes = { "write:pets", "read:pets" }) }*/, tags = { "menu" })
+    @Operation(summary = "Crea un nuevo Menu",
+            description = "Agrega un nuevo Menu al Restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "menu" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)) }),
-            @ApiResponse(responseCode = "405", description = "Invalid input")
+            @ApiResponse(responseCode = "201", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @PostMapping(path = "/agregarMenu")
     public ResponseEntity<?> createMenu(
             @RequestHeader("Authorization") String token,
-            @Parameter(description = "Crea un nuevo Menu en el Restaurante", required = true) @Valid @RequestBody String infoMenu) {
+            @Parameter(description = "Crea un nuevo Menu en el Restaurante", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)))
+            @RequestBody String infoMenu) {
         String aux;
         String newToken = "";
 
@@ -122,6 +131,7 @@ public class RestauranteController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Listar Menu", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";

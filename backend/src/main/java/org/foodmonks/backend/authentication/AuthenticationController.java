@@ -1,5 +1,8 @@
 package org.foodmonks.backend.authentication;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Cliente.Cliente;
@@ -44,7 +47,7 @@ public class AuthenticationController {
 
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public ResponseEntity<?> login(@Parameter @RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
         final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
@@ -66,6 +69,7 @@ public class AuthenticationController {
     //endpoint para renovar los tokens, debe recibir el correo del usuario(esta en el refreshToken)
 
     @GetMapping("/auth/userinfo")
+    @Operation(summary = "Obtiene información del Usuario", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> getUserInfo(Authentication user) {
 
         if (adminService.buscarAdmin(user.getName()) != null) {
