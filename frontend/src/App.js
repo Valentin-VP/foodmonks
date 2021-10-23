@@ -2,6 +2,7 @@ import "./App.css";
 import { React, useState } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import ApiDocs from "./pages/ApiDocs";
 import { toast } from "react-toastify";
 import Admin from "./pages/admin/Admin";
 import Cliente from "./pages/cliente/Cliente";
@@ -35,6 +36,7 @@ function App() {
           <Switch>
             <Route exact path="/" component={Login} />
             <Route exact path="/register" component={Register} />
+            <Route exact path="/apidocs" component={ApiDocs} />
           </Switch>
         </BrowserRouter>
       );

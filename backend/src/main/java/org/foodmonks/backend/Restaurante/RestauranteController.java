@@ -1,10 +1,19 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.foodmonks.backend.Menu.DtMenu;
+import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
@@ -16,11 +25,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.web.bind.annotation.*;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/restaurante")
+@Tag(name = "restaurante", description = "API de Restaurantes")
 public class RestauranteController {
 
     private final RestauranteService restauranteService;
@@ -33,6 +44,7 @@ public class RestauranteController {
         this.restauranteService = restauranteService;
         this.tokenHelp = tokenHelper;
     }
+
 
     @PostMapping//CREAR RESTAURANTE
     public void createRestaurante(@RequestBody Restaurante restaurante) {
@@ -61,8 +73,16 @@ public class RestauranteController {
         //restauranteService.eliminarRestaurante(id);
     }
 
+    @Operation(summary = "Crea un nuevo Menu", description = "Agrega un nuevo Menu al Restaurante"/*, security = {
+            @SecurityRequirement(name = "petstore_auth", scopes = { "write:pets", "read:pets" }) }*/, tags = { "menu" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)) }),
+            @ApiResponse(responseCode = "405", description = "Invalid input")
+    })
     @PostMapping(path = "/agregarMenu")
-    public ResponseEntity<?> createMenu(@RequestHeader("Authorization") String token, @RequestBody String infoMenu) {
+    public ResponseEntity<?> createMenu(
+            @RequestHeader("Authorization") String token,
+            @Parameter(description = "Crea un nuevo Menu en el Restaurante", required = true) @Valid @RequestBody String infoMenu) {
         String aux;
         String newToken = "";
 

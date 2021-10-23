@@ -53,7 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
                 .authenticationEntryPoint(authenticationEntry).and()
-                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login").permitAll()
+                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login", "/v3/api-docs.yaml", "/v3/api-docs").permitAll()
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
