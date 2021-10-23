@@ -11,7 +11,7 @@ import java.util.List;
 public interface MenuRepository extends JpaRepository<Menu, Long> {
     Menu findByIdAndRestaurante(Long id, Restaurante restaurante);
     Boolean existsByNombreAndRestaurante(String name, Restaurante restaurante);
-    List<Menu> findByRestaurante(Restaurante restaurante);
+    List<Menu> findMenusByRestaurante(Restaurante restaurante);
 
     @Override
     Menu save(Menu entity);

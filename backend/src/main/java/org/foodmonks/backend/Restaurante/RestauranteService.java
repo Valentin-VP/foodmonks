@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Restaurante;
 
+import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,4 +37,9 @@ public class RestauranteService {
     public void editarRestaurante(Restaurante restaurante) {
         restauranteRepository.save(restaurante);
     }
+
+    public void modificarEstado(String correo,EstadoRestaurante estado) {
+        restauranteRepository.findByCorreo(correo).setEstado(estado);
+    }
+
 }

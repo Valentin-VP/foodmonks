@@ -34,20 +34,22 @@ const MenuCard = (props) => {
   return (
     <Styles>
       <div className="card">
-        <img src={props.imagen} alt="productimg" height="200" />
+        <img src={props.img} alt="productimg" height="200" />
         <div className="card-body">
           <h5 className="card-title">{props.nombre}</h5>
           <h5 className="card-subtitle">
             $ {props.price} - {props.multiplicador}%
           </h5>
           <h6 className="card-subtitle">{props.categoria}</h6>
-          <p className="card-text">{props.desc}</p>
+          <p className="card-text">{props.descripcion}</p>
           <div className="grupoBotones">
             <ButtonGroup aria-label="Basic example">
-              <Button id="eliminar" className="btn-primary margin-auto" onClick={eliminarMenu(props.id)}>
+              <Button id="eliminar" className="btn-primary margin-auto" onClick={() => {eliminarMenu(props.id).then((response) => {
+                console.log(response);
+                window.location.reload();
+              })}}>
                 Eliminar
               </Button>
-              {/*tengo redireccionar a modificarMenu */}
               <Button id="modificar" className="btn-primary margin-auto">
                 Modificar
               </Button>
