@@ -9,6 +9,7 @@ const Styles = styled.div`
     bottom: 0;
     width: 100%;
     height: 3.5rem;
+    color: #f2f2f2;
   }
 `;
 
@@ -17,7 +18,7 @@ export const Footer = () => (
     <React.Fragment>
       <footer className="footer py-3">
         <div className="container">
-          <span className="text-muted">foodmonksoficial@gmail.com</span>
+          <span>foodmonksoficial@gmail.com</span>
         </div>
       </footer>
     </React.Fragment>

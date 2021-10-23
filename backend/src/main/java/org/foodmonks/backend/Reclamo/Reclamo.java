@@ -4,21 +4,34 @@ import java.time.LocalDate;
 
 import javax.persistence.*;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.persistencia.ReclamoID;
 
+@Getter
+@Setter
 @Entity
 @IdClass(ReclamoID.class)
 public class Reclamo {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 	private String razon;
 	private String comentario;
 	private LocalDate  fecha;
+	@Id
 	@OneToOne
+	@JoinColumn(
+			insertable=false,
+			updatable=false
+	)
 	private Pedido pedido;
+/*	@ManyToOne
+	private Restaurante restaurante;*/
 
 	public Reclamo() {
 		// TODO Auto-generated constructor stub
@@ -29,46 +42,6 @@ public class Reclamo {
 		this.razon = razon;
 		this.comentario = comentario;
 		this.fecha = fecha;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getRazon() {
-		return razon;
-	}
-
-	public void setRazon(String razon) {
-		this.razon = razon;
-	}
-
-	public String getComentario() {
-		return comentario;
-	}
-
-	public void setComentario(String comentario) {
-		this.comentario = comentario;
-	}
-
-	public LocalDate getFecha() {
-		return fecha;
-	}
-
-	public void setFecha(LocalDate fecha) {
-		this.fecha = fecha;
-	}
-
-	public Pedido getPedido() {
-		return pedido;
-	}
-
-	public void setPedido(Pedido pedido) {
-		this.pedido = pedido;
 	}
 
 }

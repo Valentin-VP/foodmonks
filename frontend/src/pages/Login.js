@@ -2,6 +2,7 @@ import { React, Fragment, useState } from "react";
 import styled from "styled-components";
 import logo from "../assets/foodMonks-sinfondo.png";
 import { userLogin } from "../services/Requests";
+import { Error } from "../components/Error";
 
 const Styles = styled.div`
   .text-center {
@@ -42,6 +43,10 @@ const Styles = styled.div`
     }
   }
 
+  #loginError {
+    margin-top: 20px;
+  }
+
 `;
 
 function Login() {
@@ -58,19 +63,38 @@ function Login() {
     }));
   };
 
+  const [error, guardarError] = useState("");
+
   const handleSubmit = (e) => {
     e.preventDefault();
     userLogin(values).then((response) => {
       if (response.status === 200) {
-        //props.setUser(response.data);
         localStorage.setItem("token", response.data.token);
         window.location.replace("/");
       } else {
-        //props.loginFailure("Algo salio mal! Pruebe nuevamente");
-        window.location.replace("/asdasd");
+        guardarError("Algo salio mal!!");
+      }
+    }).catch((err) => {
+      if(err && err.response) {
+        switch(err.response.status) {
+          case 401:
+            guardarError("Algo salio mal!! correo o contraseña incorrectos");
+            break;
+          default:
+            guardarError("Algo salio mal!!");
+        } 
+      } else {
+        guardarError("Algo salio mal!!");
       }
     });
   };
+
+  let componente;
+  if(error !== "") {
+    componente = <Error error={error}/>
+  } else {
+    componente = null;
+  }
 
   return (
     <Styles>
@@ -122,7 +146,13 @@ function Login() {
               <button className="w-100 btn btn-lg btn-primary" type="submit">
                 Entrar
               </button>
+              <div id="loginError">
+                {componente}
+              </div>
               <p className="mt-5 mb-3 text-muted">
+                <a href="/register">Olvide mi contraseña</a>
+              </p>
+              <p className="mt-2 mb-3 text-muted">
                 ¿No tienes cuenta?<a href="/register">Registrate</a>
               </p>
             </form>

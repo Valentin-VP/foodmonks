@@ -67,29 +67,28 @@ public class AuthenticationController {
 
     @GetMapping("/auth/userinfo")
     public ResponseEntity<?> getUserInfo(Authentication user) {
-        InfoUsuario userInfo = new InfoUsuario();
 
         if (adminService.buscarAdmin(user.getName()) != null) {
+            InfoAdmin adminInfo = new InfoAdmin();
             Admin admin = adminService.buscarAdmin(user.getName());
-            userInfo.setFirstName(admin.getNombre());
-            userInfo.setLastName(admin.getApellido());
-            userInfo.setRoles(admin.getAuthorities().toArray());
-            return new ResponseEntity<>(userInfo, HttpStatus.OK);
+            adminInfo.setRoles(admin.getAuthorities().toArray());
+            return new ResponseEntity<>(adminInfo, HttpStatus.OK);
 
         } else if (restauranteService.buscarRestaurante(user.getName()) != null) {
+            InfoRestaurante restauranteInfo = new InfoRestaurante();
             Restaurante restaurante = restauranteService.buscarRestaurante(user.getName());
-            userInfo.setFirstName(restaurante.getNombre());
-            userInfo.setLastName(restaurante.getApellido());
-            userInfo.setRoles(restaurante.getAuthorities().toArray());
-            return new ResponseEntity<>(userInfo, HttpStatus.OK);
+            restauranteInfo.setNombre(restaurante.getNombreRestaurante());
+            restauranteInfo.setDescripcion(restaurante.getDescripcion());
+            restauranteInfo.setRoles(restaurante.getAuthorities().toArray());
+            return new ResponseEntity<>(restauranteInfo, HttpStatus.OK);
 
         } else if (clienteService.buscarCliente(user.getName()) != null) {
+            InfoCliente clienteInfo = new InfoCliente();
             Cliente cliente = clienteService.buscarCliente(user.getName());
-            System.out.println(cliente.getUsername());
-            userInfo.setFirstName(cliente.getNombre());
-            userInfo.setLastName(cliente.getApellido());
-            userInfo.setRoles(cliente.getAuthorities().toArray());
-            return new ResponseEntity<>(userInfo, HttpStatus.OK);
+            clienteInfo.setFirstName(cliente.getNombre());
+            clienteInfo.setLastName(cliente.getApellido());
+            clienteInfo.setRoles(cliente.getAuthorities().toArray());
+            return new ResponseEntity<>(clienteInfo, HttpStatus.OK);
         } else {
             return new ResponseEntity<>("no se encontro ningun tipo de usuario", HttpStatus.BAD_REQUEST);
         }
