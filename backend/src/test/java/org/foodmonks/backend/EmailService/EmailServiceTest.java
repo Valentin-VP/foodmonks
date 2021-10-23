@@ -39,7 +39,8 @@ class EmailServiceTest {
 
     @BeforeEach
     public void setUp() {
-       emailService = new EmailService(javaMailSender);
+        emailService = new EmailService(javaMailSender);
+        // Al ser private no es posible hacer un setMailReclamos porque no existe el método. Se utiliza:
         ReflectionTestUtils.setField(emailService, "mailReclamos",
                 System.getenv("mail.username"));
     }
