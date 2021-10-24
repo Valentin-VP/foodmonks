@@ -1,9 +1,17 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.DtMenu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -16,7 +24,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.web.bind.annotation.*;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -34,9 +44,55 @@ public class RestauranteController {
         this.tokenHelp = tokenHelper;
     }
 
-    @PostMapping//CREAR RESTAURANTE
-    public void createRestaurante(@RequestBody Restaurante restaurante) {
-        restauranteService.createRestaurante(restaurante);
+    @Operation(summary = "Crea un nuevo Restaurante",
+            description = "Registra un pedido de alta de un nuevo Restaurante con sus Menús",
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Su solicitud de alta fue recibida con éxito"),
+            @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
+    })
+    @PostMapping(path = "/crearSolicitudAltaRestaurante")//CREAR RESTAURANTE
+    public ResponseEntity<?> crearSolicitudAltaRestaurante(
+            @Parameter(description = "Nuevo Restaurante con sus Menús", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Restaurante.class)))
+            @RequestBody String restaurante) {
+        try{
+            JsonObject jsonRestaurante = new Gson().fromJson(restaurante, JsonObject.class);
+
+            JsonArray jsonMenus = jsonRestaurante.getAsJsonArray("menus");
+            JsonObject jsonDireccion = jsonRestaurante.get("direccion").getAsJsonObject();
+
+            Direccion direccion = new Direccion(
+                    jsonDireccion.get("numero").getAsInt(),
+                    jsonDireccion.get("calle").getAsString(),
+                    jsonDireccion.get("esquina").getAsString(),
+                    jsonDireccion.get("detalles").getAsString(),
+                    jsonDireccion.get("latitud").getAsString(),
+                    jsonDireccion.get("longitud").getAsString()
+            );
+
+            restauranteService.createSolicitudAltaRestaurante(
+                    jsonRestaurante.get("nombre").getAsString(),
+                    jsonRestaurante.get("apellido").getAsString(),
+                    jsonRestaurante.get("correo").getAsString(),
+                    new String(Base64.getDecoder().decode(jsonRestaurante.get("password").getAsString())),
+                    LocalDate.now(),
+                    5.0f,
+                    jsonRestaurante.get("nombreRestaurante").getAsString(),
+                    jsonRestaurante.get("rut").getAsString(),
+                    direccion,
+                    EstadoRestaurante.valueOf("PENDIENTE"),
+                    jsonRestaurante.get("telefono").getAsString(),
+                    jsonRestaurante.get("descripcion").getAsString(),
+                    jsonRestaurante.get("cuentaPaypal").getAsString(),
+                    jsonRestaurante.get("url").getAsString()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+            // "Su solicitud de alta fue recibida con éxito"
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping//LISTAR RESTAURANTES
