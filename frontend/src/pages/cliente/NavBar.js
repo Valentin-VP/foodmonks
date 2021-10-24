@@ -4,7 +4,7 @@ import styled from "styled-components";
 import foodlogo from "../../assets/foodLogo.png"; // Tell webpack this JS file uses this image
 import cartIcon from "../../assets/cartIcon.png";
 import { Noti } from "../../components/Notification";
-import { clearState } from "../../services/Requests";
+import { clearState, eliminarCuentaClientePropia } from "../../services/Requests";
 
 console.log(foodlogo);
 
@@ -80,6 +80,14 @@ export const NavigationBar = () => (
             </Nav.Item>
             <NavDropdown title="Cliente" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
+              {/* Esto no va acá sino en el perfil del usuario */}
+              <NavDropdown.Item onClick={()=>{
+                eliminarCuentaClientePropia().then((response)=>{
+                  console.log(response.status);
+                }).catch((error)=>{
+                  console.log(error);
+                })}
+                }>Eliminar Cuenta</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
                 Cerrar Sesion
