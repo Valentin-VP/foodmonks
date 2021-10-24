@@ -23,8 +23,10 @@ export const getRefreshToken = () => {
 }
 
 export const checkTokens = (auth, refreshAuth) => {
+  const newAuth = auth.substring(7);
+  const newRefreshAuth = refreshAuth.substring(7);
   if(getToken() != null && getRefreshToken() != null) {
-    if(auth !== getToken() || refreshAuth !== getRefreshToken()) {
+    if(newAuth !== getToken() || newRefreshAuth !== getRefreshToken()) {
       localStorage.setItem("token", auth);
       localStorage.setItem("refreshToken", refreshAuth);
     }
@@ -125,7 +127,7 @@ export const cambiarEstado = (estado) => {
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/modificarEstado/${estado}`,
     headers: {
-      Authorization: getToken(),
+      Authorization: "Bearer " + getToken(),
       'RefreshAuthentication': "Bearer " + getRefreshToken(),
     }
   });

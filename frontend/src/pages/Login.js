@@ -3,6 +3,7 @@ import styled from "styled-components";
 import logo from "../assets/foodMonks-sinfondo.png";
 import { userLogin } from "../services/Requests";
 import { Error } from "../components/Error";
+import { Base64 } from 'js-base64';
 
 const Styles = styled.div`
   .text-center {
@@ -55,14 +56,21 @@ function Login() {
     password: ""
   });
 
-  const handleChange = (e) => {
+  const handleChangeMail = (e) => {
     e.persist();
     setValues((values) => ({
       ...values,
       [e.target.name]: e.target.value,
     }));
   };
-
+  
+  const handleChangePass = (e) => {
+    e.persist();
+    setValues((values) => ({
+      ...values,
+      [e.target.name]: Base64.encode(e.target.value),
+    }));
+  };
   const [error, guardarError] = useState("");
 
   const handleSubmit = (e) => {
@@ -121,7 +129,7 @@ function Login() {
                   className="form-control"
                   id="email"
                   placeholder="name@example.com"
-                  onChange={handleChange}
+                  onChange={handleChangeMail}
                   required
                 />
                 <label for="floatingInput">Correo electronico</label>
@@ -133,7 +141,7 @@ function Login() {
                   className="form-control"
                   id="password"
                   placeholder="Password"
-                  onChange={handleChange}
+                  onChange={handleChangePass}
                   required
                 />
                 <label for="floatingPassword">Contraseña</label>
