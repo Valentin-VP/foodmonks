@@ -1,18 +1,14 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.foodmonks.backend.Menu.DtMenu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.web.bind.annotation.*;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
@@ -105,7 +101,7 @@ public class RestauranteController {
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        List<DtMenu> listaMenu = new ArrayList<DtMenu>();
+        List<JsonObject> listaMenu = new ArrayList<JsonObject>();
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
@@ -113,17 +109,8 @@ public class RestauranteController {
             }
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             listaMenu = menuService.listarMenu(correo);
-            for(int i=0;i<listaMenu.size();i++) {
-                JsonObject menu = new JsonObject();
-                menu.addProperty("id",listaMenu.get(i).getId());
-                menu.addProperty("nombre",listaMenu.get(i).getNombre());
-                menu.addProperty("descripcion",listaMenu.get(i).getDescripcion());
-                menu.addProperty("price",listaMenu.get(i).getPrice());
-                menu.addProperty("visible",listaMenu.get(i).getVisible());
-                menu.addProperty("multiplicadorPromocion", listaMenu.get(i).getMultiplicadorPromocion());
-                menu.addProperty("imagen", listaMenu.get(i).getImagen());
-                menu.addProperty("categoria", listaMenu.get(i).getCategoria().toString());
-                jsonArray.add(menu);
+            for(JsonObject jsonMenu : listaMenu) {
+                jsonArray.add(jsonMenu);
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -185,21 +172,13 @@ public class RestauranteController {
     @GetMapping(path = "getInfoMenu/{menuId}")
     public ResponseEntity<?> getMenuInfo(@RequestHeader("Authorization") String token, @PathVariable Long menuId) {
         String newtoken = "";
-        JsonObject retorno = new JsonObject();
+        JsonObject retorno;
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(newtoken);
-            DtMenu dtMenu = menuService.infoMenu(menuId, correo);
-            retorno.addProperty("nombre", dtMenu.getNombre());
-            retorno.addProperty("id", dtMenu.getId());
-            retorno.addProperty("categoria", dtMenu.getCategoria().name());
-            retorno.addProperty("multiplicadorPromocion", dtMenu.getMultiplicadorPromocion());
-            retorno.addProperty("descripcion", dtMenu.getDescripcion());
-            retorno.addProperty("price", dtMenu.getPrice());
-            retorno.addProperty("imagen", dtMenu.getImagen());
-
+            retorno = menuService.infoMenu(menuId, correo);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

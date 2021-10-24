@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Menu;
 
 import ch.qos.logback.core.net.SyslogOutputStream;
+import com.google.gson.JsonObject;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
@@ -80,14 +81,14 @@ public class MenuService {
         }
     }
 
-    public DtMenu infoMenu(Long id, String correo) {
-        return menuConvertidor.getDtMenu(menuRepository.findByIdAndRestaurante(id,
+    public JsonObject infoMenu(Long id, String correo) {
+        return menuConvertidor.jsonMenu(menuRepository.findByIdAndRestaurante(id,
                 restauranteRepository.findById(correo).get()));
     }
 
-    public List<DtMenu> listarMenu(String correoRestaurante){
+    public List<JsonObject> listarMenu(String correoRestaurante){
 
-        return menuConvertidor.connvertirMenu(menuRepository.findMenusByRestaurante(
+        return menuConvertidor.listaJsonMenu(menuRepository.findMenusByRestaurante(
                 restauranteRepository.findById(correoRestaurante).get()));
 
     }
