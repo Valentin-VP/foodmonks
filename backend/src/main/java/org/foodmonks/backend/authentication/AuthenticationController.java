@@ -57,16 +57,14 @@ public class AuthenticationController {
         UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getEmail());
 
         String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
-        System.out.println("el token es: " + jwtToken);
+        String jwtRefreshToken=tokenHelper.generateRefreshToken(usuario.getUsername(), usuario.getAuthorities());
 
-        //falta generar el refreshToken y agregarselo a la response
         AuthenticationResponse response=new AuthenticationResponse();
         response.setToken(jwtToken);
+        response.setRefreshToken(jwtRefreshToken);
 
         return ResponseEntity.ok(response);
     }
-
-    //endpoint para renovar los tokens, debe recibir el correo del usuario(esta en el refreshToken)
 
     @GetMapping("/auth/userinfo")
     @Operation(summary = "Obtiene información del Usuario", security = @SecurityRequirement(name = "bearerAuth"))
