@@ -7,7 +7,9 @@ public class AuthenticationRequest {
     private String email;
     private String password;
     public String getEmail() {
-        return email;
+        byte[] decodedBytesMail = Base64.getDecoder().decode(this.email);
+        String decodedMail = new String(decodedBytesMail);
+        return decodedMail;
     }
 
     public String getPassword() {

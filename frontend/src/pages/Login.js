@@ -60,7 +60,7 @@ function Login() {
     e.persist();
     setValues((values) => ({
       ...values,
-      [e.target.name]: e.target.value,
+      [e.target.name]: Base64.encode(e.target.value),
     }));
   };
   
