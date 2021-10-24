@@ -1,10 +1,9 @@
 import { React, useState, useEffect } from "react";
 import styled from "styled-components";
-import { Button, FloatingLabel, Form } from "react-bootstrap";
+import { Button, FloatingLabel, Form, Alert } from "react-bootstrap";
 import { storage } from "../../Firebase";
 import { getMenuInfo, modMenu } from "../../services/Requests";
 import { Error } from "../../components/Error";
-import { Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   * {
@@ -118,7 +117,8 @@ function ModificarMenu() {
     { nombre: "OTROS" },
   ];
 
-  let componente = null;
+  let success;
+  let componente;
 
   const handleUpload = (data) => {
     state.img = data.target.files[0];
@@ -159,6 +159,8 @@ function ModificarMenu() {
               console.log(menuRetorno);
               console.log(state.id);
               modMenu(menuRetorno, state.id).then((response) => {//request al backend
+                if (response.status === 200)
+                  success = <Alert variant="success">Menú modificado con exito!</Alert>;
                 console.log(response);
                 sessionStorage.removeItem("menuId");
               });
@@ -168,11 +170,11 @@ function ModificarMenu() {
     } else {//sino
       menuRetorno.imagen = state.imgUrl;//cargo la imagen que ya estaba
       modMenu(menuRetorno, state.id).then((response) => {//request al backend
+        if (response.status === 200) success = <Alert variant="success">Menú modificado con exito!</Alert>;
         console.log(response);
         sessionStorage.removeItem("menuId");
       });
     }
-    Noti("se modifico el menu correctamente");
   };
 
   return (
@@ -190,6 +192,7 @@ function ModificarMenu() {
               id="nombre"
               placeholder="Nombre del Menú"
               onChange={handleChange}
+              disabled
             />
             <label for="floatingInput">{state.nombre}</label>
           </div>
@@ -250,6 +253,7 @@ function ModificarMenu() {
           <label className="mb-2">Imágen del menú</label>
           {/* image uploader */}
           <Form.Control type="file" onChange={handleUpload} />
+          {success}
           {componente}
           <Button onClick={onSubmit}>Modificar</Button>
         </Form>
