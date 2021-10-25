@@ -42,4 +42,7 @@ public class RestauranteService {
         restauranteRepository.findByCorreo(correo).setEstado(estado);
     }
 
+    public boolean chequearEstado(String correo, EstadoRestaurante estado) {
+        return true;
+    }
 }

@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Cliente;
 
+import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,5 +36,9 @@ public class ClienteService {
 
     public void modificarCliente(Cliente cliente) {
         clienteRepository.save(cliente);
+    }
+
+    public boolean chequearEstado(String correo, EstadoCliente estado) {
+        return true;
     }
 }
