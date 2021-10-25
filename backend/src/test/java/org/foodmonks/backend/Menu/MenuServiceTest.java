@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -67,7 +68,7 @@ class MenuServiceTest {
         * En estos casos ni el repository del [Restaurante] o el [Menu] tienen ninguna comunicación con la BD. Son 'falsos'...
         * ...por lo que '.findByCorreo' o '.existsByNombreAndRestaurante' darán siempre el mismo valor (null y false respectivamente).
         * Se le dice (concepto de premisas) que cuando (when) se llama a la función '.findByCorreo' con 'anyString()' (que es como un wildcard)...
-        * ...se retorne la variable 'restaurante' creada arriba. Si no se hace esto se retornaría [null] y se cortaría en el 'if (restaurante!=null).
+        * ...se retorne la variable 'restaurante' creada arriba. Si no se hace esto se retornaría [null] y se cortaría en el 'if (restaurante==null).
         * En el caso de '.existsByNombreAndRestaurante', se le pasan 2 'wildcards' y se simula que ese método del repositorio...
         * ...retorna que no existe el menú repetido en la BD.
         * Este es el concepto de 'stubbing'. Imitar un objeto y sus funcionalidades reales, pero sin depender de si estas funcionan bien.
@@ -99,9 +100,6 @@ class MenuServiceTest {
         Menu capturedMenu = menuArgumentCaptor.getValue();
         assertThat(capturedMenu.getCategoria()).isEqualTo(CategoriaMenu.OTROS);
         // assertThat(capturedMenu).isEqualTo(menu);
-        /* Y finalmente se comprueba que el método devuelva True (según indica la función es que finalizó correctamente)
-        * */
-        //assertThat(result).isTrue();
     }
 
     @Test
@@ -120,20 +118,25 @@ class MenuServiceTest {
         //BDDMockito.given(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).willReturn(true);
 
         //cuando
-        /* Llamada al método...
-        * */
-        menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
         //entonces
-        /* Se le verifica que, como cortó antes ('if (!menuRepository.existsByNombreAndRestaurante(nombre, restaurante))')...
+        /* Se le verifica que, como cortó antes ('if (menuRepository.existsByNombreAndRestaurante(nombre, restaurante))')...
         * ...gracias a la 'mentira' que se le tiró con el .when, el .save no puede ser llamado nunca.
         * Como se espera que de veras no sea llamado se le pasa un wildcard mediante any().
+        *
+        * Al necesitar comprobar que se lanza de veras la excepción correspondiente, se hace directamente el assert junto a la llamada...
+        * ...utilizando el 'assertThatThrownBy' junto al método que debería lanzar la excepción.
+        * Obviamente la excepción tiene que coincidir y si se quiere especificar que el mensaje coincida, también este último.
         * */
+        assertThatThrownBy(()->menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+                .isInstanceOf(MenuNombreExistente.class).hasMessageContaining("Ya existe un menu con el nombre nombre para el restaurante correoRestaurante");
+
         verify(menuRepository, never()).save(any());
 
-        /* Como esa función retorna False si el menú es repetido, se espera que el retorno sea igual.
+        /* Como esa función retornaba False si el menú es repetido, se esperaba que el retorno sea igual.
         * Se puede colocar una descripción al assert para que aparezca cuando falla el mismo...
         * ...por lo que si se quiere ser más verbose se puede. Solo aparece cuando falla.
+        * Esto obviamente ya no corre para altaMenu.
         * */
        // assertThat(result).as("Debería retornar false porque el menu se asume como existente").isEqualTo(false);
     }
@@ -142,23 +145,25 @@ class MenuServiceTest {
     void altaMenu_RestauranteInexistente() throws UsuarioNoRestaurante, MenuNombreExistente {
         //dado
         /* Acá se quiere ver que la función falla si el restaurante es null, pero obviamente no existe conexión con la BD...
-        * ...entonces se le simula un retorno para que 'if (restaurante != null)' corte por lo sano.
+        * ...entonces se le simula un retorno para que 'if (restaurante == null)' corte por lo sano.
         * */
         when(restauranteRepository.findByCorreo(anyString())).thenReturn(null);
 
         //cuando
-        menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
         //entonces
-        /* Igual que antes */
+        /* Igual que antes, solo que con la excepción de cuando el restaurante es null */
+        assertThatThrownBy(()->menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+                .isInstanceOf(UsuarioNoRestaurante.class)
+                .hasMessageContaining("El correo correoRestaurante no pertenece a un restaurante");
         verify(menuRepository, never()).save(any());
 
         /* Igual que antes */
         //assertThat(result).as("Debería retornar false porque el restaurante se asume como null").isEqualTo(false);
     }
 
-    @Test //Test innecesario
-    void altaMenu_throwsException() throws UsuarioNoRestaurante, MenuNombreExistente {
+    //@Test //Test innecesario
+    //void altaMenu_throwsException() throws UsuarioNoRestaurante, MenuNombreExistente {
         /* Debido a que no hay una conexión real con la BD, aparentemente (y APARENTEMENTE), repito: APARENTEMENTE...
         * ...no se ejecutan las queries de JPA que sí lo hacen en uso normal, entonces el IllegalStateException es imposible de simular.
         * Lo que significa que excepciones por Hibernate no pueden ser invocadas forzosamente.
@@ -168,20 +173,20 @@ class MenuServiceTest {
         * ...como si se esperase un alta de menú completo y correcto, entonces el [Restaurante] es creado y los .when se utilizan.
         * */
         //dado
-        Restaurante restaurante = new Restaurante();
-        Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, restaurante);
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
-        when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
+    //    Restaurante restaurante = new Restaurante();
+    //    Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
+    //            "imagen", CategoriaMenu.OTROS, restaurante);
+    //    when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+    //    when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
         /* Se le fuerza a que cuando se llama al .save se lanze la excepción que lanzaría en operación normal (en caso de entidad nula o repetida)
         * El comentario de arriba detalla por qué esto se hace.
         * Por lo que es irrelevante lo que se le pase al .save porque se necesita un fallo que es imposible de simular con este @Mock.
         * */
-        doThrow(IllegalStateException.class).when(menuRepository).save(any());
+    //    doThrow(IllegalStateException.class).when(menuRepository).save(any());
         //cuando
         /* Se llama al método...*/
-        menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
+    //    menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
+    //            "imagen", CategoriaMenu.OTROS, "correoRestaurante");
         //entonces
         /* Igual que antes...
         * ...pero hay que tener cuidado porque si hubiese un 'throws AlgunaExcepcion' en la firma del 'altaMenu'...
@@ -189,9 +194,9 @@ class MenuServiceTest {
         * assertThatThrownBy(()->altaMenu(...parámetros...)).isInstanceOf(TipoDeExcepcion.class).hasMessageContaining("El mensaje que lanzaría");
         * No es el caso aquí, entonces no se hace.
         * */
-        verify(menuRepository).save(any());
+    //    verify(menuRepository).save(any());
         //assertThat(result).isFalse();
-    }
+    //}
 
     @Test
     void eliminarMenu() throws MenuNoEncontradoException {
@@ -222,20 +227,23 @@ class MenuServiceTest {
         *...(ok, correoRestaurante también y técnicamente el [Menu] es nuestro 'menu' del test pero 'hashCode' y 'equals'...)
         * */
         assertThat(menuArgumentCaptor.getValue().getId()).isEqualTo(1L);
-        //assertThat(result).isTrue();
     }
 
-    @Test //Test innecesario
-    void eliminarMenu_throwsException() throws MenuNoEncontradoException {
-        /* Mismo concepto que el altaMenu_throwsException...
-        * ...y ni vale la pena crear el restaurante o el menú porque no ayudan a que se pueda lanzar la excepción "naturalmente"
+    @Test
+    void eliminarMenu_MenuInexistente() throws MenuNoEncontradoException {
+        //IGNORAR: //doThrow(IllegalStateException.class).when(menuRepository).delete(any());
+
+        /* Mismo concepto que los tests que esperan arrojar una excepción...
         * */
         //dado
-        doThrow(IllegalStateException.class).when(menuRepository).delete(any());
+        Restaurante restaurante = new Restaurante();
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
         //cuando
-        menuService.eliminarMenu(1L, "correoRestaurante");
         //entonces
-        //assertThat(result).isFalse();
+        assertThatThrownBy(()->menuService.eliminarMenu(1L, "correoRestaurante"))
+                .isInstanceOf(MenuNoEncontradoException.class)
+                .hasMessageContaining("No se encontro el Menu con id 1 para el Restuarante correoRestaurante");
+        verify(menuRepository, never()).delete(any());
     }
 
     @Test
@@ -269,7 +277,6 @@ class MenuServiceTest {
          */
         assertThat(menuArgumentCaptor.getValue()).isEqualTo(menu);
         assertThat(menuArgumentCaptor.getValue().getNombre()).isEqualTo("MODIFICADO_nombre");
-       // assertThat(result).isTrue();
     }
 
     @Test
@@ -281,11 +288,13 @@ class MenuServiceTest {
         when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(null);
         //cuando
-        menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
         //entonces
+        /* Mismo concepto que anteriormente */
+        assertThatThrownBy(()->menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+                .isInstanceOf(MenuNoEncontradoException.class)
+                .hasMessageContaining("No existe el Menu con id 1 para el Restaurante correoRestaurante");
         verify(menuRepository, never()).save(any());
-        //assertThat(result).isFalse();
     }
 
     @Test
@@ -306,32 +315,52 @@ class MenuServiceTest {
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(menu);
         when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
         //cuando
-        /* Igual que antes */
-        menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
         //entonces
+        /* Igual que antes */
+        assertThatThrownBy(()->menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+                .isInstanceOf(MenuNombreExistente.class)
+                .hasMessageContaining("Ya existe un menu con el nombre nombre para el Restaurante correoRestaurante");
         verify(menuRepository, never()).save(any());
         //assertThat(result).isFalse();
     }
 
-    @Test //Test innecesario
-    void modificarMenu_throwsException() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante {
+    @Test
+    void modificarMenu_RestauranteInexistente() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante {
+        /* Concepto similar...
+        * ...y no vale la pena crear nada, ya que para esta excepción solo se necesita llegar hasta el 'if (restaurante == null)' con un True.
+        * */
         //dado
-        /* La misma historia que antes con las excepciones... hay que llegar hasta el .save y forzar la excepción ahí */
-        Restaurante restaurante = new Restaurante();
-        Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, restaurante);
-        menu.setId(1L);
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
-        when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
-        when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(new Menu());
-        doThrow(IllegalStateException.class).when(menuRepository).save(any());
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(null);
         //cuando
-        menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
         //entonces
+        /* Igual que antes */
+        assertThatThrownBy(()->menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+                .isInstanceOf(UsuarioNoRestaurante.class)
+                .hasMessageContaining("El correo correoRestaurante no pertenece a un restaurante");
+        verify(menuRepository, never()).save(any());
         //assertThat(result).isFalse();
     }
+
+    //@Test //Test innecesario
+    //void modificarMenu_throwsException() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante {
+        //dado
+        /* La misma historia que antes con las excepciones... hay que llegar hasta el .save y forzar la excepción ahí */
+    //    Restaurante restaurante = new Restaurante();
+    //    Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
+    //            "imagen", CategoriaMenu.OTROS, restaurante);
+    //    menu.setId(1L);
+    //    when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+    //    when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
+    //    when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(new Menu());
+    //    doThrow(IllegalStateException.class).when(menuRepository).save(any());
+        //cuando
+    //    menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+    //            "imagen", CategoriaMenu.OTROS, "correoRestaurante");
+        //entonces
+        //assertThat(result).isFalse();
+    //}
 
     @Test
     void infoMenu() {
