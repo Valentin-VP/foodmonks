@@ -16,7 +16,9 @@ export default function ListadoRegistrados({data, fetchFunc}) {
     console.log(data);
     const updateState = (item) => {
       console.log(item);
-      // actualizarEstadoUsuario(item).then((response)=>{
+      const estado = item.estado==="bloqueado" ? "desbloquear" : (item.estado==="cerrado" || item.estado==="abierto" || item.estado==="activo") && "bloquear";
+      //// actualizarEstadoUsuario(item).then((response)=>{
+      // actualizarEstadoUsuario(estado, item.correo).then((response)=>{        
       //   if (response.status===200){
       //     fetchFunc();
       //   }else{
@@ -29,7 +31,8 @@ export default function ListadoRegistrados({data, fetchFunc}) {
 
     const deleteItem = (item) => {
       console.log(item);
-      // setEstadoUsuarioEliminado(item.correo).then((response)=>{
+      //// setEstadoUsuarioEliminado(item.correo).then((response)=>{
+      // actualizarEstadoUsuario("eliminado", item.correo).then((response)=>{
       //   if (response.status===200){
       //     fetchFunc();
       //   }else{
@@ -100,12 +103,12 @@ export default function ListadoRegistrados({data, fetchFunc}) {
                         <td>{item.tipoUser==="restaurante" && item.desc}</td>
                         <td>{item.tipoUser!=="admin" && item.calificacion}</td>
                         <td>{item.tipoUser!=="admin" && item.estado}</td>
-                        <td><button className="btn btn-sm btn-secondary" disabled={item.estado==="eliminado"} type="button" onClick={e=>(updateState(item))}>
+                        <td>{item.tipoUser!=="admin" && <button className="btn btn-sm btn-secondary" disabled={item.estado==="eliminado"} type="button" onClick={e=>(updateState(item))}>
                           {item.estado==="bloqueado" ? "Desbloquear" : "Bloquear"}
-                        </button></td>
-                        <td><button className="btn btn-sm btn-danger" disabled={item.estado !== "bloqueado" || item.estado==="eliminado"} type="button" onClick={e=>(deleteItem(item))}>
-                          ED
-                        </button></td>
+                        </button>}</td>
+                        <td>{item.tipoUser!=="admin" && <button className="btn btn-sm btn-danger" disabled={item.estado !== "bloqueado" || item.estado==="eliminado"} type="button" onClick={e=>(updateState(item))}>
+                          Eliminar
+                        </button>}</td>
                       </tr>
                     </>
                 )})}
