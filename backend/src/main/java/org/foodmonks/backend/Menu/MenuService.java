@@ -2,8 +2,11 @@ package org.foodmonks.backend.Menu;
 
 import ch.qos.logback.core.net.SyslogOutputStream;
 import com.google.gson.JsonObject;
+import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
+import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.persistencia.MenuID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,63 +25,58 @@ public class MenuService {
     public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, MenuConvertidor menuConvertidor)
     { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConvertidor = menuConvertidor; }
 
-    public boolean altaMenu(String nombre, Float price, String descripcion, Boolean visible,
+    public void altaMenu(String nombre, Float price, String descripcion, Boolean visible,
                             Float multiplicadorPromocion, String imagen, CategoriaMenu categoria,
-                            String correoRestaurante) {
+                            String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente{
 
-        try{
-            System.out.println("Entro a crear");
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
-            if (restaurante != null){
-                if (!menuRepository.existsByNombreAndRestaurante(nombre, restaurante)){
-                    Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria, restaurante);
-                    menuRepository.save(menu);
-                    System.out.println("Creo");
-                    return true;
-                }
-                System.out.println("Menu ya creado");
-                return false;
-           // System.out.println("########### " + restauranteRepository.findById(correoRestaurante).orElseGet(null).getNombreRestaurante());
+            if (restaurante == null) {
+                throw new UsuarioNoRestaurante("El correo "+ correoRestaurante + " no pertenece a un restaurante");
             }
-            System.out.println("Restaurante null");
-            return false;
-        } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
-            return false;
-        }
+            if (menuRepository.existsByNombreAndRestaurante(nombre, restaurante)){
+                throw new MenuNombreExistente("Ya existe un menu con el nombre " + nombre +
+                        " para el restaurante " + correoRestaurante);
+            }
+            Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria, restaurante);
+            menuRepository.save(menu);
     }
 
-    public boolean eliminarMenu(Long idMenu, String correoRestaurante) {
-        try {
-            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
-            Menu menu = menuRepository.findByIdAndRestaurante(idMenu, restaurante);
-            menuRepository.delete(menu);
-            return true;
-        } catch (Exception e){
-            return false;
+    public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException {
+
+        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+        Menu menu = menuRepository.findByIdAndRestaurante(idMenu, restaurante);
+        if (menu == null){
+            throw new MenuNoEncontradoException("No se encontro el Menu con id "+ idMenu + " para el Restuarante "
+                    + correoRestaurante);
         }
+        menuRepository.delete(menu);
     }
 
-    public boolean modificarMenu(Long id, String nombre, Float price, String descripcion, Boolean visible,
-                                 Float multiplicadorPromocion, String imagen, CategoriaMenu categoria, String correoRestaurante){
-        try {
-            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
-            Menu menuAux = menuRepository.findByIdAndRestaurante(id,restaurante);
-            if ( menuAux != null && !menuRepository.existsByNombreAndRestaurante(nombre,restaurante)) {
-                menuAux.setNombre(nombre);
-                menuAux.setPrice(price);
-                menuAux.setDescripcion(descripcion);
-                menuAux.setVisible(visible);
-                menuAux.setMultiplicadorPromocion(multiplicadorPromocion);
-                menuAux.setImagen(imagen);
-                menuAux.setCategoria(categoria);
-                menuRepository.save(menuAux);
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            return  false;
+    public void modificarMenu(Long id, String nombre, Float price, String descripcion, Boolean visible,
+                                 Float multiplicadorPromocion, String imagen, CategoriaMenu categoria,
+                         String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException, MenuNombreExistente {
+
+        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+        if (restaurante == null) {
+            throw new UsuarioNoRestaurante("El correo "+ correoRestaurante + " no pertenece a un restaurante");
         }
+        Menu menuAux = menuRepository.findByIdAndRestaurante(id,restaurante);
+        if (menuAux == null){
+            throw new MenuNoEncontradoException("No existe el Menu con id " + id  + " para el Restaurante "
+                    + correoRestaurante);
+        }
+        if (menuRepository.existsByNombreAndRestaurante(nombre,restaurante)) {
+            throw new MenuNombreExistente("Ya existe un menu con el nombre " + menuAux.getNombre()
+                    + " para el Restaurante " + correoRestaurante);
+        }
+        menuAux.setNombre(nombre);
+        menuAux.setPrice(price);
+        menuAux.setDescripcion(descripcion);
+        menuAux.setVisible(visible);
+        menuAux.setMultiplicadorPromocion(multiplicadorPromocion);
+        menuAux.setImagen(imagen);
+        menuAux.setCategoria(categoria);
+        menuRepository.save(menuAux);
     }
 
     public JsonObject infoMenu(Long id, String correo) {

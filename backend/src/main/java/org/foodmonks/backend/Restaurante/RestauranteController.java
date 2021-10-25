@@ -3,7 +3,10 @@ package org.foodmonks.backend.Restaurante;
 import com.google.gson.*;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
+import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +98,10 @@ public class RestauranteController {
             menuService.altaMenu(nombreMenu, precioMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correoRestaurante);
         } catch(JSONException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (MenuNombreExistente menuNombreExistente) {
+            return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
+        } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
+            return new ResponseEntity<>(usuarioNoRestaurante, HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -150,6 +158,12 @@ public class RestauranteController {
             menuService.modificarMenu(menuId, nombreMenu, priceMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correo);
         } catch(JsonParseException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (MenuNombreExistente menuNombreExistente) {
+            return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
+        } catch (MenuNoEncontradoException menuNoEncontradoException) {
+            return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);
+        } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
+            return new ResponseEntity<>(usuarioNoRestaurante, HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
