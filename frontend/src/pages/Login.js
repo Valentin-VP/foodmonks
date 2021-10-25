@@ -55,16 +55,8 @@ function Login() {
     email: "",
     password: ""
   });
-
-  const handleChangeMail = (e) => {
-    e.persist();
-    setValues((values) => ({
-      ...values,
-      [e.target.name]: Base64.encode(e.target.value),
-    }));
-  };
   
-  const handleChangePass = (e) => {
+  const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
       ...values,
@@ -129,7 +121,7 @@ function Login() {
                   className="form-control"
                   id="email"
                   placeholder="name@example.com"
-                  onChange={handleChangeMail}
+                  onChange={handleChange}
                   required
                 />
                 <label for="floatingInput">Correo electronico</label>
@@ -141,7 +133,7 @@ function Login() {
                   className="form-control"
                   id="password"
                   placeholder="Password"
-                  onChange={handleChangePass}
+                  onChange={handleChange}
                   required
                 />
                 <label for="floatingPassword">Contraseña</label>
