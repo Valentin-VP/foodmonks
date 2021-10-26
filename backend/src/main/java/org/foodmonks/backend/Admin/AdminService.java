@@ -17,8 +17,8 @@ public class AdminService {
         this.adminRepository = adminRepository;
     }
 
-    public void crearAdmin(Admin admin) {
-        adminRepository.save(admin);
+    public void crearAdmin(String correo, String nombre, String apellido, String password) {
+        //adminRepository.save(admin);
     }
 
     public List<Admin> listarAdmin(){
