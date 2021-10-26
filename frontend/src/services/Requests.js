@@ -97,3 +97,13 @@ export const cambiarEstado = (estado) => {
     }
   });
 };
+
+export const eliminarCuentaClientePropia = () => {
+  return axios ({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCuenta`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    }
+  });
+};

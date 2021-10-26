@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("cliente")
+@RequestMapping("/api/v1/cliente")
 public class ClienteController {
 
     private final ClienteService clienteService;
@@ -32,8 +32,9 @@ public class ClienteController {
         clienteService.buscarCliente(correo);
     }
 
-    @DeleteMapping//ELIMINAR CLIENTE
-    public void elimiarCliente(@RequestParam Long id) {
+    @DeleteMapping(path = "eliminarCuenta")//ELIMINAR CLIENTE
+    public void elimiarCliente(@RequestParam String correo) {
+
         //clienteService.eliminarCliente(id);
     }
 
