@@ -97,3 +97,27 @@ export const cambiarEstado = (estado) => {
     }
   });
 };
+
+export const recuperarPassword=(recoverRequest)=>{
+  return axios({
+      method:'POST',
+      url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/auth/passRecover`,
+      data :recoverRequest
+  })
+}
+
+export const cambiarPassword=(recoverRequest)=>{
+  console.log(recoverRequest);
+  return axios({
+      method:'POST',
+      url:`${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/auth/passChange`,
+      data:recoverRequest
+  })
+}
+export const checkPwdRecoveryToken=(recoverRequest)=>{
+  return axios({
+      method:'POST',
+      url:`${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/auth/check`,
+      data:recoverRequest
+  })
+}
