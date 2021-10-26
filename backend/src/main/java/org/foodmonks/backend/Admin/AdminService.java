@@ -4,6 +4,7 @@ package org.foodmonks.backend.Admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,8 @@ public class AdminService {
     }
 
     public void crearAdmin(String correo, String nombre, String apellido, String password) {
-        //adminRepository.save(admin);
+        Admin admin = new Admin(correo, nombre, apellido, password, LocalDate.now());
+        adminRepository.save(admin);
     }
 
     public List<Admin> listarAdmin(){
@@ -27,11 +29,7 @@ public class AdminService {
 
     public Admin buscarAdmin(String correo) {
         Admin aux = adminRepository.findByCorreo(correo);
-        if (aux == null) {
-            return null;
-        }else{
-            return aux;
-        }
+        return aux;
     }
 
     public void modificarAdmin(Admin admin) {
