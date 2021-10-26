@@ -43,7 +43,7 @@ public class ClienteController {
             @ApiResponse(responseCode = "201", description = "Registro exitoso"),
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
     })
-    @PostMapping//CREAR CLIENTE
+    @PostMapping(path = "/altaCliente")//CREAR CLIENTE
     public ResponseEntity<?> crearCliente(
             @Parameter(description = "Datos del nuevo Cliente", required = true)
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
