@@ -39,6 +39,8 @@ public class ClienteService {
     }
 
     public void modificarEstadoCliente(String correo, EstadoCliente estado){
-        clienteRepository.findByCorreo(correo).setEstado(estado);
+        Cliente clienteAux = clienteRepository.findByCorreo(correo);
+        clienteAux.setEstado(estado);
+        clienteRepository.save(clienteAux);
     }
 }
