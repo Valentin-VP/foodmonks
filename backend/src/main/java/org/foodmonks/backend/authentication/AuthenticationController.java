@@ -12,8 +12,10 @@ import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.UsuarioService;
@@ -170,7 +172,7 @@ public class AuthenticationController {
             firestoreService.guardarResetToken(correo, resetToken);
             generarMailResetPassword(correo, nombre, resetToken);
             return ResponseEntity.ok("Solicitud realizada con éxito");
-        } catch (EmailNoEnviadoException e) {
+        } catch (EmailNoEnviadoException | ClienteNoEncontradoException | RestauranteNoEncontradoException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(String.format("Ha ocurrido un error: %s", e.getMessage()));
         }
@@ -243,12 +245,12 @@ public class AuthenticationController {
         }
     }
 
-    private boolean restauranteNoHabilitado(String correo){
-        return !((restauranteService.chequearEstado(correo, EstadoRestaurante.valueOf("ABIERTO"))) ||
-                (restauranteService.chequearEstado(correo, EstadoRestaurante.valueOf("CERRADO"))));
+    private boolean restauranteNoHabilitado(String correo) throws RestauranteNoEncontradoException {
+        return !(restauranteService.restauranteEstado(correo) == EstadoRestaurante.ABIERTO) ||
+                (restauranteService.restauranteEstado(correo) == EstadoRestaurante.CERRADO);
     }
 
-    private boolean clienteNoHabilitado(String correo){
-        return !(clienteService.chequearEstado(correo, EstadoCliente.valueOf("ACTIVO")));
+    private boolean clienteNoHabilitado(String correo) throws ClienteNoEncontradoException {
+        return !(clienteService.clienteEstado(correo) == EstadoCliente.ACTIVO);
     }
  }
