@@ -108,17 +108,17 @@ export const fetchUsuariosBusqueda = (datos) => {
     },
   });
 };
-export const actualizarEstadoUsuario = (userInfo) => {
+export const actualizarEstadoUsuario = (estado, id) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/actualizarEstado/${userInfo.correo}`,
-    data: userInfo,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/actualizarEstado/${id}`,
+    data: estado,
     headers: {
       Authorization: "Bearer " + getToken(),
     },
   });
 };
-export const setEstadoUsuarioEliminado = (correo) => {
+/*export const setEstadoUsuarioEliminado = (correo) => {
   return axios({
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/eliminarUsuario/${correo}`,
@@ -126,4 +126,4 @@ export const setEstadoUsuarioEliminado = (correo) => {
       Authorization: "Bearer " + getToken(),
     },
   });
-};
+};*/
