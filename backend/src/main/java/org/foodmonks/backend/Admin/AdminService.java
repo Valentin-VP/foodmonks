@@ -26,7 +26,7 @@ public class AdminService {
         if (usuarioRepository.findByCorreo(correo) != null){
             throw new UsuarioExisteException("Ya existe un Usuario con el correo " + correo);
         }
-        Admin admin = new Admin(correo, nombre, apellido, passwordEncoder.encode(password),LocalDate.now());
+        Admin admin = new Admin(nombre, apellido, correo, passwordEncoder.encode(password),LocalDate.now());
         adminRepository.save(admin);
     }
 
