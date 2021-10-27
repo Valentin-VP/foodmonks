@@ -1,8 +1,9 @@
 package org.foodmonks.backend.Cliente;
 
-import org.foodmonks.backend.Cliente.Exceptions.ClienteExisteException;
 import org.foodmonks.backend.Cliente.Exceptions.DireccionVaciaException;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
+import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,24 +12,23 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
-
     private final ClienteRepository clienteRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
-                             Float calificacion, Direccion direccion, EstadoCliente activo) throws ClienteExisteException, DireccionVaciaException {
-        if (clienteRepository.findByCorreo(correo) != null) {
-            throw new ClienteExisteException("Ya existe un Cliente registrado con el correo " + correo);
+                             Float calificacion, Direccion direccion, EstadoCliente activo) throws DireccionVaciaException, UsuarioExisteException {
+        if (usuarioRepository.findByCorreo(correo) != null) {
+            throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
         if (direccion == null){
             throw new DireccionVaciaException("Debe ingresar una direccion");
