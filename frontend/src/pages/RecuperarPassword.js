@@ -73,10 +73,6 @@ export default function ResetPassword() {
         })
     };
 
-    function validarEmail() {
-        return values.email.length > 0;
-    }
-
     async function handleEnviarCodigoClick(e) {
       e.preventDefault();
   
@@ -84,6 +80,7 @@ export default function ResetPassword() {
       /*await recuperarPassword(values.email).then((response)=>{
         setError(null);
         setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>Se envió la solicitud con suceso. Comprueba el email.</Alert>)   
+        localStorage.setItem('recover.mail',values.email);
       }).catch((error)=>{
         setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>Ocurrió un error.</Alert>)
         setSuccess(null);
@@ -125,8 +122,8 @@ export default function ResetPassword() {
                     Solicitar nueva contraseña
                     </button>
                     <div id="rpAlert">
-                    {success}
-                    {error}
+                      {success}
+                      {error}
                     </div>
                     <p className="mt-2 mb-3 text-muted">
                     ¿No tienes cuenta?<a href="/register">Registrate</a>

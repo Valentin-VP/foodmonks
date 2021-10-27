@@ -3,7 +3,7 @@ import { Loading } from "../components/Loading";
 import styled from "styled-components";
 import { useState , useEffect} from "react";
 import logo from "../assets/foodMonks-sinfondo.png";
-import { cambiarPassword, checkPwdRecoveryToken } from "../services/Requests";
+import { cambiarPassword, checkPwdRecoveryToken, clearRecoverEmail } from "../services/Requests";
 import { Alert } from "react-bootstrap";
 import { Fragment } from "react";
 
@@ -42,6 +42,9 @@ const Styles = styled.div`
     }
     &:active {
       background-color: #e87121;
+    }
+    &:disabled {
+      background-color: #aa3208;
     }
   }
 
@@ -102,10 +105,11 @@ export default function ResetPasswordConfirm() {
         event.preventDefault();
         console.log("URL token: " + token);
         setIsConfirmando(true);
-        cambiarPassword(values.password)
+        cambiarPassword(values.password, token)
         .then((response)=>{
             setConfirmado(true);
             setError(null);
+            clearRecoverEmail();
             setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>Se cambió la contraseña correctamente.</Alert>)   
         }).catch((error)=>{
             setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>Ocurrió un error.</Alert>)
@@ -156,7 +160,7 @@ export default function ResetPasswordConfirm() {
                         />
                         <label for="floatingInput">Confirmar Password</label>
                     </div>
-                    <button className="w-100 btn btn-lg btn-primary" type="submit" disabled={!validarPasswordForm}>
+                    <button className="w-100 btn btn-lg btn-primary" type="submit" disabled={!validarPasswordForm()}>
                         Ingresar
                     </button>
                     <div id="rpAlert">
