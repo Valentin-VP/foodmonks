@@ -35,6 +35,15 @@ export const fetchUserData = () => {
   });
 };
 
+export const registrarCliente= (cliente) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/altaCliente`,
+    data: cliente,
+  });
+};
+
+// empiezan lo de menu --------------------------------------------------------------------------------------------------------/
 export const eliminarMenu = (menuId) => {
   return axios({
     method: "DELETE",
