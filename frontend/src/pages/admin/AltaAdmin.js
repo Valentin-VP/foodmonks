@@ -2,6 +2,7 @@ import { React, Fragment, useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Alert } from "react-bootstrap";
 import { altaAdmin } from "../../services/Requests";
+import { Base64 } from "js-base64"
 
 const Styles = styled.div`
   .form{
@@ -94,6 +95,14 @@ export default function AltaAdmin() {
     }));
   };
 
+  const handleChange64 = (e) => {
+    e.persist();
+    setValues((values) => ({
+      ...values,
+      [e.target.name]: Base64.encode(e.target.value),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     enviarAltaAdmin();
@@ -162,9 +171,8 @@ export default function AltaAdmin() {
                           type="password"
                           name="password"
                           id="password"
-                          value={values.password}
                           placeholder="Password"
-                          onChange={handleChange}
+                          onChange={handleChange64}
                           required={true}
                         />
                         <label for="floatingInput">Password</label>
