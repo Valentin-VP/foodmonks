@@ -138,13 +138,7 @@ function Login() {
                 />
                 <label for="floatingPassword">Contraseña</label>
               </div>
-
-              <div className="checkbox mb-3">
-                <label>
-                  <input type="checkbox" value="remember-me" /> No cerrar sesión
-                </label>
-              </div>
-              <button className="w-100 btn btn-lg btn-primary" type="submit">
+              <button className="mt-3 w-100 btn btn-lg btn-primary" type="submit">
                 Entrar
               </button>
               <div id="loginError">

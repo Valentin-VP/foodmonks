@@ -56,14 +56,18 @@ public class AuthenticationController {
 
         UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getEmail());
 
-        String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
-        String jwtRefreshToken=tokenHelper.generateRefreshToken(usuario.getUsername(), usuario.getAuthorities());
+        if(usuario.isEnabled()) {
+            String jwtToken = tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
+            String jwtRefreshToken = tokenHelper.generateRefreshToken(usuario.getUsername(), usuario.getAuthorities());
 
-        AuthenticationResponse response=new AuthenticationResponse();
-        response.setToken(jwtToken);
-        response.setRefreshToken(jwtRefreshToken);
+            AuthenticationResponse response = new AuthenticationResponse();
+            response.setToken(jwtToken);
+            response.setRefreshToken(jwtRefreshToken);
 
-        return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/auth/userinfo")
