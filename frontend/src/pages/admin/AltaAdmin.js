@@ -70,20 +70,20 @@ export default function AltaAdmin() {
   });
 
   const enviarAltaAdmin = () => {
-    // setIsLoading(true);
-    // altaAdmin(values).then((response)=>{
-    //   if (response.status===201){
-    //     setSuccess(<Alert variant="success" dismissible onClose={() => setSuccess(null)}>Administrador creado con éxito. </Alert>);
-    //     setError(null);
-    //   }else{
-    //     setSuccess(null);
-    //     setError(<Alert variant="danger" dismissible onClose={() => setError(null)}>Error al intentar dar el alta.</Alert>);
-    //   }
-    // }).catch((error)=>{
-    //   setSuccess(null);
-    //   setError(<Alert variant="danger" dismissible onClose={() => setError(null)}>Error al intentar dar el alta.</Alert>);
-    // })
-    // setIsLoading(false);
+    setIsLoading(true);
+    altaAdmin(values).then((response)=>{
+      if (response.status===201){
+        setSuccess(<Alert variant="success" dismissible onClose={() => setSuccess(null)}>Administrador creado con éxito. </Alert>);
+        setError(null);
+      }else{
+        setSuccess(null);
+        setError(<Alert variant="danger" dismissible onClose={() => setError(null)}>Error al intentar dar el alta.</Alert>);
+      }
+    }).catch((error)=>{
+      setSuccess(null);
+      setError(<Alert variant="danger" dismissible onClose={() => setError(null)}>Error al intentar dar el alta.</Alert>);
+    })
+    setIsLoading(false);
   }; 
 
   const handleChange = (e) => {
