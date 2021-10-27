@@ -84,6 +84,7 @@ export const NavigationBar = () => (
               <NavDropdown.Item onClick={()=>{
                 eliminarCuentaClientePropia().then((response)=>{
                   console.log(response.status);
+                  clearState();
                 }).catch((error)=>{
                   console.log(error);
                 })}
