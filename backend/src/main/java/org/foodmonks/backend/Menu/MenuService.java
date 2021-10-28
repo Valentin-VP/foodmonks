@@ -1,6 +1,5 @@
 package org.foodmonks.backend.Menu;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
@@ -8,7 +7,6 @@ import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
-import org.foodmonks.backend.persistencia.MenuID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +36,7 @@ public class MenuService {
                         " para el restaurante " + correoRestaurante);
             }
             Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria, restaurante);
-            List<Menu> menus = restaurante.getMenus();
-            menus.add(menu);
-            restaurante.setMenus(menus);
             menuRepository.save(menu);
-            restauranteRepository.save(restaurante);
     }
 
     public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException {
@@ -53,9 +47,6 @@ public class MenuService {
             throw new MenuNoEncontradoException("No se encontro el Menu con id "+ idMenu + " para el Restuarante "
                     + correoRestaurante);
         }
-        List<Menu> menus = restaurante.getMenus();
-        menus.remove(menu);
-        restauranteRepository.save(restaurante);
         menuRepository.delete(menu);
     }
 
