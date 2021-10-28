@@ -60,6 +60,8 @@ public class Restaurante extends Usuario {
         this.imagen = imagen;
     }
 
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String[] autoridades = new String[1];
