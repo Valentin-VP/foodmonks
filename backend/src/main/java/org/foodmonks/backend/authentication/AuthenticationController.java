@@ -77,6 +77,9 @@ public class AuthenticationController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private TemplateEngine templateEngine;
+
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -237,20 +240,19 @@ public class AuthenticationController {
 
     private void generarMailResetPassword(String correo, String nombre, String resetToken) throws EmailNoEnviadoException {
         Context context = new Context();
-        TemplateEngine templateEngine = new TemplateEngine();
         context.setVariable("user", nombre);
-        String contenido = "Estimado usuario,\nPara generar una nueva contraseña, haga click en el enlace: " +
+        String contenido = "Estimado usuario, para generar una nueva contraseña, haga click en el enlace: " +
                 env.getProperty("front.base.url") +
                 "changePassword?token=" + resetToken +
                 "?email=" + correo;
         System.out.println(contenido);
-/*        context.setVariable("contenido",contenido);
+        context.setVariable("contenido",contenido);
         String htmlContent = templateEngine.process("reset-pass", context);
         try {
             emailService.enviarMail(correo, "Reset de Password", htmlContent, null);
         }catch (EmailNoEnviadoException e) {
             throw new EmailNoEnviadoException(e.getMessage());
-        }*/
+        }
     }
 
     private boolean restauranteNoHabilitado(String correo) throws RestauranteNoEncontradoException {
