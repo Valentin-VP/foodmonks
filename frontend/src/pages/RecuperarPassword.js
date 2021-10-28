@@ -77,14 +77,14 @@ export default function ResetPassword() {
       e.preventDefault();
   
       setIsEnviandoCodigo(true);
-      /*await recuperarPassword(values.email).then((response)=>{
+      await recuperarPassword(values).then((response)=>{
         setError(null);
         setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>Se envió la solicitud con suceso. Comprueba el email.</Alert>)   
         localStorage.setItem('recover.mail',values.email);
       }).catch((error)=>{
         setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>Ocurrió un error.</Alert>)
         setSuccess(null);
-      });*/
+      });
       setIsEnviandoCodigo(false);
       setSuccess(<Redirect to='/changePassword'/>);
     }
@@ -113,7 +113,7 @@ export default function ResetPassword() {
                         id="email"
                         placeholder="name@example.com"
                         onChange={handleChange}
-                        value={values.email}
+                        //value={values.email}
                         required
                     />
                     <label for="floatingInput">Correo electronico</label>
