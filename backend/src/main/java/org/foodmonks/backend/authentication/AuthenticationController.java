@@ -1,7 +1,8 @@
 package org.foodmonks.backend.authentication;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+
+import com.google.gson.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +22,8 @@ import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
-import org.foodmonks.backend.firestore.FirestoreService;
+import org.foodmonks.backend.dynamodb.TokenReset;
+import org.foodmonks.backend.dynamodb.TokenResetDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -70,7 +72,7 @@ public class AuthenticationController {
     private EmailService emailService;
 
     @Autowired
-    private FirestoreService firestoreService;
+    private TokenResetDAO awsService;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -136,7 +138,7 @@ public class AuthenticationController {
     @PostMapping(path = "/password/recuperacion/solicitud")
     public ResponseEntity<?> solicitarCambioPassword(
             @Parameter(description = "Correo del usuario que requiere cambio de password", required = true)
-            String correo)  {
+            @RequestBody String data)  {
         /*
         * chequear que existe usuario con correo
         * generar token en back
@@ -146,6 +148,8 @@ public class AuthenticationController {
         * */
         try {
             // generar resetToken
+            JsonObject jsonReset = new Gson().fromJson(data, JsonObject.class);
+            String correo = jsonReset.get("email").getAsString();
             String resetToken = usuarioService.generarTokenResetPassword();
             String nombre = null;
             // Chequear si el usuario existe y esta habilitado
@@ -169,7 +173,8 @@ public class AuthenticationController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(String.format("No existe usuario con correo %s", correo));
             }
-            firestoreService.guardarResetToken(correo, resetToken);
+            TokenReset tokenReset = new TokenReset(correo, resetToken);
+            awsService.setToken(tokenReset);
             generarMailResetPassword(correo, nombre, resetToken);
             return ResponseEntity.ok("Solicitud realizada con éxito");
         } catch (EmailNoEnviadoException | ClienteNoEncontradoException | RestauranteNoEncontradoException e) {
@@ -218,7 +223,8 @@ public class AuthenticationController {
                         .body(String.format("No existe usuario con correo %s", correo));
             }
             // Chequear que token coincida y exista en Firestore - Arroja excepcion si algo falla
-            firestoreService.chequearResetToken(correo, resetToken);
+            TokenReset tokenReset = new TokenReset(correo, resetToken);
+            awsService.comprobarResetToken(tokenReset);
             // Todo ok, cambiar password
             usuarioService.cambiarPassword(correo, password);
             return ResponseEntity.ok("Nueva password cambiada con éxito");
@@ -234,15 +240,17 @@ public class AuthenticationController {
         TemplateEngine templateEngine = new TemplateEngine();
         context.setVariable("user", nombre);
         String contenido = "Estimado usuario,\nPara generar una nueva contraseña, haga click en el enlace: " +
-                env.getProperty("front.base.url") + ":" + env.getProperty("front.port") +
-                "/api/v1/password/recuperacion/cambiar?token=" + resetToken;
-        context.setVariable("contenido",contenido);
+                env.getProperty("front.base.url") +
+                "changePassword?token=" + resetToken +
+                "?email=" + correo;
+        System.out.println(contenido);
+/*        context.setVariable("contenido",contenido);
         String htmlContent = templateEngine.process("reset-pass", context);
         try {
             emailService.enviarMail(correo, "Reset de Password", htmlContent, null);
         }catch (EmailNoEnviadoException e) {
             throw new EmailNoEnviadoException(e.getMessage());
-        }
+        }*/
     }
 
     private boolean restauranteNoHabilitado(String correo) throws RestauranteNoEncontradoException {
