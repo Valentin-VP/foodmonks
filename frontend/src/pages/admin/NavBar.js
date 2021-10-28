@@ -80,7 +80,7 @@ export const NavigationBar = () => (
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
             <Nav.Item>
-              <Nav.Link href="/usuarios"> Usuarios </Nav.Link>
+              <Nav.Link onClick={Noti}>Notificacion</Nav.Link>
             </Nav.Item>
             <NavDropdown title="Administrador" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
