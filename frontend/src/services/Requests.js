@@ -98,16 +98,37 @@ export const cambiarEstado = (estado) => {
   });
 };
 
+export const fetchUsuarios = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/listarUsuarios`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+}
+
+export const eliminarUsuario = (correoUsuario) => {
+  return axios({
+    method: "DELETE",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/eliminarMenu/${correoUsuario}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+}
+
 export const fetchUsuariosBusqueda = (datos) => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/listaUsuarios`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/filtroUsuarios`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
     },
   });
 };
+
 export const actualizarEstadoUsuario = (estado, id) => {
   return axios({
     method: "PUT",
