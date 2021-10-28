@@ -238,6 +238,27 @@ public class AuthenticationController {
 
     }
 
+    @Operation(summary = "Chequeo previo a cambio de contraseña",
+            description = "Valida que el token recibido esté asociado al usuario con correo=email",
+            tags = { "usuario", "autenticación" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token válido"),
+            @ApiResponse(responseCode = "401", description = "Credenciales no coinciden")
+    })
+    @PostMapping(path = "/password/recuperacion/check")
+    public ResponseEntity<?> validarToken(
+            @Parameter(description = "Email y token para validar en DB que coincidan", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
+            @RequestBody String tokenResetRequest) {
+        JsonObject jsonReset = new Gson().fromJson(tokenResetRequest, JsonObject.class);
+        TokenReset tokenReset = new TokenReset(jsonReset.get("email").getAsString(), jsonReset.get("password").getAsString());
+        if (awsService.comprobarResetToken(tokenReset)){
+            return ResponseEntity.ok("Token válido");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales no coinciden");
+        }
+    }
+
     private void generarMailResetPassword(String correo, String nombre, String resetToken) throws EmailNoEnviadoException {
         Context context = new Context();
         context.setVariable("user", nombre);
