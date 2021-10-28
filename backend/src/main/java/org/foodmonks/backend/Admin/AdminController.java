@@ -3,6 +3,7 @@ package org.foodmonks.backend.Admin;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import lombok.SneakyThrows;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Menu.DtMenu;
@@ -26,18 +27,16 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
-    private final TokenHelper tokenHelp;
-    private final UsuarioService usuarioService;
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
+    private final UsuarioService usuarioService;
 
     @Autowired
-    AdminController(AdminService adminService, TokenHelper tokenHelp, UsuarioService usuarioService, ClienteService clienteService, RestauranteService restauranteService) {
+    AdminController(AdminService adminService, ClienteService clienteService, RestauranteService restauranteService, UsuarioService usuarioService) {
         this.adminService = adminService;
-        this.tokenHelp = tokenHelp;
-        this.usuarioService = usuarioService;
         this.clienteService = clienteService;
         this.restauranteService = restauranteService;
+        this.usuarioService = usuarioService;
     }
 
     @PostMapping
@@ -68,28 +67,24 @@ public class AdminController {
 
     @GetMapping(path = "/listarUsuarios")
     public ResponseEntity<?> listarUsuarios() {
-        //String newtoken = "";
         List<Usuario> listaUsuarios = new ArrayList<Usuario>();
         JsonArray jsonArray = new JsonArray();
         try {
-            //if ( token != null && token.startsWith("Bearer ")) {
-            //    newtoken = token.substring(7);
-            //}
-            //String correo = tokenHelp.getUsernameFromToken(newtoken);
-
             //listaUsuarios = usuarioService.listarUsuarios();//falta una funcion en UsuarioService que devuelva todos los usuarios
-            for(int i=0;i<listaUsuarios.size();i++) {
-                JsonObject usuario = new JsonObject();
-                usuario.addProperty("correo", listaUsuarios.get(i).getCorreo());
-                usuario.addProperty("nombre", listaUsuarios.get(i).getNombre());
-                usuario.addProperty("apellido", listaUsuarios.get(i).getApellido());
-                usuario.addProperty("fechaRegistro", listaUsuarios.get(i).getFechaRegistro().toString());
-                if(clienteService.buscarCliente(listaUsuarios.get(i).getCorreo()) != null) {
-                    usuario.addProperty("rol", "CLIENTE");
-                } else if(restauranteService.buscarRestaurante(listaUsuarios.get(i).getCorreo()) != null) {
-                    usuario.addProperty("rol", "RESTAURANTE");
+            for (Usuario listaUsuario : listaUsuarios) {
+                if(clienteService.buscarCliente(listaUsuario.getCorreo()) != null || restauranteService.buscarRestaurante(listaUsuario.getCorreo()) != null) {
+                    JsonObject usuario = new JsonObject();
+                    usuario.addProperty("correo", listaUsuario.getCorreo());
+                    usuario.addProperty("nombre", listaUsuario.getNombre());
+                    usuario.addProperty("apellido", listaUsuario.getApellido());
+                    usuario.addProperty("fechaRegistro", listaUsuario.getFechaRegistro().toString());
+                    if (clienteService.buscarCliente(listaUsuario.getCorreo()) != null) {
+                        usuario.addProperty("rol", "CLIENTE");
+                    } else if (restauranteService.buscarRestaurante(listaUsuario.getCorreo()) != null) {
+                        usuario.addProperty("rol", "RESTAURANTE");
+                    }
+                    jsonArray.add(usuario);
                 }
-                jsonArray.add(usuario);
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -97,24 +92,24 @@ public class AdminController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{id}")
     public ResponseEntity<?> cambiarEstadoUsuario(@RequestBody String estado, @PathVariable String correo) {
-        if(clienteService.buscarCliente(correo) != null) {
-            Cliente cliente = clienteService.buscarCliente(correo);
-            if(cliente.getEstado() != EstadoCliente.valueOf(estado)) {
-                cliente.setEstado(EstadoCliente.valueOf(estado));
+        switch (estado) {
+            case "BLOQUEADO":
+                usuarioService.bloquearUsuario(correo);
                 return new ResponseEntity<>(HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);//estado actual es igual a "estado"
-        } else if(restauranteService.buscarRestaurante(correo) != null) {
-            Restaurante restaurante = restauranteService.buscarRestaurante(correo);
-            if(restaurante.getEstado() != EstadoRestaurante.valueOf(estado)) {
-                restaurante.setEstado(EstadoRestaurante.valueOf(estado));
+            case "ELIMINADO":
+                //service de eliminar usuario
                 return new ResponseEntity<>(HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);//estado actual es igual a "estado"
+            case "DESBLOQUEADO":
+                usuarioService.desbloquearUsuario(correo);
+                return new ResponseEntity<>(HttpStatus.OK);
+            case "RECHAZADO":
+                restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+                return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);//si no entra a ningun if, entonces no encontro al usuario
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);//estado no corresponde
     }
 
 }

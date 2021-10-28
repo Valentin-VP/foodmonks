@@ -11,7 +11,7 @@ export const getMenuId = () => {
   return sessionStorage.getItem("menuId");
 };
 
-//----------------------------------------------------------------------------------
+//---------------------------------------LOGIN--------------------------------------------
 
 export const getToken = () => {
   return localStorage.getItem("token");
@@ -34,6 +34,8 @@ export const fetchUserData = () => {
     },
   });
 };
+
+//-----------------------------MENUS---------------------------------------------------------------
 
 export const eliminarMenu = (menuId) => {
   return axios({
@@ -97,6 +99,8 @@ export const cambiarEstado = (estado) => {
     }
   });
 };
+
+//----------------------------------USUARIOS---------------------------------------------------
 
 export const fetchUsuarios = () => {
   return axios({
