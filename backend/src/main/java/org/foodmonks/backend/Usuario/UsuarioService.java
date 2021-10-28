@@ -24,6 +24,8 @@ public class UsuarioService {
 		this.templateEngine = templateEngine;
 		this.emailService = emailService;
 	}
+
+	//funcion para listar Usuarios: return usuarioRepository.findAll();
 	
 	public void bloquearUsuario (String correo) throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
 		
