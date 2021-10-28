@@ -38,7 +38,11 @@ public class MenuService {
                         " para el restaurante " + correoRestaurante);
             }
             Menu menu = new Menu(nombre, price, descripcion, visible, multiplicadorPromocion, imagen, categoria, restaurante);
+            List<Menu> menus = restaurante.getMenus();
+            menus.add(menu);
+            restaurante.setMenus(menus);
             menuRepository.save(menu);
+            restauranteRepository.save(restaurante);
     }
 
     public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException {
@@ -49,6 +53,9 @@ public class MenuService {
             throw new MenuNoEncontradoException("No se encontro el Menu con id "+ idMenu + " para el Restuarante "
                     + correoRestaurante);
         }
+        List<Menu> menus = restaurante.getMenus();
+        menus.remove(menu);
+        restauranteRepository.save(restaurante);
         menuRepository.delete(menu);
     }
 
