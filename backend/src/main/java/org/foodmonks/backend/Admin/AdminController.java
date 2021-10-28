@@ -70,7 +70,7 @@ public class AdminController {
         List<Usuario> listaUsuarios = new ArrayList<Usuario>();
         JsonArray jsonArray = new JsonArray();
         try {
-            //listaUsuarios = usuarioService.listarUsuarios();//falta una funcion en UsuarioService que devuelva todos los usuarios
+            listaUsuarios = usuarioService.listarUsuarios();
             for (Usuario listaUsuario : listaUsuarios) {
                 if(clienteService.buscarCliente(listaUsuario.getCorreo()) != null || restauranteService.buscarRestaurante(listaUsuario.getCorreo()) != null) {
                     JsonObject usuario = new JsonObject();
@@ -78,10 +78,14 @@ public class AdminController {
                     usuario.addProperty("nombre", listaUsuario.getNombre());
                     usuario.addProperty("apellido", listaUsuario.getApellido());
                     usuario.addProperty("fechaRegistro", listaUsuario.getFechaRegistro().toString());
-                    if (clienteService.buscarCliente(listaUsuario.getCorreo()) != null) {
+                    if (clienteService.buscarCliente(listaUsuario.getCorreo()) != null) {//si es cliente
+                        Cliente cliente = clienteService.buscarCliente(listaUsuario.getCorreo());//lo consigo como cliente
                         usuario.addProperty("rol", "CLIENTE");
-                    } else if (restauranteService.buscarRestaurante(listaUsuario.getCorreo()) != null) {
+                        usuario.addProperty("estado", cliente.getEstado().toString());
+                    } else if (restauranteService.buscarRestaurante(listaUsuario.getCorreo()) != null) {//si es restaurante
+                        Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
                         usuario.addProperty("rol", "RESTAURANTE");
+                        usuario.addProperty("estado", restaurante.getEstado().toString());
                     }
                     jsonArray.add(usuario);
                 }

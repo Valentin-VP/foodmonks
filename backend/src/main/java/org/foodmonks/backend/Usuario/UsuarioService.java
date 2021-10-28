@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.util.List;
+
 @Service
 public class UsuarioService {
 	
@@ -25,7 +27,9 @@ public class UsuarioService {
 		this.emailService = emailService;
 	}
 
-	//funcion para listar Usuarios: return usuarioRepository.findAll();
+	public List<Usuario> listarUsuarios() {
+		return usuarioRepository.findAll();
+	}
 	
 	public void bloquearUsuario (String correo) throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
 		
