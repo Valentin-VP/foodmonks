@@ -79,9 +79,9 @@ export default function BuscarRegistrados() {
 
   let estado = [
     { estado: "N/A", value:""},
-    { estado: "Bloqueado", value:"bloqueado"},
-    { estado: "Desbloqueado", value:"desbloqueado"},
-    { estado: "Eliminado", value:"eliminado"},
+    { estado: "Bloqueado", value:"BLOQUEADO"},
+    { estado: "Desbloqueado", value:"DESBLOQUEADO"},
+    { estado: "Eliminado", value:"ELIMINADO"},
   ];
 
   const fetch = () => {
