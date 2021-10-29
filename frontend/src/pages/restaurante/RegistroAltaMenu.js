@@ -1,15 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import {
-  Button,
-  FloatingLabel,
-  Form,
-  Alert,
-  ButtonGroup,
-} from "react-bootstrap";
+import { Button, FloatingLabel, Form, ButtonGroup } from "react-bootstrap";
 import { storage } from "../../Firebase";
-import { altaMenu } from "../../services/Requests";
-import { Error } from "../../components/Error";
+import { Alerta } from "../../components/Alerta";
+import {registrarRestaurante} from "../../services/Requests"
 
 const Styles = styled.div`
   * {
@@ -64,7 +58,6 @@ const Styles = styled.div`
 `;
 
 function RegistroAltaMenu() {
-  console.log(JSON.parse(sessionStorage.getItem("registroRestaurante")).nroMenu);
   const state = {
     img: "",
   };
@@ -92,8 +85,8 @@ function RegistroAltaMenu() {
     { nombre: "OTROS" },
   ];
 
-  const [success, setSuccess] = useState(null);
-  const [componente, setComponente] = useState(null);
+  const [alerta, setAlerta] = useState(null);
+  const [tipoError, setTipo] = useState();
 
   const handleChange = (e) => {
     e.persist();
@@ -105,107 +98,162 @@ function RegistroAltaMenu() {
     window.location.replace("/");
   };
 
-  const onSubmit = () => {
+  const onSubmit = (event) => {
+    event.preventDefault(); //para que no haga reload la pagina por el form
+    var json = JSON.parse(sessionStorage.getItem("registroRestaurante"));
     menu.nombre = document.getElementById("nombre").value;
-    menu.categoria = document.getElementById("categoria").value;
-    menu.descripcion = document.getElementById("descripcion").value;
-    menu.price = document.getElementById("price").value;
-    console.log(menu);
-    if (document.getElementById("img").files[0] !== undefined) {
-      //si se selecciona una imagen
-      var img = document.getElementById("img").files[0];
-      const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {}, //el snapshot tiene que ir
-        (error) => {
-          console.log(error.message);
-          setComponente(<Error error="Error al subir la imagen" />);
-        },
-        () => {
-          setComponente(null);
-          storage
-            .ref("menus")
-            .child(img.name)
-            .getDownloadURL()
-            .then((url) => {
-              menu.imagen = url;
-              var json = JSON.parse(
-                sessionStorage.getItem("registroRestaurante")
-              );
-              json[`menu${json.nroMenu}`] = menu;
-              json.nroMenu++;
-              sessionStorage.setItem(
-                "registroRestaurante",
-                JSON.stringify(json)
-              );
-              window.location.reload();
-            });
-        }
-      );
+    var unico = true;
+    var menus = json.restaurante.menus;
+    menus.forEach((element) => {
+      if (element.nombre === menu.nombre)
+        //veo si no hay un menu con ese nombre
+        unico = false;
+    });
+    if (unico) {
+      menu.categoria = document.getElementById("categoria").value;
+      menu.descripcion = document.getElementById("descripcion").value;
+      menu.price = document.getElementById("price").value;
+      if (document.getElementById("img").files[0] !== undefined) {
+        //si se selecciona una imagen
+        var img = document.getElementById("img").files[0];
+        const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {}, //el snapshot tiene que ir
+          (error) => {
+            setAlerta("Error al subir la imagen");
+            setTipo("danger");
+          },
+          () => {
+            storage
+              .ref("menus")
+              .child(img.name)
+              .getDownloadURL()
+              .then((url) => {
+                menu.imagen = url;
+                var json = JSON.parse(
+                  sessionStorage.getItem("registroRestaurante")
+                );
+                json.restaurante.menus.push(menu);
+                json.nroMenu++;
+                sessionStorage.setItem(
+                  "registroRestaurante",
+                  JSON.stringify(json)
+                );
+                window.location.reload();
+              });
+          }
+        );
+      } else {
+        menu.imagen = process.env.REACT_APP_GENERIC_MENU; //cargo la imagen generica
+        json.restaurante.menus.push(menu);
+        json.nroMenu++;
+        sessionStorage.setItem("registroRestaurante", JSON.stringify(json));
+        window.location.reload();
+      }
     } else {
-      menu.imagen = process.env.REACT_APP_GENERIC_MENU; //cargo la imagen generica
-      var json = JSON.parse(sessionStorage.getItem("registroRestaurante"));
-      json[`menu${json.nroMenu}`] = menu;
-      json.nroMenu++;
-      sessionStorage.setItem("registroRestaurante", JSON.stringify(json));
-      window.location.reload();
+      setAlerta("El nombre del menu debe ser unico");
+      setTipo("danger");
     }
   };
 
-  const onEnd = () => {
+  const onEnd = (event) => {
+    event.preventDefault();
+    document.getElementById("cancelar").disabled = true;
+    document.getElementById("agregar").disabled = true;
+    document.getElementById("terminar").disabled = true;
+    var json = JSON.parse(sessionStorage.getItem("registroRestaurante"));
     menu.nombre = document.getElementById("nombre").value;
-    menu.categoria = document.getElementById("categoria").value;
-    menu.descripcion = document.getElementById("descripcion").value;
-    menu.price = document.getElementById("price").value;
-    console.log(menu);
-    if (document.getElementById("img").files[0] !== undefined) {
-      //si se selecciona una imagen
-      var img = document.getElementById("img").files[0];
-      const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {}, //el snapshot tiene que ir
-        (error) => {
-          console.log(error.message);
-          setComponente(<Error error="Error al subir la imagen" />);
-        },
-        () => {
-          setComponente(null);
-          storage
-            .ref("menus")
-            .child(img.name)
-            .getDownloadURL()
-            .then((url) => {
-              menu.imagen = url;
-              var json = JSON.parse(
-                sessionStorage.getItem("registroRestaurante")
-              );
-              json[`menu${json.nroMenu}`] = menu;
-              json.nroMenu++;
-              sessionStorage.clear();
-              //aca hago el rest
+    var unico = true;
+    var menus = json.restaurante.menus;
+    menus.forEach((element) => {
+      if (element.nombre === menu.nombre)
+        //veo si no hay un menu con ese nombre
+        unico = false;
+    });
+    if (unico) {
+      menu.categoria = document.getElementById("categoria").value;
+      menu.descripcion = document.getElementById("descripcion").value;
+      menu.price = document.getElementById("price").value;
+      if (document.getElementById("img").files[0] !== undefined) {
+        //si se selecciona una imagen
+        var img = document.getElementById("img").files[0];
+        const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {}, //el snapshot tiene que ir
+          (error) => {
+            setAlerta("Error al subir la imagen");
+            setTipo("danger");
+          },
+          () => {
+            storage
+              .ref("menus")
+              .child(img.name)
+              .getDownloadURL()
+              .then((url) => {
+                menu.imagen = url;
+                var json = JSON.parse(
+                  sessionStorage.getItem("registroRestaurante")
+                );
+                json.restaurante.menus.push(menu);
+                //aca hago el rest
+                registrarRestaurante(json.restaurante)
+                  .then(() => {
+                    setAlerta("Registro exitoso");
+                    setTipo("success");
+                    setTimeout(() => {
+                      window.location.replace("/");
+                      sessionStorage.clear();
+                    }, 3000);
+                  })
+                  .catch((error) => {
+                    setAlerta(error.response.data);
+                    setTipo("danger");
+                    setTimeout(() => {
+                      window.location.replace("/");
+                      sessionStorage.clear();
+                    }, 3000);
+                  });
+              });
+          }
+        );
+      } else {
+        menu.imagen = process.env.REACT_APP_GENERIC_MENU; //cargo la imagen generica
+        json.restaurante.menus.push(menu);
+        //aca hago el rest
+        console.log(json.restaurante);
+        registrarRestaurante(json.restaurante)
+          .then(() => {
+            setAlerta("Registro exitoso");
+            setTipo("success");
+            setTimeout(() => {
               window.location.replace("/");
-            });
-        }
-      );
+              sessionStorage.clear();
+            }, 3000);
+          })
+          .catch((error) => {
+            setAlerta("Error en el alta");
+            setTipo("danger");
+            setTimeout(() => {
+              window.location.replace("/");
+              sessionStorage.clear();
+            }, 3000);
+          });
+      }
     } else {
-      menu.imagen = process.env.REACT_APP_GENERIC_MENU; //cargo la imagen generica
-      var json = JSON.parse(sessionStorage.getItem("registroRestaurante"));
-      json[`menu${json.nroMenu}`] = menu;
-      json.nroMenu++;
-      sessionStorage.clear();
-      console.log("termino");
-      console.log((json));
-      //aca hago el rest
-      window.location.replace("/");
+      setAlerta("El nombre del menu debe ser unico");
+      setTipo("danger");
     }
-  }
+  };
 
-  let botonTerminar;
-  if (JSON.parse(sessionStorage.getItem("registroRestaurante")).nroMenu >= 3) {
+  var botonTerminar;
+  if (
+    sessionStorage.getItem("registroRestaurante") != null &&
+    JSON.parse(sessionStorage.getItem("registroRestaurante")).nroMenu >= 3
+  ) {
     botonTerminar = (
-      <Button onClick={onEnd} type="submit">
+      <Button onClick={onEnd} id="terminar" type="submit">
         Terminar Altas
       </Button>
     );
@@ -213,11 +261,18 @@ function RegistroAltaMenu() {
     botonTerminar = null;
   }
 
+  let infoMsg;
+  if (alerta !== null) {
+    infoMsg = <Alerta className="mt-2" msg={alerta} tipo={tipoError} />;
+  } else {
+    infoMsg = null;
+  }
+
   return (
     <Styles>
       <div id="page-container"></div>
       <section className="form-alta">
-        <Form>
+        <Form onSubmit={onSubmit}>
           <h4>Alta Menú</h4>
           {/*nombre del menu*/}
           <div className="form-floating">
@@ -228,6 +283,7 @@ function RegistroAltaMenu() {
               id="nombre"
               placeholder="Nombre del Menú"
               onChange={handleChange}
+              required
             />
             <label htmlFor="floatingInput">Nombre del Menú</label>
           </div>
@@ -240,6 +296,7 @@ function RegistroAltaMenu() {
               placeholder="Precio"
               min="1"
               onChange={handleChange}
+              required
             />
             <label htmlFor="floatingInput">Precio</label>
           </div>
@@ -251,6 +308,7 @@ function RegistroAltaMenu() {
               id="descripcion"
               placeholder="Descripcion"
               onChange={handleChange}
+              required
             />
             <label htmlFor="floatingInput">Descripción</label>
           </div>
@@ -259,6 +317,7 @@ function RegistroAltaMenu() {
               aria-label="Floating label select example"
               id="categoria"
               onChange={handleChange}
+              required
             >
               <option>Seleccione una categoría</option>
               {categorias.map((categoria) => (
@@ -270,12 +329,15 @@ function RegistroAltaMenu() {
           </FloatingLabel>
           <label className="mb-2">Imágen del menú</label>
           {/* image uploader */}
-          <Form.Control className="archivo" id="img" type="file" required />
-          {success}
-          {componente}
+          <Form.Control className="archivo mb-3" id="img" type="file" />
+          {infoMsg}
           <ButtonGroup className="bGroup">
-            <Button onClick={onCancel}>Cancelar</Button>
-            <Button onClick={onSubmit}>Agregar otro</Button>
+            <Button id="cancelar" onClick={onCancel}>
+              Cancelar
+            </Button>
+            <Button id="agregar" type="submit">
+              Agregar otro
+            </Button>
             {botonTerminar}
           </ButtonGroup>
         </Form>

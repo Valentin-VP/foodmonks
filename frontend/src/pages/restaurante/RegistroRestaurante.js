@@ -96,6 +96,7 @@ function RegistroRestaurante() {
       latitud: "",
       longitud: "",
     },
+    menus: []
   };
 
   const [alerta, setAlerta] = useState(null);
