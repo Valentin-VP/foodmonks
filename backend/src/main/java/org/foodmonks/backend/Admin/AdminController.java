@@ -191,6 +191,7 @@ public class AdminController {
                     usuario.addProperty("RUT", restaurante.getRut().toString());
                     usuario.addProperty("descripcion", restaurante.getDescripcion());
                     usuario.addProperty("nombre", restaurante.getNombreRestaurante());
+                    usuario.addProperty("telefono", restaurante.getTelefono());
                     jsonArray.add(usuario);
                 }
             }

@@ -21,7 +21,9 @@ export default function ListadoRegistrados({data, fetchFunc}) {
       //// actualizarEstadoUsuario(item).then((response)=>{
       actualizarEstadoUsuario(estado, item.correo).then((response)=>{        
         if (response.status===200){
+          Noti("El estado del usuario ha sido cambiado.");
           fetchFunc();
+          
         }else{
           Noti(response.data);
         }
@@ -30,6 +32,20 @@ export default function ListadoRegistrados({data, fetchFunc}) {
       })
     }
 
+    const updateStateEliminar = (item) => {
+      console.log(item);
+      //// actualizarEstadoUsuario(item).then((response)=>{
+      actualizarEstadoUsuario("ELIMINAR", item.correo).then((response)=>{        
+        if (response.status===200){
+          fetchFunc();
+          Noti("El estado del usuario ha sido cambiado.");
+        }else{
+          Noti(response.data);
+        }
+      }).catch((error)=>{
+        Noti(error.message);
+      })
+    }
     /*const deleteItem = (item) => {
       console.log(item);
       // setEstadoUsuarioEliminado(item.correo).then((response)=>{
@@ -63,16 +79,16 @@ export default function ListadoRegistrados({data, fetchFunc}) {
                         <td>Fecha Registro: {item.fechaRegistro}</td>
                         <td>Nombre: {item.rol==="CLIENTE" ? item.nombre : item.nombreRestaurante}</td>
                         {item.rol==="RESTAURANTE" ? <td>Descripción: {item.descripcion}</td> : <td>Apellido: {item.apellido}</td>}
-                        {item.rol==="RESTAURANTE" && <td>RUT: {item.rut}</td>}
-                        {item.rol==="RESTAURANTE" && <td>Dirección: {item.direccion}</td>}
+                        {item.rol==="RESTAURANTE" && <td>RUT: {item.RUT}</td>}
+                        {/*item.rol==="RESTAURANTE" && <td>Dirección: {item.direccion}</td>*/}
                         {item.rol==="RESTAURANTE" && <td>Teléfono: {item.telefono}</td>}
                         {item.rol==="CLIENTE" && <td colSpan="3"></td>}
                         <td>Calificación: {item.calificacion}</td>
                         <td>Estado: {item.estado}</td>
-                        <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="eliminado"} type="button" onClick={e=>(updateState(item))}>
+                        <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="ELIMINADO"} type="button" onClick={e=>(updateState(item))}>
                           {item.estado==="BLOQUEADO" ? "Desbloquear" : "Bloquear"}
                         </button>}</td>
-                        <td>{<button className="btn btn-sm btn-danger" disabled={item.estado !== "bloqueado" || item.estado==="eliminado"} type="button" onClick={e=>(updateState(item))}>
+                        <td>{<button className="btn btn-sm btn-danger" disabled={item.estado !== "BLOQUEADO" || item.estado==="ELIMINADO"} type="button" onClick={e=>(updateStateEliminar(item))}>
                           Eliminar
                         </button>}</td>
                       </tr>
