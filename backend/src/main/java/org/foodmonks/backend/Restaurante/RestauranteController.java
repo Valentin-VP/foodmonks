@@ -13,6 +13,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.DtMenu;
+import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
@@ -60,7 +61,7 @@ public class RestauranteController {
         try{
             JsonObject jsonRestaurante = new Gson().fromJson(restaurante, JsonObject.class);
 
-            JsonArray jsonMenus = jsonRestaurante.getAsJsonArray("menus");
+            // Obtener direccion
             JsonObject jsonDireccion = jsonRestaurante.get("direccion").getAsJsonObject();
 
             Direccion direccion = new Direccion(
@@ -71,6 +72,14 @@ public class RestauranteController {
                     jsonDireccion.get("latitud").getAsString(),
                     jsonDireccion.get("longitud").getAsString()
             );
+
+            // Obtener los menus
+            JsonArray jsonMenusRequest = jsonRestaurante.get("menus").getAsJsonArray();
+            ArrayList<JsonObject> jsonMenus = new ArrayList<JsonObject>();
+            for (JsonElement json: jsonMenusRequest) {
+                JsonObject jsonMenu = json.getAsJsonObject();
+                jsonMenus.add(jsonMenu);
+            }
 
             restauranteService.createSolicitudAltaRestaurante(
                     jsonRestaurante.get("nombre").getAsString(),
@@ -86,7 +95,8 @@ public class RestauranteController {
                     jsonRestaurante.get("telefono").getAsString(),
                     jsonRestaurante.get("descripcion").getAsString(),
                     jsonRestaurante.get("cuentaPaypal").getAsString(),
-                    jsonRestaurante.get("url").getAsString()
+                    jsonRestaurante.get("url").getAsString(),
+                    jsonMenus
             );
             return ResponseEntity.status(HttpStatus.CREATED).build();
             // "Su solicitud de alta fue recibida con éxito"
