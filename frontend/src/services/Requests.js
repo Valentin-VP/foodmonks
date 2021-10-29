@@ -140,7 +140,7 @@ export const actualizarEstadoUsuario = (estado, id) => {
   return axios({
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstado/${id}`,
-    data: estado,
+    data: {estado: estado},
     headers: {
       Authorization: "Bearer " + getToken(),
     },
