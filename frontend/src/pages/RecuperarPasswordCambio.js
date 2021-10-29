@@ -1,11 +1,12 @@
-import { Link , Redirect, useParams } from "react-router-dom"
+import { Link , Redirect, useParams, useLocation } from "react-router-dom"
 import { Loading } from "../components/Loading";
 import styled from "styled-components";
 import { useState , useEffect} from "react";
 import logo from "../assets/foodMonks-sinfondo.png";
-import { cambiarPassword, checkPwdRecoveryToken, clearRecoverEmail } from "../services/Requests";
+import { cambiarPassword, checkPwdRecoveryToken } from "../services/Requests";
 import { Alert } from "react-bootstrap";
 import { Fragment } from "react";
+import { Base64 } from "js-base64";
 
 const Styles = styled.div`
   .text-center {
@@ -59,6 +60,10 @@ const Styles = styled.div`
   }
 `;
 
+function useQuery(){
+    return new URLSearchParams(useLocation().search);
+}
+
 export default function ResetPasswordConfirm() {
     const [isValidandoToken, setIsValidandoToken] = useState(true);
     const [tokenInvalido, setTokenInvalido] = useState(false);
@@ -67,8 +72,11 @@ export default function ResetPasswordConfirm() {
     const [success, setSuccess] = useState(null);
     const [confirmado, setConfirmado] = useState(false);
     const { token } = useParams();
-
+    let query = useQuery();
+    
+    
     const [values, setValues] = useState({
+        correo: "",
         password: "",
         confirmarPassword: "",
     });
@@ -81,16 +89,24 @@ export default function ResetPasswordConfirm() {
         })
     };
 
+    const handleChange64 = (e) => {
+        e.persist();
+        setValues({
+            ...values,
+            [e.target.name]: Base64.encode(e.target.value)
+        })
+    };
+
     function validarPasswordForm() {
       return (
-          values.password.length > 0 &&
+          (values.password.length > 0 && values.correo.length > 0) &&
           values.password === values.confirmarPassword
         );
     }
 
     async function validarToken() {
         setIsValidandoToken(true);
-        await checkPwdRecoveryToken(token)
+        await checkPwdRecoveryToken(query.get("correo"), query.get("token"))
         .then((response)=>{
             console.log(response.data);
             setTokenInvalido(!response.data);
@@ -103,13 +119,12 @@ export default function ResetPasswordConfirm() {
 
     function handleConfirmarClick(event) {
         event.preventDefault();
-        console.log("URL token: " + token);
         setIsConfirmando(true);
-        cambiarPassword(values.password, token)
+        cambiarPassword(values.correo, values.password, query.get("token"))
         .then((response)=>{
             setConfirmado(true);
             setError(null);
-            clearRecoverEmail();
+            //clearRecoverEmail();
             setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>Se cambió la contraseña correctamente.</Alert>)   
         }).catch((error)=>{
             setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>Ocurrió un error.</Alert>)
@@ -138,12 +153,23 @@ export default function ResetPasswordConfirm() {
 
                     <div className="form-floating">
                         <input
+                            type="email"
+                            name="correo"
+                            className="form-control"
+                            id="correo"
+                            onChange={handleChange}
+                            value={values.correo}
+                            required
+                        />
+                        <label for="floatingInput">Correo</label>
+                    </div>
+                    <div className="form-floating">
+                        <input
                             type="password"
                             name="password"
                             className="form-control"
                             id="password"
-                            onChange={handleChange}
-                            value={values.password}
+                            onChange={handleChange64}
                             required
                         />
                         <label for="floatingInput">Password</label>
@@ -154,8 +180,7 @@ export default function ResetPasswordConfirm() {
                             name="confirmarPassword"
                             className="form-control"
                             id="confirmarPassword"
-                            onChange={handleChange}
-                            value={values.confirmarPassword}
+                            onChange={handleChange64}
                             required
                         />
                         <label for="floatingInput">Confirmar Password</label>

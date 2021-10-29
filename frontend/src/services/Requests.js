@@ -6,19 +6,9 @@ export const clearState = () => {
   window.location.replace("/");
 };
 
-//esta funcion es para luego de recuperar contraseña
-export const clearRecoverEmail = () => {
-  localStorage.removeItem("recover.mail");
-};
-
 //retorna la id del menu para el modificarMenu
 export const getMenuId = () => {
   return sessionStorage.getItem("menuId");
-};
-
-//retorna el mail que uso para resetear la password
-export const getRecoverEmail = () => {
-  return localStorage.getItem("recover.mail");
 };
 
 //----------------------------------------------------------------------------------
@@ -109,6 +99,7 @@ export const cambiarEstado = (estado) => {
 };
 
 export const recuperarPassword=(recoverRequest)=>{
+  console.log(recoverRequest);
   return axios({
       method:"POST",
       url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/solicitud`,
@@ -116,10 +107,11 @@ export const recuperarPassword=(recoverRequest)=>{
   })
 }
 
-export const cambiarPassword=(pass, ptoken)=>{
-  const datos = {correo: getRecoverEmail(),
+export const cambiarPassword=(email, pass, ptoken)=>{
+  const datos = {correo: email,
     password: pass,
     token: ptoken ? ptoken : ""}
+    console.log(datos);
   console.log(datos);
   return axios({
       method:"POST",
@@ -127,10 +119,13 @@ export const cambiarPassword=(pass, ptoken)=>{
       data:datos
   })
 }
-export const checkPwdRecoveryToken=(recoverRequest)=>{
+export const checkPwdRecoveryToken=(email, ptoken)=>{
+  const datos = {email: email ? email : "",
+    token: ptoken ? ptoken : ""}
+    console.log(datos);
   return axios({
       method:"POST",
-      url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/check`,
-      data:recoverRequest
+      url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/check`,
+      data:datos
   })
 }

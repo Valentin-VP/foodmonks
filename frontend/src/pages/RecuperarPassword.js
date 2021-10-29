@@ -80,7 +80,7 @@ export default function ResetPassword() {
       await recuperarPassword(values).then((response)=>{
         setError(null);
         setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>Se envió la solicitud con suceso. Comprueba el email.</Alert>)   
-        localStorage.setItem('recover.mail',values.email);
+        //localStorage.setItem('recover.mail',values.email);
       }).catch((error)=>{
         setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>Ocurrió un error.</Alert>)
         setSuccess(null);
