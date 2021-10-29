@@ -10,6 +10,8 @@ import { Register } from "./pages/Register";
 import Restaurante from "./pages/restaurante/Restaurante";
 import { getToken, fetchUserData } from "./services/Requests";
 import { Spinner } from "react-bootstrap";
+import RecuperarPassword from "./pages/RecuperarPassword"
+import RecuperarPasswordCambio from "./pages/RecuperarPasswordCambio"
 
 toast.configure(); //esto esta para poder enviar las notificaciones
 function App() {
@@ -36,6 +38,8 @@ function App() {
           <Switch>
             <Route exact path="/" component={Login} />
             <Route exact path="/register" component={Register} />
+            <Route exact path="/forgotPassword" component={RecuperarPassword} />
+            <Route exact path="/changePassword" component={RecuperarPasswordCambio} />
             <Route exact path="/apidocs" component={ApiDocs} />
           </Switch>
         </BrowserRouter>

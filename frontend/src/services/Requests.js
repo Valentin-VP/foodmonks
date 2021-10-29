@@ -145,3 +145,35 @@ export const altaAdmin = (datos) => {
     },
   });
 };
+
+export const recuperarPassword=(recoverRequest)=>{
+  console.log(recoverRequest);
+  return axios({
+      method:"POST",
+      url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/solicitud`,
+      data : recoverRequest
+  })
+}
+
+export const cambiarPassword=(email, pass, ptoken)=>{
+  const datos = {correo: email,
+    password: pass,
+    token: ptoken ? ptoken : ""}
+    console.log(datos);
+  console.log(datos);
+  return axios({
+      method:"POST",
+      url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/cambio`,
+      data:datos
+  })
+}
+export const checkPwdRecoveryToken=(email, ptoken)=>{
+  const datos = {email: email ? email : "",
+    token: ptoken ? ptoken : ""}
+    console.log(datos);
+  return axios({
+      method:"POST",
+      url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/check`,
+      data:datos
+  })
+}

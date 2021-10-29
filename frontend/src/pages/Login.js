@@ -1,4 +1,5 @@
 import { React, Fragment, useState } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import logo from "../assets/foodMonks-sinfondo.png";
 import { userLogin } from "../services/Requests";
@@ -145,7 +146,7 @@ function Login() {
                 {componente}
               </div>
               <p className="mt-5 mb-3 text-muted">
-                <a href="/register">Olvide mi contraseña</a>
+                <Link to="/forgotPassword">Olvide mi contraseña</Link>
               </p>
               <p className="mt-2 mb-3 text-muted">
                 ¿No tienes cuenta?<a href="/register">Registrate</a>
