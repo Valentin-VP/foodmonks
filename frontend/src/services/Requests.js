@@ -146,6 +146,17 @@ export const altaAdmin = (datos) => {
   });
 };
 
+
+export const eliminarCuentaClientePropia = () => {
+  return axios ({
+    method: "DELETE",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCuenta`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    }
+  });
+};
+
 export const recuperarPassword=(recoverRequest)=>{
   console.log(recoverRequest);
   return axios({
