@@ -1,15 +1,21 @@
 package org.foodmonks.backend.authentication;
 
+import java.util.Base64;
+
 public class AuthenticationRequest {
 
     private String email;
     private String password;
     public String getEmail() {
-        return email;
+        byte[] decodedBytesMail = Base64.getDecoder().decode(this.email);
+        String decodedMail = new String(decodedBytesMail);
+        return decodedMail;
     }
 
     public String getPassword() {
-        return password;
+        byte[] decodedBytesPass = Base64.getDecoder().decode(this.password);
+        String decodedPassword = new String(decodedBytesPass);
+        return decodedPassword;
     }
 
 
