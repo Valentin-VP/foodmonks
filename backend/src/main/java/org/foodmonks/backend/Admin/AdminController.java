@@ -70,13 +70,20 @@ public class AdminController {
     public ResponseEntity<?> listarUsuarios(@RequestParam(required = false, name = "correo") String correo, @RequestParam(required = false, name = "tipoUser") String tipoUser,
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
                                             @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden) {
+        System.out.println("correo" + correo);
+        System.out.println("user" + tipoUser);
+        System.out.println("inicio" + fechaInicio);
+        System.out.println("fin" + fechaFin);
+        System.out.println("estado" + estado);
+        System.out.println("orden" + orden);
         List<Usuario> listaUsuarios = new ArrayList<Usuario>();
         JsonArray jsonArray = new JsonArray();
         try {
             listaUsuarios = usuarioService.listarUsuarios();
 
             //filtros:
-            if(correo != null) {//filtro por correo(cliente, restaurante o admin)
+            if(!correo.isEmpty()) {//filtro por correo(cliente, restaurante o admin)
+                System.out.println("entra al filtro correo");
                 List<Usuario> auxList = new ArrayList<Usuario>();
                 for(Usuario user: listaUsuarios) {
                     if(user.getCorreo().equals(correo)) {
@@ -85,7 +92,7 @@ public class AdminController {
                 }
                 listaUsuarios = auxList;
             }
-            if(fechaInicio != null) {//filtro por fecha de registro(cliente, restaurante o admin)
+            if(!fechaInicio.isEmpty()) {//filtro por fecha de registro(cliente, restaurante o admin)
                 List<Usuario> auxListInicio = new ArrayList<Usuario>();
                 List<Usuario> auxListFin = new ArrayList<Usuario>();
                 for(Usuario user: listaUsuarios) {
@@ -94,7 +101,7 @@ public class AdminController {
                     }
                 }
                 listaUsuarios = auxListInicio;
-                if(fechaFin != null) {
+                if(!fechaFin.isEmpty()) {
                     for(Usuario user: listaUsuarios) {
                         if(user.getFechaRegistro().isBefore(LocalDate.parse(fechaFin))) {
                             auxListFin.add(user);
@@ -103,7 +110,7 @@ public class AdminController {
                     listaUsuarios = auxListFin;
                 }
             }
-            if(tipoUser != null) {//filtro por tipo de usuario(cliente o restaurante)
+            if(!tipoUser.isEmpty()) {//filtro por tipo de usuario(cliente o restaurante)
                 List<Usuario> auxList = new ArrayList<Usuario>();
                 for(Usuario user: listaUsuarios) {
                     if (tipoUser.equals("Cliente")) {//filtro por cliente
@@ -133,7 +140,7 @@ public class AdminController {
                     listaUsuarios = auxListOrden;
                 }
             }
-            if(estado != null) {//filtro por estado(cliente o restaurante)
+            if(!estado.isEmpty()) {//filtro por estado(cliente o restaurante)
                 List<Usuario> auxList = new ArrayList<Usuario>();
                 for (Usuario user : listaUsuarios) {
                     if (estado.equals("BLOQUEADO") || estado.equals("ELIMINADO")) {
@@ -175,6 +182,7 @@ public class AdminController {
                     usuario.addProperty("estado", cliente.getEstado().toString());
                     usuario.addProperty("nombre", cliente.getNombre());
                     usuario.addProperty("apellido", cliente.getApellido());
+                    jsonArray.add(usuario);
                 } else if(listaUsuario instanceof Restaurante){//si es restaurante
                     Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
                     usuario.addProperty("rol", "RESTAURANTE");
@@ -182,12 +190,8 @@ public class AdminController {
                     usuario.addProperty("RUT", restaurante.getRut().toString());
                     usuario.addProperty("descripcion", restaurante.getDescripcion());
                     usuario.addProperty("nombre", restaurante.getNombreRestaurante());
-                } else {//es admin
-                    Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());//lo consigo como admin
-                    usuario.addProperty("nombre", admin.getNombre());
-                    usuario.addProperty("apellido", admin.getApellido());
+                    jsonArray.add(usuario);
                 }
-                jsonArray.add(usuario);
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -196,19 +200,20 @@ public class AdminController {
     }
 
     @SneakyThrows
-    @PutMapping(path = "/cambiarEstado/{id}")
+    @PutMapping(path = "/cambiarEstado/{correo}")
     public ResponseEntity<?> cambiarEstadoUsuario(@RequestBody String estado, @PathVariable String correo) {
+        System.out.println("estado: " + estado);
         switch (estado) {
-            case "BLOQUEADO":
+            case "BLOQUEAR":
                 usuarioService.bloquearUsuario(correo);
                 return new ResponseEntity<>(HttpStatus.OK);
-            case "ELIMINADO":
+            case "ELIMINAR":
                 //service de eliminar usuario
                 return new ResponseEntity<>(HttpStatus.OK);
-            case "DESBLOQUEADO":
+            case "DESBLOQUEAR":
                 usuarioService.desbloquearUsuario(correo);
                 return new ResponseEntity<>(HttpStatus.OK);
-            case "RECHAZADO":
+            case "RECHAZAR":
                 restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
                 return new ResponseEntity<>(HttpStatus.OK);
         }

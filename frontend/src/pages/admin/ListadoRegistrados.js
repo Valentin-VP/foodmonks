@@ -17,7 +17,7 @@ export default function ListadoRegistrados({data, fetchFunc}) {
 
     const updateState = (item) => {
       console.log(item);
-      const estado = item.estado==="bloqueado" ? "desbloquear" : (item.estado==="cerrado" || item.estado==="abierto" || item.estado==="activo") && "bloquear";
+      const estado = item.estado==="BLOQUEADO" ? "DESBLOQUEAR" : (item.estado==="CERRADO" || item.estado==="ABIERTO" || item.estado==="ACTIVO") ? "BLOQUEAR" : null;
       //// actualizarEstadoUsuario(item).then((response)=>{
       actualizarEstadoUsuario(estado, item.correo).then((response)=>{        
         if (response.status===200){

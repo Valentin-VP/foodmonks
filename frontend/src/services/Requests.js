@@ -136,6 +136,7 @@ export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
 };
 
 export const actualizarEstadoUsuario = (estado, id) => {
+  console.log(estado);
   return axios({
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstado/${id}`,

@@ -89,6 +89,7 @@ export default function BuscarRegistrados() {
     //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
     fetchUsuariosBusqueda(values, startDate, endDate).then((response)=>{
       if (response.status===200){
+        console.log(response.data);
         setData(response.data);
       }else{
         Noti(response.data);
