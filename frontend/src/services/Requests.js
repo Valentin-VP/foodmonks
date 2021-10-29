@@ -54,8 +54,22 @@ export const fetchUserData = () => {
   return response;
 };
 
-//-----------------------------MENUS---------------------------------------------------------------
+export const registrarCliente = (cliente) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/altaCliente`,
+    data: cliente,
+  });
+};
 
+
+export const registrarRestaurante = (restaurante) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/crearSolicitudAltaRestaurante`,
+    data: restaurante,
+  });
+};
 export const eliminarMenu = (menuId) => {
   const response = axios({
     method: "DELETE",
