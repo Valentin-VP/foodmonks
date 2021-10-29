@@ -79,14 +79,14 @@ export default function ResetPassword() {
       setIsEnviandoCodigo(true);
       await recuperarPassword(values).then((response)=>{
         setError(null);
-        setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>Se envió la solicitud con suceso. Comprueba el email.</Alert>)   
+        setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>{response.data}</Alert>)   
         //localStorage.setItem('recover.mail',values.email);
       }).catch((error)=>{
-        setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>Ocurrió un error.</Alert>)
+        setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>{error.response.data}</Alert>)
         setSuccess(null);
       });
       setIsEnviandoCodigo(false);
-      setSuccess(<Redirect to='/changePassword'/>);
+      //setSuccess(<Redirect to='/changePassword'/>);
     }
     return (
         <Styles>

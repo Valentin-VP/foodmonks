@@ -106,13 +106,17 @@ export default function ResetPasswordConfirm() {
 
     async function validarToken() {
         setIsValidandoToken(true);
-        await checkPwdRecoveryToken(query.get("correo"), query.get("token"))
+        await checkPwdRecoveryToken(query.get("email"), query.get("token"))
         .then((response)=>{
-            console.log(response.data);
-            setTokenInvalido(!response.data);
-            setIsValidandoToken(false);
+            if (response.status===200){
+                setTokenInvalido(false);
+                setIsValidandoToken(false);
+            }else if(response.status===401){
+                setTokenInvalido(true);
+                setIsValidandoToken(false);
+            }
         }).catch((error)=>{
-            setTokenInvalido(false);
+            setTokenInvalido(true);
             setIsValidandoToken(false);
         })
     }
@@ -125,9 +129,9 @@ export default function ResetPasswordConfirm() {
             setConfirmado(true);
             setError(null);
             //clearRecoverEmail();
-            setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>Se cambió la contraseña correctamente.</Alert>)   
+            setSuccess(<Alert variant="success" dismissible onClose={()=>{setSuccess(null)}}>{response.data}</Alert>)   
         }).catch((error)=>{
-            setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>Ocurrió un error.</Alert>)
+            setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>{error.response.data}</Alert>)
             setSuccess(null);
         });
         setIsConfirmando(false);
@@ -252,7 +256,7 @@ export default function ResetPasswordConfirm() {
 
     return (
         <div className="ConfirmPassword">
-            {isValidandoToken ? renderLoading() : tokenInvalido ? <Redirect to="/forgotPassword"></Redirect>: !confirmado ? renderConfirmacionForm() : renderMensajeDeSuceso()}
+            {isValidandoToken ? renderLoading() : tokenInvalido ? <Redirect to="/"></Redirect>: !confirmado ? renderConfirmacionForm() : renderMensajeDeSuceso()}
         </div>
     );
 }
