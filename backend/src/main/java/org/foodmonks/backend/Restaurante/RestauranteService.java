@@ -8,6 +8,7 @@ import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuExceptio
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -70,4 +71,13 @@ public class RestauranteService {
                     restaurante.getCorreo());
         }
     }
+
+    public EstadoRestaurante restauranteEstado (String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return restaurante.getEstado();
+    }
+  
 }

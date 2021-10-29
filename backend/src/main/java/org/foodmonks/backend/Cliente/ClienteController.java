@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Cliente;
 
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,11 +10,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.foodmonks.backend.Direccion.Direccion;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.extern.slf4j.Slf4j;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -22,7 +26,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cliente")
+@Slf4j
 public class ClienteController {
+
+    private final TokenHelper tokenHelp;
 
     private final ClienteService clienteService;
     private final TokenHelper tokenHelp;
@@ -90,9 +97,30 @@ public class ClienteController {
         clienteService.buscarCliente(correo);
     }
 
-    @DeleteMapping//ELIMINAR CLIENTE
-    public void elimiarCliente(@RequestParam Long id) {
-        //clienteService.eliminarCliente(id);
+    @Operation(summary = "Elimina cuenta propia de Cliente",
+            description = "Baja logica de Cliente, se cierra sesion al finalizar",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa. Se ha dado de baja."),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @PreAuthorize("hasRole('ROLE_CLIENTE')")
+    @DeleteMapping(path = "eliminarCuenta")//ELIMINAR CLIENTE
+    public ResponseEntity<?> eliminarCuentaPropiaCliente(
+            @RequestHeader("Authorization") String token) {
+        try {
+            String newToken = null;
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+            clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
+            log.debug("Cliente eliminado, enviando a cerrar sesion");
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping//EDITAR CLIENTE

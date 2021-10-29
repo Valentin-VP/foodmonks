@@ -28,6 +28,7 @@ public class Restaurante extends Usuario {
     private Integer rut;
     @OneToOne(cascade=CascadeType.ALL)
     private Direccion direccion;
+    @Enumerated(value = EnumType.STRING)
     private EstadoRestaurante estado;
     private Integer telefono;
     private String descripcion;
@@ -59,6 +60,8 @@ public class Restaurante extends Usuario {
         this.cuentaPaypal = cuentaPaypal;
         this.imagen = imagen;
     }
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -99,6 +102,11 @@ public class Restaurante extends Usuario {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        EstadoRestaurante estado = getEstado();
+        if(estado == EstadoRestaurante.BLOQUEADO || estado == EstadoRestaurante.ELIMINADO || estado == EstadoRestaurante.RECHAZADO) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

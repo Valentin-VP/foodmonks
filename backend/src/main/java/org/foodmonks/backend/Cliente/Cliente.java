@@ -23,6 +23,7 @@ public class Cliente extends Usuario {
     private Float calificacion;
     @ManyToMany(mappedBy="cliente", cascade=CascadeType.ALL)
     private List<Direccion> direcciones = new ArrayList<>();
+    @Enumerated(value = EnumType.STRING)
     private EstadoCliente estado;
     private String mobileToken;
     @OneToMany(mappedBy="cliente")
@@ -92,7 +93,12 @@ public class Cliente extends Usuario {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        EstadoCliente estado = getEstado();
+        if(estado == EstadoCliente.BLOQUEADO || estado == EstadoCliente.ELIMINADO) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }
