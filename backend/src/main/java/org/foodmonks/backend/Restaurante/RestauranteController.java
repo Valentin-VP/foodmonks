@@ -158,8 +158,6 @@ public class RestauranteController {
             menuService.modificarMenu(menuId, nombreMenu, priceMenu, descripcionMenu, visibilidadMenu, multiplicadorMenu, imagenMenu, categoriaMenu, correo);
         } catch(JsonParseException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (MenuNombreExistente menuNombreExistente) {
-            return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
             return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {

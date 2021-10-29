@@ -52,7 +52,7 @@ public class MenuService {
 
     public void modificarMenu(Long id, String nombre, Float price, String descripcion, Boolean visible,
                                  Float multiplicadorPromocion, String imagen, CategoriaMenu categoria,
-                         String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException, MenuNombreExistente {
+                         String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException {
 
         Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
         if (restaurante == null) {
@@ -62,10 +62,6 @@ public class MenuService {
         if (menuAux == null){
             throw new MenuNoEncontradoException("No existe el Menu con id " + id  + " para el Restaurante "
                     + correoRestaurante);
-        }
-        if (menuRepository.existsByNombreAndRestaurante(nombre,restaurante)) {
-            throw new MenuNombreExistente("Ya existe un menu con el nombre " + menuAux.getNombre()
-                    + " para el Restaurante " + correoRestaurante);
         }
         menuAux.setNombre(nombre);
         menuAux.setPrice(price);
