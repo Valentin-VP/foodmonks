@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -27,8 +30,115 @@ public class UsuarioService {
 		this.emailService = emailService;
 	}
 
-	public List<Usuario> listarUsuarios() {
-		return usuarioRepository.findAll();
+	public List<Usuario> listarUsuarios(String correo, String tipoUser, String fechaInicio, String fechaFin, String estado, boolean orden) {
+		List<Usuario> listaUsuarios = usuarioRepository.findAll();
+
+		//filtros:
+		if(!correo.isEmpty()) {//filtro por correo(cliente, restaurante o admin)
+			List<Usuario> auxList = new ArrayList<>();
+			for(Usuario user: listaUsuarios) {
+				if(user.getCorreo().equals(correo)) {
+					auxList.add(user);
+				}
+			}
+			listaUsuarios = auxList;
+		}
+		if(!fechaInicio.isEmpty()) {//filtro por fecha de registro(cliente, restaurante o admin)
+			List<Usuario> auxListInicio = new ArrayList<>();
+			List<Usuario> auxListFin = new ArrayList<>();
+			for(Usuario user: listaUsuarios) {
+				if(user.getFechaRegistro().isAfter(LocalDate.parse(fechaInicio))) {
+					auxListInicio.add(user);
+				}
+			}
+			listaUsuarios = auxListInicio;
+			if(!fechaFin.isEmpty()) {
+				for(Usuario user: listaUsuarios) {
+					if(user.getFechaRegistro().isBefore(LocalDate.parse(fechaFin))) {
+						auxListFin.add(user);
+					}
+				}
+				listaUsuarios = auxListFin;
+			}
+		}
+		if(!tipoUser.isEmpty()) {//filtro por tipo de usuario(cliente o restaurante)
+			List<Usuario> auxList = new ArrayList<>();
+			for(Usuario user: listaUsuarios) {
+				if (tipoUser.equals("cliente")) {//filtro por cliente
+					if (user instanceof Cliente) {
+						auxList.add(user);
+					}
+				} else {//filtro por restaurante
+					if (user instanceof Restaurante) {
+						auxList.add(user);
+					}
+				}
+			}
+			listaUsuarios = auxList;
+			if(orden) {//ordenamiento por calificacion(cliente o restaurante)
+				List<Cliente> auxListOrdenCliente = new ArrayList<>();
+				List<Restaurante> auxListOrdenRestaurante = new ArrayList<>();
+				//necesito ambas listas por como ordeno los usuarios
+				if(tipoUser.equals("cliente")) {
+					for(Usuario user: listaUsuarios) {
+						Cliente cliente = clienteService.buscarCliente(user.getCorreo());
+						auxListOrdenCliente.add(cliente);
+						//ordenamiento por calificacion global de cliente
+						auxListOrdenCliente.sort(new Comparator<Cliente>() {
+							@Override
+							public int compare(Cliente c1, Cliente c2) {
+								return c1.getCalificacion().compareTo(c2.getCalificacion());//de menor a mayor
+							}
+						});
+					}
+					listaUsuarios = new ArrayList<Usuario>(auxListOrdenCliente);
+				} else {
+					for(Usuario user: listaUsuarios) {
+						Restaurante restaurante = restauranteService.buscarRestaurante(user.getCorreo());
+						auxListOrdenRestaurante.add(restaurante);
+						//ordenamiento por calificacion global de restaurante
+						auxListOrdenRestaurante.sort(new Comparator<Restaurante>() {
+							@Override
+							public int compare(Restaurante r1, Restaurante r2) {
+								return r1.getCalificacion().compareTo(r2.getCalificacion());//de menor a mayor
+							}
+						});
+					}
+					listaUsuarios = new ArrayList<>(auxListOrdenRestaurante);
+				}
+			}
+		}
+		if(!estado.isEmpty()) {//filtro por estado(cliente o restaurante)
+			List<Usuario> auxList = new ArrayList<Usuario>();
+			for (Usuario user : listaUsuarios) {
+				if (estado.equals("BLOQUEADO") || estado.equals("ELIMINADO")) {
+					if (user instanceof Cliente) {
+						Cliente cliente = clienteService.buscarCliente(user.getCorreo());
+						if(cliente.getEstado().equals(EstadoCliente.valueOf(estado))) {
+							auxList.add(user);
+						}
+					} else if(user instanceof Restaurante) {
+						Restaurante restaurante = restauranteService.buscarRestaurante(user.getCorreo());
+						if(restaurante.getEstado().equals(EstadoRestaurante.valueOf(estado))) {
+							auxList.add(user);
+						}
+					}
+				} else if (estado.equals("DESBLOQUEADO")) {
+					if (user instanceof Cliente) {
+						Cliente cliente = clienteService.buscarCliente(user.getCorreo());
+						if(cliente.getEstado().equals(EstadoCliente.valueOf("ACTIVO"))) {
+							auxList.add(user);
+						}
+					} else if(user instanceof Restaurante) {
+						Restaurante restaurante = restauranteService.buscarRestaurante(user.getCorreo());
+						if(restaurante.getEstado().equals(EstadoRestaurante.valueOf("ABIERTO")) || restaurante.getEstado().equals(EstadoRestaurante.valueOf("CERRADO"))) {
+							auxList.add(user);
+						}
+					}
+				}
+			}
+			listaUsuarios = auxList;
+		}
 	}
 	
 	public void bloquearUsuario (String correo) throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
