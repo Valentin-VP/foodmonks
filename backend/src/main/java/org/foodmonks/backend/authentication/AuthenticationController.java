@@ -1,7 +1,7 @@
 package org.foodmonks.backend.authentication;
 
-import com.google.gson.Gson;
 
+import com.google.gson.Gson;
 import com.google.gson.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Cliente.Cliente;
@@ -38,7 +39,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
@@ -81,8 +81,7 @@ public class AuthenticationController {
     private TemplateEngine templateEngine;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
-
+    public ResponseEntity<?> login(@Parameter @RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
         final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
 
@@ -90,19 +89,22 @@ public class AuthenticationController {
 
         UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getEmail());
 
-        String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
-        System.out.println("el token es: " + jwtToken);
+        if(usuario.isEnabled()) {
+            String jwtToken = tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
+            String jwtRefreshToken = tokenHelper.generateRefreshToken(usuario.getUsername(), usuario.getAuthorities());
 
-        //falta generar el refreshToken y agregarselo a la response
-        AuthenticationResponse response=new AuthenticationResponse();
-        response.setToken(jwtToken);
+            AuthenticationResponse response = new AuthenticationResponse();
+            response.setToken(jwtToken);
+            response.setRefreshToken(jwtRefreshToken);
 
-        return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    //endpoint para renovar los tokens, debe recibir el correo del usuario(esta en el refreshToken)
-
     @GetMapping("/auth/userinfo")
+    @Operation(summary = "Obtiene información del Usuario", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> getUserInfo(Authentication user) {
 
         if (adminService.buscarAdmin(user.getName()) != null) {

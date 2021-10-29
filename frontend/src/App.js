@@ -2,6 +2,7 @@ import "./App.css";
 import { React, useState } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import ApiDocs from "./pages/ApiDocs";
 import { toast } from "react-toastify";
 import Admin from "./pages/admin/Admin";
 import Cliente from "./pages/cliente/Cliente";
@@ -39,6 +40,7 @@ function App() {
             <Route exact path="/register" component={Register} />
             <Route exact path="/forgotPassword" component={RecuperarPassword} />
             <Route exact path="/changePassword" component={RecuperarPasswordCambio} />
+            <Route exact path="/apidocs" component={ApiDocs} />
           </Switch>
         </BrowserRouter>
       );
