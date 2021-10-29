@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.extern.slf4j.Slf4j;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cliente")
+@Slf4j
 public class ClienteController {
 
     private final TokenHelper tokenHelp;
@@ -63,7 +65,7 @@ public class ClienteController {
             }
             String correo = tokenHelp.getUsernameFromToken(newToken);
             clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
-            // TODO: Enviar a cerrar sesion
+            log.debug("Cliente eliminado, enviando a cerrar sesion");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

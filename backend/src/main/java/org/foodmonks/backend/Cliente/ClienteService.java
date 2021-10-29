@@ -1,5 +1,7 @@
 package org.foodmonks.backend.Cliente;
 
+
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class ClienteService {
         clienteRepository.save(cliente);
     }
 
+
     public List<Cliente> listarCliente(){
         return clienteRepository.findAll();
     }
@@ -38,7 +41,19 @@ public class ClienteService {
         clienteRepository.save(cliente);
     }
 
+
     public void modificarEstadoCliente(String correo, EstadoCliente estado){
-        clienteRepository.findByCorreo(correo).setEstado(estado);
+        Cliente clienteAux = clienteRepository.findByCorreo(correo);
+        clienteAux.setEstado(estado);
+        clienteRepository.save(clienteAux);
     }
+
+    public EstadoCliente clienteEstado(String correo) throws ClienteNoEncontradoException {
+        Cliente cliente = clienteRepository.findByCorreo(correo);
+        if (cliente == null) {
+            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
+        }
+        return cliente.getEstado();
+    }
+  
 }

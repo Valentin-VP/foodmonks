@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Correo</title>
+</head>
+<body>
+<p>Estimado <span th:text="${user}"></span>:</p>
+<p><span th:text="${contenido}"></span></p>
+<br/>
+<br/>
+<p> Atentamente.El equipo de FoodMonks </p>
+
+
+<div align="center"> <img src = "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/foodMonks-Logo%2FfoodMonks.png?alt=media&token=a092699a-1216-4b07-b187-6ac3717e4318"
+                          width="150" height="150" alt="" align="center" > </div>
+</body>
+</html>
