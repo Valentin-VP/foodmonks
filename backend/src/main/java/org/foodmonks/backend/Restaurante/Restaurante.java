@@ -28,6 +28,7 @@ public class Restaurante extends Usuario {
     private Integer rut;
     @OneToOne(cascade=CascadeType.ALL)
     private Direccion direccion;
+    @Enumerated(value = EnumType.STRING)
     private EstadoRestaurante estado;
     private Integer telefono;
     private String descripcion;

@@ -87,6 +87,7 @@ export const NavigationBar = () => (
             </Nav.Item>
             <NavDropdown title="Administrador" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
+              <NavDropdown.Item href="/buscarUsuarios">Buscar Usuario</NavDropdown.Item>
               <NavDropdown.Item href="/altaAdmin">Dar alta Admin</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
