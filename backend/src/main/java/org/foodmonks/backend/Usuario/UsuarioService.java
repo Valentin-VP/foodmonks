@@ -103,5 +103,41 @@ public class UsuarioService {
 				 }
 	}
 	
+	
+	public void eliminarUsuario (String correo) throws UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
+		
+		Usuario usuario = usuarioRepository.findByCorreo(correo);
+			
+				if (usuario instanceof Restaurante) {
+					Restaurante restaurante = (Restaurante) usuario;
+					if (restaurante.getEstado()!= EstadoRestaurante.BLOQUEADO) {
+						throw new UsuarioNoEliminadoException("Usuario "+correo+" debe estar bloqueado" );
+					}else {
+						 restaurante.setEstado(EstadoRestaurante.ELIMINADO);
+						 usuarioRepository.save(restaurante);
+					}
+				} else if (usuario instanceof Cliente) {
+					Cliente cliente = (Cliente) usuario;
+					if (cliente.getEstado()!= EstadoCliente.BLOQUEADO) {
+						throw new UsuarioNoEliminadoException("Usuario "+correo+" debe estar bloqueado" );
+					}else {
+					     cliente.setEstado(EstadoCliente.ELIMINADO);
+					     usuarioRepository.save(cliente);
+					}
+				} else 
+					throw new  UsuarioNoEncontradoException("Usuario "+correo+" no encontrado.");
+				
+				//ENVIAR NOTIFICACION EMAIL
+				 Context context = new Context();
+				 context.setVariable("user", usuario.getNombre());
+				 context.setVariable("contenido","Su cuenta ha sido eliminada debido a la falta grave de incumplimiento a las normas de FoodMonks. Por mas información, envíe un mail a foodmonksoficial@gmail.com.");
+				 String htmlContent = templateEngine.process("bloquear-desbloquear-eliminar", context);
+				 try {
+					 emailService.enviarMail(usuario.getCorreo(), "Cuenta Eliminada", htmlContent, null);
+				 }catch (EmailNoEnviadoException e) {
+					 throw new EmailNoEnviadoException("Usuario eliminado, " +e.getMessage());
+				 }
+	}
+	
 
 }
