@@ -77,12 +77,12 @@ export default function ListadoRegistrados({data, fetchFunc}) {
                         {item.rol==="RESTAURANTE" ? <td>Restaurante</td> : <td>Cliente</td>}
                         <td>Email: {item.correo}</td>
                         <td>Fecha Registro: {item.fechaRegistro}</td>
-                        <td>Nombre: {item.rol==="CLIENTE" ? item.nombre : item.nombreRestaurante}</td>
-                        {item.rol==="RESTAURANTE" ? <td>Descripción: {item.descripcion}</td> : <td>Apellido: {item.apellido}</td>}
-                        {item.rol==="RESTAURANTE" && <td>RUT: {item.RUT}</td>}
+                        <td>Nombre: {item.nombre}</td>
+                        {item.rol==="RESTAURANTE" ? <td>RUT: {item.RUT}</td> : <td>Apellido: {item.apellido}</td>}
+                        {/*item.rol==="RESTAURANTE" && <td>RUT: {item.RUT}</td>*/}
                         {/*item.rol==="RESTAURANTE" && <td>Dirección: {item.direccion}</td>*/}
                         {item.rol==="RESTAURANTE" && <td>Teléfono: {item.telefono}</td>}
-                        {item.rol==="CLIENTE" && <td colSpan="3"></td>}
+                        {item.rol==="CLIENTE" && <td colSpan="1"></td>}
                         <td>Calificación: {item.calificacion}</td>
                         <td>Estado: {item.estado}</td>
                         <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="ELIMINADO"} type="button" onClick={e=>(updateState(item))}>
