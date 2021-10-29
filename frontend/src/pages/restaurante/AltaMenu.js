@@ -8,7 +8,6 @@ import { Error } from "../../components/Error";
 const Styles = styled.div`
   * {
     margin: 0;
-    padding: 0;
     box-sizing: border-box;
   }
 
@@ -138,20 +137,36 @@ function AltaMenu() {
               altaMenu(menu).then((response) => {
                 console.log(response);
                 if (response.status === 201)
-                  setSuccess(<Alert variant="success">Menú creado con exito!</Alert>);
+                  setSuccess(
+                    <Alert variant="success">Menú creado con exito!</Alert>
+                  );
               });
+              setTimeout(() => {
+                window.location.replace("/menu");
+              }, 3000);
+            })
+            .catch((error) => {
+              error.response.data();
             });
         }
       );
     } else {
       /* "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to" */
-      menu.imagen = process.env.REACT_APP_GENERIC_MENU;//cargo la imagen generica
+      menu.imagen = process.env.REACT_APP_GENERIC_MENU; //cargo la imagen generica
       console.log(menu);
-      altaMenu(menu).then((response) => {
-        //llamo al back
-        console.log(response);
-        if (response.status === 201) setSuccess(<Alert variant="success">Menú creado con exito!</Alert>);
-      });
+      altaMenu(menu)
+        .then((response) => {
+          //llamo al back
+          console.log(response);
+          if (response.status === 201)
+            setSuccess(<Alert variant="success">Menú creado con exito!</Alert>);
+          setTimeout(() => {
+            window.location.replace("/menu");
+          }, 3000);
+        })
+        .catch((error) => {
+          setComponente(<Error error={error.response.data.detailMessage} />);
+        });
     }
   };
 
@@ -171,7 +186,7 @@ function AltaMenu() {
               placeholder="Nombre del Menú"
               onChange={handleChange}
             />
-            <label for="floatingInput">Nombre del Menú</label>
+            <label htmlFor="floatingInput">Nombre del Menú</label>
           </div>
           {/*Precio*/}
           <div className="form-floating">
@@ -184,7 +199,7 @@ function AltaMenu() {
               min="1"
               onChange={handleChange}
             />
-            <label for="floatingInput">Precio</label>
+            <label htmlFor="floatingInput">Precio</label>
           </div>
           {/*descripcion*/}
           <div className="form-floating">
@@ -196,7 +211,7 @@ function AltaMenu() {
               placeholder="Descripcion"
               onChange={handleChange}
             />
-            <label for="floatingInput">Descripción</label>
+            <label htmlFor="floatingInput">Descripción</label>
           </div>
           <FloatingLabel controlId="floatingSelect" label="Categoría">
             <Form.Select
@@ -215,14 +230,17 @@ function AltaMenu() {
           <label className="mb-2">Imágen del menú</label>
           {/* image uploader */}
           <Form.Control
-            className="archivo"
+            className="archivo mb-3"
             type="file"
+            size="lg"
             onChange={handleUpload}
             required
           />
           {success}
           {componente}
-          <Button onClick={onSubmit}>Alta</Button>
+          <Button id="submit" onClick={onSubmit}>
+            Alta
+          </Button>
         </Form>
       </section>
     </Styles>
