@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
-import org.foodmonks.backend.Menu.DtMenu;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Usuario;
