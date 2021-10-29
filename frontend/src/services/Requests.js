@@ -122,10 +122,12 @@ export const eliminarUsuario = (correoUsuario) => {
   });
 }
 
-export const fetchUsuariosBusqueda = (datos) => {
+export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
+  const fIni = fechaIni ? fechaIni.toISOString().slice(0,10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
+  const fFin = fechaFin ? fechaFin.toISOString().slice(0,10) : fIni;
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/filtroUsuarios`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
@@ -136,7 +138,7 @@ export const fetchUsuariosBusqueda = (datos) => {
 export const actualizarEstadoUsuario = (estado, id) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/cambiarEstado/${id}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstado/${id}`,
     data: estado,
     headers: {
       Authorization: "Bearer " + getToken(),
@@ -146,7 +148,7 @@ export const actualizarEstadoUsuario = (estado, id) => {
 /*export const setEstadoUsuarioEliminado = (correo) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/eliminarUsuario/${correo}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/eliminarUsuario/${correo}`,
     headers: {
       Authorization: "Bearer " + getToken(),
     },

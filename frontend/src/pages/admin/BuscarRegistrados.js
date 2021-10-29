@@ -2,6 +2,11 @@ import { React, Fragment, useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { fetchUsuariosBusqueda } from "../../services/Requests";
 import ListadoRegistrados from "./ListadoRegistrados";
+import { Noti } from "../../components/Notification"
+
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
 
 const Styles = styled.div`
   .form{
@@ -48,33 +53,50 @@ const Styles = styled.div`
 
 export default function BuscarRegistrados() {
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
+  //const [loaded, setLoaded] = useState(false);
+  //const [error, setError] = useState(false);
   const [values, setValues] = useState({
-    filtro1: "1",
-    filtro2: "2",
-    filtro3: "3",
-    email: "",
+    tipoUser: "",
+    estado: "",
+    correo: "",
     ordenar: false,
   });
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const onChangeDate = (dates) => {
+    const [start, end] = dates;
+    setStartDate(start);
+    setEndDate(end);
+  };
+
+  let tipoUser = [
+    { tipo: "N/A", value: ""},
+    { tipo: "Restaurante", value: "restaurante" },
+    { tipo: "Cliente", value: "cliente"},
+  ];
+
+  let estado = [
+    { estado: "N/A", value:""},
+    { estado: "Bloqueado", value:"bloqueado"},
+    { estado: "Desbloqueado", value:"desbloqueado"},
+    { estado: "Eliminado", value:"eliminado"},
+  ];
 
   const fetch = () => {
     //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
     //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
-    // fetchUsuariosBusqueda(values).then((response)=>{
-    //   if (response.status===200){
-    //     setData(response.data);
-    //     setError(null);
-    //   }else{
-    //     alert(response.status);
-    //     setError(null);
-    //   }
-    // }).catch((error)=>{
-    //   setError(error);
-    //   alert(error);
-    // })
-    setData([...data, {estado : "eliminado"}]);
+    fetchUsuariosBusqueda(values, startDate, endDate).then((response)=>{
+      if (response.status===200){
+        setData(response.data);
+      }else{
+        Noti(response.data);
+      }
+    }).catch((error)=>{
+      Noti(error.message);
+    })
+    //setData([...data, {tipoUser: "restaurante", nombreRestaurante: "asd", estado : "bloqueado"}]);
   }
 
   const handleChange = (e) => {
@@ -91,7 +113,7 @@ export default function BuscarRegistrados() {
     // dependiendo de la respuesta del servidor para el request de buscar, muestro una tabla con
     // los datos de los usuarios y eventualmente 2 botones (des/bloquear y elim-perm (solo si bloq))
     fetch();
-    setLoaded(!loaded);
+    //setLoaded(!loaded);
   };
 
 //   useEffect(() => {
@@ -109,61 +131,56 @@ export default function BuscarRegistrados() {
                   <div class="col-lg">
                       <div className="form-floating">
                           <input 
-                              name="email"
+                              name="correo"
                               className="form-control"
                               onChange={handleChange}
-                              id="email"
-                              value={values.email}>
+                              id="correo"
+                              value={values.correo}>
                           </input>
-                          <label for="email">Email del Usuario</label>
+                          <label for="correo">Email del Usuario</label>
+                      </div>
+                  </div>
+                  <div class="col-lg">
+                      <div className="form-floating">
+                        <DatePicker
+                          name="fecha"
+                          className="form-control"
+                          selected={startDate}
+                          onChange={onChangeDate}
+                          startDate={startDate}
+                          endDate={endDate}
+                          selectsRange
+                          dateFormat="yyyy-MM-dd"
+                          placeholderText="Fecha Registro"
+                        />
                       </div>
                   </div>
                   <div class="col-lg">
                       <div className="form-floating">
                           <select 
-                              name="filtro1"
+                              name="tipoUser"
                               className="form-select"
                               onChange={handleChange}
-                              id="filtro1"
-                              value={values.filtro1}>
-                              <option selected>Placeholder 1</option>
-                              <option value="1">One</option>
-                              <option value="2">Two</option>
-                              <option value="3">Three</option>
+                              id="tipoUser">
+                              {tipoUser.map((item)=>(
+                                <option key={item.tipo} value={item.value}>{item.tipo}</option>
+                              ))}
                           </select>
-                          <label for="filtro1">Filtro 1</label>
+                          <label for="tipoUser">Tipo de Usuario</label>
                       </div>
                   </div>
                   <div class="col-lg">
                       <div className="form-floating">
                           <select 
-                              name="filtro2"
+                              name="estado"
                               className="form-select"
                               onChange={handleChange}
-                              id="filtro2"
-                              value={values.filtro2}>
-                              <option selected>Placeholder 2</option>
-                              <option value="1">One</option>
-                              <option value="2">Two</option>
-                              <option value="3">Three</option>
+                              id="estado">
+                              {estado.map((item)=>(
+                                <option key={item.estado} value={item.value}>{item.estado}</option>
+                              ))}
                           </select>
-                          <label for="filtro2">Filtro 2</label>
-                      </div>
-                  </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <select 
-                              name="filtro3"
-                              className="form-select"
-                              onChange={handleChange}
-                              id="filtro3"
-                              value={values.filtro3}>
-                              <option selected>Placeholder 3</option>
-                              <option value="1">One</option>
-                              <option value="2">Two</option>
-                              <option value="3">Three</option>
-                          </select>
-                          <label for="filtro3">Filtro 3</label>
+                          <label for="estado">Estado</label>
                       </div>
                   </div>
                   <div class="col-lg">
@@ -177,7 +194,9 @@ export default function BuscarRegistrados() {
                                       checked={values.ordenar}
                                       onChange={handleChange}
                                       id="ordenar"
-                                  /> Ordenar
+                                      disabled={!values.tipoUser}
+                                  /> Ordenar por Calificación según {values.tipoUser==="restaurante" ? values.tipoUser : 
+                                  values.tipoUser==="cliente" ? values.tipoUser : "tipo de usuario"}
                               </label>
                           </div>
                       </div>
@@ -195,7 +214,7 @@ export default function BuscarRegistrados() {
               <div className="form-floating">
                 <div class="row align-items-center">
                   <div class="col-md">
-                    {loaded && <ListadoRegistrados data={data} fetchFunc={fetch}/>}
+                    {<ListadoRegistrados data={data} fetchFunc={fetch}/>}
                   </div>
                 </div>
               </div>
