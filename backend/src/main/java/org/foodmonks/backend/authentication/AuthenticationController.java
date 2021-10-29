@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -48,7 +49,6 @@ public class AuthenticationController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@Parameter @RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
-
         final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
 
@@ -56,17 +56,19 @@ public class AuthenticationController {
 
         UserDetails usuario = customService.loadUserByUsername(authenticationRequest.getEmail());
 
-        String jwtToken=tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
-        System.out.println("el token es: " + jwtToken);
+        if(usuario.isEnabled()) {
+            String jwtToken = tokenHelper.generateToken(usuario.getUsername(), usuario.getAuthorities());
+            String jwtRefreshToken = tokenHelper.generateRefreshToken(usuario.getUsername(), usuario.getAuthorities());
 
-        //falta generar el refreshToken y agregarselo a la response
-        AuthenticationResponse response=new AuthenticationResponse();
-        response.setToken(jwtToken);
+            AuthenticationResponse response = new AuthenticationResponse();
+            response.setToken(jwtToken);
+            response.setRefreshToken(jwtRefreshToken);
 
-        return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
-
-    //endpoint para renovar los tokens, debe recibir el correo del usuario(esta en el refreshToken)
 
     @GetMapping("/auth/userinfo")
     @Operation(summary = "Obtiene información del Usuario", security = @SecurityRequirement(name = "bearerAuth"))
