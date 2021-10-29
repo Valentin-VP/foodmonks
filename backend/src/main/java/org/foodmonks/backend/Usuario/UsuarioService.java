@@ -1,5 +1,4 @@
 package org.foodmonks.backend.Usuario;
-
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
@@ -10,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEncontradoException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
@@ -22,13 +23,28 @@ public class UsuarioService {
 	private final UsuarioRepository usuarioRepository;
 	private final TemplateEngine templateEngine;
 	private final EmailService emailService;
+  private final PasswordEncoder passwordEncoder;
 	
 	@Autowired
-	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine, EmailService emailService) {
+	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine, EmailService emailService, PasswordEncoder passwordEncoder) {
 		this.usuarioRepository = usuarioRepository;
 		this.templateEngine = templateEngine;
 		this.emailService = emailService;
+    this.passwordEncoder = passwordEncoder;
 	}
+  
+  public void cambiarPassword(String correo, String password) throws UsuarioNoEncontradoException {
+       Usuario usuario = usuarioRepository.findByCorreo(correo);
+        if (usuario == null) {
+            throw new UsuarioNoEncontradoException("No existe el Usuario " + correo);
+        }
+        usuario.setContrasenia(passwordEncoder.encode(password));
+        usuarioRepository.save(usuario);
+    }
+
+    public String generarTokenResetPassword() {
+        return UUID.randomUUID().toString();
+    }
 
 	public List<Usuario> listarUsuarios(String correo, String tipoUser, String fechaInicio, String fechaFin, String estado, boolean orden) {
 		List<Usuario> listaUsuarios = usuarioRepository.findAll();

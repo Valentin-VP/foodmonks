@@ -100,6 +100,11 @@ public class Restaurante extends Usuario {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        EstadoRestaurante estado = getEstado();
+        if(estado == EstadoRestaurante.BLOQUEADO || estado == EstadoRestaurante.ELIMINADO || estado == EstadoRestaurante.RECHAZADO) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

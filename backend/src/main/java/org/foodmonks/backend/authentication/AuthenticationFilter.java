@@ -1,6 +1,7 @@
 package org.foodmonks.backend.authentication;
 
 
+import lombok.SneakyThrows;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         this.customService = customService;
     }
 
+    @SneakyThrows
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -54,11 +56,25 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 
 
+                } else {
+                    String refreshToken=tokenHelper.getRefreshToken(request);
+                    if(tokenHelper.validateToken(refreshToken, userDetails)) {
+
+                        String jwtToken=tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
+                        String jwtRefreshToken=tokenHelper.generateRefreshToken(userDetails.getUsername(), userDetails.getAuthorities());
+                        response.setHeader("Authorization", jwtToken);
+                        response.setHeader("RefreshAuthentication", jwtRefreshToken);
+
+                        UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetails(request));
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
 
             }
 
-        }//si authtoken es null, tengo que validar el refreshToken
+        }
 
         filterChain.doFilter(request, response);
 

@@ -1,8 +1,10 @@
 import { React, Fragment, useState } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import logo from "../assets/foodMonks-sinfondo.png";
 import { userLogin } from "../services/Requests";
 import { Error } from "../components/Error";
+import { Base64 } from 'js-base64';
 
 const Styles = styled.div`
   .text-center {
@@ -54,15 +56,14 @@ function Login() {
     email: "",
     password: ""
   });
-
+  
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
       ...values,
-      [e.target.name]: e.target.value,
+      [e.target.name]: Base64.encode(e.target.value),
     }));
   };
-
   const [error, guardarError] = useState("");
 
   const handleSubmit = (e) => {
@@ -70,6 +71,7 @@ function Login() {
     userLogin(values).then((response) => {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
         window.location.replace("/");
       } else {
         guardarError("Algo salio mal!!");
@@ -137,20 +139,14 @@ function Login() {
                 />
                 <label for="floatingPassword">Contraseña</label>
               </div>
-
-              <div className="checkbox mb-3">
-                <label>
-                  <input type="checkbox" value="remember-me" /> No cerrar sesión
-                </label>
-              </div>
-              <button className="w-100 btn btn-lg btn-primary" type="submit">
+              <button className="mt-3 w-100 btn btn-lg btn-primary" type="submit">
                 Entrar
               </button>
               <div id="loginError">
                 {componente}
               </div>
               <p className="mt-5 mb-3 text-muted">
-                <a href="/register">Olvide mi contraseña</a>
+                <Link to="/forgotPassword">Olvide mi contraseña</Link>
               </p>
               <p className="mt-2 mb-3 text-muted">
                 ¿No tienes cuenta?<a href="/register">Registrate</a>
