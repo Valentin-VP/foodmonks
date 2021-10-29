@@ -227,10 +227,14 @@ public class AuthenticationController {
             }
             // Chequear que token coincida y exista en Firestore - Arroja excepcion si algo falla
             TokenReset tokenReset = new TokenReset(correo, resetToken);
-            awsService.comprobarResetToken(tokenReset);
-            // Todo ok, cambiar password
-            usuarioService.cambiarPassword(correo, password);
-            return ResponseEntity.ok("Nueva password cambiada con éxito");
+            if (awsService.comprobarResetToken(tokenReset)){
+                // Todo ok, cambiar password
+                usuarioService.cambiarPassword(correo, password);
+                return ResponseEntity.ok("Nueva password cambiada con éxito");
+            } else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Los tokens no coinciden");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(String.format("Ha ocurrido un error: %s", e.getMessage()));
@@ -251,7 +255,7 @@ public class AuthenticationController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
             @RequestBody String tokenResetRequest) {
         JsonObject jsonReset = new Gson().fromJson(tokenResetRequest, JsonObject.class);
-        TokenReset tokenReset = new TokenReset(jsonReset.get("email").getAsString(), jsonReset.get("password").getAsString());
+        TokenReset tokenReset = new TokenReset(jsonReset.get("email").getAsString(), jsonReset.get("token").getAsString());
         if (awsService.comprobarResetToken(tokenReset)){
             return ResponseEntity.ok("Token válido");
         } else {
@@ -265,7 +269,7 @@ public class AuthenticationController {
         String contenido = "Estimado usuario, para generar una nueva contraseña, haga click en el enlace: " +
                 env.getProperty("front.base.url") +
                 "changePassword?token=" + resetToken +
-                "?email=" + correo;
+                "&email=" + correo;
         System.out.println(contenido);
         context.setVariable("contenido",contenido);
         String htmlContent = templateEngine.process("reset-pass", context);

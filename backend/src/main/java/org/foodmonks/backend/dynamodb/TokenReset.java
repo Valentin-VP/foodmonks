@@ -14,6 +14,9 @@ public class TokenReset {
     @DynamoDBAttribute(attributeName = "token")
     private String token;
 
+    public TokenReset() {
+    }
+
     public TokenReset(String email, String token) {
         this.email = email;
         this.token = token;
