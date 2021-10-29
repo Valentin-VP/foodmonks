@@ -4,8 +4,6 @@ package org.foodmonks.backend.EmailService;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 @Service 
 public class EmailService {
-	private Log logger = LogFactory.getLog(getClass());
 	private final JavaMailSender emailSender;
 	//private final TemplateEngine templateEngine;
 	
