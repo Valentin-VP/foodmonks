@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Admin;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
@@ -113,7 +114,7 @@ public class AdminController {
             if(!tipoUser.isEmpty()) {//filtro por tipo de usuario(cliente o restaurante)
                 List<Usuario> auxList = new ArrayList<Usuario>();
                 for(Usuario user: listaUsuarios) {
-                    if (tipoUser.equals("Cliente")) {//filtro por cliente
+                    if (tipoUser.equals("cliente")) {//filtro por cliente
                         if (user instanceof Cliente) {
                             auxList.add(user);
                         }
@@ -126,7 +127,7 @@ public class AdminController {
                 listaUsuarios = auxList;
                 if(orden) {//ordenamiento por calificacion(cliente o restaurante)
                     List<Usuario> auxListOrden = new ArrayList<Usuario>();
-                    if(tipoUser.equals("Cliente")) {
+                    if(tipoUser.equals("cliente")) {
                         for(Usuario user: listaUsuarios) {
                             Cliente cliente = clienteService.buscarCliente(user.getCorreo());
                             auxListOrden.add(cliente);
@@ -202,8 +203,12 @@ public class AdminController {
     @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{correo}")
     public ResponseEntity<?> cambiarEstadoUsuario(@RequestBody String estado, @PathVariable String correo) {
-        System.out.println("estado: " + estado);
-        switch (estado) {
+        JsonObject JsonEstado = new JsonObject();
+        JsonEstado = new Gson().fromJson(estado, JsonObject.class);
+
+        String state = JsonEstado.get("estado").getAsString();
+        System.out.println("estado: " + state);
+        switch (JsonEstado.get("estado").getAsString()) {
             case "BLOQUEAR":
                 usuarioService.bloquearUsuario(correo);
                 return new ResponseEntity<>(HttpStatus.OK);

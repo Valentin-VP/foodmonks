@@ -70,7 +70,7 @@ export default function ListadoRegistrados({data, fetchFunc}) {
                         <td>Calificación: {item.calificacion}</td>
                         <td>Estado: {item.estado}</td>
                         <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="eliminado"} type="button" onClick={e=>(updateState(item))}>
-                          {item.estado==="bloqueado" ? "Desbloquear" : "Bloquear"}
+                          {item.estado==="BLOQUEADO" ? "Desbloquear" : "Bloquear"}
                         </button>}</td>
                         <td>{<button className="btn btn-sm btn-danger" disabled={item.estado !== "bloqueado" || item.estado==="eliminado"} type="button" onClick={e=>(updateState(item))}>
                           Eliminar
