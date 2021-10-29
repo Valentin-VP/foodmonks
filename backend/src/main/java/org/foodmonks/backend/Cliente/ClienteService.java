@@ -1,7 +1,8 @@
 package org.foodmonks.backend.Cliente;
 
-import org.foodmonks.backend.Cliente.Exceptions.DireccionVaciaException;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Direccion.DireccionRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.datatypes.EstadoCliente;
@@ -19,24 +20,29 @@ public class ClienteService {
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
+    private final DireccionRepository direccionRepository;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository , DireccionRepository direccionRepository) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.direccionRepository = direccionRepository;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
-                             Float calificacion, Direccion direccion, EstadoCliente activo) throws DireccionVaciaException, UsuarioExisteException {
+                             Float calificacion, Direccion direccion, EstadoCliente activo) throws ClienteDireccionException, UsuarioExisteException {
         if (usuarioRepository.findByCorreo(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
         if (direccion == null){
-            throw new DireccionVaciaException("Debe ingresar una direccion");
+            throw new ClienteDireccionException("Debe ingresar una direccion");
         }
         List<Direccion> direcciones = new ArrayList<>();
         direcciones.add(direccion);
         Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,direcciones,activo,"",null);
+        List<Cliente> clientes = direccion.getCliente();
+        clientes.add(cliente);
+        direccion.setCliente(clientes);
         clienteRepository.save(cliente);
+        direccionRepository.save(direccion);
     }
 
     public List<Cliente> listarCliente(){
