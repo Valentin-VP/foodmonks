@@ -17,10 +17,11 @@ import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.comparator.ComparableComparator;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -66,29 +67,127 @@ public class AdminController {
     }
 
     @GetMapping(path = "/listarUsuarios")
-    public ResponseEntity<?> listarUsuarios() {
+    public ResponseEntity<?> listarUsuarios(@RequestParam(required = false, name = "correo") String correo, @RequestParam(required = false, name = "tipoUser") String tipoUser,
+                                            @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
+                                            @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden) {
         List<Usuario> listaUsuarios = new ArrayList<Usuario>();
         JsonArray jsonArray = new JsonArray();
         try {
             listaUsuarios = usuarioService.listarUsuarios();
-            for (Usuario listaUsuario : listaUsuarios) {
-                if(clienteService.buscarCliente(listaUsuario.getCorreo()) != null || restauranteService.buscarRestaurante(listaUsuario.getCorreo()) != null) {
-                    JsonObject usuario = new JsonObject();
-                    usuario.addProperty("correo", listaUsuario.getCorreo());
-                    usuario.addProperty("nombre", listaUsuario.getNombre());
-                    usuario.addProperty("apellido", listaUsuario.getApellido());
-                    usuario.addProperty("fechaRegistro", listaUsuario.getFechaRegistro().toString());
-                    if (clienteService.buscarCliente(listaUsuario.getCorreo()) != null) {//si es cliente
-                        Cliente cliente = clienteService.buscarCliente(listaUsuario.getCorreo());//lo consigo como cliente
-                        usuario.addProperty("rol", "CLIENTE");
-                        usuario.addProperty("estado", cliente.getEstado().toString());
-                    } else if (restauranteService.buscarRestaurante(listaUsuario.getCorreo()) != null) {//si es restaurante
-                        Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
-                        usuario.addProperty("rol", "RESTAURANTE");
-                        usuario.addProperty("estado", restaurante.getEstado().toString());
+
+            //filtros:
+            if(correo != null) {//filtro por correo(cliente, restaurante o admin)
+                List<Usuario> auxList = new ArrayList<Usuario>();
+                for(Usuario user: listaUsuarios) {
+                    if(user.getCorreo().equals(correo)) {
+                        auxList.add(user);
                     }
-                    jsonArray.add(usuario);
                 }
+                listaUsuarios = auxList;
+            }
+            if(fechaInicio != null) {//filtro por fecha de registro(cliente, restaurante o admin)
+                List<Usuario> auxListInicio = new ArrayList<Usuario>();
+                List<Usuario> auxListFin = new ArrayList<Usuario>();
+                for(Usuario user: listaUsuarios) {
+                    if(user.getFechaRegistro().isAfter(LocalDate.parse(fechaInicio))) {
+                        auxListInicio.add(user);
+                    }
+                }
+                listaUsuarios = auxListInicio;
+                if(fechaFin != null) {
+                    for(Usuario user: listaUsuarios) {
+                        if(user.getFechaRegistro().isBefore(LocalDate.parse(fechaFin))) {
+                            auxListFin.add(user);
+                        }
+                    }
+                    listaUsuarios = auxListFin;
+                }
+            }
+            if(tipoUser != null) {//filtro por tipo de usuario(cliente o restaurante)
+                List<Usuario> auxList = new ArrayList<Usuario>();
+                for(Usuario user: listaUsuarios) {
+                    if (tipoUser.equals("Cliente")) {//filtro por cliente
+                        if (user instanceof Cliente) {
+                            auxList.add(user);
+                        }
+                    } else {//filtro por restaurante
+                        if (user instanceof Restaurante) {
+                            auxList.add(user);
+                        }
+                    }
+                }
+                listaUsuarios = auxList;
+                if(orden) {//ordenamiento por calificacion(cliente o restaurante)
+                    List<Usuario> auxListOrden = new ArrayList<Usuario>();
+                    if(tipoUser.equals("Cliente")) {
+                        for(Usuario user: listaUsuarios) {
+                            Cliente cliente = clienteService.buscarCliente(user.getCorreo());
+                            auxListOrden.add(cliente);
+                            //ordenamiento por calificacion global
+                        }
+                    } else {
+                        for(Usuario user: listaUsuarios) {
+                            Restaurante restaurante = restauranteService.buscarRestaurante(user.getCorreo());
+                        }
+                    }
+                    listaUsuarios = auxListOrden;
+                }
+            }
+            if(estado != null) {//filtro por estado(cliente o restaurante)
+                List<Usuario> auxList = new ArrayList<Usuario>();
+                for (Usuario user : listaUsuarios) {
+                    if (estado.equals("BLOQUEADO") || estado.equals("ELIMINADO")) {
+                        if (user instanceof Cliente) {
+                            Cliente cliente = clienteService.buscarCliente(user.getCorreo());
+                            if(cliente.getEstado().equals(EstadoCliente.valueOf(estado))) {
+                                auxList.add(user);
+                            }
+                        } else if(user instanceof Restaurante) {
+                            Restaurante restaurante = restauranteService.buscarRestaurante(user.getCorreo());
+                            if(restaurante.getEstado().equals(EstadoRestaurante.valueOf(estado))) {
+                                auxList.add(user);
+                            }
+                        }
+                    } else if (estado.equals("DESBLOQUEADO")) {
+                        if (user instanceof Cliente) {
+                            Cliente cliente = clienteService.buscarCliente(user.getCorreo());
+                            if(cliente.getEstado().equals(EstadoCliente.valueOf("ACTIVO"))) {
+                                auxList.add(user);
+                            }
+                        } else if(user instanceof Restaurante) {
+                            Restaurante restaurante = restauranteService.buscarRestaurante(user.getCorreo());
+                            if(restaurante.getEstado().equals(EstadoRestaurante.valueOf("ABIERTO")) || restaurante.getEstado().equals(EstadoRestaurante.valueOf("CERRADO"))) {
+                                auxList.add(user);
+                            }
+                        }
+                    }
+                }
+                listaUsuarios = auxList;
+            }
+
+            for (Usuario listaUsuario : listaUsuarios) {
+                JsonObject usuario = new JsonObject();
+                usuario.addProperty("correo", listaUsuario.getCorreo());
+                usuario.addProperty("fechaRegistro", listaUsuario.getFechaRegistro().toString());
+                if (listaUsuario instanceof Cliente) {//si es cliente
+                    Cliente cliente = clienteService.buscarCliente(listaUsuario.getCorreo());//lo consigo como cliente
+                    usuario.addProperty("rol", "CLIENTE");
+                    usuario.addProperty("estado", cliente.getEstado().toString());
+                    usuario.addProperty("nombre", cliente.getNombre());
+                    usuario.addProperty("apellido", cliente.getApellido());
+                } else if(listaUsuario instanceof Restaurante){//si es restaurante
+                    Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
+                    usuario.addProperty("rol", "RESTAURANTE");
+                    usuario.addProperty("estado", restaurante.getEstado().toString());
+                    usuario.addProperty("RUT", restaurante.getRut().toString());
+                    usuario.addProperty("descripcion", restaurante.getDescripcion());
+                    usuario.addProperty("nombre", restaurante.getNombreRestaurante());
+                } else {//es admin
+                    Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());//lo consigo como admin
+                    usuario.addProperty("nombre", admin.getNombre());
+                    usuario.addProperty("apellido", admin.getApellido());
+                }
+                jsonArray.add(usuario);
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
