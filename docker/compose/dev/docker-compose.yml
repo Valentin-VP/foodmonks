@@ -18,6 +18,8 @@ services:
       dockerfile: ../../../docker/frontend/Dockerfile
     ports:
       - "80:80"
+    env_file:
+      - .env_react
     restart: always
 
 networks:
