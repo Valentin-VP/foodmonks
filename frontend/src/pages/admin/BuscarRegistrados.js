@@ -75,6 +75,7 @@ export default function BuscarRegistrados() {
     { tipo: "N/A", value: ""},
     { tipo: "Restaurante", value: "restaurante" },
     { tipo: "Cliente", value: "cliente"},
+    { tipo: "Admin", value: "admin"},
   ];
 
   let estado = [
@@ -195,7 +196,7 @@ export default function BuscarRegistrados() {
                                       checked={values.ordenar}
                                       onChange={handleChange}
                                       id="ordenar"
-                                      disabled={!values.tipoUser}
+                                      disabled={!values.tipoUser || values.tipoUser==="admin"}
                                   /> Ordenar por Calificación según {values.tipoUser==="restaurante" ? values.tipoUser : 
                                   values.tipoUser==="cliente" ? values.tipoUser : "tipo de usuario"}
                               </label>

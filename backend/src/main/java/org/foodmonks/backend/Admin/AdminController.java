@@ -128,6 +128,7 @@ public class AdminController {
                     usuario.addProperty("nombre", admin.getNombre());
                     usuario.addProperty("rol", "ADMIN");
                     usuario.addProperty("apellido", admin.getApellido());
+                    jsonArray.add(usuario);
                 }
             }
         } catch (JsonIOException e) {
