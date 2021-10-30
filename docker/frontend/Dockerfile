@@ -13,10 +13,10 @@ FROM node:16.10.0 as builder
 # Ejecucion
 RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
-COPY ../frontend/src /usr/src/app/src
-COPY ../frontend/public /usr/src/app/public
-COPY ../frontend/package.json /usr/src/app/package.json
-COPY ../frontend/package-lock.json /usr/src/app/package-lock.json
+COPY ../../frontend/src /usr/src/app/src
+COPY ../../frontend/public /usr/src/app/public
+COPY ../../frontend/package.json /usr/src/app/package.json
+COPY ../../frontend/package-lock.json /usr/src/app/package-lock.json
 RUN npm install
 RUN REACT_APP_BACKEND_URL_BASE=$REACT_APP_BACKEND_URL_BASE \
 REACT_APP_API_KEY=$REACT_APP_API_KEY \
@@ -32,6 +32,6 @@ npm run build
 # Etapa 2 - Contenedor para producción
 FROM nginx:1.12-alpine as prod
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
-COPY ../frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ../../frontend/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

@@ -6,8 +6,8 @@ RUN useradd --system --gid legolas --uid 1000 --shell /bin/bash --create-home le
 USER legolas
 WORKDIR /home/legolas
 RUN mkdir /home/legolas/app
-COPY ../backend/src /home/legolas/app/src
-COPY ../backend/pom.xml /home/legolas/app
+COPY ../../backend/src /home/legolas/app/src
+COPY ../../backend/pom.xml /home/legolas/app
 RUN mvn -f /home/legolas/app clean package -DskipTests
 
 # Etapa 2 - Crear contenedor con Tomcat para producción
