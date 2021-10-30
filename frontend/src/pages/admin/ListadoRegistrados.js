@@ -82,7 +82,7 @@ export default function ListadoRegistrados({data, fetchFunc}) {
                         {/*item.rol==="RESTAURANTE" && <td>RUT: {item.RUT}</td>*/}
                         {/*item.rol==="RESTAURANTE" && <td>Dirección: {item.direccion}</td>*/}
                         {item.rol==="RESTAURANTE" && <td>Teléfono: {item.telefono}</td>}
-                        {item.rol==="CLIENTE"  ? <td colSpan="1"></td> : (item.rol==="ADMIN" ? <td colSpan="5"></td> : null)}
+                        {item.rol==="CLIENTE"  ? <td colSpan="1"></td> : (item.rol==="ADMIN" ? <td colSpan="4"></td> : null)}
                         {item.rol!=="ADMIN" && <td>Calificación: {item.calificacion}</td>}
                         {item.rol!=="ADMIN" && <td>Estado: {item.estado}</td>}
                         {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="ELIMINADO"} type="button" onClick={e=>(updateState(item))}>
@@ -91,6 +91,9 @@ export default function ListadoRegistrados({data, fetchFunc}) {
                         {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-danger" disabled={item.estado !== "BLOQUEADO" || item.estado==="ELIMINADO"} type="button" onClick={e=>(updateStateEliminar(item))}>
                           Eliminar
                         </button>}</td>}
+                        {item.rol==="ADMIN" && <td><button className="btn btn-sm btn-danger" type="button" onClick={e=>(updateStateEliminar(item))}>
+                          Eliminar
+                        </button></td>}
                       </tr>
                     </>
                 )})}
