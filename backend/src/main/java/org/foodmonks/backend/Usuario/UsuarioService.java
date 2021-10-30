@@ -84,8 +84,12 @@ public class UsuarioService {
 					if (user instanceof Cliente) {
 						auxList.add(user);
 					}
-				} else {//filtro por restaurante
+				} else if (tipoUser.equals("restaurante")){//filtro por restaurante
 					if (user instanceof Restaurante) {
+						auxList.add(user);
+					}
+				} else {//si es admin
+					if (user != null) {
 						auxList.add(user);
 					}
 				}
