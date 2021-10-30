@@ -39,7 +39,7 @@ function App() {
         <BrowserRouter>
           <Switch>
             <Route exact path="/" component={Login} />
-            <Route exact path="/register" component={Register} />
+            <Route exact path="/register" component={RegistroCliente} />
             <Route exact path="/forgotPassword" component={RecuperarPassword} />
             <Route exact path="/changePassword" component={RecuperarPasswordCambio} />
             <Route exact path="/apidocs" component={ApiDocs} />    

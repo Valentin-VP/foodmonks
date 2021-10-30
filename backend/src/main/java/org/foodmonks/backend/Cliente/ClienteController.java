@@ -30,9 +30,7 @@ import java.util.List;
 public class ClienteController {
 
     private final TokenHelper tokenHelp;
-
     private final ClienteService clienteService;
-    private final TokenHelper tokenHelp;
 
     @Autowired
     ClienteController(ClienteService clienteService, TokenHelper tokenHelp) {
