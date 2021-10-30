@@ -32,6 +32,6 @@ npm run build
 # Etapa 2 - Contenedor para producción
 FROM nginx:1.12-alpine as prod
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY ../frontend/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
