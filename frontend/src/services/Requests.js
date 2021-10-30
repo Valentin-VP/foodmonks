@@ -261,3 +261,16 @@ export const checkPwdRecoveryToken=(email, ptoken)=>{
   })
 }
 
+export const fetchRestaurantesBusqueda = (datos) => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarRestaurantes?nombre=${datos.nombre}&categoria=${datos.categoria}&calificacion=${datos.calificacion}`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
