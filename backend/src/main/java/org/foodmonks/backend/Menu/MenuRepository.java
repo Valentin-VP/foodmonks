@@ -1,7 +1,6 @@
 package org.foodmonks.backend.Menu;
 
 import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.persistencia.MenuID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +12,4 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     Boolean existsByNombreAndRestaurante(String name, Restaurante restaurante);
     List<Menu> findMenusByRestaurante(Restaurante restaurante);
 
-    @Override
-    Menu save(Menu entity);
 }

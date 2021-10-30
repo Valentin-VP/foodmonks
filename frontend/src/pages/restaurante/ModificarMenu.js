@@ -1,15 +1,13 @@
 import { React, useState, useEffect } from "react";
 import styled from "styled-components";
-import { Button, FloatingLabel, Form } from "react-bootstrap";
+import { Button, FloatingLabel, Form, Alert } from "react-bootstrap";
 import { storage } from "../../Firebase";
 import { getMenuInfo, modMenu } from "../../services/Requests";
 import { Error } from "../../components/Error";
-import { Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   * {
     margin: 0;
-    padding: 0;
     box-sizing: border-box;
   }
 
@@ -69,6 +67,7 @@ const Styles = styled.div`
 function ModificarMenu() {
   const [menu, setMenu] = useState();
   const [isLoading, setLoading] = useState(true);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     getMenuInfo().then((response) => {
@@ -118,7 +117,7 @@ function ModificarMenu() {
     { nombre: "OTROS" },
   ];
 
-  let componente = null;
+  let componente;
 
   const handleUpload = (data) => {
     state.img = data.target.files[0];
@@ -131,6 +130,7 @@ function ModificarMenu() {
 
   const onSubmit = () => {
     //cargo todo menos la imagen
+    document.getElementById("submit").disabled = true;
     menuRetorno.nombre = state.nombre;
     menuRetorno.categoria = state.categoria;
     menuRetorno.descripcion = state.descripcion;
@@ -159,8 +159,15 @@ function ModificarMenu() {
               console.log(menuRetorno);
               console.log(state.id);
               modMenu(menuRetorno, state.id).then((response) => {//request al backend
+                if (response.status === 200)
+                  setSuccess(<Alert variant="success">Menú modificado con exito!</Alert>);
                 console.log(response);
                 sessionStorage.removeItem("menuId");
+                setTimeout(() => {
+                  window.location.replace("/menu");
+                }, 3000);
+              }).catch((error) =>{
+                setSuccess(<Alert variant="danger" error={error.response.data.detailMessage} />);
               });
             });
         }
@@ -168,11 +175,17 @@ function ModificarMenu() {
     } else {//sino
       menuRetorno.imagen = state.imgUrl;//cargo la imagen que ya estaba
       modMenu(menuRetorno, state.id).then((response) => {//request al backend
+        console.log("entro al then");
+        setSuccess(<Alert variant="success">Menú modificado con exito!</Alert>);
         console.log(response);
         sessionStorage.removeItem("menuId");
+        setTimeout(() => {
+          window.location.replace("/menu");
+        }, 3000);
+      }).catch((error) =>{
+        setSuccess(<Alert variant="danger" error={error.response.data.detailMessage} />);
       });
     }
-    Noti("se modifico el menu correctamente");
   };
 
   return (
@@ -190,6 +203,7 @@ function ModificarMenu() {
               id="nombre"
               placeholder="Nombre del Menú"
               onChange={handleChange}
+              disabled
             />
             <label for="floatingInput">{state.nombre}</label>
           </div>
@@ -249,9 +263,10 @@ function ModificarMenu() {
           </FloatingLabel>
           <label className="mb-2">Imágen del menú</label>
           {/* image uploader */}
-          <Form.Control type="file" onChange={handleUpload} />
+          <Form.Control className="mb-3" type="file" size="lg" onChange={handleUpload} />
+          {success}
           {componente}
-          <Button onClick={onSubmit}>Modificar</Button>
+          <Button id="submit" onClick={onSubmit}>Modificar</Button>
         </Form>
       </section>
     </Styles>

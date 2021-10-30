@@ -53,8 +53,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
                 .authenticationEntryPoint(authenticationEntry).and()
-                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login").permitAll()
+                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login", "/v3/api-docs.yaml", "/v3/api-docs").permitAll()
+                        .antMatchers("/api/v1/password/recuperacion/*").permitAll()
+                        .antMatchers("/api/v1/cliente/altaCliente").permitAll()
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .antMatchers("/api/v1/cliente/eliminarCuenta").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
                         UsernamePasswordAuthenticationFilter.class);

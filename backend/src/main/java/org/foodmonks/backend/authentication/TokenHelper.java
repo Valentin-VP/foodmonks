@@ -27,6 +27,9 @@ public class TokenHelper {
     @Value("${jwt.auth.expires_in}")
     private int expiresIn;
 
+    @Value("${jwt.auth.refresh.expires_in}")
+    private int refreshExpiresIn;
+
     private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
 
@@ -67,7 +70,20 @@ public class TokenHelper {
                 .compact();
     }
 
-    //funcion para generar el refreshToken
+    public String generateRefreshToken(String correo, Collection<? extends GrantedAuthority> authority) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        return Jwts.builder()
+                .setIssuer( appName )
+                .setSubject(correo)
+                .claim("authorities", authority)
+                .setIssuedAt(new Date())
+                .setExpiration(generateRefreshExpirationDate())
+                .signWith( SIGNATURE_ALGORITHM, secretKey )
+                .compact();
+    }
+
+    private Date generateRefreshExpirationDate() {
+        return new Date(new Date().getTime() + refreshExpiresIn * 1000);
+    }
 
     private Date generateExpirationDate() {
         return new Date(new Date().getTime() + expiresIn * 1000);
@@ -81,8 +97,6 @@ public class TokenHelper {
                         !isTokenExpired(token)
         );
     }
-
-    //funcion para validar el refreshToken
 
     public boolean isTokenExpired(String token) {
         Date expireDate=getExpirationDate(token);
@@ -116,7 +130,7 @@ public class TokenHelper {
     public String getToken( HttpServletRequest request ) {
 
         String authHeader = getAuthHeaderFromHeader( request );
-        System.out.println(authHeader);
+        System.out.println("Auth: " + authHeader);
         if ( authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
@@ -124,7 +138,20 @@ public class TokenHelper {
         return null;
     }
 
-    //funcion para obtener el refreshToken
+    public String getRefreshToken( HttpServletRequest request ) {
+
+        String authHeader = getRefreshAuthHeaderFromHeader( request );
+        System.out.println("Refresh: " + authHeader);
+        if ( authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        return null;
+    }
+
+    public String getRefreshAuthHeaderFromHeader( HttpServletRequest request ) {
+        return request.getHeader("RefreshAuthentication");
+    }
 
     public String getAuthHeaderFromHeader( HttpServletRequest request ) {
         return request.getHeader("Authorization");

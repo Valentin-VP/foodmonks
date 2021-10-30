@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -45,8 +46,8 @@ public class Pedido  {
 	private  Cliente cliente;
     @ManyToOne
 	private Restaurante restaurante;
-    @ManyToMany(cascade= {CascadeType.PERSIST,CascadeType.MERGE})
-	private List<Menu> menus = new ArrayList<>();
+    @OneToMany(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+	private List<MenuCompra> menusCompra = new ArrayList<>();
     @OneToOne (mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
     
