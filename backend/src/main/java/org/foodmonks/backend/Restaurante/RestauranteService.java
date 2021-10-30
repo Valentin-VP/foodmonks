@@ -40,7 +40,9 @@ public class RestauranteService {
     }
 
     public void modificarEstado(String correo,EstadoRestaurante estado) {
-        restauranteRepository.findByCorreo(correo).setEstado(estado);
+        Restaurante restauranteAux = RestauranteRepository.findByCorreo(correo);
+        restauranteAux.setEstado(estado);
+        RestauranteRepository.save(restauranteAux);
     }
 
     public EstadoRestaurante restauranteEstado (String correo) throws RestauranteNoEncontradoException {
