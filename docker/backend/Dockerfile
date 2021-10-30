@@ -37,5 +37,4 @@ USER gandalf
 WORKDIR /home/gandalf
 
 COPY --from=builder /home/legolas/app/target/backend-*.jar /home/gandalf/app/backend.jar
-RUN echo $DB_URL
 CMD ["sh", "-c", "java -D  -Dserver.port=$PORT -Ddatabase.url=$DB_URL -Ddatabase.username=$DB_USERNAME -Ddatabase.pass=$DB_PASSWORD -Ddatabase.method=$DB_METHOD -Djwt.name=$JWT_NAME -Djwt.key=$JWT_KEY -Djwt.expires=$JWT_EXPIRES -Djwt.refresh.expires=$JWT_REFRESH_EXPIRES -Dmail.host=$MAIL_HOST -Dmail.port=$MAIL_PORT -Dmail.username=$MAIL_USERNAME -Dmail.pass=$MAIL_PASSWORD -Dfronturl.base=$FRONT_BASE_URL -Daws.accessKey=$AWS_ACCESS_KEY -Daws.secretKey=${AWS_SECRET_KEY} -jar /home/gandalf/app/backend.jar"]
