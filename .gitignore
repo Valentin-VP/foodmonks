@@ -89,3 +89,4 @@ frontend/.env
 .gitignore
 .gitignore
 frontend/package-lock.json
+docker/compose/dev/.env_react

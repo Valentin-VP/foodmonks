@@ -22,12 +22,14 @@ ARG DB_METHOD=${DB_METHOD}
 ARG JWT_NAME=${JWT_NAME}
 ARG JWT_KEY=${JWT_KEY}
 ARG JWT_EXPIRES=${JWT_EXPIRES}
+ARG JWT_REFRESH_EXPIRES = ${JWT_REFRESH_EXPIRES}
 ARG MAIL_HOST=${MAIL_HOST}../
 ARG MAIL_PORT=${MAIL_PORT}
 ARG MAIL_USERNAME=${MAIL_USERNAME}
 ARG MAIL_PASSWORD=${MAIL_PASSWORD}
 ARG FRONT_BASE_URL=${FRONT_BASE_URL}
-ARG SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+ARG AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+ARG AWS_SECRET_KEY=${AWS_SECRET_KEY}
 RUN groupadd --system --gid 1000 gandalf
 RUN useradd --system --gid gandalf --uid 1000 --shell /bin/bash --create-home gandalf
 
@@ -36,4 +38,4 @@ WORKDIR /home/gandalf
 
 COPY --from=builder /home/legolas/app/target/backend-*.jar /home/gandalf/app/backend.jar
 RUN echo $DB_URL
-CMD ["sh", "-c", "java -D  -Dserver.port=$PORT -Ddatabase.url=$DB_URL -Ddatabase.username=$DB_USERNAME -Ddatabase.pass=$DB_PASSWORD -Ddatabase.method=$DB_METHOD -Djwt.name=$JWT_NAME -Djwt.key=$JWT_KEY -Djwt.expires=$JWT_EXPIRES -Dmail.host=$MAIL_HOST -Dmail.port=$MAIL_PORT -Dmail.username=$MAIL_USERNAME -Dmail.pass=$MAIL_PASSWORD -Dfronturl.base=$FRONT_BASE_URL -jar /home/gandalf/app/backend.jar"]
+CMD ["sh", "-c", "java -D  -Dserver.port=$PORT -Ddatabase.url=$DB_URL -Ddatabase.username=$DB_USERNAME -Ddatabase.pass=$DB_PASSWORD -Ddatabase.method=$DB_METHOD -Djwt.name=$JWT_NAME -Djwt.key=$JWT_KEY -Djwt.expires=$JWT_EXPIRES -Djwt.refresh.expires=$JWT_REFRESH_EXPIRES -Dmail.host=$MAIL_HOST -Dmail.port=$MAIL_PORT -Dmail.username=$MAIL_USERNAME -Dmail.pass=$MAIL_PASSWORD -Dfronturl.base=$FRONT_BASE_URL -Daws.accessKey=$AWS_ACCESS_KEY -Daws.secretKey=${AWS_SECRET_KEY} -jar /home/gandalf/app/backend.jar"]
