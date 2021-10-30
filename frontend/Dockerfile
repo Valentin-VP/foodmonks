@@ -16,7 +16,7 @@ WORKDIR /usr/src/app
 COPY src /usr/src/app/src
 COPY public /usr/src/app/public
 COPY package.json /usr/src/app/package.json
-COPY package-lock.json /usr/src/app/package-lock.json
+#COPY package-lock.json /usr/src/app/package-lock.json
 RUN npm install
 RUN REACT_APP_BACKEND_URL_BASE=$REACT_APP_BACKEND_URL_BASE \
 REACT_APP_API_KEY=$REACT_APP_API_KEY \
