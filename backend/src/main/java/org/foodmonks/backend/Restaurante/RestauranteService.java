@@ -46,7 +46,9 @@ public class RestauranteService {
     }
 
     public void modificarEstado(String correo,EstadoRestaurante estado) {
-        restauranteRepository.findByCorreo(correo).setEstado(estado);
+        Restaurante restauranteAux = RestauranteRepository.findByCorreo(correo);
+        restauranteAux.setEstado(estado);
+        RestauranteRepository.save(restauranteAux);
     }
 
     public void createSolicitudAltaRestaurante(String nombre, String apellido, String correo, String password, LocalDate now, float calificacion, String nombreRestaurante, String rut, Direccion direccion, EstadoRestaurante pendiente, String telefono, String descripcion, String cuentaPaypal, String url,ArrayList<JsonObject> jsonMenus) throws UsuarioExisteException, ClienteDireccionException, RestauranteFaltaMenuException, UsuarioNoRestaurante, MenuNombreExistente {
