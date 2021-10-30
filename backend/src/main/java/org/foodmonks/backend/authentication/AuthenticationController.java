@@ -127,6 +127,8 @@ public class AuthenticationController {
             clienteInfo.setFirstName(cliente.getNombre());
             clienteInfo.setLastName(cliente.getApellido());
             clienteInfo.setRoles(cliente.getAuthorities().toArray());
+            clienteInfo.setMail(cliente.getCorreo());
+            clienteInfo.setDirecciones(cliente.getDirecciones());
             return new ResponseEntity<>(clienteInfo, HttpStatus.OK);
         } else {
             return new ResponseEntity<>("no se encontro ningun tipo de usuario", HttpStatus.BAD_REQUEST);
