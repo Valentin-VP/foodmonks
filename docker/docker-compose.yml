@@ -3,8 +3,8 @@ services:
   backend:
     container_name: food-monks-backend
     build: 
-      context: ../../backend
-      dockerfile: ../../docker/backend/Dockerfile
+      context: ../backend
+      # dockerfile: ../../docker/backend/Dockerfile
     ports:
       - "9001:9001"
     env_file:
@@ -14,8 +14,8 @@ services:
   frontend:
     container_name: food-monks-frontend
     build:
-      context: ../../frontend
-      dockerfile: ../../docker/frontend/Dockerfile
+      context: ../frontend
+      # dockerfile: ../../docker/frontend/Dockerfile
     ports:
       - "80:80"
     env_file:
