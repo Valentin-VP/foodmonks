@@ -1,4 +1,4 @@
-import { Link , Redirect, useParams, useLocation } from "react-router-dom"
+import { Link , Redirect, useLocation } from "react-router-dom"
 import { Loading } from "../components/Loading";
 import styled from "styled-components";
 import { useState , useEffect} from "react";
@@ -67,11 +67,10 @@ function useQuery(){
 export default function ResetPasswordConfirm() {
     const [isValidandoToken, setIsValidandoToken] = useState(true);
     const [tokenInvalido, setTokenInvalido] = useState(false);
-    const [isConfirmando, setIsConfirmando] = useState(false);
+    // const [isConfirmando, setIsConfirmando] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [confirmado, setConfirmado] = useState(false);
-    const { token } = useParams();
     let query = useQuery();
     
     
@@ -123,7 +122,7 @@ export default function ResetPasswordConfirm() {
 
     function handleConfirmarClick(event) {
         event.preventDefault();
-        setIsConfirmando(true);
+        // setIsConfirmando(true);
         cambiarPassword(values.correo, values.password, query.get("token"))
         .then((response)=>{
             setConfirmado(true);
@@ -134,7 +133,7 @@ export default function ResetPasswordConfirm() {
             setError(<Alert variant="danger" dismissible onClose={()=>{setError(null)}}>{error.response.data}</Alert>)
             setSuccess(null);
         });
-        setIsConfirmando(false);
+        // setIsConfirmando(false);
     }
 
     function renderConfirmacionForm() {
@@ -165,7 +164,7 @@ export default function ResetPasswordConfirm() {
                             value={values.correo}
                             required
                         />
-                        <label for="floatingInput">Correo</label>
+                        <label htmlFor="floatingInput">Correo</label>
                     </div>
                     <div className="form-floating">
                         <input
@@ -176,7 +175,7 @@ export default function ResetPasswordConfirm() {
                             onChange={handleChange64}
                             required
                         />
-                        <label for="floatingInput">Password</label>
+                        <label htmlFor="floatingInput">Password</label>
                     </div>
                     <div className="form-floating">
                         <input
@@ -187,7 +186,7 @@ export default function ResetPasswordConfirm() {
                             onChange={handleChange64}
                             required
                         />
-                        <label for="floatingInput">Confirmar Password</label>
+                        <label htmlFor="floatingInput">Confirmar Password</label>
                     </div>
                     <button className="w-100 btn btn-lg btn-primary" type="submit" disabled={!validarPasswordForm()}>
                         Ingresar
@@ -207,7 +206,7 @@ export default function ResetPasswordConfirm() {
 
     useEffect(() => {
       validarToken()
-    }, [])
+    })
     
     function renderMensajeDeSuceso() {
         return (

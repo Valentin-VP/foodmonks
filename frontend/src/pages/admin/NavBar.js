@@ -1,6 +1,5 @@
 import React from "react";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
-import { NavLink, Redirect } from "react-router-dom";
 import styled from "styled-components";
 import foodlogo from "../../assets/foodLogo.png"; // Tell webpack this JS file uses this image
 // import cartIcon from "../../assets/cartIcon.png";
@@ -69,9 +68,7 @@ const Styles = styled.div`
     }
   }
 `;
-const test = (e) =>{
-<Redirect push to="/altaAdmin" />;
-};
+
 export const NavigationBar = () => (
   <Styles>
     <div id="container">
@@ -87,8 +84,12 @@ export const NavigationBar = () => (
             </Nav.Item>
             <NavDropdown title="Administrador" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
-              <NavDropdown.Item href="/buscarUsuarios">Buscar Usuario</NavDropdown.Item>
-              <NavDropdown.Item href="/altaAdmin">Dar alta Admin</NavDropdown.Item>
+              <NavDropdown.Item href="/buscarUsuarios">
+                Buscar Usuario
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/altaAdmin">
+                Dar alta Admin
+              </NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
                 Cerrar Sesion
