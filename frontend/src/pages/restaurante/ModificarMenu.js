@@ -205,7 +205,7 @@ function ModificarMenu() {
               onChange={handleChange}
               disabled
             />
-            <label for="floatingInput">{state.nombre}</label>
+            <label htmlFor="floatingInput">{state.nombre}</label>
           </div>
           {/*Precio*/}
           <div className="form-floating">
@@ -218,7 +218,7 @@ function ModificarMenu() {
               min="1"
               onChange={handleChange}
             />
-            <label for="floatingInput">{state.price}</label>
+            <label htmlFor="floatingInput">{state.price}</label>
           </div>
           {/*descripcion*/}
           <div className="form-floating">
@@ -230,7 +230,7 @@ function ModificarMenu() {
               placeholder="Descripcion"
               onChange={handleChange}
             />
-            <label for="floatingInput">{state.descripcion}</label>
+            <label htmlFor="floatingInput">{state.descripcion}</label>
           </div>
           {/*descuento*/}
           <div className="form-floating">
@@ -245,7 +245,7 @@ function ModificarMenu() {
               defaultValue="0"
               onChange={handleChange}
             />
-            <label for="floatingInput">Descuento</label>
+            <label htmlFor="floatingInput">Descuento</label>
           </div>
           <FloatingLabel controlId="floatingSelect" label="Categoría">
             <Form.Select
