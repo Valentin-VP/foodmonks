@@ -3,9 +3,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
+import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Usuario;
@@ -94,6 +98,14 @@ public class AdminController {
         adminService.modificarAdmin(admin);
     }
 
+    @Operation(summary = "Listar los Usuarios",
+            description = "Lista de los Usuarios de el sistema",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "usuario" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Usuario.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @GetMapping(path = "/listarUsuarios")
     public ResponseEntity<?> listarUsuarios(@RequestParam(required = false, name = "correo") String correo, @RequestParam(required = false, name = "tipoUser") String tipoUser,
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
@@ -131,9 +143,17 @@ public class AdminController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @Operation(summary = "Cambiar estado de un Usuario",
+            description = "Cambia el estado de un Usuario",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "usuario" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{correo}")
-    public ResponseEntity<?> cambiarEstadoUsuario(@RequestBody String estado, @PathVariable String correo) {
+    public ResponseEntity<?> cambiarEstadoUsuario(@io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))) @RequestBody String estado, @PathVariable String correo) {
         JsonObject JsonEstado = new JsonObject();
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 

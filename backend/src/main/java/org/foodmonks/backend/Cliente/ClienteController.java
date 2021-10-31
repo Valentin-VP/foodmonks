@@ -2,9 +2,12 @@ package org.foodmonks.backend.Cliente;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
+import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -31,11 +39,13 @@ public class ClienteController {
 
     private final TokenHelper tokenHelp;
     private final ClienteService clienteService;
+    private final RestauranteService restauranteService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, TokenHelper tokenHelp) {
+    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService) {
         this.clienteService = clienteService;
         this.tokenHelp = tokenHelp;
+        this.restauranteService = restauranteService;
     }
 
     @Operation(summary = "Crea un nuevo Cliente",
@@ -125,6 +135,41 @@ public class ClienteController {
     public void modificarCliente(@RequestBody Cliente cliente) {
         clienteService.modificarCliente(cliente);
 
+    }
+
+    @Operation(summary = "Listar los Restaurantes abiertos",
+            description = "Lista de los restaurantes que actualmente estan abiertos al publico",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Restaurante.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarAbiertos")
+    public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
+                                                        @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
+        //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
+        List<Restaurante> restaurantesAbiertos = new ArrayList<>();
+        JsonArray jsonArray = new JsonArray();
+        try {
+            restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
+
+            for (Restaurante restaurante : restaurantesAbiertos) {
+                JsonObject res = new JsonObject();
+                res.addProperty("correo", restaurante.getCorreo());
+                res.addProperty("fechaRegistro", restaurante.getFechaRegistro().toString());
+                res.addProperty("rol", "RESTAURANTE");
+                res.addProperty("estado", restaurante.getEstado().toString());
+                res.addProperty("RUT", restaurante.getRut().toString());
+                res.addProperty("descripcion", restaurante.getDescripcion());
+                res.addProperty("nombre", restaurante.getNombreRestaurante());
+                res.addProperty("telefono", restaurante.getTelefono());
+                jsonArray.add(res);
+            }
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
 }
