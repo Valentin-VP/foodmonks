@@ -1,15 +1,15 @@
-import { React, Fragment, useState, useEffect, useRef } from "react";
+import { React, Fragment, useState } from "react";
 import styled from "styled-components";
 import { fetchUsuariosBusqueda } from "../../services/Requests";
 import ListadoRegistrados from "./ListadoRegistrados";
-import { Noti } from "../../components/Notification"
+import { Noti } from "../../components/Notification";
 
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
 
 const Styles = styled.div`
-  .form{
+  .form {
     padding-top: 35px;
   }
   .text-center {
@@ -42,13 +42,12 @@ const Styles = styled.div`
     }
   }
 
-  .form-check-input{
+  .form-check-input {
     &:hover {
-      border-color: #2080FF;
+      border-color: #2080ff;
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
     }
   }
-
 `;
 
 export default function BuscarRegistrados() {
@@ -72,39 +71,42 @@ export default function BuscarRegistrados() {
   };
 
   let tipoUser = [
-    { tipo: "N/A", value: ""},
+    { tipo: "N/A", value: "" },
     { tipo: "Restaurante", value: "restaurante" },
-    { tipo: "Cliente", value: "cliente"},
+    { tipo: "Cliente", value: "cliente" },
   ];
 
   let estado = [
-    { estado: "N/A", value:""},
-    { estado: "Bloqueado", value:"BLOQUEADO"},
-    { estado: "Desbloqueado", value:"DESBLOQUEADO"},
-    { estado: "Eliminado", value:"ELIMINADO"},
+    { estado: "N/A", value: "" },
+    { estado: "Bloqueado", value: "BLOQUEADO" },
+    { estado: "Desbloqueado", value: "DESBLOQUEADO" },
+    { estado: "Eliminado", value: "ELIMINADO" },
   ];
 
   const fetch = () => {
     //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
     //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
-    fetchUsuariosBusqueda(values, startDate, endDate).then((response)=>{
-      if (response.status===200){
-        console.log(response.data);
-        setData(response.data);
-      }else{
-        Noti(response.data);
-      }
-    }).catch((error)=>{
-      Noti(error.message);
-    })
+    fetchUsuariosBusqueda(values, startDate, endDate)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.data);
+          setData(response.data);
+        } else {
+          Noti(response.data);
+        }
+      })
+      .catch((error) => {
+        Noti(error.message);
+      });
     //setData([...data, {tipoUser: "restaurante", nombreRestaurante: "asd", estado : "bloqueado"}]);
-  }
+  };
 
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
       ...values,
-      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+      [e.target.name]:
+        e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
   };
 
@@ -117,9 +119,9 @@ export default function BuscarRegistrados() {
     //setLoaded(!loaded);
   };
 
-//   useEffect(() => {
-//     fetch();
-//  }, [])
+  //   useEffect(() => {
+  //     fetch();
+  //  }, [])
 
   return (
     <Styles>
@@ -127,98 +129,111 @@ export default function BuscarRegistrados() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
-              <h1 className="text-center h5 mb-3 fw-normal">Búsqueda de Usuarios Registrados</h1>
-              <div class="row align-items-center">
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <input 
-                              name="correo"
-                              className="form-control"
-                              onChange={handleChange}
-                              id="correo"
-                              value={values.correo}>
-                          </input>
-                          <label for="correo">Email del Usuario</label>
-                      </div>
+              <h1 className="text-center h5 mb-3 fw-normal">
+                Búsqueda de Usuarios Registrados
+              </h1>
+              <div className="row align-items-center">
+                <div className="col-lg">
+                  <div className="form-floating">
+                    <input
+                      name="correo"
+                      className="form-control"
+                      onChange={handleChange}
+                      id="correo"
+                      value={values.correo}
+                    ></input>
+                    <label htmlFor="correo">Email del Usuario</label>
                   </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                        <DatePicker
-                          name="fecha"
-                          className="form-control"
-                          selected={startDate}
-                          onChange={onChangeDate}
-                          startDate={startDate}
-                          endDate={endDate}
-                          selectsRange
-                          dateFormat="yyyy-MM-dd"
-                          placeholderText="Fecha Registro"
-                        />
-                      </div>
+                </div>
+                <div className="col-lg">
+                  <div className="form-floating">
+                    <DatePicker
+                      name="fecha"
+                      className="form-control"
+                      selected={startDate}
+                      onChange={onChangeDate}
+                      startDate={startDate}
+                      endDate={endDate}
+                      selectsRange
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="Fecha Registro"
+                    />
                   </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <select 
-                              name="tipoUser"
-                              className="form-select"
-                              onChange={handleChange}
-                              id="tipoUser">
-                              {tipoUser.map((item)=>(
-                                <option key={item.tipo} value={item.value}>{item.tipo}</option>
-                              ))}
-                          </select>
-                          <label for="tipoUser">Tipo de Usuario</label>
-                      </div>
+                </div>
+                <div className="col-lg">
+                  <div className="form-floating">
+                    <select
+                      name="tipoUser"
+                      className="form-select"
+                      onChange={handleChange}
+                      id="tipoUser"
+                    >
+                      {tipoUser.map((item) => (
+                        <option key={item.tipo} value={item.value}>
+                          {item.tipo}
+                        </option>
+                      ))}
+                    </select>
+                    <label htmlFor="tipoUser">Tipo de Usuario</label>
                   </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <select 
-                              name="estado"
-                              className="form-select"
-                              onChange={handleChange}
-                              id="estado">
-                              {estado.map((item)=>(
-                                <option key={item.estado} value={item.value}>{item.estado}</option>
-                              ))}
-                          </select>
-                          <label for="estado">Estado</label>
-                      </div>
+                </div>
+                <div className="col-lg">
+                  <div className="form-floating">
+                    <select
+                      name="estado"
+                      className="form-select"
+                      onChange={handleChange}
+                      id="estado"
+                    >
+                      {estado.map((item) => (
+                        <option key={item.estado} value={item.value}>
+                          {item.estado}
+                        </option>
+                      ))}
+                    </select>
+                    <label htmlFor="estado">Estado</label>
                   </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <div className="checkbox">
-                              <label>
-                                  <input
-                                      name="ordenar"
-                                      class="form-check-input"
-                                      type="checkbox"
-                                      checked={values.ordenar}
-                                      onChange={handleChange}
-                                      id="ordenar"
-                                      disabled={!values.tipoUser}
-                                  /> Ordenar por Calificación según {values.tipoUser==="restaurante" ? values.tipoUser : 
-                                  values.tipoUser==="cliente" ? values.tipoUser : "tipo de usuario"}
-                              </label>
-                          </div>
-                      </div>
+                </div>
+                <div className="col-lg">
+                  <div className="form-floating">
+                    <div className="checkbox">
+                      <label>
+                        <input
+                          name="ordenar"
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={values.ordenar}
+                          onChange={handleChange}
+                          id="ordenar"
+                          disabled={!values.tipoUser}
+                        />{" "}
+                        Ordenar por Calificación según{" "}
+                        {values.tipoUser === "restaurante"
+                          ? values.tipoUser
+                          : values.tipoUser === "cliente"
+                          ? values.tipoUser
+                          : "tipo de usuario"}
+                      </label>
+                    </div>
                   </div>
+                </div>
               </div>
 
               <button className="w-100 btn btn-md btn-primary" type="submit">
                 Buscar
               </button>
             </form>
-              <div className="form-floating">
-                {/*Espacio para alguna otra cosa?¿?*/}
-              </div>
+            <div className="form-floating">
+              {/*Espacio para alguna otra cosa?¿?*/}
+            </div>
 
-              <div className="form-floating">
-                <div class="row align-items-center">
-                  <div class="col-md">
-                    {<ListadoRegistrados data={data} fetchFunc={fetch}/>}
-                  </div>
+            <div className="form-floating">
+              <div className="row align-items-center">
+                <div className="col-md">
+                  {<ListadoRegistrados data={data} fetchFunc={fetch} />}
                 </div>
               </div>
+            </div>
           </main>
         </div>
       </Fragment>
