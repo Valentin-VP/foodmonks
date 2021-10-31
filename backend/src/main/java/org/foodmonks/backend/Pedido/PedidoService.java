@@ -3,6 +3,7 @@ package org.foodmonks.backend.Pedido;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,8 @@ public class PedidoService {
         this.pedidoRepository = pedidoRepository; this.pedidoConvertidor = pedidoConvertidor;
     }
 
-    public List<JsonObject> listaPedidosConfirmados(Restaurante restaurante){
-        return pedidoConvertidor.listaJsonPedido(pedidoRepository.findPedidosByRestauranteAndEstado(restaurante, EstadoPedido.CONFIRMADO));
+    public List<JsonObject> listaPedidosEfectivoConfirmados(Restaurante restaurante){
+        return pedidoConvertidor.listaJsonPedido(pedidoRepository.findPedidosByRestauranteAndEstadoAndMedioPago(restaurante, EstadoPedido.CONFIRMADO, MedioPago.EFECTIVO));
     }
 
     public boolean existePedido (Long idPedido){
