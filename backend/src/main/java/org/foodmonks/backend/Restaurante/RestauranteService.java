@@ -86,13 +86,15 @@ public class RestauranteService {
 
     public List<Restaurante> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
         if (!nombreRestaurante.isEmpty()){
-            return restauranteRepository.findRestaurantesByNombreAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO);
+            return restauranteRepository.findRestaurantesByNombreRestauranteAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO);
         }
+        List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
         if (ordenCalificacion) {
-            return  restauranteRepository.findRestaurantesByEstadoOrderByCalificacion(EstadoRestaurante.ABIERTO);
+            restaurantes.sort((r1, r2) -> {
+                return r2.getCalificacion().compareTo(r1.getCalificacion());//de mayor a menor
+            });
         }
         if (!categoriaMenu.isEmpty()){
-            List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
             List<Restaurante> result = new ArrayList<>();
             CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
             for (Restaurante restaurante : restaurantes){
@@ -102,7 +104,7 @@ public class RestauranteService {
             }
             return result;
         }
-        return restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+        return restaurantes;
     }
 
 }

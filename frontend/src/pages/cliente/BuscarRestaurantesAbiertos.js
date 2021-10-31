@@ -75,7 +75,7 @@ export default function BuscarRestaurantesAbiertos() {
   const fetch = () => {
     //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
     //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
-    /*fetchRestaurantesBusqueda(values).then((response)=>{
+    fetchRestaurantesBusqueda(values).then((response)=>{
       if (response.status===200){
         console.log(response.data);
         setData(response.data);
@@ -84,7 +84,7 @@ export default function BuscarRestaurantesAbiertos() {
       }
     }).catch((error)=>{
       Noti(error.response.data);
-    })*/
+    })
     //setData([...data, {nombre: "restaurante", calificacion : "4.0"}]);
   }
 
@@ -130,11 +130,6 @@ export default function BuscarRestaurantesAbiertos() {
                   </div>
                   <div class="col-lg">
                       <div className="form-floating">
-
-                      </div>
-                  </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
                           <select 
                               name="categoria"
                               className="form-select"
@@ -146,9 +141,6 @@ export default function BuscarRestaurantesAbiertos() {
                           </select>
                           <label for="categoria">Categoría</label>
                       </div>
-                  </div>
-                  <div class="col-lg">
-
                   </div>
                   <div class="col-lg">
                       <div className="form-floating">

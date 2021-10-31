@@ -163,7 +163,8 @@ public class ClienteController {
                 res.addProperty("RUT", restaurante.getRut().toString());
                 res.addProperty("descripcion", restaurante.getDescripcion());
                 res.addProperty("nombre", restaurante.getNombreRestaurante());
-                res.addProperty("telefono", restaurante.getTelefono());
+                res.addProperty("telefono", restaurante.getTelefono().toString());
+                res.addProperty("calificacion", restaurante.getCalificacion().toString());
                 jsonArray.add(res);
             }
         } catch(JsonIOException e) {
