@@ -84,4 +84,8 @@ public class MenuService {
                 restauranteRepository.findById(correoRestaurante).get()));
 
     }
+
+    public Boolean existeCategoriaMenu(Restaurante restaurante, CategoriaMenu categoriaMenu){
+        return menuRepository.existsMenuByRestauranteAndCategoria(restaurante,categoriaMenu);
+    }
 }

@@ -83,5 +83,26 @@ public class RestauranteService {
         }
         return restaurante.getEstado();
     }
-  
+
+    public List<Restaurante> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
+        if (!nombreRestaurante.isEmpty()){
+            return restauranteRepository.findRestaurantesByNombreAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO);
+        }
+        if (ordenCalificacion) {
+            return  restauranteRepository.findRestaurantesByEstadoOrderByCalificacion(EstadoRestaurante.ABIERTO);
+        }
+        if (!categoriaMenu.isEmpty()){
+            List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+            List<Restaurante> result = new ArrayList<>();
+            CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
+            for (Restaurante restaurante : restaurantes){
+                if (menuService.existeCategoriaMenu(restaurante,categoria)){
+                    result.add(restaurante);
+                }
+            }
+            return result;
+        }
+        return restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+    }
+
 }
