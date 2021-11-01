@@ -149,8 +149,8 @@ function RegistroCliente() {
                 setTipo("success");
                 //setTimeout(() => { window.location.replace("/"); }, 5000); //para esperar 5 segundos y redireccionar
               }
-            }).catch(() =>{
-                setAlerta("La direccion debe de tener la calle y el número de puerta");
+            }).catch((err) =>{
+                setAlerta(err.response.data);
                 setTipo("danger");        
             });
           } else {
@@ -161,7 +161,7 @@ function RegistroCliente() {
         console.log(registro.direccion);
       })
       .catch((error) => {
-        setAlerta(error);
+        setAlerta(error.response.data);
         setTipo("danger");
       });
     // registrarCliente(registro);
