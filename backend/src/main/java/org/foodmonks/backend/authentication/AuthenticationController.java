@@ -15,6 +15,7 @@ import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
+import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
@@ -41,7 +42,9 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")

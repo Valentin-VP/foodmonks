@@ -1,19 +1,22 @@
 package org.foodmonks.backend.authentication;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.foodmonks.backend.Direccion.Direccion;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class InfoCliente {
 
     private String firstName;
     private String lastName;
     private String mail;
-    private List<Direccion> direcciones;
+    private List<Direccion> direcciones = new ArrayList<>();
 
 
     private Object roles;
