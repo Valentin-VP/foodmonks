@@ -76,7 +76,8 @@ export default function BuscarRegistrados() {
   let tipoUser = [
     { tipo: "N/A", value: "" },
     { tipo: "Restaurante", value: "restaurante" },
-    { tipo: "Cliente", value: "cliente" },
+    { tipo: "Cliente", value: "cliente"},
+    { tipo: "Admin", value: "admin"},
   ];
 
   let estado = [
@@ -197,28 +198,23 @@ export default function BuscarRegistrados() {
                     </select>
                     <label htmlFor="estado">Estado</label>
                   </div>
-                </div>
-                <div className="col-lg">
-                  <div className="form-floating">
-                    <div className="checkbox">
-                      <label>
-                        <input
-                          name="ordenar"
-                          className="form-check-input"
-                          type="checkbox"
-                          checked={values.ordenar}
-                          onChange={handleChange}
-                          id="ordenar"
-                          disabled={!values.tipoUser}
-                        />{" "}
-                        Ordenar por Calificación según{" "}
-                        {values.tipoUser === "restaurante"
-                          ? values.tipoUser
-                          : values.tipoUser === "cliente"
-                          ? values.tipoUser
-                          : "tipo de usuario"}
-                      </label>
-                    </div>
+                  <div class="col-lg">
+                      <div className="form-floating">
+                          <div className="checkbox">
+                              <label>
+                                  <input
+                                      name="ordenar"
+                                      class="form-check-input"
+                                      type="checkbox"
+                                      checked={values.ordenar}
+                                      onChange={handleChange}
+                                      id="ordenar"
+                                      disabled={!values.tipoUser || values.tipoUser==="admin"}
+                                  /> Ordenar por Calificación según {values.tipoUser==="restaurante" ? values.tipoUser : 
+                                  values.tipoUser==="cliente" ? values.tipoUser : "tipo de usuario"}
+                              </label>
+                          </div>
+                      </div>
                   </div>
                 </div>
               </div>
