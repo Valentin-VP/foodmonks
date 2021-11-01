@@ -165,6 +165,7 @@ public class ClienteController {
                 res.addProperty("nombre", restaurante.getNombreRestaurante());
                 res.addProperty("telefono", restaurante.getTelefono().toString());
                 res.addProperty("calificacion", restaurante.getCalificacion().toString());
+                res.addProperty("imagen", restaurante.getImagen());
                 jsonArray.add(res);
             }
         } catch(JsonIOException e) {
