@@ -66,10 +66,10 @@ public class RestauranteController {
             @RequestBody String restaurante) {
         try{
             JsonObject jsonRestaurante = new Gson().fromJson(restaurante, JsonObject.class);
-
+            System.out.println("jsonRestaurante "+jsonRestaurante);
             // Obtener direccion
             JsonObject jsonDireccion = jsonRestaurante.get("direccion").getAsJsonObject();
-
+            System.out.println("jsonDireccion "+jsonDireccion);
             Direccion direccion = new Direccion(
                     jsonDireccion.get("numero").getAsInt(),
                     jsonDireccion.get("calle").getAsString(),
@@ -81,6 +81,7 @@ public class RestauranteController {
 
             // Obtener los menus
             JsonArray jsonMenusRequest = jsonRestaurante.get("menus").getAsJsonArray();
+            System.out.println("jsonMenusRequest " + jsonMenusRequest);
             ArrayList<JsonObject> jsonMenus = new ArrayList<JsonObject>();
             for (JsonElement json: jsonMenusRequest) {
                 JsonObject jsonMenu = json.getAsJsonObject();
@@ -107,6 +108,7 @@ public class RestauranteController {
             return ResponseEntity.status(HttpStatus.CREATED).build();
             // "Su solicitud de alta fue recibida con éxito"
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

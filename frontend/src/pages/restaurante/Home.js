@@ -53,9 +53,9 @@ function Home() {
   <Styles>
     <React.Fragment>
       <Layout>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="aperturaCierreSwitch" onClick={onClick}></input>
-          <label class="form-check-label" for="aperturaCierreSwitch" id="aperturaCierreLabel">El restaurante esta {estado ? "Cerrado" : "Abierto"}</label>
+        <div className="form-check form-switch">
+          <input className="form-check-input" type="checkbox" id="aperturaCierreSwitch" onClick={onClick}></input>
+          <label className="form-check-label" htmlFor="aperturaCierreSwitch" id="aperturaCierreLabel">El restaurante esta {estado ? "Cerrado" : "Abierto"}</label>
         </div>
         <h2 id="titulo">Esto es de un restaurante</h2>
       </Layout>
