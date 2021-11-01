@@ -135,6 +135,12 @@ public class AdminController {
                     usuario.addProperty("nombre", restaurante.getNombreRestaurante());
                     usuario.addProperty("telefono", restaurante.getTelefono());
                     jsonArray.add(usuario);
+                } else if(listaUsuario instanceof Admin) {
+                    Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());
+                    usuario.addProperty("nombre", admin.getNombre());
+                    usuario.addProperty("rol", "ADMIN");
+                    usuario.addProperty("apellido", admin.getApellido());
+                    jsonArray.add(usuario);
                 }
             }
         } catch (JsonIOException e) {
