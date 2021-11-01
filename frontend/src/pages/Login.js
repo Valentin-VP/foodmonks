@@ -125,7 +125,7 @@ function Login() {
                   onChange={handleChange}
                   required
                 />
-                <label for="floatingInput">Correo electronico</label>
+                <label htmlFor="floatingInput">Correo electronico</label>
               </div>
               <div className="form-floating">
                 <input
@@ -137,7 +137,7 @@ function Login() {
                   onChange={handleChange}
                   required
                 />
-                <label for="floatingPassword">Contraseña</label>
+                <label htmlFor="floatingPassword">Contraseña</label>
               </div>
               <button className="mt-3 w-100 btn btn-lg btn-primary" type="submit">
                 Entrar

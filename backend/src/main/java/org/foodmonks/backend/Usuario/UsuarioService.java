@@ -1,4 +1,5 @@
 package org.foodmonks.backend.Usuario;
+import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
@@ -84,8 +85,12 @@ public class UsuarioService {
 					if (user instanceof Cliente) {
 						auxList.add(user);
 					}
-				} else {//filtro por restaurante
+				} else if (tipoUser.equals("restaurante")){//filtro por restaurante
 					if (user instanceof Restaurante) {
+						auxList.add(user);
+					}
+				} else {//si es admin
+					if (user instanceof Admin) {
 						auxList.add(user);
 					}
 				}

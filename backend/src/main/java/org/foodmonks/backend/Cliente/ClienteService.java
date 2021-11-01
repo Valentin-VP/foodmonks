@@ -7,6 +7,7 @@ import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.datatypes.EstadoCliente;
+import org.foodmonks.backend.persistencia.DireccionID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,11 +40,12 @@ public class ClienteService {
         List<Direccion> direcciones = new ArrayList<>();
         direcciones.add(direccion);
         Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,direcciones,activo,"",null);
-        List<Cliente> clientes = direccion.getCliente();
-        clientes.add(cliente);
-        direccion.setCliente(clientes);
+//        List<Cliente> clientes = direccion.getCliente();
+//        clientes.add(cliente);
+//        direccion.setCliente(clientes);
         clienteRepository.save(cliente);
         direccionRepository.save(direccion);
+        System.out.println("direccion " + clienteRepository.findByCorreo(correo).getDirecciones().get(0).getCalle());
     }
 
 
