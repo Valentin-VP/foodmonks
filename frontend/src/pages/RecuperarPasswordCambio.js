@@ -206,7 +206,8 @@ export default function ResetPasswordConfirm() {
 
     useEffect(() => {
       validarToken()
-    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     
     function renderMensajeDeSuceso() {
         return (

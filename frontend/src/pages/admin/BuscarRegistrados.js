@@ -48,6 +48,9 @@ const Styles = styled.div`
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
     }
   }
+  #fecha{
+    height: 58px;
+  }
 `;
 
 export default function BuscarRegistrados() {
@@ -148,6 +151,7 @@ export default function BuscarRegistrados() {
                 <div className="col-lg">
                   <div className="form-floating">
                     <DatePicker
+                      id="fecha"
                       name="fecha"
                       className="form-control"
                       selected={startDate}

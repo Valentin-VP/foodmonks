@@ -63,7 +63,7 @@ const Styles = styled.div`
     &:hover {
       background-color: #da6416;
     }
-    $:active {
+    &:active {
       background-color: black !important;
     }
   }
@@ -87,6 +87,11 @@ function RegistroRestaurante() {
     apellido: "",
     correo: "",
     password: "",
+    nombreRestaurante: "",
+    rut: "",
+    telefono: "",
+    cuentaPaypal: "",
+    descripcion: "",
     url: "",
     direccion: {
       calle: "",
@@ -96,7 +101,7 @@ function RegistroRestaurante() {
       latitud: "",
       longitud: "",
     },
-    menus: []
+    menus: [],
   };
 
   const [alerta, setAlerta] = useState(null);
@@ -142,52 +147,57 @@ function RegistroRestaurante() {
           getLatLng(results[0]).then(({ lat, lng }) => {
             restaurante.direccion.latitud = lat;
             restaurante.direccion.longitud = lng;
+            restaurante.direccion.calle =
+              results[0].address_components[1].long_name;
+            restaurante.direccion.numero =
+              results[0].address_components[0].long_name;
+            restaurante.nombre = document.getElementById("nombre").value;
+            restaurante.apellido = document.getElementById("apellido").value;
+            restaurante.correo = document.getElementById("correo").value;
+            restaurante.nombreRestaurante = document.getElementById("nombreRestaurante").value;
+            restaurante.rut = document.getElementById("rut").value;
+            restaurante.telefono = document.getElementById("telefono").value;
+            restaurante.cuentaPaypal = document.getElementById("paypal").value;
+            restaurante.descripcion = document.getElementById("descripcion").value;
+            restaurante.direccion.esquina =
+              document.getElementById("esquina").value;
+            restaurante.direccion.detalles =
+              document.getElementById("detalles").value;
+            restaurante.password = Base64.encode(pass1);
+            var img = document.getElementById("img").files[0];
+            //si se selecciona una imagen
+            const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
+            uploadTask.on(
+              "state_changed",
+              (snapshot) => {}, //el snapshot tiene que ir
+              (error) => {
+                console.log(error.message);
+                setAlerta("Error al subir la imagen");
+                setTipo("danger");
+              },
+              () => {
+                setAlerta(null);
+                storage
+                  .ref("menus")
+                  .child(img.name)
+                  .getDownloadURL()
+                  .then((imgUrl) => {
+                    restaurante.url = imgUrl;
+                    //en este punto el restaurante esta listo para agregarlo al objeto
+                    const json = {
+                      nroMenu: 1,
+                    };
+                    //para que lo guarde como string porque el storage no tiene otra cosa
+                    json["restaurante"] = restaurante;
+                    sessionStorage.setItem(
+                      "registroRestaurante",
+                      JSON.stringify(json)
+                    );
+                    window.location.reload();
+                  });
+              }
+            );
           });
-          restaurante.direccion.calle =
-            results[0].address_components[1].long_name;
-          restaurante.direccion.numero =
-            results[0].address_components[0].long_name;
-          restaurante.nombre = document.getElementById("nombre").value;
-          restaurante.apellido = document.getElementById("apellido").value;
-          restaurante.correo = document.getElementById("correo").value;
-          restaurante.direccion.esquina =
-            document.getElementById("esquina").value;
-          restaurante.direccion.detalles =
-            document.getElementById("detalles").value;
-          restaurante.password = Base64.encode(pass1);
-          var img = document.getElementById("img").files[0];
-          //si se selecciona una imagen
-          const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {}, //el snapshot tiene que ir
-            (error) => {
-              console.log(error.message);
-              setAlerta("Error al subir la imagen");
-              setTipo("danger");
-            },
-            () => {
-              setAlerta(null);
-              storage
-                .ref("menus")
-                .child(img.name)
-                .getDownloadURL()
-                .then((imgUrl) => {
-                  restaurante.url = imgUrl;
-                  //en este punto el restaurante esta listo para agregarlo al objeto
-                  const json ={
-                    nroMenu: 1
-                  };
-                  //para que lo guarde como string porque el storage no tiene otra cosa
-                  json["restaurante"] = restaurante;
-                  sessionStorage.setItem(
-                    "registroRestaurante",
-                    JSON.stringify(json)
-                  );
-                  window.location.reload();
-                });
-            }
-          );
         })
         .catch((error) => {
           //si da error al obtener la direccion
@@ -310,6 +320,16 @@ function RegistroRestaurante() {
                 required
               />
               <label htmlFor="floatingInput">PayPal</label>
+            </div>
+            <div className="form-floating">
+              <input
+                type="text"
+                className="form-control"
+                id="descripcion"
+                placeholder="Descripción"
+                required
+              />
+              <label htmlFor="floatingInput">Descripción</label>
             </div>
             <label className="mb-1">Logo</label>
             <Form.Control type="file" size="lg" id="img" required />
