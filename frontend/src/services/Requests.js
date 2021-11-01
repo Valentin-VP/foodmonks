@@ -66,7 +66,7 @@ export const registrarCliente = (cliente) => {
 export const registrarRestaurante = (restaurante) => {
   return axios({
     method: "POST",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/crearSolicitudAltaRestaurante`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/crearSolicitudAltaRestaurante`,
     data: restaurante,
   });
 };
