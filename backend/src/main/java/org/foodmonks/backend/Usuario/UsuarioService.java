@@ -264,7 +264,9 @@ public class UsuarioService {
 					     cliente.setEstado(EstadoCliente.ELIMINADO);
 					     usuarioRepository.save(cliente);
 					}
-				} else 
+				} else if (usuario instanceof Admin){
+					usuarioRepository.delete(usuario);
+				} else
 					throw new  UsuarioNoEncontradoException("Usuario "+correo+" no encontrado.");
 				
 				//ENVIAR NOTIFICACION EMAIL
