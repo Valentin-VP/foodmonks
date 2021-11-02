@@ -108,25 +108,31 @@ public class AuthenticationController {
 
     @GetMapping("/auth/userinfo")
     @Operation(summary = "Obtiene información del Usuario", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<?> getUserInfo(Authentication user) {
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token/*Authentication user*/) {
 
-        if (adminService.buscarAdmin(user.getName()) != null) {
+        String newToken = "";
+        if ( token != null && token.startsWith("Bearer ")) {
+            newToken = token.substring(7);
+        }
+        String correo = tokenHelper.getUsernameFromToken(newToken);
+
+        if (adminService.buscarAdmin(correo) != null) {
             InfoAdmin adminInfo = new InfoAdmin();
-            Admin admin = adminService.buscarAdmin(user.getName());
+            Admin admin = adminService.buscarAdmin(correo);
             adminInfo.setRoles(admin.getAuthorities().toArray());
             return new ResponseEntity<>(adminInfo, HttpStatus.OK);
 
-        } else if (restauranteService.buscarRestaurante(user.getName()) != null) {
+        } else if (restauranteService.buscarRestaurante(correo) != null) {
             InfoRestaurante restauranteInfo = new InfoRestaurante();
-            Restaurante restaurante = restauranteService.buscarRestaurante(user.getName());
+            Restaurante restaurante = restauranteService.buscarRestaurante(correo);
             restauranteInfo.setNombre(restaurante.getNombreRestaurante());
             restauranteInfo.setDescripcion(restaurante.getDescripcion());
             restauranteInfo.setRoles(restaurante.getAuthorities().toArray());
             return new ResponseEntity<>(restauranteInfo, HttpStatus.OK);
 
-        } else if (clienteService.buscarCliente(user.getName()) != null) {
+        } else if (clienteService.buscarCliente(correo) != null) {
             InfoCliente clienteInfo = new InfoCliente();
-            Cliente cliente = clienteService.buscarCliente(user.getName());
+            Cliente cliente = clienteService.buscarCliente(correo);
             clienteInfo.setFirstName(cliente.getNombre());
             clienteInfo.setLastName(cliente.getApellido());
             clienteInfo.setRoles(cliente.getAuthorities().toArray());
