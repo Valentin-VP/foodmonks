@@ -1,7 +1,9 @@
 package org.foodmonks.backend.Cliente;
 
+import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Direccion.DireccionConvertidor;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioService;
@@ -21,17 +23,19 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
+    private final DireccionConvertidor direccionConvertidor;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService ) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, DireccionConvertidor direccionConvertidor) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.direccionConvertidor = direccionConvertidor;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
-                             Float calificacion, Direccion direccion, EstadoCliente activo) throws ClienteDireccionException, UsuarioExisteException {
+                             Float calificacion, JsonObject jsonDireccion, EstadoCliente activo) throws ClienteDireccionException, UsuarioExisteException {
         if (usuarioService.ObtenerUsuario(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
+        Direccion direccion = direccionConvertidor.direccionJson(jsonDireccion);
         if (direccion == null){
             throw new ClienteDireccionException("Debe ingresar una dirección");
         }
@@ -66,8 +70,9 @@ public class ClienteService {
         return cliente.getEstado();
     }
 
-    public void agregarDireccionCliente(String correo, Direccion direccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException {
+    public void agregarDireccionCliente(String correo, JsonObject jsonDireccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException {
         Cliente cliente = obtenerCliente(correo);
+        Direccion direccion = direccionConvertidor.direccionJson(jsonDireccion);
         if (direccion == null){
             throw new ClienteDireccionException("Debe ingresar una dirección");
         }

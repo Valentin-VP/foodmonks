@@ -56,15 +56,6 @@ public class ClienteController {
             JsonObject jsonCliente = new Gson().fromJson(cliente, JsonObject.class);
             JsonObject jsonDireccion = jsonCliente.get("direccion").getAsJsonObject();
 
-            Direccion direccion = new Direccion(
-                    jsonDireccion.get("numero").getAsInt(),
-                    jsonDireccion.get("calle").getAsString(),
-                    jsonDireccion.get("esquina").getAsString(),
-                    jsonDireccion.get("detalles").getAsString(),
-                    jsonDireccion.get("latitud").getAsString(),
-                    jsonDireccion.get("longitud").getAsString()
-            );
-
             clienteService.crearCliente(
                     jsonCliente.get("nombre").getAsString(),
                     jsonCliente.get("apellido").getAsString(),
@@ -72,7 +63,7 @@ public class ClienteController {
                     new String (Base64.getDecoder().decode(jsonCliente.get("password").getAsString())),
                     LocalDate.now(),
                     5.0f,
-                    direccion,
+                    jsonDireccion,
                     EstadoCliente.valueOf("ACTIVO")
                     // pedidos se crea el array vacio en el back
                     // y mobileToken es null hasta que instale la aplicacion
