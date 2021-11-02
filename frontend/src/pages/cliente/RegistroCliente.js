@@ -272,7 +272,7 @@ function RegistroCliente() {
               </button>
             </form>
             <p className="mt-2 mb-3 text-muted">
-              ¿Ya tienes cuenta?<a href="/login">Inicia sesión</a>
+              ¿Ya tienes cuenta?<a href="/">Inicia sesión</a>
             </p>
             <p className="mt-2 mb-3 text-muted">
               ¿Eres una empresa?
