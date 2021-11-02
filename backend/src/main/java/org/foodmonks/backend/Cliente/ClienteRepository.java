@@ -11,6 +11,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, String> {
 
     Cliente findByCorreo(String correo);
 
-    List<Cliente> findAllByRolesOrderByCalificacion(String role);
+    List<Cliente> findAllByRolesOrderByCalificacionDesc(String role);
 
 }

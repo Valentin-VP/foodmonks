@@ -62,7 +62,7 @@ public class UsuarioService {
 			List<Restaurante> auxListOrdenRestaurante = new ArrayList<>();
 			//necesito ambas listas por como ordeno los usuarios
 			if(tipoUser.equals("cliente")) {
-				auxListOrdenCliente = clienteRepository.findAllByRolesOrderByCalificacion("ROLE_CLIENTE");
+				auxListOrdenCliente = clienteRepository.findAllByRolesOrderByCalificacionDesc("ROLE_CLIENTE");
 //				for(Usuario user: listaUsuarios) {
 //					Cliente cliente = (Cliente) usuarioRepository.findByCorreo((user.getCorreo()));
 //					auxListOrdenCliente.add(cliente);
