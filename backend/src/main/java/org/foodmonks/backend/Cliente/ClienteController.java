@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.SneakyThrows;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
@@ -118,4 +119,62 @@ public class ClienteController {
 
     }
 
+    @Operation(summary = "Agregar una Direccion",
+            description = "Agrega una nueva Direccion al Cliente",
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Direccion agregada"),
+            @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
+    })
+    @SneakyThrows
+    @PostMapping(path = "/agregarDireccion")
+    public ResponseEntity<?> agregarDireccion(@RequestHeader("Authorization") String token,
+                                              @Parameter(description = "Datos del nuevo Cliente", required = true)
+                                              @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                      content = @Content(mediaType = "application/json",
+                                                              schema = @Schema(implementation = Direccion.class)))
+                                              @RequestBody String direccion) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
+
+            clienteService.agregarDireccionCliente(correo, jsonDireccion);
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Elimina direccion de Cliente",
+            description = "Se elimina una de las direcciones del Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa. Se agrega la direccion"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @DeleteMapping(path = "/eliminarDireccion")
+    public ResponseEntity<?> eliminarDireccion(@RequestHeader("Authorization") String token,
+                                               @RequestParam(name = "latitud") String latitud,
+                                               @RequestParam(name = "longitud") String longitud) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            clienteService.eliminarDireccionCliente(correo, latitud, longitud);
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
