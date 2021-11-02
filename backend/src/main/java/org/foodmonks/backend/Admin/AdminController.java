@@ -113,6 +113,7 @@ public class AdminController {
                     usuario.addProperty("estado", cliente.getEstado().toString());
                     usuario.addProperty("nombre", cliente.getNombre());
                     usuario.addProperty("apellido", cliente.getApellido());
+                    usuario.addProperty("calificacion", cliente.getCalificacion().toString());
                     jsonArray.add(usuario);
                 } else if(listaUsuario instanceof Restaurante){//si es restaurante
                     Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
@@ -122,6 +123,7 @@ public class AdminController {
                     usuario.addProperty("descripcion", restaurante.getDescripcion());
                     usuario.addProperty("nombre", restaurante.getNombreRestaurante());
                     usuario.addProperty("telefono", restaurante.getTelefono());
+                    usuario.addProperty("calificacion", restaurante.getCalificacion().toString());
                     jsonArray.add(usuario);
                 } else if(listaUsuario instanceof Admin) {
                     Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());
