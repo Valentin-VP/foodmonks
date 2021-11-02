@@ -270,6 +270,9 @@ public class UsuarioService {
 					 throw new EmailNoEnviadoException("Usuario eliminado, " +e.getMessage());
 				 }
 	}
-	
+
+	public Usuario ObtenerUsuario (String correo) {
+		return usuarioRepository.findByCorreo(correo);
+	}
 
 }

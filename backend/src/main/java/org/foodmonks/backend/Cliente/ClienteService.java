@@ -2,11 +2,10 @@ package org.foodmonks.backend.Cliente;
 
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Direccion.DireccionRepository;
+import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
-import org.foodmonks.backend.Usuario.UsuarioRepository;
+import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
-import org.foodmonks.backend.persistencia.DireccionID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,17 +19,17 @@ public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final DireccionRepository direccionRepository;
+    private final UsuarioService usuarioService;
+    private final DireccionService direccionService;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository , DireccionRepository direccionRepository) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.direccionRepository = direccionRepository;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService ) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
                              Float calificacion, Direccion direccion, EstadoCliente activo) throws ClienteDireccionException, UsuarioExisteException {
-        if (usuarioRepository.findByCorreo(correo) != null) {
+        if (usuarioService.ObtenerUsuario(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
         if (direccion == null){
@@ -39,11 +38,7 @@ public class ClienteService {
         List<Direccion> direcciones = new ArrayList<>();
         direcciones.add(direccion);
         Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,direcciones,activo,"",null);
-//        List<Cliente> clientes = direccion.getCliente();
-//        clientes.add(cliente);
-//        direccion.setCliente(clientes);
         clienteRepository.save(cliente);
-        direccionRepository.save(direccion);
         System.out.println("direccion " + clienteRepository.findByCorreo(correo).getDirecciones().get(0).getCalle());
     }
 
@@ -80,20 +75,17 @@ public class ClienteService {
         if (direcciones.contains(direccion)) {
             throw new ClienteExisteDireccionException("Esa dirección ya esta registrada para el Cliente " + correo);
         }
-        List<Cliente> clientesDireccion = direccion.getCliente();
-        clientesDireccion.add(cliente);
-        direccion.setCliente(clientesDireccion);
         direcciones.add(direccion);
         cliente.setDirecciones(direcciones);
         clienteRepository.save(cliente);
-        direccionRepository.save(direccion);
 
     }
 
-    public void eliminarDireccionCliente(String correo, Direccion direccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteUnicaDireccionException, ClienteNoExisteDireccionException {
+    public void eliminarDireccionCliente(String correo, String latitud, String longitud) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteUnicaDireccionException, ClienteNoExisteDireccionException {
         Cliente cliente = obtenerCliente(correo);
+        Direccion direccion = direccionService.obtenerDireccion(latitud,longitud);
         if (direccion == null){
-            throw new ClienteDireccionException("Debe ingresar una dirección");
+            throw new ClienteDireccionException("No existe esa direccion en el sistema");
         }
         List<Direccion> direcciones = cliente.getDirecciones();
         if (direcciones.size() < 2){
@@ -102,13 +94,9 @@ public class ClienteService {
         if (!direcciones.contains(direccion)) {
             throw new ClienteNoExisteDireccionException("Esa dirección no esta registrada para el Cliente " + correo);
         }
-        List<Cliente> clientesDireccion = direccion.getCliente();
-        clientesDireccion.remove(cliente);
-        direccion.setCliente(clientesDireccion);
         direcciones.remove(direccion);
         cliente.setDirecciones(direcciones);
         clienteRepository.save(cliente);
-        direccionRepository.save(direccion);
 
     }
 
