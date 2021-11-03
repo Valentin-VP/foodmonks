@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class DireccionConvertidor {
+public class DireccionConverter {
 
     public List<JsonObject> listaJsonDireccion(List<Direccion> direcciones){
         List<JsonObject> gsonDirecciones = new ArrayList<>();

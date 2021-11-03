@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class MenuConvertidor {
+public class MenuConverter {
 
     public List<JsonObject> listaJsonMenu(List<Menu> menus){
         List<JsonObject> gsonMenus = new ArrayList<>();

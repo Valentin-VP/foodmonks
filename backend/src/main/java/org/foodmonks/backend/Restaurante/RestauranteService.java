@@ -27,10 +27,11 @@ public class RestauranteService {
     private final RestauranteRepository restauranteRepository;
     private final UsuarioRepository usuarioRepository;
     private final MenuService menuService;
+    private final RestauranteConverter restauranteConverter;
 
     @Autowired
-    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService) {
-        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService;
+    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter) {
+        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.restauranteConverter = restauranteConverter;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -82,6 +83,15 @@ public class RestauranteService {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
         return restaurante.getEstado();
+    }
+
+    public JsonObject obtenerJsonRestaurante(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return restauranteConverter.jsonRestaurante(restaurante);
+
     }
   
 }
