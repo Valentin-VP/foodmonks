@@ -31,15 +31,6 @@ const Styles = styled.div`
 
 function Home() {
   const [estado, setEstado] = useState(true);
-  const [isLoading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchRestauranteInfo().then((response) => {
-      console.log(response.data);
-      setEstado(response.data.estado);//no estoy seguro como va a llegar esto
-      setLoading(false);
-    });
-  }, []);
 
   const onClick = () => {
     setEstado(!estado);
@@ -56,10 +47,6 @@ function Home() {
         Noti("CERRADO!!");
       });
     }
-  }
-
-  if (isLoading) {
-    return <div className="App">Cargando...</div>;
   }
 
   return (
