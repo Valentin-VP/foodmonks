@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
@@ -206,7 +207,7 @@ public class RestauranteController {
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/listarMenu")
-    public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token, @RequestHeader("RefreshAuthentication") String refreshToken) {
+    public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
         String correo = "";
         List<JsonObject> listaMenu = new ArrayList<JsonObject>();
@@ -216,15 +217,14 @@ public class RestauranteController {
                 newtoken = token.substring(7);
             }
             correo = tokenHelp.getUsernameFromToken(newtoken);
-            if(correo == null) {//solucion del refreshToken
-                correo = tokenHelp.getUsernameFromToken(refreshToken.substring(7));
+            listaMenu = menuService.listarMenu(correo);
+            for(JsonObject jsonMenu : listaMenu) {
+                jsonArray.add(jsonMenu);
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        listaMenu = menuService.listarMenu(correo);
-        for(JsonObject jsonMenu : listaMenu) {
-            jsonArray.add(jsonMenu);
+        } catch(ExpiredJwtException a) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }

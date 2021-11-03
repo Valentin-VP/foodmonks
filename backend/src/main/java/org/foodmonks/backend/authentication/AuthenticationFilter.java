@@ -32,52 +32,34 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
 
-        String authToken=tokenHelper.getToken(request);
-        String refreshToken=tokenHelper.getRefreshToken(request);
-        if(!testing) {
-            System.out.println(authToken);
-            this.testing = true;
-        } else {
-            this.testing = false;
-        }
+        String token=tokenHelper.getRefreshToken(request);
+        boolean renovar = false;
 
-        if(authToken != null || refreshToken != null) {
+        if(token != null) {
+            String userName = tokenHelper.getUsernameFromToken(token);
+            String authToken=tokenHelper.getToken(request);
 
-            String userName=tokenHelper.getUsernameFromToken(authToken);
-            String userNameRefresh = tokenHelper.getUsernameFromToken(refreshToken);
-
-            if(userName != null || userNameRefresh != null) {
-                UserDetails userDetails;
-                try {
-                    userDetails=customService.loadUserByUsername(userName);
-                } catch(Exception e) {
-                    userDetails=customService.loadUserByUsername(userNameRefresh);
-                }
-
-                if(tokenHelper.validateToken(authToken, userDetails)) {
-                    UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetails(request));
-
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                } else {
-                    //String refreshToken=tokenHelper.getRefreshToken(request);
-                    if(tokenHelper.validateToken(refreshToken, userDetails)) {
-
-                        String jwtToken=tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
-                        String jwtRefreshToken=tokenHelper.generateRefreshToken(userDetails.getUsername(), userDetails.getAuthorities());
-                        response.setHeader("Authorization", jwtToken);
-                        response.setHeader("RefreshAuthentication", jwtRefreshToken);
-
-                        UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
-                        authentication.setDetails(new WebAuthenticationDetails(request));
-
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-                }
-
+            if(authToken != null) {
+                userName=tokenHelper.getUsernameFromToken(authToken);
+                token = authToken;
+            } else {
+                renovar = true;
             }
 
+            UserDetails userDetails = customService.loadUserByUsername(userName);
+            if(renovar) {
+                String jwtToken = tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
+                String jwtRefreshToken = tokenHelper.generateRefreshToken(userDetails.getUsername(), userDetails.getAuthorities());
+                response.setHeader("Authorization", jwtToken);
+                response.setHeader("RefreshAuthentication", jwtRefreshToken);
+            }
+            if(tokenHelper.validateToken(token, userDetails)) {
+                UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            }
         }
 
         filterChain.doFilter(request, response);

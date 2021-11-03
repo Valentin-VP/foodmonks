@@ -1,6 +1,7 @@
 package org.foodmonks.backend.authentication;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,26 +37,18 @@ public class TokenHelper {
 
     private Claims getAllClaimsFromToken(String token) {
         Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            claims = null;
-        }
+        claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
         return claims;
     }
 
 
     public String getUsernameFromToken(String token) {
         String username;
-        try {
-            final Claims claims = this.getAllClaimsFromToken(token);
-            username = claims.getSubject();
-        } catch (Exception e) {
-            username = null;
-        }
+        final Claims claims = this.getAllClaimsFromToken(token);
+        username = claims.getSubject();
         return username;
     }
 
