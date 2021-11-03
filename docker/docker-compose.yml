@@ -2,7 +2,7 @@ version: '3.9'
 services:
   backend:
     container_name: food-monks-backend
-    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-backend:dev-latest
+    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-backend:latest
     build: 
       context: ../backend
       # dockerfile: ../../docker/backend/Dockerfile
@@ -19,7 +19,7 @@ services:
     build:
       context: ../frontend
       # dockerfile: ../../docker/frontend/Dockerfile
-    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-frontend:dev-latest
+    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-frontend:latest
     ports:
       - "8080:80"
     env_file:
