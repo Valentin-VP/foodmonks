@@ -164,10 +164,10 @@ function ModificarMenu() {
                 console.log(response);
                 sessionStorage.removeItem("menuId");
                 setTimeout(() => {
-                  if(state.descuento !== 0) {
-                    window.location.replace("/promocion");
-                  } else {
+                  if(state.descuento === 0) {
                     window.location.replace("/menu");
+                  } else {
+                    window.location.replace("/promocion");
                   }
                 }, 3000);
               }).catch((error) =>{
