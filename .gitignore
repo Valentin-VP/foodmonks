@@ -90,3 +90,4 @@ frontend/package-lock.json
 docker/.env
 docker/.env_java
 docker/.env_react
+docker/*.tar
