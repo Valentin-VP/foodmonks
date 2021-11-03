@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.foodmonks.backend.persistencia.DireccionID;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 
 @Getter

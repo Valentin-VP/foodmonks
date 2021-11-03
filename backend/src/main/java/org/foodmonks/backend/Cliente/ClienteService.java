@@ -74,12 +74,14 @@ public class ClienteService {
     public void agregarDireccionCliente(String correo, JsonObject jsonDireccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException {
         Cliente cliente = obtenerCliente(correo);
         Direccion direccion = direccionConverter.direccionJson(jsonDireccion);
-        if (direccion == null){
+        if (direccion.getLatitud().isEmpty() && direccion.getLongitud().isEmpty()){
             throw new ClienteDireccionException("Debe ingresar una dirección");
         }
         List<Direccion> direcciones = cliente.getDirecciones();
-        if (direcciones.contains(direccion)) {
-            throw new ClienteExisteDireccionException("Esa dirección ya esta registrada para el Cliente " + correo);
+        for (Direccion dire : direcciones){
+            if (dire.getLatitud().equals(direccion.getLatitud()) && dire.getLongitud().equals(direccion.getLongitud())) {
+                throw new ClienteExisteDireccionException("Esa dirección ya esta registrada para el Cliente " + correo);
+            }
         }
         direcciones.add(direccion);
         cliente.setDirecciones(direcciones);
@@ -88,6 +90,9 @@ public class ClienteService {
     }
 
     public void eliminarDireccionCliente(String correo, String latitud, String longitud) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteUnicaDireccionException, ClienteNoExisteDireccionException {
+        if (latitud.isEmpty() && longitud.isEmpty()){
+            throw new ClienteDireccionException("Debe ingresar una dirección");
+        }
         Cliente cliente = obtenerCliente(correo);
         Direccion direccion = direccionService.obtenerDireccion(latitud,longitud);
         if (direccion == null){
@@ -97,12 +102,41 @@ public class ClienteService {
         if (direcciones.size() < 2){
             throw new ClienteUnicaDireccionException("No puede eliminar la única dirección registrada del Cliente " + correo);
         }
-        if (!direcciones.contains(direccion)) {
-            throw new ClienteNoExisteDireccionException("Esa dirección no esta registrada para el Cliente " + correo);
+        for (Direccion dire : direcciones) {
+            if (dire.getLatitud().equals(direccion.getLatitud()) && dire.getLongitud().equals(direccion.getLongitud())) {
+                direcciones.remove(direccion);
+                cliente.setDirecciones(direcciones);
+                clienteRepository.save(cliente);
+                return;
+            }
         }
-        direcciones.remove(direccion);
-        cliente.setDirecciones(direcciones);
-        clienteRepository.save(cliente);
+        throw new ClienteNoExisteDireccionException("Esa dirección no esta registrada para el Cliente " + correo);
+
+    }
+
+    public void modificarDireccionCliente(String correo, String latitud, String longitud, JsonObject jsonDireccionNueva) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteNoExisteDireccionException {
+        Cliente cliente = obtenerCliente(correo);
+        Direccion direccionNueva = direccionConverter.direccionJson(jsonDireccionNueva);
+        if (latitud.isEmpty() && longitud.isEmpty()){
+            throw new ClienteDireccionException("Debe ingresar la direccion Actual");
+        }
+        if (direccionNueva.getLatitud().isEmpty() && direccionNueva.getLongitud().isEmpty()){
+            throw new ClienteDireccionException("Debe ingresar una dirección Nueva");
+        }
+        List<Direccion> direcciones = cliente.getDirecciones();
+        for (Direccion dire : direcciones){
+            if (dire.getLatitud().equals(latitud) && dire.getLongitud().equals(longitud)) {
+                dire.setLatitud(direccionNueva.getLatitud());
+                dire.setLongitud(direccionNueva.getLongitud());
+                dire.setCalle(direccionNueva.getCalle());
+                dire.setNumero(direccionNueva.getNumero());
+                dire.setDetalles(direccionNueva.getDetalles());
+                clienteRepository.save(cliente);
+                return;
+            }
+        }
+
+        throw new ClienteNoExisteDireccionException("La direccion actual ingresada no existe para el Cliente " + correo);
 
     }
 
