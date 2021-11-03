@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.SneakyThrows;
+import org.codehaus.jettison.json.JSONObject;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
@@ -145,7 +146,7 @@ public class ClienteController {
 
             clienteService.agregarDireccionCliente(correo, jsonDireccion);
 
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -172,6 +173,26 @@ public class ClienteController {
 
             clienteService.eliminarDireccionCliente(correo, latitud, longitud);
 
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/cambiarInfoBase")
+    public ResponseEntity<?> cambiarInfoBase(@RequestHeader("Authorization") String token,
+                                             @Parameter(description = "Datos nuevos del Cliente", required = true)
+                                             @RequestBody String info) {
+
+        JsonObject jsonInfo = new Gson().fromJson(info, JsonObject.class);
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            //clienteService.funcion(correo, jsonInfo.get("nombre").getAsString, jsonInfo.get("apellido").getAsString);
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
