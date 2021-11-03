@@ -206,21 +206,25 @@ public class RestauranteController {
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/listarMenu")
-    public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token, @RequestHeader("RefreshAuthentication") String refreshToken) {
         String newtoken = "";
+        String correo = "";
         List<JsonObject> listaMenu = new ArrayList<JsonObject>();
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
-            listaMenu = menuService.listarMenu(correo);
-            for(JsonObject jsonMenu : listaMenu) {
-                jsonArray.add(jsonMenu);
+            correo = tokenHelp.getUsernameFromToken(newtoken);
+            if(correo == null) {//solucion del refreshToken
+                correo = tokenHelp.getUsernameFromToken(refreshToken.substring(7));
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        listaMenu = menuService.listarMenu(correo);
+        for(JsonObject jsonMenu : listaMenu) {
+            jsonArray.add(jsonMenu);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }

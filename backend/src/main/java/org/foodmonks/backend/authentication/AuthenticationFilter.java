@@ -33,6 +33,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 
         String authToken=tokenHelper.getToken(request);
+        String refreshToken=tokenHelper.getRefreshToken(request);
         if(!testing) {
             System.out.println(authToken);
             this.testing = true;
@@ -40,13 +41,18 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             this.testing = false;
         }
 
-        if(null!=authToken) {
+        if(authToken != null || refreshToken != null) {
 
             String userName=tokenHelper.getUsernameFromToken(authToken);
+            String userNameRefresh = tokenHelper.getUsernameFromToken(refreshToken);
 
-            if(null!=userName) {
-
-                UserDetails userDetails=customService.loadUserByUsername(userName);
+            if(userName != null || userNameRefresh != null) {
+                UserDetails userDetails;
+                try {
+                    userDetails=customService.loadUserByUsername(userName);
+                } catch(Exception e) {
+                    userDetails=customService.loadUserByUsername(userNameRefresh);
+                }
 
                 if(tokenHelper.validateToken(authToken, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
@@ -54,10 +60,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-
-
                 } else {
-                    String refreshToken=tokenHelper.getRefreshToken(request);
+                    //String refreshToken=tokenHelper.getRefreshToken(request);
                     if(tokenHelper.validateToken(refreshToken, userDetails)) {
 
                         String jwtToken=tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
