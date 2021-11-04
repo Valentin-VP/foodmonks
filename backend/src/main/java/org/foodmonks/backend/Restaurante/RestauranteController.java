@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
@@ -208,13 +209,14 @@ public class RestauranteController {
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
+        String correo = "";
         List<JsonObject> listaMenu = new ArrayList<JsonObject>();
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            correo = tokenHelp.getUsernameFromToken(newtoken);
             listaMenu = menuService.listarMenu(correo);
             for(JsonObject jsonMenu : listaMenu) {
                 if(jsonMenu.get("multiplicadorPromocion").getAsString().equals("0.0")) {
@@ -253,6 +255,8 @@ public class RestauranteController {
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch(ExpiredJwtException a) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }

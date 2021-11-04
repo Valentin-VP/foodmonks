@@ -221,6 +221,17 @@ export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
   });
 };
 
+export const fetchRestauranteInfo = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/getInfoRestaurante`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+}
+
 export const actualizarEstadoUsuario = (estado, id) => {
   console.log(estado);
   return axios({
