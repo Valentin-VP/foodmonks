@@ -222,7 +222,7 @@ public class ClienteController {
 
             JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
 
-            //clienteService.ModificarDireccion(correo, jsonDireccion, latitud, longitud);
+            clienteService.modificarDireccionCliente(correo, latitud, longitud, jsonDireccion);
 
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e){
