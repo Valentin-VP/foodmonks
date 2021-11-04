@@ -6,6 +6,7 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionConverter;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,21 @@ public class ClienteService {
     public void modificarCliente(Cliente cliente) {
         clienteRepository.save(cliente);
     }
+
+/*
+    public void modificarCliente(String correo, String nombre, String apellido) throws ClienteNoEncontradoException {
+
+        Cliente clienteAux = clienteRepository.findByCorreo(correo);
+
+        if (clienteAux == null) {
+            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
+        }
+
+        clienteAux.setNombre(nombre);
+        clienteAux.setApellido(apellido);
+        clienteRepository.save(clienteAux);
+    }
+*/
 
     public void modificarEstadoCliente(String correo, EstadoCliente estado) throws ClienteNoEncontradoException {
         Cliente cliente = obtenerCliente(correo);
