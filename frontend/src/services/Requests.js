@@ -184,6 +184,19 @@ export const eliminarCuentaClientePropia = () => {
   });
 };
 
+export const obtenerPedidosSinFinalizarEfectivo = () => {
+  const response = axios ({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPedidosEfectivoCompletado`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
 //----------------------------------USUARIOS---------------------------------------------------
 
 export const fetchUsuarios = () => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { actualizarEstadoPedido, actualizarEstadoUsuario } from "../../services/Requests";
+import { actualizarEstadoPedido, actualizarEstadoUsuario, obtenerPedidosSinFinalizarEfectivo } from "../../services/Requests";
 import { ModalItem } from "../../components/ModalItem"
 import { Noti } from "../../components/Notification";
 import { Col, Modal, Row, Table } from "react-bootstrap";
@@ -69,7 +69,7 @@ export default function ListadoPedidosEfectivo() {
     const fetch = () => {
       //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
       //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
-      /*obtenerPedidosSinFinalizarEfectivo().then((response)=>{
+      obtenerPedidosSinFinalizarEfectivo().then((response)=>{
         if (response.status===200){
           setData(response.data);
         }else{
@@ -77,7 +77,7 @@ export default function ListadoPedidosEfectivo() {
         }
       }).catch((error)=>{
         Noti(error.message);
-      })*/
+      })
       //setData([...data, {tipoUser: "restaurante", nombreRestaurante: "asd", estado : "bloqueado"}]);
     }
     const updateState = (item) => {
@@ -93,9 +93,9 @@ export default function ListadoPedidosEfectivo() {
         Noti(error.response.data);
       })
     }
-    //useEffect(() => {
-    //    
-    //})
+    useEffect(() => {
+        fetch();
+    }, [])
 
     return (
     <>
@@ -107,44 +107,7 @@ export default function ListadoPedidosEfectivo() {
               <div className="table-responsive justify-content-center">
                     <table className="table table-hover">
                     <tbody>
-                      <Row>
-                        <Col>
-                          <tr>
-                            <td>ID Pedido: item.id</td>
-                            <td>Nombre: item.nombre</td>
-                            <td>Fecha Confirmación: item.fechaHoraProcesado</td>
-                            <td>Fecha Entrega: item.fechaHoraEntrega</td>
-                            <td>Total: $item.total</td>
-                            <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(setModal({item: [], show:true}))}>
-                              Cobrar Pago
-                            </button>}</td>
-                            <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>{setTest(!test)}}>
-                              +
-                            </button>}</td>
-                          </tr>
-                        </Col>
-                      </Row>
-                        {test &&
-                        <Row>
-                          <Col>
-                            <tr>
-                                <td>Menú: item.menus.nombre</td>
-                                <td>Precio: $item.menus.precio</td>
-                                <td>Descuento: item.menus.multiplicadorPromocion %</td>
-                                <td>Cantidad: item.menus.cantidad</td>
-                                <td>Total Parcial: $item.total</td>
-                            </tr>
-                            <tr>
-                                <td>Menú: item.menus.nombre</td>
-                                <td>Precio: $item.menus.precio</td>
-                                <td>Descuento: item.menus.multiplicadorPromocion %</td>
-                                <td>Cantidad: item.menus.cantidad</td>
-                                <td>Total Parcial: $item.total</td>
-                            </tr>
-                          </Col>
-                        </Row>
-                        }
-                      {data.map((item, index) => {
+                      {data ? data.map((item, index) => {
                           return (
                             <>
                             <Row>
@@ -155,7 +118,7 @@ export default function ListadoPedidosEfectivo() {
                                   <td>Fecha Confirmación: {item.fechaHoraProcesado}</td>
                                   <td>Fecha Entrega: {item.fechaHoraEntrega}</td>
                                   <td>Total: ${item.total}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(setModal({item: [], show:true}))}>
+                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(setModal({item: item, show:true}))}>
                                     Cobrar Pago
                                   </button>}</td>
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(item.visible = !item.visible)}>
@@ -167,7 +130,7 @@ export default function ListadoPedidosEfectivo() {
                               {item.visible && 
                                 <Row>
                                   <Col>
-                                    {(data.menus((item, index) => {
+                                    {(data.menus ? data.menus.map((item, index) => {
                                     return (
                                       <>
                                         <tr key={index}>
@@ -178,15 +141,15 @@ export default function ListadoPedidosEfectivo() {
                                             <td>Total Parcial: ${item.total}</td>
                                         </tr>
                                       </>
-                                    )}))}
+                                    )}) : null)}
                                   </Col>
                                 </Row>
                               }
                             </>
-                        )})}
+                        )}) : null}
                     </tbody>
                     </table>
-                  
+                  {!data.length > 0 && <h5 className="text-center h5 mb-3 fw-normal">No hay pagos sin cobrar</h5>}
               </div>
             </div>
           </main>

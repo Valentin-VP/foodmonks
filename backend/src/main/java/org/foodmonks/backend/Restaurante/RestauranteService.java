@@ -102,5 +102,14 @@ public class RestauranteService {
         pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.FINALIZADO);
 
     }
+
+    public List<JsonObject> listarPedidosEfectivoConfirmados(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null){
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        //System.out.println(restaurante.getNombreRestaurante() + restaurante.getPedidos());
+        return pedidoService.listaPedidosEfectivoConfirmados(restaurante);
+    }
   
 }
