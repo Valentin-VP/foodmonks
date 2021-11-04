@@ -174,14 +174,14 @@ public class RestauranteController {
             JSONObject jsonMenu = new JSONObject(infoMenu);
             nombreMenu = jsonMenu.getString("nombre");
 
-            aux = jsonMenu.getString("price");
-            precioMenu = Float.valueOf(aux);
-
             descripcionMenu = jsonMenu.getString("descripcion");
             visibilidadMenu = jsonMenu.getBoolean("visibilidad");
 
             aux = jsonMenu.getString("multiplicador");
             multiplicadorMenu = Float.valueOf(aux);
+
+            aux = jsonMenu.getString("price");
+            precioMenu = Float.valueOf(aux);
 
             imagenMenu = jsonMenu.getString("imagen");
             categoriaMenu = CategoriaMenu.valueOf(jsonMenu.getString("categoria"));
@@ -217,7 +217,39 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             listaMenu = menuService.listarMenu(correo);
             for(JsonObject jsonMenu : listaMenu) {
-                jsonArray.add(jsonMenu);
+                if(jsonMenu.get("multiplicadorPromocion").getAsString().equals("0.0")) {
+                    jsonArray.add(jsonMenu);
+                }
+            }
+        } catch (JsonIOException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Listar las Promociones",
+            description = "Lista de las Promociones de un restaurantes",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "promocion" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarPromocion")
+    public ResponseEntity<?> listPromo(@RequestHeader("Authorization") String token) {
+        String newtoken = "";
+        List<JsonObject> listaPromo = new ArrayList<JsonObject>();
+        JsonArray jsonArray = new JsonArray();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            listaPromo = menuService.listarMenu(correo);
+            for(JsonObject jsonPromo : listaPromo) {
+                if(!jsonPromo.get("multiplicadorPromocion").getAsString().equals("0.0")) {
+                    jsonArray.add(jsonPromo);
+                }
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -256,10 +288,10 @@ public class RestauranteController {
             jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
 
             nombreMenu = jsonMenu.get("nombre").getAsString();
-            priceMenu = jsonMenu.get("price").getAsFloat();
             descripcionMenu = jsonMenu.get("descripcion").getAsString();
             visibilidadMenu = jsonMenu.get("visibilidad").getAsBoolean();
             multiplicadorMenu = jsonMenu.get("multiplicador").getAsFloat();
+            priceMenu = jsonMenu.get("price").getAsFloat();
             imagenMenu = jsonMenu.get("imagen").getAsString();
             categoriaMenu = CategoriaMenu.valueOf(jsonMenu.get("categoria").getAsString());
 

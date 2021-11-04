@@ -67,6 +67,7 @@ function Menu() {
   useEffect(() => {
     fetchMenus().then((response) => {
       console.log("paso por fetch");
+      console.log(response.data);
       setMenus(response.data);
       setLoading(false);
     });
@@ -141,7 +142,15 @@ function Menu() {
                           </Button>
                         </div>
                         <div className="row">
-                          <Button className="miBoton">Promocionar</Button>
+                          <Button 
+                            className="miBoton"
+                            href="/promocionar"
+                            onClick={() => {
+                              onModificar(menu.id);
+                            }}
+                          >
+                            Promocionar
+                          </Button>
                         </div>
                       </td>
                     </tr>
