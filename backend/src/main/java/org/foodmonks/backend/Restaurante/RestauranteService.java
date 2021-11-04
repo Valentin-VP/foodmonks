@@ -64,15 +64,7 @@ public class RestauranteService {
         Restaurante restaurante = new Restaurante(nombre,apellido,correo, passwordEncoder.encode(password),now,calificacion,nombreRestaurante,Integer.valueOf(rut),direccion,pendiente,Integer.valueOf(telefono),descripcion,cuentaPaypal,url);
         restauranteRepository.save(restaurante);
         for (JsonObject menu: jsonMenus){
-            menuService.altaMenu(
-                    menu.get("nombre").getAsString(),
-                    Float.valueOf(menu.get("price").getAsString()),
-                    menu.get("descripcion").getAsString(),
-                    true,
-                    Float.valueOf(menu.get("multiplicador").getAsString()),
-                    menu.get("imagen").getAsString(),
-                    CategoriaMenu.valueOf(menu.get("categoria").getAsString()),
-                    restaurante.getCorreo());
+            menuService.altaMenu(menu,restaurante.getCorreo());
         }
     }
 
