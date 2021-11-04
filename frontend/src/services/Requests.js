@@ -313,10 +313,34 @@ export const agregarDireccion = (direccion) => {
   });
 };
 
+export const modificarDireccion = (direccion, oldLat, oldLng) => {
+  console.log(direccion);
+  console.log(oldLat);
+  console.log(oldLng);
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/modificarDireccion?latitud=${oldLat}&longitud=${oldLng}`,
+    data: direccion,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+};
+
 export const eliminarDireccion = (lat, lng) => {
   return axios({
     method: "DELETE",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarDireccion?latitud=${lat}&longitud=${lng}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+};
+
+export const editNombre = (nombre, apellido) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/modificarCliente?nombre=${nombre}&apellido=${apellido}`,
     headers: {
       Authorization: "Bearer " + getToken(),
     },
