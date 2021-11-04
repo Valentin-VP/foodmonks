@@ -114,9 +114,29 @@ public class ClienteController {
         }
     }
 
-    @PutMapping//EDITAR CLIENTE
-    public void modificarCliente(@RequestBody Cliente cliente) {
-        clienteService.modificarCliente(cliente);
+    @Operation(summary = "Modificar informacion del cliente",
+            description = "Se modifica nombre y apellido del cliente",
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Informacion modificada"),
+            @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
+    })
+    @PutMapping(path = "/modificarCliente")
+    public ResponseEntity<?> modificarCliente(@RequestHeader("Authorization") String token,
+                                              @RequestParam(name = "nombre") String nombre,
+                                              @RequestParam(name = "apellido") String apellido) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            clienteService.modificarCliente(correo, nombre, apellido);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
 
     }
 
@@ -128,7 +148,7 @@ public class ClienteController {
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
     })
     @SneakyThrows
-    @PostMapping(path = "/agregarDireccion")
+    @PutMapping(path = "/agregarDireccion")
     public ResponseEntity<?> agregarDireccion(@RequestHeader("Authorization") String token,
                                               @Parameter(description = "Datos del nuevo Cliente", required = true)
                                               @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -173,26 +193,6 @@ public class ClienteController {
 
             clienteService.eliminarDireccionCliente(correo, latitud, longitud);
 
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-    @PostMapping(path = "/cambiarInfoBase")
-    public ResponseEntity<?> cambiarInfoBase(@RequestHeader("Authorization") String token,
-                                             @Parameter(description = "Datos nuevos del Cliente", required = true)
-                                             @RequestBody String info) {
-
-        JsonObject jsonInfo = new Gson().fromJson(info, JsonObject.class);
-        try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
-
-            //clienteService.funcion(correo, jsonInfo.get("nombre").getAsString, jsonInfo.get("apellido").getAsString);
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

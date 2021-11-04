@@ -61,7 +61,7 @@ public class ClienteService {
         clienteRepository.save(cliente);
     }
 
-/*
+
     public void modificarCliente(String correo, String nombre, String apellido) throws ClienteNoEncontradoException {
 
         Cliente clienteAux = clienteRepository.findByCorreo(correo);
@@ -74,7 +74,7 @@ public class ClienteService {
         clienteAux.setApellido(apellido);
         clienteRepository.save(clienteAux);
     }
-*/
+
 
     public void modificarEstadoCliente(String correo, EstadoCliente estado) throws ClienteNoEncontradoException {
         Cliente cliente = obtenerCliente(correo);
