@@ -304,7 +304,7 @@ export const checkPwdRecoveryToken = (email, ptoken) => {
 
 export const agregarDireccion = (direccion) => {
   return axios({
-    method: "PUT",
+    method: "POST",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/agregarDireccion`,
     data: direccion,
     headers: {

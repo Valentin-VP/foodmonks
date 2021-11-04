@@ -133,6 +133,7 @@ public class ClienteController {
             String correo = tokenHelp.getUsernameFromToken(newToken);
 
             clienteService.modificarCliente(correo, nombre, apellido);
+
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -148,7 +149,7 @@ public class ClienteController {
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
     })
     @SneakyThrows
-    @PutMapping(path = "/agregarDireccion")
+    @PostMapping(path = "/agregarDireccion")
     public ResponseEntity<?> agregarDireccion(@RequestHeader("Authorization") String token,
                                               @Parameter(description = "Datos del nuevo Cliente", required = true)
                                               @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -192,6 +193,36 @@ public class ClienteController {
             String correo = tokenHelp.getUsernameFromToken(newToken);
 
             clienteService.eliminarDireccionCliente(correo, latitud, longitud);
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Modificar una Direccion",
+            description = "Se modifica una direccion del Cliente",
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Direccion modificada"),
+            @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
+    })
+    @PutMapping(path = "/modificarDireccion")
+    public ResponseEntity<?> modificarDireccion(@RequestHeader("Authorization") String token,
+                                                @RequestParam(name = "latitud") String latitud,
+                                                @RequestParam(name = "longitud") String longitud,
+                                                @Parameter(description = "Datos del nuevo Cliente", required = true)
+                                                @RequestBody String direccion) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
+
+            //clienteService.ModificarDireccion(correo, jsonDireccion, latitud, longitud);
 
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e){
