@@ -32,7 +32,7 @@ public class Restaurante extends Usuario {
     private EstadoRestaurante estado;
     private Integer telefono;
     private String descripcion;
-    private  String cuentaPaypal;
+    private String cuentaPaypal;
     private String imagen;
     @OneToMany(mappedBy="restaurante")//,cascade=CascadeType.ALL,orphanRemoval=true)
 	private List<Pedido> pedidos = new ArrayList<>();

@@ -2,9 +2,12 @@ package org.foodmonks.backend.Cliente;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +16,8 @@ import lombok.SneakyThrows;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -32,11 +38,13 @@ public class ClienteController {
 
     private final TokenHelper tokenHelp;
     private final ClienteService clienteService;
+    private final RestauranteService restauranteService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, TokenHelper tokenHelp) {
+    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService) {
         this.clienteService = clienteService;
         this.tokenHelp = tokenHelp;
+        this.restauranteService = restauranteService;
     }
 
     @Operation(summary = "Crea un nuevo Cliente",
@@ -229,4 +237,31 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    @Operation(summary = "Listar los Restaurantes abiertos",
+            description = "Lista de los restaurantes que actualmente estan abiertos al publico",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Restaurante.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarAbiertos")
+    public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
+                                                        @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
+        //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
+        List<JsonObject> restaurantesAbiertos = new ArrayList<>();
+        JsonArray jsonArray = new JsonArray();
+        try {
+            restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
+
+            for (JsonObject restaurante : restaurantesAbiertos) {
+                JsonObject res = new JsonObject();
+                jsonArray.add(restaurante);
+            }
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
 }

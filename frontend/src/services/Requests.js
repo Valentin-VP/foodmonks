@@ -129,6 +129,19 @@ export const fetchMenus = () => {
   return response;
 };
 
+export const fetchPromos = () => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPromocion`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
 export const getMenuInfo = () => {
   const menuId = getMenuId();
   const response = axios({
@@ -344,4 +357,16 @@ export const editNombre = (nombre, apellido) => {
   });
 };
 
-//termina usuario-----------------------------------------------------------------------------------------------------------
+export const fetchRestaurantesBusqueda = (datos) => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarAbiertos?nombre=${datos.nombre}&categoria=${datos.categoria}&orden=${datos.calificacion}`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};

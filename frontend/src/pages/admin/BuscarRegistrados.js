@@ -198,7 +198,8 @@ export default function BuscarRegistrados() {
                     </select>
                     <label htmlFor="estado">Estado</label>
                   </div>
-                  <div class="col-lg">
+                </div>
+                <div class="col-lg">
                       <div className="form-floating">
                           <div className="checkbox">
                               <label>
@@ -216,7 +217,6 @@ export default function BuscarRegistrados() {
                           </div>
                       </div>
                   </div>
-                </div>
               </div>
 
               <button className="w-100 btn btn-md btn-primary" type="submit">

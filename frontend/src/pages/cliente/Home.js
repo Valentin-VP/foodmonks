@@ -4,6 +4,7 @@ import { Portada } from "../../components/Portada";
 import styled from "styled-components";
 import ItemCard from "../../components/itemCard";
 import prods from "../../productos";
+import BuscarRestaurantesAbiertos from "./BuscarRestaurantesAbiertos";
 
 const Styles = styled.div`
   .top {
@@ -44,6 +45,7 @@ export const Home = () => (
       <Portada />
       <Layout>
         <h2>Restaurantes</h2>
+        <BuscarRestaurantesAbiertos />
         <ul className="list-group">
           <li className="list-group-item">1. El Tío Bistró</li>
           <li className="list-group-item">2. Primuseum</li>
