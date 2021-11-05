@@ -309,6 +309,30 @@ public class RestauranteController {
         return new ResponseEntity<>(retorno, HttpStatus.OK);
     }
 
+    @Operation(summary = "Obtener un Restaurante",
+            description = "Obtener un Restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Restaurante.class))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error", content = @Content)
+    })
+    @GetMapping(path = "/getInfoRestaurante")
+    public ResponseEntity<?> getRestauranteInfo(@RequestHeader("Authorization") String token) {
+        String newtoken = "";
+        JsonObject retorno = new JsonObject();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            retorno = restauranteService.obtenerJsonRestaurante(correo);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(retorno, HttpStatus.OK);
+    }
+
     @Operation(summary = "Modificar el estado de un Menu",
             description = "Modifica el estado de un menu de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),

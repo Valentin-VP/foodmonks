@@ -18,15 +18,25 @@ const Styles = styled.div`
       color: #0074d9;
     }
   }
+  .column {
+    float: left;
+    width: 300px;
+    padding: 0 10px;
+    margin-bottom: 5%;
+  }
 
   .prods {
     text-align: center;
   }
 
-  .column {
-    float: left;
-    width: 25%;
+  @media screen and (max-width: 700px) {
+    .column {
+      width: 100%;
+      display: block;
+      margin-bottom: 20px;
+    }
   }
+  
 `;
 
 export const Home = () => (

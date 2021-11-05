@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.SneakyThrows;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
@@ -64,15 +65,6 @@ public class ClienteController {
             JsonObject jsonCliente = new Gson().fromJson(cliente, JsonObject.class);
             JsonObject jsonDireccion = jsonCliente.get("direccion").getAsJsonObject();
 
-            Direccion direccion = new Direccion(
-                    jsonDireccion.get("numero").getAsInt(),
-                    jsonDireccion.get("calle").getAsString(),
-                    jsonDireccion.get("esquina").getAsString(),
-                    jsonDireccion.get("detalles").getAsString(),
-                    jsonDireccion.get("latitud").getAsString(),
-                    jsonDireccion.get("longitud").getAsString()
-            );
-
             clienteService.crearCliente(
                     jsonCliente.get("nombre").getAsString(),
                     jsonCliente.get("apellido").getAsString(),
@@ -80,7 +72,7 @@ public class ClienteController {
                     new String (Base64.getDecoder().decode(jsonCliente.get("password").getAsString())),
                     LocalDate.now(),
                     5.0f,
-                    direccion,
+                    jsonDireccion,
                     EstadoCliente.valueOf("ACTIVO")
                     // pedidos se crea el array vacio en el back
                     // y mobileToken es null hasta que instale la aplicacion
@@ -129,12 +121,122 @@ public class ClienteController {
         }
     }
 
-    @PutMapping//EDITAR CLIENTE
-    public void modificarCliente(@RequestBody Cliente cliente) {
-        clienteService.modificarCliente(cliente);
+    @Operation(summary = "Modificar informacion del cliente",
+            description = "Se modifica nombre y apellido del cliente",
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Informacion modificada"),
+            @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
+    })
+    @PutMapping(path = "/modificarCliente")
+    public ResponseEntity<?> modificarCliente(@RequestHeader("Authorization") String token,
+                                              @RequestParam(name = "nombre") String nombre,
+                                              @RequestParam(name = "apellido") String apellido) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            clienteService.modificarCliente(correo, nombre, apellido);
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
 
     }
 
+    @Operation(summary = "Agregar una Direccion",
+            description = "Agrega una nueva Direccion al Cliente",
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Direccion agregada"),
+            @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
+    })
+    @SneakyThrows
+    @PostMapping(path = "/agregarDireccion")
+    public ResponseEntity<?> agregarDireccion(@RequestHeader("Authorization") String token,
+                                              @Parameter(description = "Datos del nuevo Cliente", required = true)
+                                              @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                      content = @Content(mediaType = "application/json",
+                                                              schema = @Schema(implementation = Direccion.class)))
+                                              @RequestBody String direccion) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
+
+            JsonObject id = clienteService.agregarDireccionCliente(correo, jsonDireccion);
+
+            return new ResponseEntity<>(id,HttpStatus.CREATED);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Elimina direccion de Cliente",
+            description = "Se elimina una de las direcciones del Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa. Se agrega la direccion"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @DeleteMapping(path = "/eliminarDireccion")
+    public ResponseEntity<?> eliminarDireccion(@RequestHeader("Authorization") String token,
+                                               @RequestParam(name = "id") String id) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            clienteService.eliminarDireccionCliente(correo, Long.valueOf(id));
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Modificar una Direccion",
+            description = "Se modifica una direccion del Cliente",
+            tags = { "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Direccion modificada"),
+            @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
+    })
+    @PutMapping(path = "/modificarDireccion")
+    public ResponseEntity<?> modificarDireccion(@RequestHeader("Authorization") String token,
+                                                @RequestParam(name = "id") String id,
+                                                @Parameter(description = "Datos del nuevo Cliente", required = true)
+                                                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                            content = @Content(mediaType = "application/json",
+                                                                    schema = @Schema(implementation = Direccion.class)))
+                                                @RequestBody String direccion) {
+        try {
+            String newToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                newToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newToken);
+
+            JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
+
+            clienteService.modificarDireccionCliente(correo, Long.valueOf(id), jsonDireccion);
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
     @Operation(summary = "Listar los Restaurantes abiertos",
             description = "Lista de los restaurantes que actualmente estan abiertos al publico",
             security = @SecurityRequirement(name = "bearerAuth"),

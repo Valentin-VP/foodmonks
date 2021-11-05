@@ -39,11 +39,11 @@ class MenuServiceTest {
     @Mock
     RestauranteRepository restauranteRepository;
     @Mock
-    MenuConvertidor menuConvertidor;
+    MenuConverter menuConverter;
 
     @BeforeEach
     void setUp() {
-        menuService = new MenuService(menuRepository, restauranteRepository, menuConvertidor);
+        menuService = new MenuService(menuRepository, restauranteRepository, menuConverter);
     }
 
     @AfterEach

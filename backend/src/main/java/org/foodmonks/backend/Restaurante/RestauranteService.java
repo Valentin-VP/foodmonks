@@ -77,6 +77,15 @@ public class RestauranteService {
         return restaurante.getEstado();
     }
 
+    public JsonObject obtenerJsonRestaurante(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return restauranteConverter.jsonRestaurante(restaurante);
+
+    }
+  
     public List<JsonObject> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
         if (!nombreRestaurante.isEmpty()){
             return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));

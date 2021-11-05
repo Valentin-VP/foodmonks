@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DireccionRepository extends JpaRepository<Direccion, String> {
 
-    Direccion findDireccionByLatitudAndLongitud(String latitud, String longitud);
+    Direccion findDireccionById(Long id);
 
 }
