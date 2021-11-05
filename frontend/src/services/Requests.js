@@ -110,6 +110,19 @@ export const fetchMenus = () => {
   return response;
 };
 
+export const fetchPromos = () => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPromocion`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
 export const getMenuInfo = () => {
   const menuId = getMenuId();
   const response = axios({
@@ -207,6 +220,17 @@ export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
     },
   });
 };
+
+export const fetchRestauranteInfo = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/getInfoRestaurante`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+}
 
 export const actualizarEstadoUsuario = (estado, id) => {
   console.log(estado);
