@@ -173,7 +173,6 @@ function PerfilCliente() {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleModal = (e) => {
-    console.log(isOpen);
     setIsOpen(!isOpen);
   };
   //termina para el modale ---------------------------------------------------------------------------------------
@@ -218,12 +217,12 @@ function PerfilCliente() {
   }, []);
 
   const deleteDireccion = (direccion) => {
-    eliminarDireccion(direccion.latitud, direccion.longitud)
+    eliminarDireccion(direccion.id)
       .then(() => {
         window.location.reload();
       })
       .catch((error) => {
-        Noti("❌ No te puedes quedar sin direcciones");
+        NotiError(error.response.data);
       });
   };
 
@@ -261,10 +260,8 @@ function PerfilCliente() {
 
   const editarNombre = (e) => {
     e.preventDefault();
-    console.log(perfil);
     var nombre = perfil.nombre;
     var apellido = perfil.apellido;
-    console.log(`${nombre} y este es ${apellido}`);
     if (document.getElementById("editNombre").value !== "")
       nombre = document.getElementById("editNombre").value;
     if (document.getElementById("editApellido").value !== "")
@@ -287,11 +284,10 @@ function PerfilCliente() {
   const eliminarCuenta = () => {
     eliminarCuentaClientePropia()
       .then((response) => {
-        console.log(response.status);
         clearState();
       })
       .catch((error) => {
-        console.log(error);
+        NotiError(error.response.data);
       });
   };
 

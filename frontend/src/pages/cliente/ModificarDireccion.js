@@ -21,6 +21,7 @@ const Styles = styled.div`
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    margin-top: -3.5rem;
     margin-bottom: -3.5rem;
   }
 
@@ -56,7 +57,7 @@ const Styles = styled.div`
 `;
 
 function ModificarDireccion() {
-    const [error, setError] = useState(null);
+  const [error, setError] = useState(null);
   // esto es para la direccion
 
   const {
@@ -91,11 +92,9 @@ function ModificarDireccion() {
 
   const onSubmit = (event) => {
     event.preventDefault(); //para que no haga reload la pagina por el form
-    var oldDir = JSON.parse(
-        sessionStorage.getItem("dirModificar"));
-    const oldLat = oldDir.latitud;
-    const oldLng = oldDir.longitud;
+    var oldDir = JSON.parse(sessionStorage.getItem("dirModificar"));
     const dir = {
+      id: oldDir.id,
       numero: "",
       calle: "",
       esquina: "",
@@ -112,7 +111,7 @@ function ModificarDireccion() {
         dir.detalles = document.getElementById("detalles").value;
         dir.latitud = lat;
         dir.longitud = lng;
-        modificarDireccion(dir, oldLat, oldLng)
+        modificarDireccion(dir, dir.id)
           .then((response) => {
             console.log(response);
             sessionStorage.removeItem("dirModificar");
@@ -120,7 +119,12 @@ function ModificarDireccion() {
           })
           .catch((error) => {
             console.log(dir);
-            setError(<Alert variant="danger">Error al modificar, recuerda que la dirección debe tener calle y numero</Alert>); 
+            setError(
+              <Alert variant="danger">
+                Error al modificar, recuerda que la dirección debe tener calle y
+                numero
+              </Alert>
+            );
           });
       });
     });
@@ -168,7 +172,12 @@ function ModificarDireccion() {
             <Button id="submit" variant="success" type="submit">
               Modificar
             </Button>
-            <Button variant="danger" onClick={() => window.location.replace("/perfil")}>Cancelar</Button>
+            <Button
+              variant="danger"
+              onClick={() => window.location.replace("/perfil")}
+            >
+              Cancelar
+            </Button>
           </div>
         </Form>
       </section>

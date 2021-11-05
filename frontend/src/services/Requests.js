@@ -313,13 +313,10 @@ export const agregarDireccion = (direccion) => {
   });
 };
 
-export const modificarDireccion = (direccion, oldLat, oldLng) => {
-  console.log(direccion);
-  console.log(oldLat);
-  console.log(oldLng);
+export const modificarDireccion = (direccion, id) => {
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/modificarDireccion?latitud=${oldLat}&longitud=${oldLng}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/modificarDireccion?id=${id}`,
     data: direccion,
     headers: {
       Authorization: "Bearer " + getToken(),
@@ -327,10 +324,10 @@ export const modificarDireccion = (direccion, oldLat, oldLng) => {
   });
 };
 
-export const eliminarDireccion = (lat, lng) => {
+export const eliminarDireccion = (id) => {
   return axios({
     method: "DELETE",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarDireccion?latitud=${lat}&longitud=${lng}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarDireccion?id=${id}`,
     headers: {
       Authorization: "Bearer " + getToken(),
     },
