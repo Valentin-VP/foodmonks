@@ -84,7 +84,7 @@ public class ClienteService {
         return cliente.getEstado();
     }
 
-    public void agregarDireccionCliente(String correo, JsonObject jsonDireccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException {
+    public JsonObject agregarDireccionCliente(String correo, JsonObject jsonDireccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException {
         Cliente cliente = obtenerCliente(correo);
         if (jsonDireccion.get("latitud").getAsString().isEmpty() && jsonDireccion.get("longitud").getAsString().isEmpty()){
             throw new ClienteDireccionException("Debe ingresar una dirección");
@@ -99,7 +99,9 @@ public class ClienteService {
         direcciones.add(direccion);
         cliente.setDirecciones(direcciones);
         clienteRepository.save(cliente);
-
+        JsonObject idDirecccionJson = new JsonObject();
+        idDirecccionJson.addProperty("id", obtenerDireccionCliente(cliente.getDirecciones(),direccion.getLatitud(),direccion.getLongitud()).getId());
+        return idDirecccionJson;
     }
 
     public void eliminarDireccionCliente(String correo, Long id) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteUnicaDireccionException, ClienteNoExisteDireccionException {
@@ -159,6 +161,15 @@ public class ClienteService {
             throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
         }
         return clienteConverter.jsonCliente(cliente);
+    }
+
+    public Direccion obtenerDireccionCliente(List<Direccion> direcciones, String latitud, String longitud){
+        for(Direccion direccion : direcciones){
+            if (direccion.getLatitud().equals(latitud) && direccion.getLongitud().equals(longitud)){
+                return direccion;
+            }
+        }
+        return null;
     }
 
 }

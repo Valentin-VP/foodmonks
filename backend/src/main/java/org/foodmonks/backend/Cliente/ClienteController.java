@@ -164,9 +164,9 @@ public class ClienteController {
 
             JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
 
-            clienteService.agregarDireccionCliente(correo, jsonDireccion);
+            JsonObject id = clienteService.agregarDireccionCliente(correo, jsonDireccion);
 
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            return new ResponseEntity<>(id,HttpStatus.CREATED);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
