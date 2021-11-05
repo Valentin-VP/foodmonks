@@ -9,7 +9,7 @@ import Cliente from "./pages/cliente/Cliente";
 import RegistroCliente from "./pages/cliente/RegistroCliente";
 import RegistroRestaurante from "./pages/restaurante/RegistroRestaurante";
 import Restaurante from "./pages/restaurante/Restaurante";
-import { getToken, fetchUserData } from "./services/Requests";
+import { getToken, fetchUserData, clearState } from "./services/Requests";
 import RegistroAltaMenu from "./pages/restaurante/RegistroAltaMenu";
 import RecuperarPassword from "./pages/RecuperarPassword";
 import RecuperarPasswordCambio from "./pages/RecuperarPasswordCambio";
@@ -21,7 +21,9 @@ function App() {
   if (getToken() != null) {
     fetchUserData().then((response) => {
       setTipoUser(response.data.roles[0].role);
-    });
+    }).catch((error)=>{
+      clearState();
+    })
   } else if (tipoUser == null) {
     setTipoUser("NO_ROLE");
   }

@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import io.swagger.v3.oas.annotations.Operation;
@@ -151,6 +152,7 @@ public class RestauranteController {
             if ( token != null && token.startsWith("Bearer ")) {
                 newToken = token.substring(7);
             }
+
             String correoRestaurante = tokenHelp.getUsernameFromToken(newToken);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
             menuService.altaMenu(jsonMenu, correoRestaurante);
@@ -175,19 +177,54 @@ public class RestauranteController {
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
+        String correo = "";
         List<JsonObject> listaMenu = new ArrayList<JsonObject>();
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            correo = tokenHelp.getUsernameFromToken(newtoken);
             listaMenu = menuService.listarMenu(correo);
             for(JsonObject jsonMenu : listaMenu) {
-                jsonArray.add(jsonMenu);
+                if(jsonMenu.get("multiplicadorPromocion").getAsString().equals("0.0")) {
+                    jsonArray.add(jsonMenu);
+                }
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Listar las Promociones",
+            description = "Lista de las Promociones de un restaurantes",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "promocion" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarPromocion")
+    public ResponseEntity<?> listPromo(@RequestHeader("Authorization") String token) {
+        String newtoken = "";
+        List<JsonObject> listaPromo = new ArrayList<JsonObject>();
+        JsonArray jsonArray = new JsonArray();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            listaPromo = menuService.listarMenu(correo);
+            for(JsonObject jsonPromo : listaPromo) {
+                if(!jsonPromo.get("multiplicadorPromocion").getAsString().equals("0.0")) {
+                    jsonArray.add(jsonPromo);
+                }
+            }
+        } catch (JsonIOException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch(ExpiredJwtException a) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
@@ -212,7 +249,9 @@ public class RestauranteController {
 
             // Transformar json string en JsonObject
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
+            jsonMenu.addProperty("id", menuId);
             menuService.modificarMenu(jsonMenu, correo);
+
         } catch(JsonParseException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
