@@ -212,6 +212,9 @@ public class ClienteController {
                                                 @RequestParam(name = "latitud") String latitud,
                                                 @RequestParam(name = "longitud") String longitud,
                                                 @Parameter(description = "Datos del nuevo Cliente", required = true)
+                                                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                            content = @Content(mediaType = "application/json",
+                                                                    schema = @Schema(implementation = Direccion.class)))
                                                 @RequestBody String direccion) {
         try {
             String newToken = "";
