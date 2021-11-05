@@ -1,6 +1,6 @@
 # FoodMonks
 
-## Release 2.0
+## Release 3.0
 
 ## Funcionalidades:
 
@@ -21,7 +21,11 @@
 - ABM menú
 - Indicar apertura y recepción de pedidos 
 - Indicar cierre y cese de pedidos
+- ABM Promociones
 
 ### Cliente
 - Registro de cliente
 - Eliminar cuenta de cliente propia
+- ABM Dirección
+- Perfil cliente
+- Listar/buscar restaurantes abiertos
