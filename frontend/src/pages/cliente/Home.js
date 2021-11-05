@@ -4,6 +4,7 @@ import { Portada } from "../../components/Portada";
 import styled from "styled-components";
 import ItemCard from "../../components/itemCard";
 import prods from "../../productos";
+import BuscarRestaurantesAbiertos from "./BuscarRestaurantesAbiertos";
 
 const Styles = styled.div`
   .top {
@@ -17,15 +18,25 @@ const Styles = styled.div`
       color: #0074d9;
     }
   }
+  .column {
+    float: left;
+    width: 300px;
+    padding: 0 10px;
+    margin-bottom: 5%;
+  }
 
   .prods {
     text-align: center;
   }
 
-  .column {
-    float: left;
-    width: 25%;
+  @media screen and (max-width: 700px) {
+    .column {
+      width: 100%;
+      display: block;
+      margin-bottom: 20px;
+    }
   }
+  
 `;
 
 export const Home = () => (
@@ -34,6 +45,7 @@ export const Home = () => (
       <Portada />
       <Layout>
         <h2>Restaurantes</h2>
+        <BuscarRestaurantesAbiertos />
         <ul className="list-group">
           <li className="list-group-item">1. El Tío Bistró</li>
           <li className="list-group-item">2. Primuseum</li>

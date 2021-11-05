@@ -39,11 +39,11 @@ class MenuServiceTest {
     @Mock
     RestauranteRepository restauranteRepository;
     @Mock
-    MenuConvertidor menuConvertidor;
+    MenuConverter menuConverter;
 
     @BeforeEach
     void setUp() {
-        menuService = new MenuService(menuRepository, restauranteRepository, menuConvertidor);
+        menuService = new MenuService(menuRepository, restauranteRepository, menuConverter);
     }
 
     @AfterEach
@@ -79,8 +79,8 @@ class MenuServiceTest {
 
         //cuando
         /* Acá se llama al método que está siendo probado 'altaMenu' con datos relativamente reales. Luego se preguntará por alguno de estos.*/
-        menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
+        menuService.altaMenu(menuConvertidor.jsonMenu(new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante");
         //entonces
         /* Si se quiere comparar los atributos del objeto que llega al método .save con lo que se le envió al método...
         * ...(o si fuese el caso el objeto entero), se necesita utilizar un 'ArgumentCaptor' del tipo correcto, que es [Menu]...
@@ -127,8 +127,8 @@ class MenuServiceTest {
         * ...utilizando el 'assertThatThrownBy' junto al método que debería lanzar la excepción.
         * Obviamente la excepción tiene que coincidir y si se quiere especificar que el mensaje coincida, también este último.
         * */
-        assertThatThrownBy(()->menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+        assertThatThrownBy(()->menuService.altaMenu(menuConvertidor.jsonMenu(new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante"))
                 .isInstanceOf(MenuNombreExistente.class).hasMessageContaining("Ya existe un menu con el nombre nombre para el restaurante correoRestaurante");
 
         verify(menuRepository, never()).save(any());
@@ -152,8 +152,8 @@ class MenuServiceTest {
         //cuando
         //entonces
         /* Igual que antes, solo que con la excepción de cuando el restaurante es null */
-        assertThatThrownBy(()->menuService.altaMenu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+        assertThatThrownBy(()->menuService.altaMenu(menuConvertidor.jsonMenu(new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS,null)), "correoRestaurante"))
                 .isInstanceOf(UsuarioNoRestaurante.class)
                 .hasMessageContaining("El correo correoRestaurante no pertenece a un restaurante");
         verify(menuRepository, never()).save(any());
@@ -264,8 +264,8 @@ class MenuServiceTest {
         */
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(menu);
         //cuando
-        menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante");
+        menuService.modificarMenu(menuConvertidor.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante");
         //entonces
         ArgumentCaptor<Menu> menuArgumentCaptor = ArgumentCaptor.forClass(Menu.class);
         verify(menuRepository).save(menuArgumentCaptor.capture());
@@ -290,8 +290,8 @@ class MenuServiceTest {
         //cuando
         //entonces
         /* Mismo concepto que anteriormente */
-        assertThatThrownBy(()->menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+        assertThatThrownBy(()->menuService.modificarMenu(menuConvertidor.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante"))
                 .isInstanceOf(MenuNoEncontradoException.class)
                 .hasMessageContaining("No existe el Menu con id 1 para el Restaurante correoRestaurante");
         verify(menuRepository, never()).save(any());
@@ -317,8 +317,8 @@ class MenuServiceTest {
         //cuando
         //entonces
         /* Igual que antes */
-        assertThatThrownBy(()->menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+        assertThatThrownBy(()->menuService.modificarMenu(menuConvertidor.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, restaurante)), "correoRestaurante"))
                 .isInstanceOf(MenuNombreExistente.class)
                 .hasMessageContaining("Ya existe un menu con el nombre nombre para el Restaurante correoRestaurante");
         verify(menuRepository, never()).save(any());
@@ -335,8 +335,8 @@ class MenuServiceTest {
         //cuando
         //entonces
         /* Igual que antes */
-        assertThatThrownBy(()->menuService.modificarMenu(1L,"MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, "correoRestaurante"))
+        assertThatThrownBy(()->menuService.modificarMenu(menuConvertidor.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS,null)), "correoRestaurante"))
                 .isInstanceOf(UsuarioNoRestaurante.class)
                 .hasMessageContaining("El correo correoRestaurante no pertenece a un restaurante");
         verify(menuRepository, never()).save(any());

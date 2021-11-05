@@ -1,8 +1,8 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { Layout } from "../../components/Layout";
 import styled from "styled-components";
 import { Noti } from "../../components/Notification";
-import { cambiarEstado } from "../../services/Requests";
+import { cambiarEstado, fetchRestauranteInfo } from "../../services/Requests";
 // import ItemCard from "../../components/itemCard";
 // import prods from "../../productos";
 
@@ -30,32 +30,42 @@ const Styles = styled.div`
 `;
 
 function Home() {
-  const [estado, setEstado] = useState(true);
+  const [abierto, setAbierto] = useState(false);//true: ABIERTO, false: CERRADO
 
-  const onClick = () => {
-    setEstado(!estado);
-    if(estado) {
+  useEffect(() => {
+    fetchRestauranteInfo().then((response) => {
+      if(response.data.estado === "ABIERTO") {
+        setAbierto(true);
+        document.getElementById("aperturaCierreSwitch").checked = true;
+      } else {
+        setAbierto(false);
+        document.getElementById("aperturaCierreSwitch").checked = false;
+      }
+    });
+  }, []);
+
+  const onChangeEstado = () => {
+    if(!abierto) {
       //llamo al backend con estado ABIERTO
       cambiarEstado("ABIERTO").then((response) => {
-        console.log(response);
+        setAbierto(true);
         Noti("ABIERTO!!");
       });
     } else {
       //llamo al backend con estado CERRADO
       cambiarEstado("CERRADO").then((response) => {
-        console.log(response);
+        setAbierto(false);
         Noti("CERRADO!!");
       });
     }
   }
-
   return (
   <Styles>
     <React.Fragment>
       <Layout>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="aperturaCierreSwitch" onClick={onClick}></input>
-          <label class="form-check-label" for="aperturaCierreSwitch" id="aperturaCierreLabel">El restaurante esta {estado ? "Cerrado" : "Abierto"}</label>
+        <div className="form-check form-switch">
+          <input className="form-check-input" type="checkbox" id="aperturaCierreSwitch" onChange={onChangeEstado} checked={abierto}></input>
+          <label className="form-check-label" htmlFor="aperturaCierreSwitch" id="aperturaCierreLabel">El restaurante esta {abierto ? "Abierto" : "Cerrado"}</label>
         </div>
         <h2 id="titulo">Esto es de un restaurante</h2>
       </Layout>

@@ -85,8 +85,8 @@ function RegistroCliente() {
       numero: "",
       esquina: "",
       detalles: "",
-      latitud: "",
-      longitud: "",
+      latitud: 0.0,
+      longitud: 0.0,
     },
   };
 
@@ -129,41 +129,41 @@ function RegistroCliente() {
     getGeocode({ address })
       .then((results) => {
         getLatLng(results[0]).then(({ lat, lng }) => {
+          registro.direccion.calle = results[0].address_components[1].long_name;
+          registro.direccion.numero = results[0].address_components[0].long_name;
+          registro.nombre = document.getElementById("nombre").value;
+          registro.apellido = document.getElementById("apellido").value;
+          registro.correo = document.getElementById("correo").value;
+          registro.direccion.esquina = document.getElementById("esquina").value;
+          registro.direccion.detalles = document.getElementById("detalles").value;
           registro.direccion.latitud = lat;
           registro.direccion.longitud = lng;
-        });
-        registro.direccion.calle = results[0].address_components[1].long_name;
-        registro.direccion.numero = results[0].address_components[0].long_name;
-        registro.nombre = document.getElementById("nombre").value;
-        registro.apellido = document.getElementById("apellido").value;
-        registro.correo = document.getElementById("correo").value;
-        registro.direccion.esquina = document.getElementById("esquina").value;
-        registro.direccion.detalles = document.getElementById("detalles").value;
-        var pass1 = document.getElementById("password1").value;
-        var pass2 = document.getElementById("password2").value;
-        if (pass1 === pass2) {
-          registro.password = Base64.encode(pass1);
-          console.log(registro);
-          registrarCliente(registro).then((response) => {
-            if (response.status === 201) {
-              setAlerta("Registro hecho con exito");
-              setTipo("success");
-              setTimeout(() => { window.location.replace("/"); }, 5000); //para esperar 5 segundos y redireccionar
-            }
-          }).catch(() =>{
-              setAlerta("La direccion debe de tener la calle y el número de puerta");
-              setTipo("danger");        
+          var pass1 = document.getElementById("password1").value;
+          var pass2 = document.getElementById("password2").value;
+          if (pass1 === pass2) {
+            registro.password = Base64.encode(pass1);
+            console.log(registro);
+            registrarCliente(registro).then((response) => {
+              if (response.status === 201) {
+                setAlerta("Registro hecho con exito");
+                setTipo("success");
+                setTimeout(() => { window.location.replace("/"); }, 2000); //para esperar 5 segundos y redireccionar
+              }
+            }).catch((error) =>{
+                setAlerta("Error en el alta");
+                setTipo("danger");        
+            });
+          } else {
+            setAlerta("Las contraseñas no coinciden");
+            setTipo("danger");
+          }
           });
-        } else {
-          setAlerta("Las contraseñas no coinciden");
-          setTipo("danger");
-        }
+        console.log(registro.direccion);
       })
       .catch((error) => {
-        setAlerta(error);
+        setAlerta("Error en el alta");
         setTipo("danger");
       });
-    // registrarCliente(registro);
   };
 
   let errorMsg;
@@ -271,7 +271,7 @@ function RegistroCliente() {
               </button>
             </form>
             <p className="mt-2 mb-3 text-muted">
-              ¿Ya tienes cuenta?<a href="/login">Inicia sesión</a>
+              ¿Ya tienes cuenta?<a href="/">Inicia sesión</a>
             </p>
             <p className="mt-2 mb-3 text-muted">
               ¿Eres una empresa?

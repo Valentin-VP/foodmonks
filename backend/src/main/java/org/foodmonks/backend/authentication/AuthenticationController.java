@@ -1,24 +1,20 @@
 package org.foodmonks.backend.authentication;
 
-
 import com.google.gson.Gson;
 import com.google.gson.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Admin.AdminService;
-import org.foodmonks.backend.Cliente.Cliente;
+import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
@@ -26,7 +22,6 @@ import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.foodmonks.backend.dynamodb.TokenReset;
 import org.foodmonks.backend.dynamodb.TokenResetDAO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +37,7 @@ import org.thymeleaf.context.Context;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+
 
 @RestController
 @RequestMapping("/api/v1")
@@ -105,29 +101,37 @@ public class AuthenticationController {
 
     @GetMapping("/auth/userinfo")
     @Operation(summary = "Obtiene información del Usuario", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<?> getUserInfo(Authentication user) {
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token/*Authentication user*/) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, AdminNoEncontradoException {
 
-        if (adminService.buscarAdmin(user.getName()) != null) {
-            InfoAdmin adminInfo = new InfoAdmin();
-            Admin admin = adminService.buscarAdmin(user.getName());
-            adminInfo.setRoles(admin.getAuthorities().toArray());
-            return new ResponseEntity<>(adminInfo, HttpStatus.OK);
+        String newToken = "";
+        if ( token != null && token.startsWith("Bearer ")) {
+            newToken = token.substring(7);
+        }
+        String correo = tokenHelper.getUsernameFromToken(newToken);
 
-        } else if (restauranteService.buscarRestaurante(user.getName()) != null) {
-            InfoRestaurante restauranteInfo = new InfoRestaurante();
-            Restaurante restaurante = restauranteService.buscarRestaurante(user.getName());
+        if (adminService.buscarAdmin(correo) != null) {
+/*            InfoAdmin adminInfo = new InfoAdmin();
+            Admin admin = adminService.buscarAdmin(correo);
+            adminInfo.setRoles(admin.getAuthorities().toArray());*/
+            return new ResponseEntity<>(adminService.obtenerJsonAdmin(correo), HttpStatus.OK);
+
+        } else if (restauranteService.buscarRestaurante(correo) != null) {
+/*            InfoRestaurante restauranteInfo = new InfoRestaurante();
+            Restaurante restaurante = restauranteService.buscarRestaurante(correo);
             restauranteInfo.setNombre(restaurante.getNombreRestaurante());
             restauranteInfo.setDescripcion(restaurante.getDescripcion());
-            restauranteInfo.setRoles(restaurante.getAuthorities().toArray());
-            return new ResponseEntity<>(restauranteInfo, HttpStatus.OK);
+            restauranteInfo.setRoles(restaurante.getAuthorities().toArray());*/
+            return new ResponseEntity<>(restauranteService.obtenerJsonRestaurante(correo), HttpStatus.OK);
 
-        } else if (clienteService.buscarCliente(user.getName()) != null) {
-            InfoCliente clienteInfo = new InfoCliente();
-            Cliente cliente = clienteService.buscarCliente(user.getName());
-            clienteInfo.setFirstName(cliente.getNombre());
+        } else if (clienteService.buscarCliente(correo) != null) {
+            /* InfoCliente clienteInfo = new InfoCliente();
+            Cliente cliente = clienteService.buscarCliente(correo);
+           clienteInfo.setFirstName(cliente.getNombre());
             clienteInfo.setLastName(cliente.getApellido());
             clienteInfo.setRoles(cliente.getAuthorities().toArray());
-            return new ResponseEntity<>(clienteInfo, HttpStatus.OK);
+            clienteInfo.setMail(cliente.getCorreo());
+            clienteInfo.setDirecciones(cliente.getDirecciones());*/
+            return new ResponseEntity<>(clienteService.obtenerJsonCliente(correo), HttpStatus.OK);
         } else {
             return new ResponseEntity<>("no se encontro ningun tipo de usuario", HttpStatus.BAD_REQUEST);
         }
