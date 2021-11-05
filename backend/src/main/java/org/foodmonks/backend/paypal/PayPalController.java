@@ -2,6 +2,7 @@ package org.foodmonks.backend.paypal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,12 @@ public class PayPalController {
         final URI callbackUrl = callbackUrl(request);
         OrdenPaypal ordenPaypal = payPalService.orderRequest(total, callbackUrl);
         return "redirect:"+ ordenPaypal.getLinkAprobacion();
+    }
+
+    @GetMapping("/order/capture")
+    public String captureOrder(@RequestParam String orderData){
+        payPalService.captureOrder(orderData);
+        return "redirect:/orders";
     }
 
 
