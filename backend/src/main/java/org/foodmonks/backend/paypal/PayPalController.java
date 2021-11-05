@@ -16,11 +16,11 @@ import java.net.URISyntaxException;
 @Slf4j
 public class PayPalController {
 
-    //private PayPalService payPalService;
+    private PayPalService payPalService;
 
     @Autowired
-    public PayPalController() {
-        //agregar service
+    public PayPalController(PayPalService payPalService) {
+        this.payPalService = payPalService;
     }
 
     @PostMapping("/order/request")
