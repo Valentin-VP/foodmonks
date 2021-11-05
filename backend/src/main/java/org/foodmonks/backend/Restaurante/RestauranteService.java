@@ -27,10 +27,11 @@ public class RestauranteService {
     private final RestauranteRepository restauranteRepository;
     private final UsuarioRepository usuarioRepository;
     private final MenuService menuService;
+    private final RestauranteConverter restauranteConverter;
 
     @Autowired
-    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService) {
-        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService;
+    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter) {
+        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.restauranteConverter = restauranteConverter;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -76,17 +77,15 @@ public class RestauranteService {
         return restaurante.getEstado();
     }
 
-    public List<Restaurante> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
+    public List<JsonObject> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
         if (!nombreRestaurante.isEmpty()){
-            return restauranteRepository.findRestaurantesByNombreRestauranteAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO);
+            return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));
+        }
+        if (ordenCalificacion) {
+            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
         }
         List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
-        if (ordenCalificacion) {
-            restaurantes.sort((r1, r2) -> {
-                return r2.getCalificacion().compareTo(r1.getCalificacion());//de mayor a menor
-            });
-        }
-        if (!categoriaMenu.isEmpty()){
+        if (!categoriaMenu.isEmpty()) {
             List<Restaurante> result = new ArrayList<>();
             CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
             for (Restaurante restaurante : restaurantes){
@@ -94,9 +93,9 @@ public class RestauranteService {
                     result.add(restaurante);
                 }
             }
-            return result;
+            return restauranteConverter.listaRestaurantes(result);
         }
-        return restaurantes;
+        return restauranteConverter.listaRestaurantes(restaurantes);
     }
 
 }

@@ -15,10 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
-import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
-import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,24 +147,14 @@ public class ClienteController {
     public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
                                                         @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
         //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
-        List<Restaurante> restaurantesAbiertos = new ArrayList<>();
+        List<JsonObject> restaurantesAbiertos = new ArrayList<>();
         JsonArray jsonArray = new JsonArray();
         try {
             restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
 
-            for (Restaurante restaurante : restaurantesAbiertos) {
+            for (JsonObject restaurante : restaurantesAbiertos) {
                 JsonObject res = new JsonObject();
-                res.addProperty("correo", restaurante.getCorreo());
-                res.addProperty("fechaRegistro", restaurante.getFechaRegistro().toString());
-                res.addProperty("rol", "RESTAURANTE");
-                res.addProperty("estado", restaurante.getEstado().toString());
-                res.addProperty("RUT", restaurante.getRut().toString());
-                res.addProperty("descripcion", restaurante.getDescripcion());
-                res.addProperty("nombre", restaurante.getNombreRestaurante());
-                res.addProperty("telefono", restaurante.getTelefono().toString());
-                res.addProperty("calificacion", restaurante.getCalificacion().toString());
-                res.addProperty("imagen", restaurante.getImagen());
-                jsonArray.add(res);
+                jsonArray.add(restaurante);
             }
         } catch(JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
