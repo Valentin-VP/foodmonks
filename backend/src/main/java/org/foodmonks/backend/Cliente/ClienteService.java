@@ -3,10 +3,8 @@ package org.foodmonks.backend.Cliente;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Direccion.DireccionConverter;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
-import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +22,11 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
-    private final DireccionConverter direccionConverter;
     private final ClienteConverter clienteConverter;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, DireccionConverter direccionConverter, ClienteConverter clienteConverter) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.direccionConverter = direccionConverter; this.clienteConverter = clienteConverter;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, ClienteConverter clienteConverter) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.clienteConverter = clienteConverter;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -37,7 +34,7 @@ public class ClienteService {
         if (usuarioService.ObtenerUsuario(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
-        Direccion direccion = direccionConverter.direccionJson(jsonDireccion);
+        Direccion direccion = direccionService.crearDireccion(jsonDireccion);
         if (direccion == null){
             throw new ClienteDireccionException("Debe ingresar una dirección");
         }
@@ -57,9 +54,9 @@ public class ClienteService {
         return clienteRepository.findByCorreo(correo);
     }
 
-    public void modificarCliente(Cliente cliente) {
+/*    public void modificarCliente(Cliente cliente) {
         clienteRepository.save(cliente);
-    }
+    }*/
 
 
     public void modificarCliente(String correo, String nombre, String apellido) throws ClienteNoEncontradoException {
@@ -89,10 +86,10 @@ public class ClienteService {
 
     public void agregarDireccionCliente(String correo, JsonObject jsonDireccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException {
         Cliente cliente = obtenerCliente(correo);
-        Direccion direccion = direccionConverter.direccionJson(jsonDireccion);
-        if (direccion.getLatitud().isEmpty() && direccion.getLongitud().isEmpty()){
+        if (jsonDireccion.get("latitud").getAsString().isEmpty() && jsonDireccion.get("longitud").getAsString().isEmpty()){
             throw new ClienteDireccionException("Debe ingresar una dirección");
         }
+        Direccion direccion = direccionService.crearDireccion(jsonDireccion);
         List<Direccion> direcciones = cliente.getDirecciones();
         for (Direccion dire : direcciones){
             if (dire.getLatitud().equals(direccion.getLatitud()) && dire.getLongitud().equals(direccion.getLongitud())) {
@@ -105,12 +102,9 @@ public class ClienteService {
 
     }
 
-    public void eliminarDireccionCliente(String correo, String latitud, String longitud) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteUnicaDireccionException, ClienteNoExisteDireccionException {
-        if (latitud.isEmpty() && longitud.isEmpty()){
-            throw new ClienteDireccionException("Debe ingresar una dirección");
-        }
+    public void eliminarDireccionCliente(String correo, Long id) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteUnicaDireccionException, ClienteNoExisteDireccionException {
         Cliente cliente = obtenerCliente(correo);
-        Direccion direccion = direccionService.obtenerDireccion(latitud,longitud);
+        Direccion direccion = direccionService.obtenerDireccion(id);
         if (direccion == null){
             throw new ClienteDireccionException("No existe esa direccion en el sistema");
         }
@@ -119,7 +113,7 @@ public class ClienteService {
             throw new ClienteUnicaDireccionException("No puede eliminar la única dirección registrada del Cliente " + correo);
         }
         for (Direccion dire : direcciones) {
-            if (dire.getLatitud().equals(direccion.getLatitud()) && dire.getLongitud().equals(direccion.getLongitud())) {
+            if (dire.getId().equals(id)) {
                 direcciones.remove(direccion);
                 cliente.setDirecciones(direcciones);
                 clienteRepository.save(cliente);
@@ -130,28 +124,23 @@ public class ClienteService {
 
     }
 
-    public void modificarDireccionCliente(String correo, String latitud, String longitud, JsonObject jsonDireccionNueva) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteNoExisteDireccionException {
+    public void modificarDireccionCliente(String correo, Long idDireccionActual, JsonObject jsonDireccionNueva) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteNoExisteDireccionException {
         Cliente cliente = obtenerCliente(correo);
-        Direccion direccionNueva = direccionConverter.direccionJson(jsonDireccionNueva);
-        if (latitud.isEmpty() && longitud.isEmpty()){
-            throw new ClienteDireccionException("Debe ingresar la direccion Actual");
+        Direccion direccionActual = direccionService.obtenerDireccion(idDireccionActual);
+        if (direccionActual == null){
+            throw new ClienteDireccionException("No existe esa direccion en el sistema");
         }
-        if (direccionNueva.getLatitud().isEmpty() && direccionNueva.getLongitud().isEmpty()){
+        if (jsonDireccionNueva.get("latitud").getAsString().isEmpty() && jsonDireccionNueva.get("longitud").getAsString().isEmpty()){
             throw new ClienteDireccionException("Debe ingresar una dirección Nueva");
         }
+        Direccion direccionNueva = direccionService.crearDireccion(jsonDireccionNueva);
         List<Direccion> direcciones = cliente.getDirecciones();
         for (Direccion dire : direcciones){
-            if (dire.getLatitud().equals(latitud) && dire.getLongitud().equals(longitud)) {
-                dire.setLatitud(direccionNueva.getLatitud());
-                dire.setLongitud(direccionNueva.getLongitud());
-                dire.setCalle(direccionNueva.getCalle());
-                dire.setNumero(direccionNueva.getNumero());
-                dire.setDetalles(direccionNueva.getDetalles());
-                clienteRepository.save(cliente);
+            if (dire.getId().equals(idDireccionActual)) {
+                direccionService.modificarDireccion(dire,direccionNueva);
                 return;
             }
         }
-
         throw new ClienteNoExisteDireccionException("La direccion actual ingresada no existe para el Cliente " + correo);
 
     }

@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.SneakyThrows;
-import org.codehaus.jettison.json.JSONObject;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
@@ -183,8 +182,7 @@ public class ClienteController {
     })
     @DeleteMapping(path = "/eliminarDireccion")
     public ResponseEntity<?> eliminarDireccion(@RequestHeader("Authorization") String token,
-                                               @RequestParam(name = "latitud") String latitud,
-                                               @RequestParam(name = "longitud") String longitud) {
+                                               @RequestParam(name = "id") String id) {
         try {
             String newToken = "";
             if ( token != null && token.startsWith("Bearer ")) {
@@ -192,7 +190,7 @@ public class ClienteController {
             }
             String correo = tokenHelp.getUsernameFromToken(newToken);
 
-            clienteService.eliminarDireccionCliente(correo, latitud, longitud);
+            clienteService.eliminarDireccionCliente(correo, Long.valueOf(id));
 
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e){
@@ -209,8 +207,7 @@ public class ClienteController {
     })
     @PutMapping(path = "/modificarDireccion")
     public ResponseEntity<?> modificarDireccion(@RequestHeader("Authorization") String token,
-                                                @RequestParam(name = "latitud") String latitud,
-                                                @RequestParam(name = "longitud") String longitud,
+                                                @RequestParam(name = "id") String id,
                                                 @Parameter(description = "Datos del nuevo Cliente", required = true)
                                                     @io.swagger.v3.oas.annotations.parameters.RequestBody(
                                                             content = @Content(mediaType = "application/json",
@@ -225,7 +222,7 @@ public class ClienteController {
 
             JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
 
-            clienteService.modificarDireccionCliente(correo, latitud, longitud, jsonDireccion);
+            clienteService.modificarDireccionCliente(correo, Long.valueOf(id), jsonDireccion);
 
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e){

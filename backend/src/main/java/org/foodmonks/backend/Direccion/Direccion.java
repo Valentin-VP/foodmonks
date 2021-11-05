@@ -2,24 +2,23 @@ package org.foodmonks.backend.Direccion;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.foodmonks.backend.persistencia.DireccionID;
+
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 
 
 @Getter
 @Setter
 @Entity
-@IdClass(DireccionID.class)
 public class Direccion{
 
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    private Long id;
     private Integer numero;
     private String calle;
     private String esquina;
     private String detalles;
-    @Id
     private String latitud;
-    @Id
     private String longitud;
 
     public Direccion() {

@@ -19,6 +19,7 @@ public class DireccionConverter {
 
     public JsonObject jsonDireccion(Direccion direccion) {
         JsonObject jsonDireccion = new JsonObject();
+        jsonDireccion.addProperty("id",direccion.getId());
         jsonDireccion.addProperty("numero", direccion.getNumero());
         jsonDireccion.addProperty("calle",direccion.getCalle());
         jsonDireccion.addProperty("esquina",direccion.getEsquina());
@@ -26,17 +27,6 @@ public class DireccionConverter {
         jsonDireccion.addProperty("latitud",direccion.getLatitud());
         jsonDireccion.addProperty("longitud",direccion.getLongitud());
         return jsonDireccion;
-    }
-
-    public Direccion direccionJson (JsonObject jsonDireccion) {
-        return new Direccion(
-                jsonDireccion.get("numero").getAsInt(),
-                jsonDireccion.get("calle").getAsString(),
-                jsonDireccion.get("esquina").getAsString(),
-                jsonDireccion.get("detalles").getAsString(),
-                jsonDireccion.get("latitud").getAsString(),
-                jsonDireccion.get("longitud").getAsString()
-        );
     }
 
 }
