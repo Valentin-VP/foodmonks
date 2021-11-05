@@ -20,13 +20,14 @@ public class MenuConvertidor {
 
     public JsonObject jsonMenu(Menu menu) {
         JsonObject jsonMenu = new JsonObject();
-        jsonMenu.addProperty("nombre", menu.getNombre());
         jsonMenu.addProperty("id", menu.getId());
-        jsonMenu.addProperty("categoria", menu.getCategoria().name());
-        jsonMenu.addProperty("multiplicadorPromocion", menu.getMultiplicadorPromocion());
-        jsonMenu.addProperty("descripcion", menu.getDescripcion());
+        jsonMenu.addProperty("nombre", menu.getNombre());
         jsonMenu.addProperty("price", menu.getPrice());
+        jsonMenu.addProperty("descripcion", menu.getDescripcion());
+        jsonMenu.addProperty("visible", menu.getVisible());
+        jsonMenu.addProperty("multiplicadorPromocion", menu.getMultiplicadorPromocion());
         jsonMenu.addProperty("imagen", menu.getImagen());
+        jsonMenu.addProperty("categoria", menu.getCategoria().name());
         return jsonMenu;
     }
 
