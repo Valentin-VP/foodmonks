@@ -1,11 +1,11 @@
 package org.foodmonks.backend.paypal;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 
 @Controller
 @RequestMapping("/api/v1/paypal")
+@Slf4j
 public class PayPalController {
 
     //private PayPalService payPalService;
@@ -23,8 +24,12 @@ public class PayPalController {
     }
 
     @PostMapping("/order/request")
-    public String orderRequest(@RequestParam Double total, HttpServletRequest request){
+    public String orderRequest(@RequestBody String orden, HttpServletRequest request){
+        JsonObject detallesOrden = new Gson().fromJson(orden, JsonObject.class).getAsJsonObject();
+        Double total = detallesOrden.get("total").getAsDouble();
+        log.info("Total: " + total);
         final URI callbackUrl = callbackUrl(request);
+        log.info("callbackUrl: " + callbackUrl.toString());
         OrdenPaypal ordenPaypal = payPalService.orderRequest(total, callbackUrl);
         return "redirect:"+ ordenPaypal.getLinkAprobacion();
     }
