@@ -38,8 +38,8 @@ public class MenuService {
                     jsonMenu.get("nombre").getAsString(),
                     jsonMenu.get("price").getAsFloat(),
                     jsonMenu.get("descripcion").getAsString(),
-                    jsonMenu.get("visible").getAsBoolean(),
-                    jsonMenu.get("multiplicadorPromocion").getAsFloat(),
+                    jsonMenu.get("visibilidad").getAsBoolean(),
+                    jsonMenu.get("multiplicador").getAsFloat(),
                     jsonMenu.get("imagen").getAsString(),
                     CategoriaMenu.valueOf(jsonMenu.get("categoria").getAsString()),
                     restaurante);
@@ -71,8 +71,8 @@ public class MenuService {
         menuAux.setNombre(jsonMenu.get("nombre").getAsString());
         menuAux.setPrice(jsonMenu.get("price").getAsFloat());
         menuAux.setDescripcion(jsonMenu.get("descripcion").getAsString());
-        menuAux.setVisible(jsonMenu.get("visible").getAsBoolean());
-        menuAux.setMultiplicadorPromocion(jsonMenu.get("multiplicadorPromocion").getAsFloat());
+        menuAux.setVisible(jsonMenu.get("visibilidad").getAsBoolean());
+        menuAux.setMultiplicadorPromocion(jsonMenu.get("multiplicador").getAsFloat());
         menuAux.setImagen(jsonMenu.get("imagen").getAsString());
         menuAux.setCategoria(CategoriaMenu.valueOf(jsonMenu.get("categoria").getAsString()));
         menuRepository.save(menuAux);

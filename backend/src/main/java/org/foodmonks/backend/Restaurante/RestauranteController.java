@@ -212,6 +212,7 @@ public class RestauranteController {
 
             // Transformar json string en JsonObject
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
+            jsonMenu.addProperty("id", menuId);
             menuService.modificarMenu(jsonMenu, correo);
         } catch(JsonParseException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

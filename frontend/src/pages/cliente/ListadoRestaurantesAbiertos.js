@@ -49,7 +49,7 @@ export default function ListadoRestaurantesAbiertos({data}) {
                           hight="150"
                         />
                       </td>
-                      <td>{item.nombre}</td>
+                      <td>{item.nombreRestaurante}</td>
                       <td>Teléfono: {item.telefono}</td>
                       <td>Calificación: {item.calificacion}</td>
                     </tr>
