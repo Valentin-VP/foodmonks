@@ -18,13 +18,13 @@ import java.util.NoSuchElementException;
 public class PayPalService implements PaymentService{
 
     private final String APPROVE_LINK_REL = "approve";
+    private final String DEVOLUTION_LINK_REL = "";
 
     private final PayPalHttpClient payPalHttpClient;
-
-    @Autowired
     private PayPalEnvironment getPayPalEnvironment;
 
-    public PaypalService(PayPalEnvironment getPayPalEnvironment) {
+    @Autowired
+    public PayPalService (PayPalEnvironment getPayPalEnvironment){
         payPalHttpClient = new PayPalHttpClient(getPayPalEnvironment);
     }
 
@@ -36,7 +36,7 @@ public class PayPalService implements PaymentService{
         final HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
         final Order order = orderHttpResponse.result();
         LinkDescription approveUri = extractApprovalLink(order);
-        return new CreatedOrder(order.id(),URI.create(approveUri.href()));
+        return new OrdenPaypal(order.id(),URI.create(approveUri.href()),URI.create(approveUri.href()));
     }
 
     private OrderRequest prepareOrderRequest(Double total, URI callbackUrl) {
@@ -62,11 +62,10 @@ public class PayPalService implements PaymentService{
     }
 
     private LinkDescription extractApprovalLink(Order order) {
-        LinkDescription approveUri = order.links().stream()
+        return order.links().stream()
                 .filter(link -> APPROVE_LINK_REL.equals(link.rel()))
                 .findFirst()
                 .orElseThrow(NoSuchElementException::new);
-        return approveUri;
     }
 
     @Override

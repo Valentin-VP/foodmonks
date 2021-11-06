@@ -9,4 +9,5 @@ public class OrdenPaypal {
     private final String orderId;
     private final URI linkAprobacion;
     private final URI linkDevolucion;
+
 }
