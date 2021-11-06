@@ -86,6 +86,7 @@ export default function ListadoPedidosPendientes(abierto) {
       obtenerPedidosSinConfirmar().then((response)=>{
         if (response.status===200){
           response.data.map((item)=>(Object.assign(item, {visible: false})));
+          console.log(response.data);
           setData(response.data);
         }else{
           Noti(response.data);
@@ -119,6 +120,18 @@ export default function ListadoPedidosPendientes(abierto) {
     const onRechazar = (e, item) =>{
       e.preventDefault();
       setModal({item: item, show:true, estado: "RECHAZADO"})
+    }
+
+    const onVisible = (id) => {
+      let items = [...data];
+      //de paso le pregunto si tiene menus (normalmente deberia tener), sino tiene no hago nada
+      items.map((i)=>{
+        if (i.id===id && i.menus)
+          i.visible = !i.visible;
+        return i
+      });
+      console.log(items);
+      setData(items);
     }
 
     const handleChange = (e) => {
@@ -230,7 +243,7 @@ export default function ListadoPedidosPendientes(abierto) {
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onRechazar(e, item))} disabled={!abierto}>
                                     Rechazar
                                   </button>}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(item.visible = !item.visible)}>
+                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisible(item.id))}>
                                     +
                                   </button>}</td>
                                 </tr>
@@ -252,11 +265,11 @@ export default function ListadoPedidosPendientes(abierto) {
                                           <td>Menú: {menu.menu}</td>
                                           <td>Precio: ${menu.precio}</td>
                                           <td>Descuento: {menu.multiplicadorPromocion} %</td>
-                                          <td>Total Parcial: ${menu.total}</td>
+                                          <td>Total Parcial: ${menu.calculado}</td>
                                           {/* <td>Cantidad: ${item.cantidad}</td> */}
                                       </tr>
                                     </>
-                                  )}) : alert("asd"))}
+                                  )}) : null)}
                                 </Col>
                               }
                             </>
