@@ -18,7 +18,12 @@ const Styles = styled.div`
 `;
 
 export default function ListadoRestaurantesAbiertos({data}) {
-
+    const onImgClick = (correo, imagen, calificacion, nombre) => {
+      sessionStorage.setItem("restauranteId", correo);
+      sessionStorage.setItem("restauranteImagen", imagen);
+      sessionStorage.setItem("restauranteCalif", calificacion);
+      sessionStorage.setItem("restauranteNombre", nombre);
+    }
     return (
     <>
         <Styles>
@@ -42,14 +47,14 @@ export default function ListadoRestaurantesAbiertos({data}) {
                   return (
                     <tr key={index}>
                       <td>
-                        <img
+                        <a href="/listarProductos" onClick={()=>{onImgClick(item.correo, item.imagen, item.calificacion, item.nombreRestaurante)}}><img
                           src={item.imagen}
                           alt="restimg"
                           width="150"
-                          hight="150"
-                        />
+                          height="150"
+                        /></a>
                       </td>
-                      <td>{item.nombre}</td>
+                      <td>{item.nombreRestaurante}</td>
                       <td>Teléfono: {item.telefono}</td>
                       <td>Calificación: {item.calificacion}</td>
                     </tr>
