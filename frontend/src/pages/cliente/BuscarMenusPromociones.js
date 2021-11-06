@@ -1,6 +1,6 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
-import { Layout } from "../../components/Layout";
+import { Error } from "../../components/Error";
 import { fetchMenusPromos } from "../../services/Requests";
 import ListadoMenusPromociones from "./ListarMenusPromociones";
 import { PortadaRestaurante } from "../../components/PortadaRestaurante";
@@ -59,9 +59,9 @@ export default function BuscarMenusPromociones() {
   });
 
   const props = {
-    nombre: "nombreRestaurante",
-    calificacion: "5",
-    logo: "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to"
+    nombre: sessionStorage.getItem("restauranteNombre"),
+    calificacion: sessionStorage.getItem("restauranteCalif"),
+    logo: sessionStorage.getItem("restauranteImagen")
   }
 
   let categoria = [

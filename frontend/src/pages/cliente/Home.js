@@ -33,7 +33,10 @@ export default function Home() {
 
   useEffect(() => {
     if(sessionStorage.getItem("restauranteId") !== null) {
-      //borro los tres
+      sessionStorage.removeItem("restauranteId");
+      sessionStorage.removeItem("restauranteImagen");
+      sessionStorage.removeItem("restauranteCalif");
+      sessionStorage.removeItem("restauranteNombre");
     }
   }, []);
 
