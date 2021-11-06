@@ -227,6 +227,7 @@ export const fetchUsuarios = () => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/listarUsuarios`,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -250,6 +251,7 @@ export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
