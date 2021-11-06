@@ -31,7 +31,7 @@ function Cliente() {
                 <Route path="/cart" component={Cart} />
               </CartProvider>
               <Route path="/grafica" component={Grafico} />
-              <Route path="listarProductos" component={BuscarMenusPromociones}/>
+              <Route path="/listarProductos" component={BuscarMenusPromociones}/>
               {/* <Route path="no-match" component={NoMatch} /> */}
             </Fragment>
           </Switch>

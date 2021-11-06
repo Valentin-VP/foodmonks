@@ -37,7 +37,7 @@ const Styles = styled.div`
   }
 `;
 
-export const PortadaRestaurante = (props) => (
+export const PortadaRestaurante = ({props}) => (
   <Styles>
     <Container fluid className="portada">
       <Container className="contenido">

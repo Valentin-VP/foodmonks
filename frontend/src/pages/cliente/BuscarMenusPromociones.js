@@ -50,6 +50,7 @@ const Styles = styled.div`
 `;
 
 export default function BuscarMenusPromociones() {
+  const [listar, setListar] = useState(false);
   const [data, setData] = useState([]);
   const [values, setValues] = useState({
     categoria: "",
@@ -71,6 +72,12 @@ export default function BuscarMenusPromociones() {
     { nombre: "Otros", value: "OTROS" },
   ];
 
+  const props = {
+    nombre: "nombreRestaurante",
+    calificacion: "5",
+    logo: "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to"
+  }
+
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
@@ -84,6 +91,7 @@ export default function BuscarMenusPromociones() {
     fetchMenusPromos(values).then((response)=>{
         if (response.status===200){
           console.log(response.data);
+          setListar(true);
           setData(response.data);
         }else{
           Noti(response.data);
@@ -96,12 +104,12 @@ export default function BuscarMenusPromociones() {
   return (
     <Styles>
       <Fragment>
-        <PortadaRestaurante />
+          <PortadaRestaurante props={props} />
           <div className="container-lg">
             <main className="form">
               <form id="inputs" onSubmit={handleSubmit}>
                 <div class="row align-items-center">
-                    <div class="col-lg">
+                    <div class="col-md-4">
                         <div className="form-floating">
                             <select 
                                 name="categoria"
@@ -115,9 +123,8 @@ export default function BuscarMenusPromociones() {
                             <label for="categoria">Categoría</label>
                         </div>
                     </div>
-                    <div class="col-lg">
+                    <div class="col-md-3">
                         <div className="form-floating">
-                            {"$"}
                             <input 
                                 name="precioInicial"
                                 className="form-control"
@@ -128,12 +135,8 @@ export default function BuscarMenusPromociones() {
                             <label for="precioInicial">Precio Inicial</label>
                         </div>
                     </div>
-                    <div>
-                      {" - "}
-                    </div>
-                    <div class="col-lg">
+                    <div class="col-md-3">
                         <div className="form-floating">
-                            {"$"}
                             <input 
                                 name="precioFinal"
                                 className="form-control"
@@ -154,7 +157,7 @@ export default function BuscarMenusPromociones() {
                 <div className="form-floating">
                   <div class="row align-items-center">
                     <div class="col-md">
-                      {<ListadoMenusPromociones data={data} />}
+                      {listar && <ListadoMenusPromociones data={data} />}
                     </div>
                   </div>
                 </div>
