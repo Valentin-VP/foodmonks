@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { actualizarEstadoPedidoPendientes, obtenerPedidosSinConfirmar } from "../../services/Requests";
 import { Noti } from "../../components/Notification";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Container, Modal, Row } from "react-bootstrap";
 import Button from "@restart/ui/esm/Button";
+import { ModalItem } from "../../components/ModalItem";
 
 const Styles = styled.div`
   .lista{
@@ -13,7 +14,7 @@ const Styles = styled.div`
     margin-bottom: 15px;
   }
   h1 {
-    color: #e87121;
+    color: #e88121;
     font-weight: bold;
     text-align: center;
     font-size: 30px;
@@ -46,10 +47,6 @@ const Styles = styled.div`
     position: relative;
   }
 
-  .form-floating {
-    margin-bottom: 15px;
-  }
-
   button {
     color: white;
     background-color: #e87121;
@@ -66,12 +63,6 @@ const Styles = styled.div`
     }
   }
 
-  #minutos {
-    width: 80px;
-    &:focus {
-      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
-    }
-  }
 `;
 
 export default function ListadoPedidosPendientes() {
@@ -82,8 +73,7 @@ export default function ListadoPedidosPendientes() {
       estado: "",}
     );
     const [inputMinutos, setInputMinutos] = useState({
-      show: false,
-      minutos: "",
+      minutos: "60",
     })
     const fetch = () => {
       //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
@@ -101,7 +91,7 @@ export default function ListadoPedidosPendientes() {
     }
     const updateState = (item, estado, minutos) => {
         if (!minutos)
-          minutos = "0";
+          minutos = "60";
         console.log(item);
         actualizarEstadoPedidoPendientes(estado, item.id, minutos).then((response)=>{        
           if (response.status===200){
@@ -117,20 +107,13 @@ export default function ListadoPedidosPendientes() {
 
     const onConfirmar = (e, item) =>{
         e.preventDefault();
-        if (!inputMinutos.minutos){
-            setInputMinutos({...inputMinutos, show: true})
-        }else{
-            setModal({item: item, show:true, estado: "CONFIRMADO"})
-        }
+        setModal({item: item, show:true, estado: "CONFIRMADO"})
     }
 
     const onRechazar = (e, item) =>{
       e.preventDefault();
-      if (inputMinutos.minutos){
-          setInputMinutos({minutos: "", show: false})
-      }
       setModal({item: item, show:true, estado: "RECHAZADO"})
-  }
+    }
 
     const handleChange = (e) => {
       e.persist();
@@ -139,26 +122,6 @@ export default function ListadoPedidosPendientes() {
         [e.target.name]: e.target.value,
       }));
     };
-
-    const ModalItem = ({titulo, cuerpo, visible, onCancelar, onAceptar}) => {
-      return(
-        <>
-          <Modal show={visible} onHide={onCancelar}>
-            <Modal.Header closeButton>
-              <Modal.Title>{titulo}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{cuerpo}</Modal.Body>
-            <Modal.Footer>
-              <button className="btn btn-sm btn-secondary" type="button"  onClick={onCancelar}>
-                Cancelar
-              </button>
-              <button className="btn btn-sm btn-danger" type="button" onClick={onAceptar}>
-                Aceptar
-              </button>
-            </Modal.Footer>
-          </Modal>
-        </>
-      )};
 
     useEffect(() => {
         fetch();
@@ -174,8 +137,9 @@ export default function ListadoPedidosPendientes() {
               <div className="table-responsive justify-content-center">
                     <table className="table table-hover">
                     <tbody>
+
                             <Row>
-                              <Col>
+                              <Col md={4}>
                                 <tr>
                                   <td>ID Pedido: 1</td>
                                   <td>Nombre: Peddo1</td>
@@ -186,19 +150,6 @@ export default function ListadoPedidosPendientes() {
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onConfirmar(e, {id : "1"}))}>
                                     Confirmar
                                   </button>}</td>
-                                  {inputMinutos.show ? (<td>{
-                                    <>
-                                    <input
-                                      className="form-control"
-                                      type="number"
-                                      name="minutos"
-                                      id="minutos"
-                                      value={inputMinutos.minutos}
-                                      placeholder="0"
-                                      onChange={handleChange}
-                                    />
-                                    
-                                  </>}</td>) : null}
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onRechazar(e, {id: "1"}))}>
                                     Rechazar
                                   </button>}</td>
@@ -209,7 +160,7 @@ export default function ListadoPedidosPendientes() {
                               </Col>
                             </Row>
                             <Row>
-                              <Col>
+                              <Col md={12}>
                                     <tr>
                                         <td>
                                             <img
@@ -228,7 +179,7 @@ export default function ListadoPedidosPendientes() {
                               </Col>
                             </Row>
                             <Row>
-                              <Col>
+                              <Col md={6}>
                                 <tr>
                                   <td>ID Pedido: 2</td>
                                   <td>Nombre: Peddo2</td>
@@ -239,18 +190,6 @@ export default function ListadoPedidosPendientes() {
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onConfirmar(e, {id : "2"}))}>
                                     Confirmar
                                   </button>}</td>
-                                  {inputMinutos.show ? (<td>{
-                                    <>
-                                    <input
-                                      className="form-control"
-                                      type="number"
-                                      name="minutos"
-                                      id="minutos"
-                                      value={inputMinutos.minutos}
-                                      placeholder="0"
-                                      onChange={handleChange}
-                                    />
-                                  </>}</td>) : null}
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onRechazar(e, {id: "2"}))}>
                                     Rechazar
                                   </button>}</td>
@@ -261,7 +200,7 @@ export default function ListadoPedidosPendientes() {
                               </Col>
                             </Row>
                             <Row>
-                              <Col>
+                              <Col md={12}>
                                     <tr>
                                         <td>
                                             <img
@@ -279,6 +218,7 @@ export default function ListadoPedidosPendientes() {
                                     </tr>
                               </Col>
                             </Row>
+
                       {data ? data.map((item, index) => {
                           return (
                             <>
@@ -294,19 +234,6 @@ export default function ListadoPedidosPendientes() {
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onConfirmar(e, item))}>
                                     Confirmar
                                   </button>}</td>
-                                  {inputMinutos.show ? (<td>{
-                                    <div className="form-floating">
-                                    <input
-                                      className="form-control"
-                                      type="number"
-                                      name="minutos"
-                                      id="minutos"
-                                      value={inputMinutos.minutos}
-                                      placeholder="0"
-                                      onChange={handleChange}
-                                    />
-                                    <label htmlFor="floatingInput">T. Estimado (min.)</label>
-                                  </div>}</td>) : null}
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onRechazar(e, item))}>
                                     Rechazar
                                   </button>}</td>
@@ -352,17 +279,32 @@ export default function ListadoPedidosPendientes() {
           </main>
           <ModalItem
             titulo="Gestión de Pedidos"
-            cuerpo={"¿Seguro que " + (modal.estado==="RECHAZADO" ? "rechazas" : "confirmas") + " este pedido? Esto no tiene vuelta atrás."}
+            cuerpo={<>
+              <div>¿Seguro que {modal.estado==="RECHAZADO" ? "rechazas" : "confirmas"} este pedido? Esto no tiene vuelta atrás.</div>
+              {modal.estado==="CONFIRMADO" ?
+                <div className="form-floating">
+                  <input
+                    className="form-control"
+                    type="number"
+                    name="minutos"
+                    id="minutos"
+                    value={inputMinutos.minutos}
+                    placeholder="60"
+                    min="1"
+                    max="1000"
+                    step="1"
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="floatingInput">T. Estimado (min.)</label>
+                </div> : null}</>}
             visible={modal.show}
             onAceptar={()=>
               {updateState(modal.item, modal.estado, inputMinutos.minutos);
-              setModal({item:[], estado: "", show:false});
-              setInputMinutos({minutos: "", show: false})}
+              setModal({item:[], estado: "", show:false})}
             }
             onCancelar={()=>
               {alert("Cerrar");
-              setModal({item:[], estado: "", show:false});
-              setInputMinutos({minutos: "", show: false})}
+              setModal({item:[], estado: "", show:false})}
             }
           ></ModalItem>
         </div>
