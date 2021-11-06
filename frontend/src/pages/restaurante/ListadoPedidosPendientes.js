@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { actualizarEstadoPedidoPendientes, obtenerPedidosSinConfirmar } from "../../services/Requests";
 import { Noti } from "../../components/Notification";
 import { Col, Container, Modal, Row } from "react-bootstrap";
-import Button from "@restart/ui/esm/Button";
 import { ModalItem } from "../../components/ModalItem";
 
 const Styles = styled.div`
@@ -30,12 +29,18 @@ const Styles = styled.div`
   }
 
   td, tr {
-    border: 1px solid #eee;
-    padding: 8px;
 
+    border: 1px solid #eee;
+    padding: 6px;
+    width: 8%;
     &:hover{
       background-color: #FFFFF5;
     }
+  }
+
+  .row, .col{
+    
+    padding: 1px;
   }
 
   img {
@@ -65,7 +70,7 @@ const Styles = styled.div`
 
 `;
 
-export default function ListadoPedidosPendientes() {
+export default function ListadoPedidosPendientes(abierto) {
     const [data, setData] = useState([]);
     const [modal, setModal] = useState({
       show: false,
@@ -80,6 +85,7 @@ export default function ListadoPedidosPendientes() {
       //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
       obtenerPedidosSinConfirmar().then((response)=>{
         if (response.status===200){
+          response.data.map((item)=>(Object.assign(item, {visible: false})));
           setData(response.data);
         }else{
           Noti(response.data);
@@ -137,9 +143,7 @@ export default function ListadoPedidosPendientes() {
               <div className="table-responsive justify-content-center">
                     <table className="table table-hover">
                     <tbody>
-
-                            <Row>
-                              <Col md={4}>
+                              {/* <Col>
                                 <tr>
                                   <td>ID Pedido: 1</td>
                                   <td>Nombre: Peddo1</td>
@@ -158,9 +162,7 @@ export default function ListadoPedidosPendientes() {
                                   </button>}</td>
                                 </tr>
                               </Col>
-                            </Row>
-                            <Row>
-                              <Col md={12}>
+                              <Col>
                                     <tr>
                                         <td>
                                             <img
@@ -174,12 +176,9 @@ export default function ListadoPedidosPendientes() {
                                         <td>Precio: $1234.00</td>
                                         <td>Descuento: 0 %</td>
                                         <td>Total Parcial: $1234.00</td>
-                                        {/* <td>Cantidad: ${item.cantidad}</td> */}
                                     </tr>
                               </Col>
-                            </Row>
-                            <Row>
-                              <Col md={6}>
+                              <Col>
                                 <tr>
                                   <td>ID Pedido: 2</td>
                                   <td>Nombre: Peddo2</td>
@@ -198,9 +197,7 @@ export default function ListadoPedidosPendientes() {
                                   </button>}</td>
                                 </tr>
                               </Col>
-                            </Row>
-                            <Row>
-                              <Col md={12}>
+                              <Col>
                                     <tr>
                                         <td>
                                             <img
@@ -214,15 +211,11 @@ export default function ListadoPedidosPendientes() {
                                         <td>Precio: $1234.00</td>
                                         <td>Descuento: 0 %</td>
                                         <td>Total Parcial: $1234.00</td>
-                                        {/* <td>Cantidad: ${item.cantidad}</td> */}
                                     </tr>
-                              </Col>
-                            </Row>
-
-                      {data ? data.map((item, index) => {
+                              </Col> */}
+                      {data ? data.map((item) => {
                           return (
                             <>
-                            <Row>
                               <Col>
                                 <tr key={item.id}>
                                   <td>ID Pedido: {item.id}</td>
@@ -231,10 +224,10 @@ export default function ListadoPedidosPendientes() {
                                   <td>Cliente: {item.nombreApellidoCliente}</td>
                                   <td>Medio de Pago: {item.medioPago}</td>
                                   <td>Total: ${item.total}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onConfirmar(e, item))}>
+                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onConfirmar(e, item))} disabled={!abierto}>
                                     Confirmar
                                   </button>}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onRechazar(e, item))}>
+                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onRechazar(e, item))} disabled={!abierto}>
                                     Rechazar
                                   </button>}</td>
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(item.visible = !item.visible)}>
@@ -242,32 +235,29 @@ export default function ListadoPedidosPendientes() {
                                   </button>}</td>
                                 </tr>
                               </Col>
-                            </Row>
                               {item.visible && 
-                                <Row>
-                                  <Col>
-                                    {(data.menus ? data.menus.map((menu, menuindex) => {
-                                    return (
-                                      <>
-                                        <tr key={menuindex}>
-                                            <td>
-                                                <img
-                                                    src={menu.imagen}
-                                                    alt="productimg"
-                                                    width="150"
-                                                    hight="150"
-                                                />
-                                            </td>
-                                            <td>Menú: {menu.menu}</td>
-                                            <td>Precio: ${menu.precio}</td>
-                                            <td>Descuento: {menu.multiplicadorPromocion} %</td>
-                                            <td>Total Parcial: ${menu.total}</td>
-                                            {/* <td>Cantidad: ${item.cantidad}</td> */}
-                                        </tr>
-                                      </>
-                                    )}) : null)}
-                                  </Col>
-                                </Row>
+                                <Col>
+                                  {(data.menus ? data.menus.map((menu, menuindex) => {
+                                  return (
+                                    <>
+                                      <tr key={menuindex}>
+                                          <td>
+                                              <img
+                                                  src={menu.imagen}
+                                                  alt="productimg"
+                                                  width="150"
+                                                  hight="150"
+                                              />
+                                          </td>
+                                          <td>Menú: {menu.menu}</td>
+                                          <td>Precio: ${menu.precio}</td>
+                                          <td>Descuento: {menu.multiplicadorPromocion} %</td>
+                                          <td>Total Parcial: ${menu.total}</td>
+                                          {/* <td>Cantidad: ${item.cantidad}</td> */}
+                                      </tr>
+                                    </>
+                                  )}) : null)}
+                                </Col>
                               }
                             </>
                         )}) : null}
@@ -279,7 +269,8 @@ export default function ListadoPedidosPendientes() {
           </main>
           <ModalItem
             titulo="Gestión de Pedidos"
-            cuerpo={<>
+            cuerpo={
+            <>
               <div>¿Seguro que {modal.estado==="RECHAZADO" ? "rechazas" : "confirmas"} este pedido? Esto no tiene vuelta atrás.</div>
               {modal.estado==="CONFIRMADO" ?
                 <div className="form-floating">
@@ -296,7 +287,9 @@ export default function ListadoPedidosPendientes() {
                     onChange={handleChange}
                   />
                   <label htmlFor="floatingInput">T. Estimado (min.)</label>
-                </div> : null}</>}
+                </div> : null}
+            </>
+            }
             visible={modal.show}
             onAceptar={()=>
               {updateState(modal.item, modal.estado, inputMinutos.minutos);

@@ -211,7 +211,8 @@ export const obtenerPedidosSinConfirmar = () => {
       'RefreshAuthentication': "Bearer " + getRefreshToken(),
     }
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
   return response;
 };
 
