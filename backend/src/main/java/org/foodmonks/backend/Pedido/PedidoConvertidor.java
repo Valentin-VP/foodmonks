@@ -31,7 +31,7 @@ public class PedidoConvertidor {
         jsonPedido.addProperty("direccion", pedido.getDireccion().getCalle() + " "
                 + pedido.getDireccion().getNumero().toString() + " esq. "
                 + pedido.getDireccion().getEsquina()
-                + (!pedido.getDireccion().getDetalles().isEmpty() ? " (" + pedido.getDireccion().getDetalles()+ ")" : ""));
+                + (pedido.getDireccion().getDetalles()!=null ? " (" + pedido.getDireccion().getDetalles()+ ")" : ""));
         jsonPedido.addProperty("total", pedido.getTotal());
         jsonPedido.addProperty("medioPago", pedido.getMedioPago() == MedioPago.PAYPAL ? "PayPal" : "Efectivo");
 

@@ -237,7 +237,7 @@ export default function ListadoPedidosPendientes(abierto) {
                               </Col>
                               {item.visible && 
                                 <Col>
-                                  {(data.menus ? data.menus.map((menu, menuindex) => {
+                                  {(item.menus ? item.menus.map((menu, menuindex) => {
                                   return (
                                     <>
                                       <tr key={menuindex}>
@@ -256,7 +256,7 @@ export default function ListadoPedidosPendientes(abierto) {
                                           {/* <td>Cantidad: ${item.cantidad}</td> */}
                                       </tr>
                                     </>
-                                  )}) : null)}
+                                  )}) : alert("asd"))}
                                 </Col>
                               }
                             </>
