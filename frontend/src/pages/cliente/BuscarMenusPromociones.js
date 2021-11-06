@@ -58,6 +58,12 @@ export default function BuscarMenusPromociones() {
     precioFinal: "",
   });
 
+  const props = {
+    nombre: "nombreRestaurante",
+    calificacion: "5",
+    logo: "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to"
+  }
+
   let categoria = [
     { nombre: "(Cualquiera)", value: "" },
     { nombre: "Pizzas", value: "PIZZAS" },
@@ -71,12 +77,6 @@ export default function BuscarMenusPromociones() {
     { nombre: "Sushi", value: "SUSHI" },
     { nombre: "Otros", value: "OTROS" },
   ];
-
-  const props = {
-    nombre: "nombreRestaurante",
-    calificacion: "5",
-    logo: "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to"
-  }
 
   const handleChange = (e) => {
     e.persist();

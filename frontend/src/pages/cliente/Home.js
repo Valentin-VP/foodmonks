@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { Layout } from "../../components/Layout";
 import { Portada } from "../../components/Portada";
 import styled from "styled-components";
@@ -29,7 +29,15 @@ const Styles = styled.div`
   }
 `;
 
-export const Home = () => (
+export default function Home() {
+
+  useEffect(() => {
+    if(sessionStorage.getItem("restauranteId") !== null) {
+      //borro los tres
+    }
+  }, []);
+
+  return (
   <Styles>
     <React.Fragment>
       <Portada />
@@ -73,4 +81,5 @@ export const Home = () => (
       </Layout>
     </React.Fragment>
   </Styles>
-);
+  );
+}

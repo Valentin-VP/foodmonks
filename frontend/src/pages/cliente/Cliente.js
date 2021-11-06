@@ -1,6 +1,6 @@
 import { React, Fragment } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { Home } from "./Home";
+import Home from "./Home";
 import { Cart } from "./Cart";
 import { Grafico } from "../Grafico";
 import BuscarMenusPromociones from "./BuscarMenusPromociones";
