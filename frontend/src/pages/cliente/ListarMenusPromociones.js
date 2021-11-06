@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import { Layout } from "../../components/Layout";
+import ItemCard from "../../components/itemCard";
 
 const Styles = styled.div`
   .column {

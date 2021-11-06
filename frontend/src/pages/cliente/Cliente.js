@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { Home } from "./Home";
 import { Cart } from "./Cart";
 import { Grafico } from "../Grafico";
+import BuscarMenusPromociones from "./BuscarMenusPromociones";
 import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
 import { CartProvider } from "react-use-cart";
@@ -30,6 +31,7 @@ function Cliente() {
                 <Route path="/cart" component={Cart} />
               </CartProvider>
               <Route path="/grafica" component={Grafico} />
+              <Route path="listarProductos" component={BuscarMenusPromociones}/>
               {/* <Route path="no-match" component={NoMatch} /> */}
             </Fragment>
           </Switch>

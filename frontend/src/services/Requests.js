@@ -132,7 +132,7 @@ export const fetchMenusPromos = (datos) => {
   const restauranteId = getRestauranteId();
   const response = axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarMenusPromociones?id=${restauranteId}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${restauranteId}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       'RefreshAuthentication': "Bearer " + getRefreshToken(),

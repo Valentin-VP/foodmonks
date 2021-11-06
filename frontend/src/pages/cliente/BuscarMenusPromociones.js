@@ -1,7 +1,9 @@
 import { React, Fragment, useState } from "react";
 import styled from "styled-components";
+import { Layout } from "../../components/Layout";
 import { fetchMenusPromos } from "../../services/Requests";
 import ListadoMenusPromociones from "./ListarMenusPromociones";
+import { PortadaRestaurante } from "../../components/PortadaRestaurante";
 import { Noti } from "../../components/Notification"
 
 const Styles = styled.div`
@@ -47,7 +49,7 @@ const Styles = styled.div`
 
 `;
 
-export default function BuscarRestaurantesAbiertos() {
+export default function BuscarMenusPromociones() {
   const [data, setData] = useState([]);
   const [values, setValues] = useState({
     categoria: "",
@@ -94,69 +96,70 @@ export default function BuscarRestaurantesAbiertos() {
   return (
     <Styles>
       <Fragment>
-        <div className="container-lg">
-          <main className="form">
-            <form id="inputs" onSubmit={handleSubmit}>
-              <div class="row align-items-center">
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <select 
-                              name="categoria"
-                              className="form-select"
-                              onChange={handleChange}
-                              id="categoria">
-                              {categoria.map((item)=>(
-                                <option key={item.nombre} value={item.value}>{item.nombre}</option>
-                              ))}
-                          </select>
-                          <label for="categoria">Categoría</label>
-                      </div>
-                  </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          {"$"}
-                          <input 
-                              name="precioInicial"
-                              className="form-control"
-                              onChange={handleChange}
-                              id="precioInicial"
-                              value={values.precioInicial}>
-                          </input>
-                          <label for="precioInicial">Precio Inicial</label>
-                      </div>
-                  </div>
-                  <div>
-                    {" - "}
-                  </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          {"$"}
-                          <input 
-                              name="precioFinal"
-                              className="form-control"
-                              onChange={handleChange}
-                              id="precioFinal"
-                              value={values.precioFinal}>
-                          </input>
-                          <label for="precioFinal">Precio Final</label>
-                      </div>
-                  </div>
-              </div>
-
-              <button className="w-100 btn btn-md btn-primary" type="submit">
-                Buscar
-              </button>
-            </form>
-
-              <div className="form-floating">
+        <PortadaRestaurante />
+          <div className="container-lg">
+            <main className="form">
+              <form id="inputs" onSubmit={handleSubmit}>
                 <div class="row align-items-center">
-                  <div class="col-md">
-                    {<ListadoMenusPromociones data={data} />}
+                    <div class="col-lg">
+                        <div className="form-floating">
+                            <select 
+                                name="categoria"
+                                className="form-select"
+                                onChange={handleChange}
+                                id="categoria">
+                                {categoria.map((item)=>(
+                                  <option key={item.nombre} value={item.value}>{item.nombre}</option>
+                                ))}
+                            </select>
+                            <label for="categoria">Categoría</label>
+                        </div>
+                    </div>
+                    <div class="col-lg">
+                        <div className="form-floating">
+                            {"$"}
+                            <input 
+                                name="precioInicial"
+                                className="form-control"
+                                onChange={handleChange}
+                                id="precioInicial"
+                                value={values.precioInicial}>
+                            </input>
+                            <label for="precioInicial">Precio Inicial</label>
+                        </div>
+                    </div>
+                    <div>
+                      {" - "}
+                    </div>
+                    <div class="col-lg">
+                        <div className="form-floating">
+                            {"$"}
+                            <input 
+                                name="precioFinal"
+                                className="form-control"
+                                onChange={handleChange}
+                                id="precioFinal"
+                                value={values.precioFinal}>
+                            </input>
+                            <label for="precioFinal">Precio Final</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button className="w-100 btn btn-md btn-primary" type="submit">
+                  Buscar
+                </button>
+              </form>
+
+                <div className="form-floating">
+                  <div class="row align-items-center">
+                    <div class="col-md">
+                      {<ListadoMenusPromociones data={data} />}
+                    </div>
                   </div>
                 </div>
-              </div>
-          </main>
-        </div>
+            </main>
+          </div>
       </Fragment>
     </Styles>
   );
