@@ -164,6 +164,22 @@ export const cambiarEstado = (estado) => {
   return response;
 };
 
+export const actualizarEstadoPedidoPendientes = (estado, id, minutos) => {
+  const response = axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/actualizarEstadoPedido/${id}`,
+    data: {estado: estado,
+            minutos: minutos},
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
+  return response;
+};
+
 export const altaAdmin = (datos) => {
   return axios({
     method: "POST",
@@ -184,6 +200,19 @@ export const eliminarCuentaClientePropia = () => {
       Authorization: "Bearer " + getToken(),
     }
   });
+};
+
+export const obtenerPedidosSinConfirmar = () => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPedidosPendientes`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
 };
 
 //----------------------------------USUARIOS---------------------------------------------------
@@ -298,3 +327,4 @@ export const fetchRestaurantesBusqueda = (datos) => {
   response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
   return response;
 };
+

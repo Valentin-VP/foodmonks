@@ -5,12 +5,15 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class RestauranteService {
@@ -28,10 +32,12 @@ public class RestauranteService {
     private final UsuarioRepository usuarioRepository;
     private final MenuService menuService;
     private final RestauranteConverter restauranteConverter;
+    private final PedidoService pedidoService;
 
     @Autowired
-    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter) {
+    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder, UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter, PedidoService pedidoService) {
         this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.restauranteConverter = restauranteConverter;
+        this.pedidoService = pedidoService;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -98,4 +104,31 @@ public class RestauranteService {
         return restauranteConverter.listaRestaurantes(restaurantes);
     }
 
+    //Esto deberia juntarlo con el de abajo eventualmente
+    public void registrarPagoEfectivo(String correo, Long idPedido) throws RestauranteNoEncontradoException, PedidoNoExisteException {
+
+    }
+
+    //Si el estado es "CONFIRMADO" se agregan el tiempo a fechaHoraEntrega (a partir de fechaHoraProcesado)
+    public void actualizarEstadoPedido(String correo, Long idPedido, String estado, Integer minutos) throws RestauranteNoEncontradoException, PedidoNoExisteException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        if (!pedidoService.existePedidoRestaurante(idPedido,restaurante)){
+            throw new RestauranteNoEncontradoException("No existe el pedido con id " + idPedido + " para el Restaurante " + correo);
+        }
+        pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.valueOf(estado.trim().toUpperCase(Locale.ROOT)));
+        if (estado.equals("CONFIRMADO")){
+            pedidoService.cambiarFechasEntregaProcesado(idPedido, minutos);
+        }
+    }
+
+    public List<JsonObject> listarPedidosPendientes(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante==null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return pedidoService.listaPedidosPendientes(restaurante);
+    }
 }

@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -332,4 +334,84 @@ public class RestauranteController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(summary = "Listar los Pedidos Pendientes",
+            description = "Lista de los pedidos pendientes de confirmación.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "menu" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarPedidosPendientes")
+    public ResponseEntity<?> listarPedidosPendientes(@RequestHeader("Authorization") String token) {
+        String newtoken = "";
+        String correo = "";
+        List<JsonObject> listaMenu = new ArrayList<JsonObject>();
+        JsonArray jsonArray = new JsonArray();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            correo = tokenHelp.getUsernameFromToken(newtoken);
+            listaMenu = restauranteService.listarPedidosPendientes(correo);
+            for(JsonObject jsonMenu : listaMenu) {
+                jsonArray.add(jsonMenu);
+            }
+        } catch (JsonIOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+        } catch (RestauranteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Cambia el estado del pedido",
+            description = "Cambia el estado del pedido al estado necesario.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedido" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @PutMapping(path = "/actualizarEstadoPedido/{idPedido}")
+    public ResponseEntity<?> actualizarEstadoPedido(@RequestHeader("Authorization") String token, @PathVariable String idPedido, @RequestBody String nuevoEstado) {
+        String newtoken = "";
+        JsonObject jsonPedido = new JsonObject();
+
+
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String estado = "";
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            jsonPedido = new Gson().fromJson(nuevoEstado, JsonObject.class);
+            estado = jsonPedido.get("estado").getAsString();
+            if (estado!=null){
+                if (estado.equals("FINALIZADO")) {
+                    try {
+                        restauranteService.registrarPagoEfectivo(correo, Long.valueOf(idPedido));
+                    } catch (NumberFormatException e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El ID debe ser numérico.");
+                    }
+                }else if(estado.equals("CONFIRMADO") || estado.equals("RECHAZADO")){
+                    String minutos = jsonPedido.get("minutos").getAsString();
+                    try {
+                        restauranteService.actualizarEstadoPedido(correo, Long.valueOf(idPedido), estado, Integer.valueOf(minutos));
+                    } catch (NumberFormatException e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+                    }
+                }else{
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud. Estado incorrecto.");
+                }
+            }else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud. Falta estado.");
+            }
+        } catch (JsonIOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+        } catch (PedidoNoExisteException | RestauranteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        return ResponseEntity.ok("Se cambió el estado del pedido.");
+    }
 }

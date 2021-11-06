@@ -3,6 +3,7 @@ import { Layout } from "../../components/Layout";
 import styled from "styled-components";
 import { Noti } from "../../components/Notification";
 import { cambiarEstado, fetchRestauranteInfo } from "../../services/Requests";
+import ListadoPedidosPendientes from "./ListadoPedidosPendientes";
 // import ItemCard from "../../components/itemCard";
 // import prods from "../../productos";
 
@@ -58,6 +59,7 @@ function Home() {
           <label className="form-check-label" htmlFor="aperturaCierreSwitch" id="aperturaCierreLabel">El restaurante esta {estado ? "Abierto" : "Cerrado"}</label>
         </div>
         <h2 id="titulo">Esto es de un restaurante</h2>
+        <ListadoPedidosPendientes />
       </Layout>
     </React.Fragment>
   </Styles>

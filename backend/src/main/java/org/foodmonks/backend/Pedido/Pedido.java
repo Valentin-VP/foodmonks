@@ -18,6 +18,7 @@ import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.boot.context.properties.bind.Name;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +35,11 @@ public class Pedido  {
     private EstadoPedido estado;
     private DtCalificacion calificacionCliente;
     private DtCalificacion calificacionRestaurante;
-    private LocalDate fechaHoraProcesado;
+    private LocalDateTime fechaHoraProcesado;
     private Float total;
     @Enumerated(value = EnumType.STRING)
     private MedioPago medioPago;
-    private LocalDate fechaHoraEntrega;
+    private LocalDateTime fechaHoraEntrega;
 	@ManyToOne
     private Direccion direccion;
     private DtOrdenPaypal ordenPaypal;
@@ -54,8 +55,8 @@ public class Pedido  {
     public Pedido () {
     }
     
-    public Pedido(String nombre, EstadoPedido estado, LocalDate fechaHoraProcesado, Float total,
-				  MedioPago medioPago, LocalDate fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
+    public Pedido(String nombre, EstadoPedido estado, LocalDateTime fechaHoraProcesado, Float total,
+				  MedioPago medioPago, LocalDateTime fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
 		this.nombre = nombre;
 		this.estado = estado;
 		this.fechaHoraProcesado = fechaHoraProcesado;
