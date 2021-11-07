@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Cliente;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -172,4 +173,24 @@ public class ClienteService {
         return null;
     }
 
+    public JsonObject crearPedido(String correo, JsonArray jsonRequestPedido) {
+/*        [
+            {
+                "restaurante": "correoRestaurante@gmail.com", // String: correo del restaurante en que se solicitan los menus
+                "direccionId": 2, // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
+                "medioPago": "PayPal", //String: vale 'PayPal' o 'Efectivo'
+                "ordenPaypal": "148asd8f412", // String: puede ser un String vacío si el pago fue en efectivo: ''
+                "menus" : [ // JsonArray: Arreglo con todos los menus comprados
+                    {
+                        "id": 123,
+                        "precio": 250.0, // Float: precio final que aplica por cada item, si es de promocion es el resutlado del precio x multiplicadorPromocion
+                        "cantidad": 3, // int: cantidad de items de este menu/promocion
+                        "detalles": "Los detalles o comentarios del pedido" // String
+                    },
+                    ...
+                ]
+            }
+        ]*/
+        return new JsonObject(); // <-- Representacion del Pedido
+    }
 }

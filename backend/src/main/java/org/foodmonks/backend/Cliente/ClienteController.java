@@ -1,10 +1,7 @@
 package org.foodmonks.backend.Cliente;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -265,10 +262,20 @@ public class ClienteController {
     }
 
     public ResponseEntity<?> realizarPedido(
-            @RequestBody String pedido
-    ){
+            @RequestHeader("Authorization") String token,
+            @RequestBody String pedido){
         try{
-            return ResponseEntity.status(HttpStatus.OK).build();
+            // Obtener correo del cliente
+            String strToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                strToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(strToken);
+
+            // Obtener detalles del pedido
+            JsonArray jsonRequestPedido = new Gson().fromJson(pedido, JsonArray.class);
+            JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
+            return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
