@@ -36,7 +36,7 @@ public class PayPalService implements PaymentService{
         final HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
         final Order order = orderHttpResponse.result();
         LinkDescription approveUri = extractApprovalLink(order);
-        return new OrdenPaypal(order.id(),URI.create(approveUri.href()),URI.create(approveUri.href()));
+        return new OrdenPaypal(order.id(),URI.create(approveUri.href()),null);
     }
 
     private OrderRequest prepareOrderRequest(Double total, URI callbackUrl) {
