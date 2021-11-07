@@ -52,7 +52,9 @@ public class AdminService {
     }
 
     public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) {
-        return new JsonObject();
+        JsonObject respuesta = new JsonObject();
+        respuesta.addProperty("resultadoCambioEstado", "Cambio exitoso");
+        return respuesta;
     }
 
     public void enviarCorreo(String correoRestaurante, String resultadoCambioEstado, String comentariosCambioEstado) throws EmailNoEnviadoException {

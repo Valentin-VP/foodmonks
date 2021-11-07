@@ -200,16 +200,17 @@ public class AdminController {
     public ResponseEntity<?> cambiarEstadoRestaurante(
             @RequestParam(name = "correoRestaurante") String correoRestaurante,
             @RequestParam(name = "estadoRestaurante") String estadoRestaurante,
-            @RequestParam(required = false, name = "comentariosCambioEstado") String comentariosCambioEstado
+            @RequestBody String comentariosCambioEstado
     ) {
         JsonObject jsonResponse = new JsonObject();
         try{
             jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
+            JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
+            String comentarios = body.get("comentarios").getAsString();
             String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
-            String detallesCambioEstado = jsonResponse.get("detallesCambioEstado").getAsString();
             // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
-            // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentariosCambioEstado} '
-            adminService.enviarCorreo(correoRestaurante, resultadoCambioEstado, comentariosCambioEstado);
+            // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentarios} '
+            adminService.enviarCorreo(correoRestaurante, resultadoCambioEstado, comentarios);
             // correoRestaurante: Destinatario del Correo
             // resultadoCambioEstado: Contiene 'APROBADO' o 'RECHAZADO
             // comentariosCambioEstado: Empty si es una aprobación, de lo contrario contiene el motivo del rechazo
