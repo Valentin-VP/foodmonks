@@ -261,6 +261,14 @@ public class ClienteController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @Operation(summary = "Realizar un nuevo Pedido a un Restaurante",
+            description = "Realizar un nuevo Pedido a un Restaurante",
+            tags = { "cliente", "pedido" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Pedido creado"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
+    @PostMapping(path = "/realizarPedido")
     public ResponseEntity<?> realizarPedido(
             @RequestHeader("Authorization") String token,
             @RequestBody String pedido){
