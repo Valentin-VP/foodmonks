@@ -29,9 +29,9 @@ function Cliente() {
                 {/* el home tiene su propio layout*/}
                 <Route exact path="/" component={Home} />
                 <Route path="/cart" component={Cart} />
+                <Route path="/listarProductos" component={BuscarMenusPromociones}/>
               </CartProvider>
               <Route path="/grafica" component={Grafico} />
-              <Route path="/listarProductos" component={BuscarMenusPromociones}/>
               {/* <Route path="no-match" component={NoMatch} /> */}
             </Fragment>
           </Switch>

@@ -58,6 +58,10 @@ export default function BuscarMenusPromociones() {
     precioFinal: "",
   });
 
+  useEffect(() => {
+    fetch();
+  }, []);
+
   const props = {
     nombre: sessionStorage.getItem("restauranteNombre"),
     calificacion: sessionStorage.getItem("restauranteCalif"),
@@ -86,19 +90,23 @@ export default function BuscarMenusPromociones() {
     }));
   };
 
+  const fetch = () => {
+    fetchMenusPromos(values).then((response)=>{
+      if (response.status===200){
+        console.log(response.data);
+        setListar(true);
+        setData(response.data);
+      }else{
+        Noti(response.data);
+      }
+  }).catch((error)=>{
+      Noti(error.response.data);
+  })
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetchMenusPromos(values).then((response)=>{
-        if (response.status===200){
-          console.log(response.data);
-          setListar(true);
-          setData(response.data);
-        }else{
-          Noti(response.data);
-        }
-    }).catch((error)=>{
-        Noti(error.response.data);
-    })
+    fetch();
   };
 
   return (
