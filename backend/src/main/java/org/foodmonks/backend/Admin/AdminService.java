@@ -1,6 +1,9 @@
 package org.foodmonks.backend.Admin;
 
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +45,20 @@ public class AdminService {
     public void modificarAdmin(Admin admin) {
         adminRepository.save(admin);
     }
+
+    public JsonArray listaRestaurantesPorEstado(String estadoRestaurante) {
+        // se comunica con RestauranteService para obtener los datos
+        return new JsonArray();
+    }
+
+    public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) {
+        return new JsonObject();
+    }
+
+    public void enviarCorreo(String correoRestaurante, String resultadoCambioEstado, String comentariosCambioEstado) throws EmailNoEnviadoException {
+        // respecto a la falla de enviar el correo, el mensaje de la excepción,
+        // podría incluir mencionar que el cambio fue realizado con éxito, pero falló el envío del correo
+    }
+
 
 }

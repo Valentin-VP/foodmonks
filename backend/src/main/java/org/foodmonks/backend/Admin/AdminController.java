@@ -3,9 +3,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Usuario;
@@ -160,6 +165,58 @@ public class AdminController {
                 return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @Operation(summary = "Listar/buscar Restaurantes con cierto estado",
+            description = "Lista de los restaurantes que tienen el estado recibido",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin", "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarRestaurantesPorEstado")
+    public ResponseEntity<?> listarRestaurantesPorEstado(
+            @RequestParam(required = false, name = "estadoRestaurante") String estadoRestaurante
+    ) {
+        JsonArray jsonArray = new JsonArray();
+        try {
+            jsonArray = adminService.listaRestaurantesPorEstado(estadoRestaurante);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Modificar estado de un Restaurante",
+            description = "Modifica el estado de un restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin", "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @PutMapping("/cambiarEstadoRestaurante")
+    public ResponseEntity<?> cambiarEstadoRestaurante(
+            @RequestParam(name = "correoRestaurante") String correoRestaurante,
+            @RequestParam(name = "estadoRestaurante") String estadoRestaurante,
+            @RequestParam(required = false, name = "comentariosCambioEstado") String comentariosCambioEstado
+    ) {
+        JsonObject jsonResponse = new JsonObject();
+        try{
+            jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
+            String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
+            String detallesCambioEstado = jsonResponse.get("detallesCambioEstado").getAsString();
+            // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
+            // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentariosCambioEstado} '
+            adminService.enviarCorreo(correoRestaurante, resultadoCambioEstado, comentariosCambioEstado);
+            // correoRestaurante: Destinatario del Correo
+            // resultadoCambioEstado: Contiene 'APROBADO' o 'RECHAZADO
+            // comentariosCambioEstado: Empty si es una aprobación, de lo contrario contiene el motivo del rechazo
+        } catch(JsonIOException | EmailNoEnviadoException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
     }
 
 }
