@@ -175,14 +175,14 @@ public class ClienteController {
     public ResponseEntity<?> listarProductosRestaurante(
             @RequestParam(required = false, name = "id") String restauranteCorreo,
             @RequestParam(required = false, name = "categoria") String categoria,
-            @RequestParam(required = false, name = "precioInicial") String precioInicial,
-            @RequestParam(required = false, name = "precioFinal") String precioFinal
+            @RequestParam(required = false, name = "precioInicial") Float precioInicial,
+            @RequestParam(required = false, name = "precioFinal") Float precioFinal
             ) {
         JsonArray jsonArray = new JsonArray();
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
         }catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
