@@ -259,9 +259,19 @@ public class ClienteController {
                 jsonArray.add(restaurante);
             }
         } catch(JsonIOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> realizarPedido(
+            @RequestBody String pedido
+    ){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
