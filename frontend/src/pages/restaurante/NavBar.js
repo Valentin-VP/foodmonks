@@ -74,6 +74,9 @@ export const NavigationBar = () => (
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
             <Nav.Item>
+              <Nav.Link href="/promocion">Promociones</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
               <Nav.Link href="/menu">Menús</Nav.Link>
             </Nav.Item>
             <Nav.Item>

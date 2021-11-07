@@ -3,11 +3,13 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled from "styled-components";
 import Home from "./Home";
 import Menu from "./Menu";
+import AltaPromocion from "./AltaPromocion";
 import ModificarMenu from "./ModificarMenu";
 import AltaMenu from "./AltaMenu";
 import ListadoPedidosEfectivo from "./ListarPedidosEfectivo";
 import { Footer } from "../../components/Footer";
 import { NavigationBar } from "./NavBar";
+import Promocion from "./Promocion";
 
 const Styles = styled.div`
   #page-container {
@@ -29,6 +31,8 @@ function Restaurante() {
             <Route exact path="/menu" component={Menu} />
             <Route exact path="/modificarMenu" component={ModificarMenu} />
             <Route exact path="/altaMenu" component={AltaMenu} />
+            <Route exact path="/promocionar" component={AltaPromocion}/>
+            <Route exact path="/promocion" component={Promocion} />
             <Route exact path="/listadoPedidosEfectivo" component={ListadoPedidosEfectivo} />
             {/* <Route path="no-match" component={NoMatch} /> */}
           </Switch>

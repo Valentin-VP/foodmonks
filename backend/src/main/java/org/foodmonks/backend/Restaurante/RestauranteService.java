@@ -30,11 +30,12 @@ public class RestauranteService {
     private final RestauranteRepository restauranteRepository;
     private final UsuarioRepository usuarioRepository;
     private final MenuService menuService;
+    private final RestauranteConverter restauranteConverter;
     private final PedidoService pedidoService;
 
     @Autowired
-    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, PedidoService pedidoService) {
-        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.pedidoService = pedidoService;
+    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter, PedidoService pedidoService) {
+        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.restauranteConverter = restauranteConverter; this.pedidoService = pedidoService;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -68,15 +69,7 @@ public class RestauranteService {
         Restaurante restaurante = new Restaurante(nombre,apellido,correo, passwordEncoder.encode(password),now,calificacion,nombreRestaurante,Integer.valueOf(rut),direccion,pendiente,Integer.valueOf(telefono),descripcion,cuentaPaypal,url);
         restauranteRepository.save(restaurante);
         for (JsonObject menu: jsonMenus){
-            menuService.altaMenu(
-                    menu.get("nombre").getAsString(),
-                    Float.valueOf(menu.get("price").getAsString()),
-                    menu.get("descripcion").getAsString(),
-                    true,
-                    Float.valueOf(menu.get("multiplicador").getAsString()),
-                    menu.get("imagen").getAsString(),
-                    CategoriaMenu.valueOf(menu.get("categoria").getAsString()),
-                    restaurante.getCorreo());
+            menuService.altaMenu(menu,restaurante.getCorreo());
         }
     }
 
@@ -88,6 +81,15 @@ public class RestauranteService {
         return restaurante.getEstado();
     }
 
+    public JsonObject obtenerJsonRestaurante(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return restauranteConverter.jsonRestaurante(restaurante);
+
+    }
+  
     public void registrarPagoEfectivo(String correo, Long idPedido) throws RestauranteNoEncontradoException, PedidoNoExisteException {
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
         if (restaurante == null) {
@@ -100,9 +102,9 @@ public class RestauranteService {
             throw new RestauranteNoEncontradoException("No existe el pedido con id " + idPedido + " para el Restaurante " + correo);
         }
         pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.FINALIZADO);
-
-    }
-
+      }
+  
+  
     public List<JsonObject> listarPedidosEfectivoConfirmados(String correo) throws RestauranteNoEncontradoException {
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
         if (restaurante == null){
@@ -112,4 +114,26 @@ public class RestauranteService {
         return pedidoService.listaPedidosEfectivoConfirmados(restaurante);
     }
   
+  
+    public List<JsonObject> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
+        if (!nombreRestaurante.isEmpty()){
+            return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));
+        }
+        if (ordenCalificacion) {
+            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
+        }
+        List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+        if (!categoriaMenu.isEmpty()) {
+            List<Restaurante> result = new ArrayList<>();
+            CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
+            for (Restaurante restaurante : restaurantes){
+                if (menuService.existeCategoriaMenu(restaurante,categoria)){
+                    result.add(restaurante);
+                }
+            }
+            return restauranteConverter.listaRestaurantes(result);
+        }
+        return restauranteConverter.listaRestaurantes(restaurantes);
+    }
+
 }

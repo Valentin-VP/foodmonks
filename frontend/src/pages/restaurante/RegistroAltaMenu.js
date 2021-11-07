@@ -208,7 +208,7 @@ function RegistroAltaMenu() {
                     }, 3000);
                   })
                   .catch((error) => {
-                    setAlerta(error.response.data);
+                    setAlerta(error.data.detailMessage);
                     setTipo("danger");
                     setTimeout(() => {
                       window.location.replace("/");
@@ -233,7 +233,7 @@ function RegistroAltaMenu() {
             }, 3000);
           })
           .catch((error) => {
-            setAlerta(error.response.data);
+            setAlerta(error.data.detailMessage);
             setTipo("danger");
             setTimeout(() => {
               window.location.replace("/");
