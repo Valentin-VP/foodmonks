@@ -198,6 +198,17 @@ export const cambiarEstado = (estado) => {
   return response;
 };
 
+export const actualizarEstadoPedido = (estado, id) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/actualizarEstadoPedido/${id}`,
+    data: {estado: estado},
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  });
+};
+
 export const altaAdmin = (datos) => {
   return axios({
     method: "POST",
@@ -217,6 +228,19 @@ export const eliminarCuentaClientePropia = () => {
       Authorization: "Bearer " + getToken(),
     },
   });
+};
+
+export const obtenerPedidosSinFinalizarEfectivo = () => {
+  const response = axios ({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPedidosEfectivoCompletado`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
 };
 
 //----------------------------------USUARIOS---------------------------------------------------
