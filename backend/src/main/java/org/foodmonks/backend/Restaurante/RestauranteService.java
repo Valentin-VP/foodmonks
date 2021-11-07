@@ -15,11 +15,15 @@ import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -130,5 +134,14 @@ public class RestauranteService {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
         return pedidoService.listaPedidosPendientes(restaurante);
+    }
+
+    public List<JsonObject> listarHistoricoPedidos(String correo, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante==null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        return pedidoService.listaPedidosHistorico(restaurante, estadoPedido, medioPago, orden, fecha, total, pageable);
     }
 }

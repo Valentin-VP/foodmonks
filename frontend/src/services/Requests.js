@@ -216,6 +216,23 @@ export const obtenerPedidosSinConfirmar = () => {
   return response;
 };
 
+export const obtenerPedidosHistorico = (datos, fechaIni, fechaFin) => {
+  const fIni = fechaIni ? fechaIni.toISOString().slice(0,10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
+  const fFin = fechaFin ? fechaFin.toISOString().slice(0,10) : fIni;
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
+  return response;
+};
+
 //----------------------------------USUARIOS---------------------------------------------------
 
 export const fetchUsuarios = () => {

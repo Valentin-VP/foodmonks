@@ -22,15 +22,20 @@ import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.authentication.TokenHelper;
+import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
+
+import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1/restaurante")
@@ -356,6 +361,92 @@ public class RestauranteController {
             listaMenu = restauranteService.listarPedidosPendientes(correo);
             for(JsonObject jsonMenu : listaMenu) {
                 jsonArray.add(jsonMenu);
+            }
+        } catch (JsonIOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+        } catch (RestauranteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Listar Historico Pedidos",
+            description = "Lista de los pedidos realizados (finalizados o rechazados) al Restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedidos" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarHistoricoPedidos")
+    public ResponseEntity<?> listarHistoricoPedidos(@RequestHeader("Authorization") String token,
+                                                    @RequestParam(required = false, name = "estadoPedido") String estadoPedido,
+                                                    @RequestParam(required = false, name = "medioPago") String medioPago,
+                                                    @RequestParam(required = false, name = "orden") String orden,
+                                                    @RequestParam(required = false, name = "fecha") String fecha,
+                                                    @RequestParam(required = false, name = "total") String total,
+                                                    @RequestParam(required = false, name = "page") String page,
+                                                    @RequestParam(required = false, name = "size") String size) {
+        String newtoken = "";
+        String correo = "";
+        List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
+        JsonArray jsonArray = new JsonArray();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String[] _total = (!total.isEmpty() && total.contains(",")) ? total.split(",") : null;
+            String[] _fecha = (!fecha.isEmpty() && fecha.contains(",")) ? fecha.split(",") : null;
+            //String[] _order = (!orden.isEmpty() && orden.contains(",")) ? orden.split(",") : null;
+            Float[] totalFinal = new Float[2];
+            LocalDateTime[] fechaFinal = new LocalDateTime[2];
+
+            EstadoPedido estado = null;
+            MedioPago pago = null;
+            int pageFinal = 0;
+            int sizeFinal = 10;
+            if (!estadoPedido.equals("")) {
+                try {
+                    estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
+                }catch(IllegalArgumentException e){
+                    estado = null;
+                }
+            }
+            if (!medioPago.equals("")) {
+                try{
+                    pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
+                }catch(IllegalArgumentException e){
+                    pago = null;
+                }
+            }
+
+            if (_total != null){
+                try{
+                    totalFinal[0] = Math.abs(Float.valueOf(_total[0]));
+                    totalFinal[1] = Math.abs(Float.valueOf(_total[1]));
+                }catch(NumberFormatException e){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+                }
+            }
+
+            if (_fecha != null){
+                try{
+                    fechaFinal[0] = LocalDateTime.from(LocalDate.parse(_fecha[0]));
+                    fechaFinal[1] = LocalDateTime.from(LocalDate.parse(_fecha[1]));
+                }catch(DateTimeException e){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+                }
+            }
+            try{
+                pageFinal = Integer.parseInt(page);
+                sizeFinal = Integer.parseInt(size);
+            }catch(NumberFormatException e){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+            }
+            listaPedidos = restauranteService.listarHistoricoPedidos(correo, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
+            for(JsonObject jsonPedido : listaPedidos) {
+                jsonArray.add(jsonPedido);
             }
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
