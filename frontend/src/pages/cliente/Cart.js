@@ -83,8 +83,18 @@ const Styles = styled.div`
     max-width: 50%;
   }
 
-  .bPago {
-    margin-bottom: 15px;
+  .bPagoE {
+    margin: auto;
+    margin-bottom: 5px;
+    width: 250px;
+  }
+
+  .bPagoP {
+    margin: auto;
+  }
+
+  .eButton {
+    font-weight: bold;
   }
 `;
 
@@ -124,7 +134,7 @@ export const Cart = () => {
     e.preventDefault();
     console.log("efectivo");
   };
-  
+
   const onPaypal = (e) => {
     e.preventDefault();
     console.log("paypal");
@@ -184,45 +194,50 @@ export const Cart = () => {
               </div>
             </div>
             <div className="column compra m-3">
-                <div className="card">
-                  <h2>Realizar pedido</h2>
-                  <br />
-                  <h5 className="mb-2">Dirección del envio</h5>
-                  <Form.Select
-                    aria-label="Default select example"
-                    id="direcciones"
-                    required
-                  >
-                    {perfil.direcciones.map((direccion, index) => {
-                      return (
-                        <option className="dir" value={direccion}>
-                          {direccion.calle + " " + direccion.numero}
-                        </option>
-                      );
-                    })}
-                  </Form.Select>
-                  <br />
+              <div className="card">
+                <h2>Realizar pedido</h2>
+                <br />
+                <h5 className="mb-2">Dirección del envio</h5>
+                <Form.Select
+                  aria-label="Default select example"
+                  id="direcciones"
+                  required
+                >
+                  {perfil.direcciones.map((direccion, index) => {
+                    return (
+                      <option className="dir" value={direccion}>
+                        {direccion.calle + " " + direccion.numero}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
+                <br />
 
-                  <label className="mb-2">Total de items: {totalItems}</label>
-                  <h4>Finalizar Compra</h4>
-                  <div className="row bPago">
-                    <div className="column cb">
-                      <Button variant="success" onClick={onEfectivo} value="efectivo">
-                        Efectivo{" "}
-                        <MdOutlinePayments size="1.5rem" color="white" />
-                      </Button>
-                    </div>
-                    <div className="column cb">
-                      <PaypalCheckoutButton className="btn btn-info ms-2" order={
-                        {customer: perfil.nombre, total: cartTotal, items: items}
-                        } />
-                      {/* <Button variant="primary" onClick={onPaypal} value="paypal">
-                        Paypal <ImPaypal size="1.5rem" color="white" />
-                      </Button> */}
-                    </div>
-                  </div>
-                  <h5>Precio final: $ {cartTotal}</h5>
+                <label className="mb-2">Total de items: {totalItems}</label>
+                <h4>Finalizar Compra</h4>
+                <h5 className="mb-4">Precio final: $ {cartTotal}</h5>
+                <div className="row bPagoE">
+                  <Button
+                    className="eButton"
+                    variant="success"
+                    onClick={onEfectivo}
+                    value="efectivo"
+                  >
+                    Efectivo <MdOutlinePayments size="1.5rem" color="white" />
+                  </Button>
                 </div>
+                <div className="row bPagoP">
+                  <PaypalCheckoutButton
+                    order={{
+                      customer: perfil.nombre,
+                      total: cartTotal,
+                      items: items,
+                    }}
+                  />
+                  {/* <Button variant="primary" className="ppb" onClick={onPaypal} value="paypal">
+                    </Button> */}
+                </div>
+              </div>
             </div>
           </div>
         </Styles>
