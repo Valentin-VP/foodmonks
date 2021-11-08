@@ -58,6 +58,7 @@ export default function ListadoRestaurantesAbiertos({data}) {
                     <div className="column">
                       <RestauranteCard
                         key={index}
+                        correo={item.correo}
                         imagen={item.imagen}
                         nombre={item.nombreRestaurante}
                         telefono={item.telefono}

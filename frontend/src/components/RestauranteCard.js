@@ -30,12 +30,12 @@ const Styles = styled.div`
 `;
 
 const RestauranteCard = (props) => {
-    const onClick = (correo, imagen, calificacion, nombre) => {
-        sessionStorage.setItem("restauranteId", correo);
-        sessionStorage.setItem("restauranteImagen", imagen);
-        sessionStorage.setItem("restauranteCalif", calificacion);
-        sessionStorage.setItem("restauranteNombre", nombre);
-      }
+    const onClick = () => {
+        sessionStorage.setItem("restauranteId", props.correo);
+        sessionStorage.setItem("restauranteImagen", props.imagen);
+        sessionStorage.setItem("restauranteCalif", props.calificacion);
+        sessionStorage.setItem("restauranteNombre", props.nombre);
+    }
 
   return (
     <Styles>
@@ -48,7 +48,7 @@ const RestauranteCard = (props) => {
           <Button
             href="/listarProductos"
             className="btn-primary margin-auto"
-            onClick={() => onClick(props.correo, props.imagen, props.calificacion, props.nombre)}
+            onClick={() => onClick()}
           >
             Acceder
           </Button>

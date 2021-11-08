@@ -1,4 +1,4 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
 import { fetchUsuariosBusqueda } from "../../services/Requests";
 import ListadoRegistrados from "./ListadoRegistrados";
@@ -64,6 +64,10 @@ export default function BuscarRegistrados() {
     correo: "",
     ordenar: false,
   });
+
+  useEffect(() => {
+    fetch();
+  }, []);
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);

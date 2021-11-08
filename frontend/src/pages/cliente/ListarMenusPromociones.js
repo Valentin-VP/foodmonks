@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import { Layout } from "../../components/Layout";
 import ItemCard from "../../components/itemCard";
@@ -33,7 +33,7 @@ export default function ListadoMenusPromociones({data}) {
               {data.map((item, index) => {
                 return (
                   <div className="column">
-                    {item.multiplicador !== 0 ?  
+                    {item.multiplicadorPromocion !== 0 ?  
                     <ItemCard
                       key={index}
                       img={item.imagen}
@@ -51,7 +51,7 @@ export default function ListadoMenusPromociones({data}) {
               {data.map((item, index) => {
                 return (
                   <div className="column">
-                    {item.multiplicador === 0 ?  
+                    {item.multiplicadorPromocion === 0 ?  
                     <ItemCard
                       key={index}
                       img={item.imagen}
