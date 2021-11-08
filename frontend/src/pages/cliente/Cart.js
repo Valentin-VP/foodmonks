@@ -140,6 +140,16 @@ export const Cart = () => {
     console.log("paypal");
   };
 
+  const getOrder = () => {
+    let order = {customer: perfil.nombre, total: cartTotal};
+    const orderItems = items.map((item)=>{
+      return {name: `${item.title + " ($" + (item.price * item.quantity) + ")"}`, price: item.price, quantity: item.quantity, currency: 'USD'}
+    })
+    order = {...order, items: orderItems};
+    console.log(order);
+    return order;
+  } 
+
   return (
     <React.Fragment>
       <Layout>
@@ -228,11 +238,7 @@ export const Cart = () => {
                 </div>
                 <div className="row bPagoP">
                   <PaypalCheckoutButton
-                    order={{
-                      customer: perfil.nombre,
-                      total: cartTotal,
-                      items: items,
-                    }}
+                    order={getOrder()}
                   />
                   {/* <Button variant="primary" className="ppb" onClick={onPaypal} value="paypal">
                     </Button> */}
