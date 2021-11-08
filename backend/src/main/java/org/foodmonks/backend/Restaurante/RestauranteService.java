@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Restaurante;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -142,7 +143,7 @@ public class RestauranteService {
         return pedidoService.listaPedidosPendientes(restaurante);
     }
 
-    public List<JsonObject> listarHistoricoPedidos(String correo, String estadoPedido, String medioPago, String orden, String fecha, String total, String page, String size) throws RestauranteNoEncontradoException {
+    public JsonObject listarHistoricoPedidos(String correo, String estadoPedido, String medioPago, String orden, String fecha, String total, String page, String size) throws RestauranteNoEncontradoException {
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
         if (restaurante==null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
@@ -187,7 +188,6 @@ public class RestauranteService {
                 fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
                 fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
             }catch(DateTimeException e){
-                e.printStackTrace();
                 fechaFinal = null;
             }
         }else

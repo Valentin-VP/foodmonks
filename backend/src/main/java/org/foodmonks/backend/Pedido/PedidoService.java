@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Pedido;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.CriterioQuery;
@@ -32,9 +33,9 @@ public class PedidoService {
         return pedidoConvertidor.listaJsonPedidoPendientes(pedidoRepository.findPedidosByRestauranteAndEstado(restaurante, EstadoPedido.PENDIENTE));
     }
 
-    public List<JsonObject> listaPedidosHistorico(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, Pageable pageable){
+    public JsonObject listaPedidosHistorico(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, Pageable pageable){
 
-        List<Pedido> pedidos = pedidoRepository.findPedidosByRestaurante(restaurante, pageable).getContent();
+        List<Pedido> pedidos; //= pedidoRepository.findPedidosByRestaurante(restaurante, pageable).getContent();
         List<Pedido> result;
 
         PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
@@ -77,7 +78,9 @@ public class PedidoService {
             builder.with(c);
         }
         Specification<Pedido> p = builder.build();
-        result = pedidoRepository.findAll(p, pageable).getContent();
+        Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
+        result = pedidoPage.getContent();
+        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         if (orden != null){
             if (orden.equals("asc"))
                 result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal)).collect(Collectors.toList());
@@ -87,7 +90,11 @@ public class PedidoService {
 
         //Cambiar o el convertidor o la funcion referenciada
 
-        return pedidoConvertidor.listaJsonPedidoPendientes(result);
+        JsonObject jsonObject = pedidoConvertidor.listaJsonPedidoPaged(result);
+        jsonObject.addProperty("currentPage", pedidoPage.getNumber());
+        jsonObject.addProperty("totalItems", pedidoPage.getTotalElements());
+        jsonObject.addProperty("totalPages", pedidoPage.getTotalPages());
+        return jsonObject;
     }
 
     public boolean existePedidoRestaurante (Long idPedido, Restaurante restaurante) {

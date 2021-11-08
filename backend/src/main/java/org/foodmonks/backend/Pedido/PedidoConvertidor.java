@@ -8,6 +8,7 @@ import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,9 @@ public class PedidoConvertidor {
                 + (pedido.getDireccion().getDetalles()!=null ? " (" + pedido.getDireccion().getDetalles()+ ")" : ""));
         jsonPedido.addProperty("total", pedido.getTotal());
         jsonPedido.addProperty("medioPago", pedido.getMedioPago() == MedioPago.PAYPAL ? "PayPal" : "Efectivo");
+        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "");
+        jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         if (pedido.getCliente()!=null){
             jsonPedido.addProperty("nombreApellidoCliente", pedido.getCliente().getNombre() + " " + pedido.getCliente().getApellido());
@@ -54,5 +58,20 @@ public class PedidoConvertidor {
         }
 
         return jsonPedido;
+    }
+
+    public JsonObject listaJsonPedidoPaged(List<Pedido> pedidos){
+        List<JsonObject> gsonPedidos = new ArrayList<>();
+        JsonArray jsonArray = new JsonArray();
+        JsonObject result = new JsonObject();
+        for (Pedido pedido : pedidos){
+            gsonPedidos.add(jsonPedidoPendientes(pedido));
+        }
+
+        for (JsonObject pedido : gsonPedidos){
+            jsonArray.add(pedido);
+        }
+        result.add("pedidos", jsonArray);
+        return result;
     }
 }

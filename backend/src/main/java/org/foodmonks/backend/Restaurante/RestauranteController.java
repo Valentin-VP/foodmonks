@@ -390,22 +390,19 @@ public class RestauranteController {
         String newtoken = "";
         String correo = "";
         List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
-        JsonArray jsonArray = new JsonArray();
+        JsonObject jsonObject = new JsonObject();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
             correo = tokenHelp.getUsernameFromToken(newtoken);
-            listaPedidos = restauranteService.listarHistoricoPedidos(correo, estadoPedido, medioPago, orden, fecha, total, page, size);
-            for(JsonObject jsonPedido : listaPedidos) {
-                jsonArray.add(jsonPedido);
-            }
+            jsonObject = restauranteService.listarHistoricoPedidos(correo, estadoPedido, medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
         } catch (RestauranteNoEncontradoException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
     }
 
     @Operation(summary = "Cambia el estado del pedido",
