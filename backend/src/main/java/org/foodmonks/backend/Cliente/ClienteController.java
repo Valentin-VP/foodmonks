@@ -178,9 +178,18 @@ public class ClienteController {
             @RequestParam(required = false, name = "precioInicial") Float precioInicial,
             @RequestParam(required = false, name = "precioFinal") Float precioFinal
             ) {
+
+        List<JsonObject> listarProductosRestaurante = new ArrayList<>();
         JsonArray jsonArray = new JsonArray();
+
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+            listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+
+            for (JsonObject restaurante : listarProductosRestaurante) {
+                jsonArray.add(restaurante);
+            }
+
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
