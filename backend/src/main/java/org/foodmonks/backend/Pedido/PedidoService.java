@@ -2,19 +2,18 @@ package org.foodmonks.backend.Pedido;
 
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.datatypes.CriterioQuery;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,38 +37,56 @@ public class PedidoService {
         List<Pedido> pedidos = pedidoRepository.findPedidosByRestaurante(restaurante, pageable).getContent();
         List<Pedido> result;
 
+        PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
+        List<CriterioQuery> querys = new ArrayList<>();
+
         if (estadoPedido != null) {
-            result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
+            querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+//            result = pedidoRepository.findAll(estadoSpec);
+            //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
         }else{
-            result = pedidos.stream().filter(p -> (p.getEstado().equals(EstadoPedido.DEVUELTO) || p.getEstado().equals(EstadoPedido.FINALIZADO))).collect(Collectors.toList());
+            querys.add(new CriterioQuery("estado",":",EstadoPedido.DEVUELTO, true));
+            querys.add(new CriterioQuery("estado",":",EstadoPedido.FINALIZADO, true));
+//            result = pedidoRepository.findAll(estadoSpecF.and(estadoSpecD));
+            //result = pedidos.stream().filter(p -> (p.getEstado().equals(EstadoPedido.DEVUELTO) || p.getEstado().equals(EstadoPedido.FINALIZADO))).collect(Collectors.toList());
         }
-        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+//        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         if (medioPago != null) {
-            result = pedidos.stream().filter(p -> p.getMedioPago().equals(medioPago)).collect(Collectors.toList());
-            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+            querys.add(new CriterioQuery("medioPago",":",medioPago, false));
+            //result = pedidos.stream().filter(p -> p.getMedioPago().equals(medioPago)).collect(Collectors.toList());
+            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
 
         if (total != null){
-            result = pedidos.stream().filter(p -> (p.getTotal() >= total[0] && p.getTotal() <= total[1])).collect(Collectors.toList());
-            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+            querys.add(new CriterioQuery("total",">",total[0], false));
+            querys.add(new CriterioQuery("total","<",total[1], false));
+            //result = pedidos.stream().filter(p -> (p.getTotal() >= total[0] && p.getTotal() <= total[1])).collect(Collectors.toList());
+            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
 
         if (fecha != null){
-            result = pedidos.stream().filter(p -> (
-                    p.getFechaHoraEntrega().isAfter(LocalDateTime.from(fecha[0]))
-                            && p.getFechaHoraEntrega().isBefore(LocalDateTime.from(fecha[1]))
-            )).collect(Collectors.toList());
-            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+            querys.add(new CriterioQuery("fechaHoraEntrega",">",fecha[0], false));
+            querys.add(new CriterioQuery("fechaHoraEntrega","<",fecha[1].plusDays(1), false));
+//            result = pedidos.stream().filter(p -> (
+//                    p.getFechaHoraEntrega().isAfter(LocalDateTime.from(fecha[0]))
+//                            && p.getFechaHoraEntrega().isBefore(LocalDateTime.from(fecha[1]))
+//            )).collect(Collectors.toList());
+//            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
-
-        if (!orden.isEmpty()){
+        for(CriterioQuery c : querys){
+            builder.with(c);
+        }
+        Specification<Pedido> p = builder.build();
+        result = pedidoRepository.findAll(p, pageable).getContent();
+        if (orden != null){
             if (orden.equals("asc"))
                 result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal)).collect(Collectors.toList());
-            else
+            else if (orden.equals("desc"))
                 result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal).reversed()).collect(Collectors.toList());
         }
 
         //Cambiar o el convertidor o la funcion referenciada
+
         return pedidoConvertidor.listaJsonPedidoPendientes(result);
     }
 

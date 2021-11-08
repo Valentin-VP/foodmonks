@@ -396,55 +396,7 @@ public class RestauranteController {
                 newtoken = token.substring(7);
             }
             correo = tokenHelp.getUsernameFromToken(newtoken);
-            String[] _total = (!total.isEmpty() && total.contains(",")) ? total.split(",") : null;
-            String[] _fecha = (!fecha.isEmpty() && fecha.contains(",")) ? fecha.split(",") : null;
-            //String[] _order = (!orden.isEmpty() && orden.contains(",")) ? orden.split(",") : null;
-            Float[] totalFinal = new Float[2];
-            LocalDateTime[] fechaFinal = new LocalDateTime[2];
-
-            EstadoPedido estado = null;
-            MedioPago pago = null;
-            int pageFinal = 0;
-            int sizeFinal = 10;
-            if (!estadoPedido.equals("")) {
-                try {
-                    estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
-                }catch(IllegalArgumentException e){
-                    estado = null;
-                }
-            }
-            if (!medioPago.equals("")) {
-                try{
-                    pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
-                }catch(IllegalArgumentException e){
-                    pago = null;
-                }
-            }
-
-            if (_total != null){
-                try{
-                    totalFinal[0] = Math.abs(Float.valueOf(_total[0]));
-                    totalFinal[1] = Math.abs(Float.valueOf(_total[1]));
-                }catch(NumberFormatException e){
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
-                }
-            }
-
-            if (_fecha != null){
-                try{
-                    fechaFinal[0] = LocalDateTime.from(LocalDate.parse(_fecha[0]));
-                    fechaFinal[1] = LocalDateTime.from(LocalDate.parse(_fecha[1]));
-                }catch(DateTimeException e){
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
-                }
-            }
-            try{
-                pageFinal = Integer.parseInt(page);
-                sizeFinal = Integer.parseInt(size);
-            }catch(NumberFormatException e){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
-            }
-            listaPedidos = restauranteService.listarHistoricoPedidos(correo, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
+            listaPedidos = restauranteService.listarHistoricoPedidos(correo, estadoPedido, medioPago, orden, fecha, total, page, size);
             for(JsonObject jsonPedido : listaPedidos) {
                 jsonArray.add(jsonPedido);
             }

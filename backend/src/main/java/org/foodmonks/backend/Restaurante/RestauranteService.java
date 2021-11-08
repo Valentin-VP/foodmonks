@@ -19,11 +19,17 @@ import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -136,12 +142,65 @@ public class RestauranteService {
         return pedidoService.listaPedidosPendientes(restaurante);
     }
 
-    public List<JsonObject> listarHistoricoPedidos(String correo, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size) throws RestauranteNoEncontradoException {
+    public List<JsonObject> listarHistoricoPedidos(String correo, String estadoPedido, String medioPago, String orden, String fecha, String total, String page, String size) throws RestauranteNoEncontradoException {
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
         if (restaurante==null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
-        Pageable pageable = PageRequest.of(page, size);
-        return pedidoService.listaPedidosHistorico(restaurante, estadoPedido, medioPago, orden, fecha, total, pageable);
+        String[] _total = (total!=null && total.contains(",")) ? total.split(",") : null;
+        String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
+        //String[] _order = (!orden.isEmpty() && orden.contains(",")) ? orden.split(",") : null;
+        Float[] totalFinal = new Float[2];
+        LocalDateTime[] fechaFinal = new LocalDateTime[2];
+
+        EstadoPedido estado = null;
+        MedioPago pago = null;
+        int pageFinal = 0;
+        int sizeFinal = 10;
+        if (estadoPedido!= null && !estadoPedido.equals("")) {
+            try {
+                estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
+            }catch(IllegalArgumentException e){
+                estado = null;
+            }
+        }
+        if (medioPago!= null && !medioPago.equals("")) {
+            try{
+                pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
+            }catch(IllegalArgumentException e){
+                pago = null;
+            }
+        }
+
+        if (_total != null && _total[0] != null && _total[1] != null){
+            try{
+                totalFinal[0] = Math.abs(Float.valueOf(_total[0]));
+                totalFinal[1] = Math.abs(Float.valueOf(_total[1]));
+            }catch(NumberFormatException e){
+                totalFinal = null;
+            }
+        }else
+            totalFinal = null;
+
+        if (_fecha != null && _fecha[0] != null && _fecha[1] != null){
+            try{
+                fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+                fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+            }catch(DateTimeException e){
+                e.printStackTrace();
+                fechaFinal = null;
+            }
+        }else
+            fechaFinal = null;
+
+        try{
+            pageFinal = Integer.parseInt(page);
+            sizeFinal = Integer.parseInt(size);
+        }catch(NumberFormatException e){
+            pageFinal = 0;
+            sizeFinal = 5;
+        }
+        Pageable pageable = PageRequest.of(pageFinal, sizeFinal);
+        return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageable);
     }
 }
