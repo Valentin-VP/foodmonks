@@ -48,22 +48,20 @@ public class Pedido  {
 	private Restaurante restaurante;
     @OneToMany(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
 	private List<MenuCompra> menusCompra = new ArrayList<>();
-    @OneToOne (mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+    @OneToOne //(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
     
     public Pedido () {
     }
     
     public Pedido(String nombre, EstadoPedido estado, LocalDate fechaHoraProcesado, Float total,
-				  MedioPago medioPago, LocalDate fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
+				  MedioPago medioPago, LocalDate fechaHoraEntrega) {
 		this.nombre = nombre;
 		this.estado = estado;
 		this.fechaHoraProcesado = fechaHoraProcesado;
 		this.total = total;
 		this.medioPago = medioPago;
 		this.fechaHoraEntrega = fechaHoraEntrega;
-		this.direccion = direccion;
-		this.ordenPaypal = ordenPaypal;
 	}
     
 }
