@@ -284,4 +284,22 @@ export const checkPwdRecoveryToken=(email, ptoken)=>{
       data:datos
   })
 }
+export const paypalEnviarCART=(data)=>{
+  // const datos = {cart: data ? data : ""}
+  //   console.log(datos);
+  //   const response = axios({
+  //     method:"POST",
+  //     url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/check`,
+  //     data:datos,
+  //     headers: {
+  //       Authorization: "Bearer " + getToken(),
+  //       'RefreshAuthentication': "Bearer " + getRefreshToken(),
+  //     }
+  //   });
+  //   response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+  //       .catch((error)=> {checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
+  //   return response;
+};
+
+
 
