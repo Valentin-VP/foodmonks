@@ -173,7 +173,7 @@ public class ClienteService {
         return null;
     }
 
-    public JsonObject crearPedido(String correo, JsonArray jsonRequestPedido) {
+    public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) {
 /*        [
             {
                 "restaurante": "correoRestaurante@gmail.com", // String: correo del restaurante en que se solicitan los menus

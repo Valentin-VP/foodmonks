@@ -281,7 +281,7 @@ public class ClienteController {
             String correo = tokenHelp.getUsernameFromToken(strToken);
 
             // Obtener detalles del pedido
-            JsonArray jsonRequestPedido = new Gson().fromJson(pedido, JsonArray.class);
+            JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
             return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
         }catch (Exception e){
