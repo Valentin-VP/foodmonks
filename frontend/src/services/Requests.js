@@ -324,6 +324,7 @@ export const agregarDireccion = (direccion) => {
     data: direccion,
     headers: {
       Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
     },
   });
 };
