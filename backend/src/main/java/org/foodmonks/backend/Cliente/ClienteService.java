@@ -172,4 +172,7 @@ public class ClienteService {
         return null;
     }
 
+    public JsonObject agregarReclamo(String idPedido, String motivo) {
+        return new JsonObject();
+    }
 }

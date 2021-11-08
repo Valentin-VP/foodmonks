@@ -59,6 +59,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/restaurante/crearSolicitudAltaRestaurante").permitAll()
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .antMatchers("/api/v1/cliente/eliminarCuenta").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/agregarReclamo").hasRole("CLIENTE")
                         .antMatchers("/api/v1/admin/listarUsuarios").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),

@@ -264,4 +264,29 @@ public class ClienteController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @Operation(summary = "Agregar un Reclamo",
+            description = "Agrega un nuevo Reclamo a un Pedido del Cliente",
+            tags = { "cliente", "reclamo" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Reclamo agregado"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @PostMapping(path = "/agregarReclamo")
+    public ResponseEntity<?> realizarReclamo(
+            @RequestParam(name = "pedido") String idPedido,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json"))
+            @RequestBody String motivoReclamo
+    ) {
+        JsonObject jsonResponse = new JsonObject();
+        try {
+            JsonObject jsonMotivoReclamo = new Gson().fromJson(motivoReclamo, JsonObject.class);
+            String motivo = jsonMotivoReclamo.get("motivo").getAsString();
+            jsonResponse = clienteService.agregarReclamo(idPedido, motivo);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
+    }
+
 }
