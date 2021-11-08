@@ -173,7 +173,7 @@ public class ClienteController {
     })
     @GetMapping(path = "/listarProductosRestaurante")
     public ResponseEntity<?> listarProductosRestaurante(
-            @RequestParam(required = false, name = "id") String restauranteCorreo,
+            @RequestParam(name = "id") String restauranteCorreo,
             @RequestParam(required = false, name = "categoria") String categoria,
             @RequestParam(required = false, name = "precioInicial") Float precioInicial,
             @RequestParam(required = false, name = "precioFinal") Float precioFinal
