@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import styled from "styled-components";
 import { Layout } from "../../components/Layout";
 import ItemCard from "../../components/itemCard";
@@ -18,22 +18,20 @@ const Styles = styled.div`
       margin-bottom: 20px;
     }
   }
-  
 `;
 
-export default function ListadoMenusPromociones({data}) {
-
-    return (
-        <Styles>
-        <React.Fragment>
-          <Layout>
-            <h2>Menus y Promociones</h2>
-            <div className="row justify-content-center">
-            <h3> Promociones </h3>
-              {data.map((item, index) => {
-                return (
+export default function ListadoMenusPromociones({ data }) {
+  return (
+    <Styles>
+      <React.Fragment>
+        <Layout>
+          <h2>Menus y Promociones</h2>
+          <h3> Promociones </h3>
+          {data.map((item, index) => {
+            return (
+              <div className="row justify-content-left">
+                {item.multiplicadorPromocion !== 0 ? (
                   <div className="column">
-                    {item.multiplicadorPromocion !== 0 ?  
                     <ItemCard
                       key={index}
                       img={item.imagen}
@@ -42,16 +40,18 @@ export default function ListadoMenusPromociones({data}) {
                       price={item.price}
                       item={item}
                     />
-                    : null}
-                  </div>                
-                );
-              })}
-            <hr />
-            <h3> Menus </h3>
-              {data.map((item, index) => {
-                return (
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+          <hr />
+          <h3> Menus </h3>
+          {data.map((item, index) => {
+            return (
+              <div className="row justify-content-left">
+                {item.multiplicadorPromocion === 0 ? (
                   <div className="column">
-                    {item.multiplicadorPromocion === 0 ?  
                     <ItemCard
                       key={index}
                       img={item.imagen}
@@ -59,13 +59,13 @@ export default function ListadoMenusPromociones({data}) {
                       price={item.price}
                       item={item}
                     />
-                    : null}
-                  </div>                
-                );
-              })}              
-            </div>
-          </Layout>
-        </React.Fragment>
-      </Styles>
-    )
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </Layout>
+      </React.Fragment>
+    </Styles>
+  );
 }
