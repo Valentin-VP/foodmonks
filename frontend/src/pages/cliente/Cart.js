@@ -8,6 +8,7 @@ import { Loading } from "../../components/Loading";
 import { IoBagAddSharp, IoBagRemoveSharp } from "react-icons/io5";
 import { MdDeleteForever, MdOutlinePayments } from "react-icons/md";
 import { ImPaypal } from "react-icons/im";
+import PaypalCheckoutButton from "../../components/PaypalCheckoutButton";
 
 const Styles = styled.div`
   .card {
@@ -41,7 +42,7 @@ const Styles = styled.div`
     &:hover {
       background-color: #da6416;
     }
-    $:active {
+    &:active {
       background-color: black !important;
     }
   }
@@ -212,9 +213,12 @@ export const Cart = () => {
                       </Button>
                     </div>
                     <div className="column cb">
-                      <Button variant="primary" onClick={onPaypal} value="paypal">
+                      <PaypalCheckoutButton className="btn btn-info ms-2" order={
+                        {customer: perfil.nombre, total: cartTotal, items: items}
+                        } />
+                      {/* <Button variant="primary" onClick={onPaypal} value="paypal">
                         Paypal <ImPaypal size="1.5rem" color="white" />
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                   <h5>Precio final: $ {cartTotal}</h5>
