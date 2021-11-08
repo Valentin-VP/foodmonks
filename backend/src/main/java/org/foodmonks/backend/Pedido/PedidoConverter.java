@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class PedidoConvertidor {
+public class PedidoConverter {
 
     public List<JsonObject> listaJsonPedido(List<Pedido> pedidos){
         List<JsonObject> gsonPedidos = new ArrayList<>();

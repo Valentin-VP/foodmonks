@@ -13,15 +13,15 @@ import java.util.List;
 public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
-    private final PedidoConvertidor pedidoConvertidor;
+    private final PedidoConverter pedidoConverter;
 
     @Autowired
-    public PedidoService(PedidoRepository pedidoRepository, PedidoConvertidor pedidoConvertidor){
-        this.pedidoRepository = pedidoRepository; this.pedidoConvertidor = pedidoConvertidor;
+    public PedidoService(PedidoRepository pedidoRepository, PedidoConverter pedidoConverter){
+        this.pedidoRepository = pedidoRepository; this.pedidoConverter = pedidoConverter;
     }
 
     public List<JsonObject> listaPedidosEfectivoConfirmados(Restaurante restaurante){
-        return pedidoConvertidor.listaJsonPedido(pedidoRepository.findPedidosByRestauranteAndEstadoAndMedioPago(restaurante, EstadoPedido.CONFIRMADO, MedioPago.EFECTIVO));
+        return pedidoConverter.listaJsonPedido(pedidoRepository.findPedidosByRestauranteAndEstadoAndMedioPago(restaurante, EstadoPedido.CONFIRMADO, MedioPago.EFECTIVO));
     }
 
     public boolean existePedido (Long idPedido){
