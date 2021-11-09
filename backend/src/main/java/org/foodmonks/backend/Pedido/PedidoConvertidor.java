@@ -25,7 +25,7 @@ public class PedidoConvertidor {
         return gsonPedidos;
     }
 
-    // Datos de MenuCompra y Nombre y Apellido del cliente + datos estándar de pedido
+    // Datos de MenuCompra y Nombre y Apellido del cliente + datos estándar de pedido y nombre Restaurante
     public JsonObject jsonPedidoPendientes(Pedido pedido) {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
@@ -41,11 +41,19 @@ public class PedidoConvertidor {
                         (pedido.getEstado() == EstadoPedido.PENDIENTE ? "Pendiente" :
                                 (pedido.getEstado() == EstadoPedido.CONFIRMADO ? "Confirmado" : "Rechazado"))));
         jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "");
+        jsonPedido.addProperty("calificacionRestauranteComentario", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getComentario() : "");
+        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getPuntaje().toString() : "");
+        jsonPedido.addProperty("calificacionClienteComentario", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getComentario() : "");
+
         jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         if (pedido.getCliente()!=null){
             jsonPedido.addProperty("nombreApellidoCliente", pedido.getCliente().getNombre() + " " + pedido.getCliente().getApellido());
+        }
+        if (pedido.getRestaurante()!=null){
+            jsonPedido.addProperty("nombreRestaurante", pedido.getRestaurante().getNombreRestaurante());
+            jsonPedido.addProperty("imagenRestaurante", pedido.getRestaurante().getImagen());
         }
 
         if (!pedido.getMenusCompra().isEmpty()){
@@ -57,6 +65,7 @@ public class PedidoConvertidor {
                 jsonMenuCompra.addProperty("precio", m.getPrice().toString());
                 jsonMenuCompra.addProperty("multiplicadorPromocion", m.getMultiplicadorPromocion()*100);
                 jsonMenuCompra.addProperty("calculado", Math.round(m.getPrice() * (1 - m.getMultiplicadorPromocion()) * 100) / 100);
+                //jsonMenuCompra.addProperty("cantidad", m.getCantidad().toString());
                 jsonMenus.add(jsonMenuCompra);
             }
             jsonPedido.add("menus", jsonMenus);
