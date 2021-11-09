@@ -8,7 +8,10 @@ import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -33,9 +36,8 @@ public class PedidoService {
         return pedidoConvertidor.listaJsonPedidoPendientes(pedidoRepository.findPedidosByRestauranteAndEstado(restaurante, EstadoPedido.PENDIENTE));
     }
 
-    public JsonObject listaPedidosHistorico(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, Pageable pageable){
+    public JsonObject listaPedidosHistorico(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size){
 
-        List<Pedido> pedidos; //= pedidoRepository.findPedidosByRestaurante(restaurante, pageable).getContent();
         List<Pedido> result;
 
         PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
@@ -78,17 +80,18 @@ public class PedidoService {
             builder.with(c);
         }
         Specification<Pedido> p = builder.build();
-        Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
-        result = pedidoPage.getContent();
-        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+        List<Order> orders = new ArrayList<>();
         if (orden != null){
             if (orden.equals("asc"))
-                result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal)).collect(Collectors.toList());
+                orders.add(new Order(Sort.Direction.ASC, "total"));
+                //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal)).collect(Collectors.toList());
             else if (orden.equals("desc"))
-                result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal).reversed()).collect(Collectors.toList());
+                orders.add(new Order(Sort.Direction.DESC, "total"));
+                //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal).reversed()).collect(Collectors.toList());
         }
-
-        //Cambiar o el convertidor o la funcion referenciada
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+        Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
+        result = pedidoPage.getContent();
 
         JsonObject jsonObject = pedidoConvertidor.listaJsonPedidoPaged(result);
         jsonObject.addProperty("currentPage", pedidoPage.getNumber());

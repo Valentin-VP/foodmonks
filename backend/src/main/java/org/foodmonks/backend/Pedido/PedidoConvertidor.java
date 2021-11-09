@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
+import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +36,10 @@ public class PedidoConvertidor {
                 + (pedido.getDireccion().getDetalles()!=null ? " (" + pedido.getDireccion().getDetalles()+ ")" : ""));
         jsonPedido.addProperty("total", pedido.getTotal());
         jsonPedido.addProperty("medioPago", pedido.getMedioPago() == MedioPago.PAYPAL ? "PayPal" : "Efectivo");
+        jsonPedido.addProperty("estadoPedido", pedido.getEstado() == EstadoPedido.DEVUELTO ? "Devuelto" :
+                (pedido.getEstado() == EstadoPedido.FINALIZADO ? "Finalizado" :
+                        (pedido.getEstado() == EstadoPedido.PENDIENTE ? "Pendiente" :
+                                (pedido.getEstado() == EstadoPedido.CONFIRMADO ? "Confirmado" : "Rechazado"))));
         jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "");
         jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));

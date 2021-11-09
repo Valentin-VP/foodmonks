@@ -216,12 +216,15 @@ export const obtenerPedidosSinConfirmar = () => {
   return response;
 };
 
-export const obtenerPedidosHistorico = (datos, fechaIni, fechaFin) => {
+export const obtenerPedidosHistorico = (datos, fechaIni, fechaFin, page) => {
   const fIni = fechaIni ? fechaIni.toISOString().slice(0,10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
   const fFin = fechaFin ? fechaFin.toISOString().slice(0,10) : fIni;
+  const fecha = (fIni!==""&&fFin!=="") ? fIni + "," + fFin : "";
+  const total = (datos.minTotal!==""&&datos.maxTotal!=="") ? datos.minTotal + "," + datos.maxTotal : "";
+
   const response = axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarHistoricoPedidos?estadoPedido=${datos.estadoPedido}&medioPago=${datos.medioPago}&orden=${datos.ordenamiento}&fecha=${fecha}&total=${total}&page=${page}`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),

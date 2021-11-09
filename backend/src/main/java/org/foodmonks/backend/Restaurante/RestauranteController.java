@@ -385,8 +385,8 @@ public class RestauranteController {
                                                     @RequestParam(required = false, name = "orden") String orden,
                                                     @RequestParam(required = false, name = "fecha") String fecha,
                                                     @RequestParam(required = false, name = "total") String total,
-                                                    @RequestParam(required = false, name = "page") String page,
-                                                    @RequestParam(required = false, name = "size") String size) {
+                                                    @RequestParam(defaultValue = "0",required = false, name = "page") String page,
+                                                    @RequestParam(defaultValue = "5", required = false, name = "size") String size) {
         String newtoken = "";
         String correo = "";
         List<JsonObject> listaPedidos = new ArrayList<JsonObject>();

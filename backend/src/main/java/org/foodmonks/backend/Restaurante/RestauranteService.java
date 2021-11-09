@@ -197,10 +197,10 @@ public class RestauranteService {
             pageFinal = Integer.parseInt(page);
             sizeFinal = Integer.parseInt(size);
         }catch(NumberFormatException e){
+            e.printStackTrace();
             pageFinal = 0;
             sizeFinal = 5;
         }
-        Pageable pageable = PageRequest.of(pageFinal, sizeFinal);
-        return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageable);
+        return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
 }
