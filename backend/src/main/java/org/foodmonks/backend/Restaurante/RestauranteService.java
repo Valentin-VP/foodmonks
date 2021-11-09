@@ -107,4 +107,12 @@ public class RestauranteService {
         return restauranteConverter.listaRestaurantes(restaurantes);
     }
 
+    public Restaurante obtenerRestaurante(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return restaurante;
+    }
+
 }

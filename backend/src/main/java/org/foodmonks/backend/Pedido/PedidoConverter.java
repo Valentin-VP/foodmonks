@@ -20,7 +20,6 @@ public class PedidoConverter {
     public JsonObject jsonPedido(Pedido pedido) {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
-        jsonPedido.addProperty("nombre", pedido.getNombre());
         jsonPedido.addProperty("estado", pedido.getEstado().name());
         jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente().getPuntaje());
         jsonPedido.addProperty("comentarioCliente", pedido.getCalificacionCliente().getComentario());

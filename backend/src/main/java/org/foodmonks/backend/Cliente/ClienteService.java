@@ -1,13 +1,23 @@
 package org.foodmonks.backend.Cliente;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
+import org.foodmonks.backend.MenuCompra.MenuCompraService;
+import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioService;
+import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoCliente;
+import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,10 +34,13 @@ public class ClienteService {
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
+    private final PedidoService pedidoService;
+    private final RestauranteService restauranteService;
+    private final MenuCompraService menuCompraService;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, ClienteConverter clienteConverter) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.clienteConverter = clienteConverter;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, ClienteConverter clienteConverter, PedidoService pedidoService, RestauranteService restauranteService, MenuCompraService menuCompraService) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  this.restauranteService = restauranteService; this.menuCompraService = menuCompraService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -54,11 +67,6 @@ public class ClienteService {
     public Cliente buscarCliente(String correo) {
         return clienteRepository.findByCorreo(correo);
     }
-
-/*    public void modificarCliente(Cliente cliente) {
-        clienteRepository.save(cliente);
-    }*/
-
 
     public void modificarCliente(String correo, String nombre, String apellido) throws ClienteNoEncontradoException {
 
@@ -173,7 +181,7 @@ public class ClienteService {
         return null;
     }
 
-    public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) {
+    public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException {
 /*        [
             {
                 "restaurante": "correoRestaurante@gmail.com", // String: correo del restaurante en que se solicitan los menus
@@ -191,6 +199,27 @@ public class ClienteService {
                 ]
             }
         ]*/
-        return new JsonObject(); // <-- Representacion del Pedido
+        Cliente cliente = clienteRepository.findByCorreo(correo);
+        if (cliente == null) {
+            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
+        }
+        Restaurante retaurante = restauranteService.obtenerRestaurante(jsonRequestPedido.get("restaurante").getAsString());
+        DtOrdenPaypal ordenPaypal = null;
+        /* FALTA VER ORDEN PAYPAL */
+        Direccion direccion = direccionService.obtenerDireccion(jsonRequestPedido.get("direccionId").getAsLong());
+        if (direccion == null){
+            throw new ClienteNoExisteDireccionException("No existe la direccion ingresada en el sistema");
+        }
+        if (!cliente.getDirecciones().contains(direccion)){
+            throw new ClienteNoExisteDireccionException("La direccion ingresada no existe para el Cliente " + correo);
+        }
+        JsonArray jsonArray = jsonRequestPedido.get("menus").getAsJsonArray();
+        List<MenuCompra> menus = new ArrayList<>();
+        for (JsonElement jsonMenuCompra : jsonArray){
+            menus.add(menuCompraService.crearMenuCompra(jsonMenuCompra.getAsJsonObject()));
+        }
+        return pedidoService.crearPedido(EstadoPedido.PENDIENTE,jsonRequestPedido.get("total").getAsFloat(),
+                MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()),ordenPaypal,direccion,cliente,
+                retaurante,menus); // <-- Representacion del Pedido
     }
 }

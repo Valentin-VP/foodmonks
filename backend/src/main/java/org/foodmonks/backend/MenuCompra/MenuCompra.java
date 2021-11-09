@@ -22,8 +22,6 @@ public class MenuCompra {
     private String imagen;
     @Enumerated(value = EnumType.STRING)
     private CategoriaMenu categoria;
-    @ManyToOne
-    private Pedido pedido;
 
     public MenuCompra() {
     }
