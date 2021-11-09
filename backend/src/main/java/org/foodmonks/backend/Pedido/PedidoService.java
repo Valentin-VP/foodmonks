@@ -101,15 +101,25 @@ public class PedidoService {
         return jsonObject;
     }
 
-    public JsonObject listaPedidosRealizados(Cliente cliente, String nombreRestaurante, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size){
+    public JsonObject listaPedidosRealizados(Cliente cliente, EstadoPedido estadoPedido, String nombreMenu, String nombreRestaurante, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size){
 
         List<Pedido> result;
 
         PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
         List<CriterioQuery> querys = new ArrayList<>();
 
+        if (estadoPedido != null) {
+            querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+//            result = pedidoRepository.findAll(estadoSpec);
+            //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
+        }
+
         if (nombreRestaurante != null) {
             querys.add(new CriterioQuery("nombreRestaurante","p:ru",nombreRestaurante, false));
+        }
+
+        if (nombreMenu != null) {
+            querys.add(new CriterioQuery("nombre","p:mc",nombreMenu, false));
         }
 //        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         if (medioPago != null) {

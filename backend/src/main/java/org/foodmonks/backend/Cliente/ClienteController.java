@@ -174,6 +174,8 @@ public class ClienteController {
     })
     @GetMapping(path = "/listarPedidosRealizados")
     public ResponseEntity<?> listarPedidosRealizados(@RequestHeader("Authorization") String token,
+                                                     @RequestParam(required = false, name = "estadoPedido") String estadoPedido,
+                                                     @RequestParam(required = false, name = "nombreMenu") String nombreMenu,
                                                     @RequestParam(required = false, name = "nombreRestaurante") String nombreRestaurante,
                                                     @RequestParam(required = false, name = "medioPago") String medioPago,
                                                     @RequestParam(required = false, name = "orden") String orden,
@@ -190,7 +192,7 @@ public class ClienteController {
                 newtoken = token.substring(7);
             }
             correo = tokenHelp.getUsernameFromToken(newtoken);
-            jsonObject = clienteService.listarPedidosRealizados(correo, nombreRestaurante, medioPago, orden, fecha, total, page, size);
+            jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu, nombreRestaurante, medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
         } catch (ClienteNoEncontradoException e) {

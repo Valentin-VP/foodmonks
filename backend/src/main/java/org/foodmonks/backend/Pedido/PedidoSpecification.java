@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Pedido;
 
+import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.CriterioQuery;
 import org.springframework.data.jpa.domain.Specification;
@@ -43,11 +44,19 @@ public class PedidoSpecification  implements Specification<Pedido> {
             }
         }
         else if (criteria.getOperation().equalsIgnoreCase("p:ru")) {
-            Join<Pedido, Restaurante> join = root.join("correo");
-            if (root.get(criteria.getKey()).getJavaType() == String.class) {
+            Join<Pedido, Restaurante> join = root.join("restaurante", JoinType.LEFT);
+            if (join.get(criteria.getKey()).getJavaType() == String.class) {
                 return builder.like(join.get(criteria.getKey()), "%" + criteria.getValue() + "%");
             } else {
-                return builder.equal(root.get(criteria.getKey()), criteria.getValue());
+                return builder.equal(join.get(criteria.getKey()), criteria.getValue());
+            }
+        }
+        else if (criteria.getOperation().equalsIgnoreCase("p:mc")) {
+            Join<Pedido, MenuCompra> join = root.join("menusCompra", JoinType.LEFT);
+            if (join.get(criteria.getKey()).getJavaType() == String.class) {
+                return builder.like(join.get(criteria.getKey()), "%" + criteria.getValue() + "%");
+            } else {
+                return builder.equal(join.get(criteria.getKey()), criteria.getValue());
             }
         }
         return null;

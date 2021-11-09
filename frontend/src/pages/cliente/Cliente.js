@@ -7,6 +7,7 @@ import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
 import { CartProvider } from "react-use-cart";
 import styled from "styled-components";
+import BuscarPedidosRealizados from "./BuscarPedidosRealizados";
 
 const Styles = styled.div`
   #page-container {
@@ -30,6 +31,7 @@ function Cliente() {
                 <Route path="/cart" component={Cart} />
               </CartProvider>
               <Route path="/grafica" component={Grafico} />
+              <Route path="/listadoPedidos" component={BuscarPedidosRealizados} />
               {/* <Route path="no-match" component={NoMatch} /> */}
             </Fragment>
           </Switch>

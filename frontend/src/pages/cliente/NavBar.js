@@ -89,6 +89,7 @@ export const NavigationBar = () => (
                   console.log(error);
                 })}
                 }>Eliminar Cuenta</NavDropdown.Item>
+              <NavDropdown.Item href="/listadoPedidos">Pedidos Realizados</NavDropdown.Item>  
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
                 Cerrar Sesion

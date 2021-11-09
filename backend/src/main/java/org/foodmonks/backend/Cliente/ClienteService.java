@@ -89,7 +89,7 @@ public class ClienteService {
         return cliente.getEstado();
     }
 
-    public JsonObject listarPedidosRealizados(String correo, String nombreRestaurante, String medioPago, String orden, String fecha, String total, String page, String size) throws ClienteNoEncontradoException {
+    public JsonObject listarPedidosRealizados(String correo, String estadoPedido, String nombreMenu, String nombreRestaurante, String medioPago, String orden, String fecha, String total, String page, String size) throws ClienteNoEncontradoException {
         Cliente cliente = clienteRepository.findByCorreo(correo);
         if (cliente==null) {
             throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
@@ -100,10 +100,21 @@ public class ClienteService {
         LocalDateTime[] fechaFinal = new LocalDateTime[2];
 
         MedioPago pago = null;
+        EstadoPedido estado = null;
         int pageFinal = 0;
         int sizeFinal = 10;
+        if (estadoPedido!= null && !estadoPedido.equals("")) {
+            try {
+                estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
+            }catch(IllegalArgumentException e){
+                estado = null;
+            }
+        }
         if (nombreRestaurante!= null && nombreRestaurante.equals("")) {
             nombreRestaurante = null;
+        }
+        if (nombreMenu!= null && nombreMenu.equals("")) {
+            nombreMenu = null;
         }
         if (medioPago!= null && !medioPago.equals("")) {
             try{
@@ -141,6 +152,6 @@ public class ClienteService {
             pageFinal = 0;
             sizeFinal = 5;
         }
-        return pedidoService.listaPedidosRealizados(cliente, nombreRestaurante, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
+        return pedidoService.listaPedidosRealizados(cliente, estado, nombreMenu, nombreRestaurante, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
 }
