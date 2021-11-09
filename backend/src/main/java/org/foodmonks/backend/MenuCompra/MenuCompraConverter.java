@@ -1,11 +1,13 @@
 package org.foodmonks.backend.MenuCompra;
 
 import org.foodmonks.backend.Menu.Menu;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MenuCompraConvertidor {
+@Component
+public class MenuCompraConverter {
 
     public List<MenuCompra> listaMenuCompra(List<Menu> menus){
         List<MenuCompra> menusComprados = new ArrayList<>();

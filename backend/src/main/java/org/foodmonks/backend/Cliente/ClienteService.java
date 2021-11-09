@@ -6,6 +6,9 @@ import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
+import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
+import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.MenuCompra.MenuCompraService;
 import org.foodmonks.backend.Pedido.PedidoService;
@@ -37,10 +40,11 @@ public class ClienteService {
     private final PedidoService pedidoService;
     private final RestauranteService restauranteService;
     private final MenuCompraService menuCompraService;
+    private final MenuService menuService;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, ClienteConverter clienteConverter, PedidoService pedidoService, RestauranteService restauranteService, MenuCompraService menuCompraService) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  this.restauranteService = restauranteService; this.menuCompraService = menuCompraService;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, ClienteConverter clienteConverter, PedidoService pedidoService, RestauranteService restauranteService, MenuCompraService menuCompraService, MenuService menuService) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; this.menuService = menuService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -70,12 +74,7 @@ public class ClienteService {
 
     public void modificarCliente(String correo, String nombre, String apellido) throws ClienteNoEncontradoException {
 
-        Cliente clienteAux = clienteRepository.findByCorreo(correo);
-
-        if (clienteAux == null) {
-            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
-        }
-
+        Cliente clienteAux = obtenerCliente(correo);
         clienteAux.setNombre(nombre);
         clienteAux.setApellido(apellido);
         clienteRepository.save(clienteAux);
@@ -165,10 +164,7 @@ public class ClienteService {
     }
 
     public JsonObject obtenerJsonCliente(String correo) throws ClienteNoEncontradoException {
-        Cliente cliente = clienteRepository.findByCorreo(correo);
-        if (cliente == null) {
-            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
-        }
+        Cliente cliente = obtenerCliente(correo);
         return clienteConverter.jsonCliente(cliente);
     }
 
@@ -181,31 +177,16 @@ public class ClienteService {
         return null;
     }
 
-    public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException {
-/*        [
-            {
-                "restaurante": "correoRestaurante@gmail.com", // String: correo del restaurante en que se solicitan los menus
-                "direccionId": 2, // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
-                "medioPago": "PayPal", //String: vale 'PayPal' o 'Efectivo'
-                "ordenPaypal": "148asd8f412", // String: puede ser un String vacío si el pago fue en efectivo: ''
-                "menus" : [ // JsonArray: Arreglo con todos los menus comprados
-                    {
-                        "id": 123,
-                        "precio": 250.0, // Float: precio final que aplica por cada item, si es de promocion es el resutlado del precio x multiplicadorPromocion
-                        "cantidad": 3, // int: cantidad de items de este menu/promocion
-                        "detalles": "Los detalles o comentarios del pedido" // String
-                    },
-                    ...
-                ]
+    public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException, MenuNoEncontradoException {
+        Cliente cliente = obtenerCliente(correo);
+        Restaurante restaurante = restauranteService.obtenerRestaurante(jsonRequestPedido.get("restaurante").getAsString());
+        DtOrdenPaypal ordenPaypal = new DtOrdenPaypal();
+        if (MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()).equals(MedioPago.PAYPAL)){
+            if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty() && !jsonRequestPedido.get("linkAprobacion").getAsString().isEmpty()){
+                ordenPaypal.setOrdenId(jsonRequestPedido.get("ordenId").getAsString());
+                ordenPaypal.setLinkAprobacion(jsonRequestPedido.get("linkAprobacion").getAsString());
             }
-        ]*/
-        Cliente cliente = clienteRepository.findByCorreo(correo);
-        if (cliente == null) {
-            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
         }
-        Restaurante retaurante = restauranteService.obtenerRestaurante(jsonRequestPedido.get("restaurante").getAsString());
-        DtOrdenPaypal ordenPaypal = null;
-        /* FALTA VER ORDEN PAYPAL */
         Direccion direccion = direccionService.obtenerDireccion(jsonRequestPedido.get("direccionId").getAsLong());
         if (direccion == null){
             throw new ClienteNoExisteDireccionException("No existe la direccion ingresada en el sistema");
@@ -215,11 +196,15 @@ public class ClienteService {
         }
         JsonArray jsonArray = jsonRequestPedido.get("menus").getAsJsonArray();
         List<MenuCompra> menus = new ArrayList<>();
-        for (JsonElement jsonMenuCompra : jsonArray){
-            menus.add(menuCompraService.crearMenuCompra(jsonMenuCompra.getAsJsonObject()));
+        for (JsonElement jsonMenu : jsonArray){
+            Menu menu = menuService.obtenerMenu(jsonMenu.getAsJsonObject().get("id").getAsLong(),restaurante);
+            if (menu == null) {
+                throw new MenuNoEncontradoException("El menu no existe para el Restaurante " + restaurante.getNombreRestaurante());
+            }
+            menus.add(menuCompraService.crearMenuCompraMenu(menu));
         }
         return pedidoService.crearPedido(EstadoPedido.PENDIENTE,jsonRequestPedido.get("total").getAsFloat(),
                 MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()),ordenPaypal,direccion,cliente,
-                retaurante,menus); // <-- Representacion del Pedido
+                restaurante,menus); // <-- Representacion del Pedido
     }
 }

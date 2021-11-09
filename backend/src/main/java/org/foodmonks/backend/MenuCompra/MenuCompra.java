@@ -20,6 +20,7 @@ public class MenuCompra {
     private String descripcion;
     private Float multiplicadorPromocion;
     private String imagen;
+    private Integer cantidad;
     @Enumerated(value = EnumType.STRING)
     private CategoriaMenu categoria;
 

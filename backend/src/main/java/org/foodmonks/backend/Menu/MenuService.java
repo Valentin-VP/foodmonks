@@ -92,4 +92,8 @@ public class MenuService {
     public Boolean existeCategoriaMenu(Restaurante restaurante, CategoriaMenu categoriaMenu){
         return menuRepository.existsMenuByRestauranteAndCategoria(restaurante,categoriaMenu);
     }
+
+    public Menu obtenerMenu(Long id, Restaurante restaurante){
+        return menuRepository.findByIdAndRestaurante(id,restaurante);
+    }
 }
