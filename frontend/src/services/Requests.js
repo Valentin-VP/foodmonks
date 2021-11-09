@@ -373,3 +373,16 @@ export const fetchRestaurantesBusqueda = (datos) => {
   response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
   return response;
 };
+
+
+export const hacerPedidoEfectivo = (datos) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/realizarPedido`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+};
