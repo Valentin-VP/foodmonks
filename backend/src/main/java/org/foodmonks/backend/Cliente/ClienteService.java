@@ -6,6 +6,7 @@ import org.foodmonks.backend.Direccion.DireccionRepository;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuConvertidor;
 import org.foodmonks.backend.Menu.MenuRepository;
+import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
@@ -33,10 +34,11 @@ public class ClienteService {
     private final MenuRepository menuRepository;
     private final RestauranteRepository restauranteRepository;
     private final MenuConvertidor menuConvertidor;
+    private final MenuService menuService;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository , DireccionRepository direccionRepository, MenuRepository menuRepository,RestauranteRepository restauranteRepository, MenuConvertidor menuConvertidor ) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.direccionRepository = direccionRepository; this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConvertidor = menuConvertidor;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository , DireccionRepository direccionRepository, MenuRepository menuRepository,RestauranteRepository restauranteRepository, MenuConvertidor menuConvertidor, MenuService menuService) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.direccionRepository = direccionRepository; this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConvertidor = menuConvertidor; this.menuService = menuService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -90,7 +92,15 @@ public class ClienteService {
     public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal){
 
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
-        return menuConvertidor.listaJsonMenu(menuRepository.findMenusByRestaurante(restaurante));
+        List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
+
+        if(!categoria.isEmpty()){
+
+            CategoriaMenu categoriaMenu = CategoriaMenu.valueOf(categoria);
+            return menuConvertidor.listaJsonMenu(menuRepository.findMenuByRestauranteAndCategoria(restaurante,categoriaMenu));
+        }
+
+        return menuConvertidor.listaJsonMenu(menus);
     }
 
 }
