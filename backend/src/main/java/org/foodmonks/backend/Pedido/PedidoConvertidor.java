@@ -51,9 +51,19 @@ public class PedidoConvertidor {
         if (pedido.getCliente()!=null){
             jsonPedido.addProperty("nombreApellidoCliente", pedido.getCliente().getNombre() + " " + pedido.getCliente().getApellido());
         }
+
         if (pedido.getRestaurante()!=null){
             jsonPedido.addProperty("nombreRestaurante", pedido.getRestaurante().getNombreRestaurante());
             jsonPedido.addProperty("imagenRestaurante", pedido.getRestaurante().getImagen());
+        }
+
+        if (pedido.getReclamo()!=null){
+            JsonObject reclamo = new JsonObject();
+            reclamo.addProperty("razon", pedido.getReclamo().getRazon());
+            reclamo.addProperty("comentario", pedido.getReclamo().getComentario());
+            reclamo.addProperty("fecha", pedido.getReclamo().getFecha().format(DateTimeFormatter.ISO_LOCAL_DATE)); //"yyyy-MM-dd HH:mm:ss"
+            reclamo.addProperty("id", pedido.getReclamo().getId().toString());
+            jsonPedido.add("reclamo", reclamo);
         }
 
         if (!pedido.getMenusCompra().isEmpty()){
