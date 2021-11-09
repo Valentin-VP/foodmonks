@@ -12,9 +12,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -162,4 +164,38 @@ public class ClienteController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @Operation(summary = "Listar Pedidos Realizados",
+            description = "Lista de los pedidos realizados del Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedidos" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarPedidosRealizados")
+    public ResponseEntity<?> listarPedidosRealizados(@RequestHeader("Authorization") String token,
+                                                    @RequestParam(required = false, name = "nombreRestaurante") String nombreRestaurante,
+                                                    @RequestParam(required = false, name = "medioPago") String medioPago,
+                                                    @RequestParam(required = false, name = "orden") String orden,
+                                                    @RequestParam(required = false, name = "fecha") String fecha,
+                                                    @RequestParam(required = false, name = "total") String total,
+                                                    @RequestParam(defaultValue = "0",required = false, name = "page") String page,
+                                                    @RequestParam(defaultValue = "5", required = false, name = "size") String size) {
+        String newtoken = "";
+        String correo = "";
+        List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
+        JsonObject jsonObject = new JsonObject();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            correo = tokenHelp.getUsernameFromToken(newtoken);
+            jsonObject = clienteService.listarPedidosRealizados(correo, nombreRestaurante, medioPago, orden, fecha, total, page, size);
+        } catch (JsonIOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
+    }
 }
