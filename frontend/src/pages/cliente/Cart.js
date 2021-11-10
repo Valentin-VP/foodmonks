@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useCart } from "react-use-cart";
-import { fetchUserData } from "../../services/Requests";
+import { fetchUserData, paypalEnviarCART } from "../../services/Requests";
 import styled from "styled-components";
 import { Layout } from "../../components/Layout";
 import { Loading } from "../../components/Loading";
@@ -160,17 +160,42 @@ export const Cart = () => {
     });
   };
 
-  const onPaypal = (e) => {
-    e.preventDefault();
-    console.log("paypal");
+  const onPaypal = (cartId) => { //Copiado del efectivo + lo que corresponde a paypal
+    //e.preventDefault();
+    var menus = [];
+    items.forEach(menu => {
+      const aux = {
+        id: menu.id,
+        cantidad: menu.quantity, 
+      }
+      menus.push(aux);
+    });
+    const jsonPedido = {
+      restaurante: perfil.correo, // Seria el correo del restaurante (esto es del cliente)
+      direccionId: document.getElementById("direcciones").value,
+      medioPago: "PAYPAL",
+      total: cartTotal,
+      ordenId: cartId,
+      linkAprobacion: "",
+      menus: menus
+    };
+    console.log(jsonPedido);
+    paypalEnviarCART(jsonPedido).then((response) =>{
+      console.log(response);
+      Noti("Pedido realizado con exito");
+    }).catch((error) => {
+      NotiError(error.response.data);
+    });
   };
 
   const getOrder = () => {
-    let order = { customer: perfil.nombre, total: cartTotal };
+    let order = { customer: perfil.nombre, total: Math.round((cartTotal + Number.EPSILON) * 100) / 100
+    };
     const orderItems = items.map((item) => {
       return {
         name: `${item.title + " ($" + item.price * item.quantity + ")"}`,
-        price: item.price,
+        price: Math.round((item.price + Number.EPSILON) * 100) / 100
+        ,
         quantity: item.quantity,
         currency: "USD",
       };
@@ -267,7 +292,7 @@ export const Cart = () => {
                   </Button>
                 </div>
                 <div className="row bPagoP">
-                  <PaypalCheckoutButton order={getOrder} />
+                  <PaypalCheckoutButton order={getOrder()} onAuthorizeCallback={onPaypal} />
                   {/* <Button variant="primary" className="ppb" onClick={onPaypal} value="paypal">
                     </Button> */}
                 </div>

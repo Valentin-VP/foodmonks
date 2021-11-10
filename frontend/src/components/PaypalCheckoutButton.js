@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import paypal from "paypal-checkout";
 import { Noti } from "../components/Notification";
 
-const PaypalCheckoutButton = ({ order }) => {
+const PaypalCheckoutButton = ({ order, onAuthorizeCallback }) => {
   const paypalConf = {
     currency: "USD",
     env: "sandbox",
@@ -50,6 +50,7 @@ const PaypalCheckoutButton = ({ order }) => {
       .execute()
       .then((response) => {
         console.log(response.cart);
+        onAuthorizeCallback(response.cart);
         Noti("El pago fue realizado satisfactoriamente.");
       })
       .catch((error) => {
@@ -59,7 +60,7 @@ const PaypalCheckoutButton = ({ order }) => {
   };
 
   const onError = (error) => {
-    //console.log(error);
+    console.log(error);
     Noti("El pago no fue realizado correctamente, reintente nuevamente.");
   };
 

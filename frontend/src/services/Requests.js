@@ -366,8 +366,7 @@ export const checkPwdRecoveryToken = (email, ptoken) => {
   });
 };
 
-export const paypalEnviarCART=(data)=>{
-  const datos = {cart: data ? data : ""}
+export const paypalEnviarCART=(datos)=>{
   console.log(datos);
   const response = axios({
     method:"POST",
