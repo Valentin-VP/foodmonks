@@ -10,7 +10,6 @@ import java.util.List;
 public interface ClienteRepository extends JpaRepository<Cliente, String> {
 
     Cliente findByCorreo(String correo);
-
     List<Cliente> findAllByRolesOrderByCalificacionDesc(String role);
 
 }

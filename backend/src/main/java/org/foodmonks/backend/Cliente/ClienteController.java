@@ -1,10 +1,7 @@
 package org.foodmonks.backend.Cliente;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -260,7 +257,7 @@ public class ClienteController {
                 jsonArray.add(restaurante);
             }
         } catch(JsonIOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
@@ -296,6 +293,35 @@ public class ClienteController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+  
+  
+    @Operation(summary = "Realizar un nuevo Pedido a un Restaurante",
+            description = "Realizar un nuevo Pedido a un Restaurante",
+            tags = { "cliente", "pedido" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Pedido creado"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
+    @PostMapping(path = "/realizarPedido")
+    public ResponseEntity<?> realizarPedido(
+            @RequestHeader("Authorization") String token,
+            @RequestBody String pedido){
+        try{
+            // Obtener correo del cliente
+            String strToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                strToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(strToken);
+
+            // Obtener detalles del pedido
+            JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
+            JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
+            return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

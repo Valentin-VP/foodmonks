@@ -3,6 +3,7 @@ package org.foodmonks.backend.Menu;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
+import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -23,7 +24,7 @@ public class MenuService {
     public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, MenuConverter menuConverter)
     { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConverter = menuConverter; }
 
-    public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente{
+    public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException {
 
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             if (restaurante == null) {
@@ -33,6 +34,10 @@ public class MenuService {
             if (menuRepository.existsByNombreAndRestaurante(jsonMenu.get("nombre").getAsString(), restaurante)){
                 throw new MenuNombreExistente("Ya existe un menu con el nombre " + jsonMenu.get("nombre").getAsString() +
                         " para el restaurante " + correoRestaurante);
+            }
+            //matches("[0-9]*")
+            if (!jsonMenu.get("price").getAsString().matches("^\\d+(.\\d+)*$") || jsonMenu.get("price").getAsString().isBlank()) {
+                throw new MenuPrecioException("El precio debe ser un numero real");
             }
             Menu menu = new Menu(
                     jsonMenu.get("nombre").getAsString(),
@@ -91,5 +96,9 @@ public class MenuService {
 
     public Boolean existeCategoriaMenu(Restaurante restaurante, CategoriaMenu categoriaMenu){
         return menuRepository.existsMenuByRestauranteAndCategoria(restaurante,categoriaMenu);
+    }
+
+    public Menu obtenerMenu(Long id, Restaurante restaurante){
+        return menuRepository.findByIdAndRestaurante(id,restaurante);
     }
 }

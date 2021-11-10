@@ -1,5 +1,7 @@
 package org.foodmonks.backend.Cliente;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -16,7 +18,16 @@ import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
+import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
+import org.foodmonks.backend.MenuCompra.MenuCompraService;
+import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoCliente;
+import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,10 +48,24 @@ public class ClienteService {
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
+    private final PedidoService pedidoService;
+    private final RestauranteService restauranteService;
+    private final MenuCompraService menuCompraService;
+    private final MenuService menuService;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , MenuRepository menuRepository,RestauranteRepository restauranteRepository, MenuConverter menuConverter, UsuarioService usuarioService, DireccionService direccionService, ClienteConverter clienteConverter ) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConverter = menuConverter; this.usuarioService = usuarioService; this.direccionService = direccionService; this.clienteConverter = clienteConverter;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
+                          UsuarioService usuarioService, DireccionService direccionService, 
+                          ClienteConverter clienteConverter, PedidoService pedidoService, 
+                          RestauranteService restauranteService, MenuCompraService menuCompraService, 
+                          MenuService menuService, MenuRepository menuRepository,
+                          RestauranteRepository restauranteRepository, MenuConverter menuConverter) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
+        this.usuarioService = usuarioService; this.direccionService = direccionService; 
+        this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
+        this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
+        this.menuService = menuService; this.menuRepository = menuRepository;
+        this.restauranteRepository = restauranteRepository; this.menuConverter = menuConverter;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -68,19 +93,9 @@ public class ClienteService {
         return clienteRepository.findByCorreo(correo);
     }
 
-/*    public void modificarCliente(Cliente cliente) {
-        clienteRepository.save(cliente);
-    }*/
-
-
     public void modificarCliente(String correo, String nombre, String apellido) throws ClienteNoEncontradoException {
 
-        Cliente clienteAux = clienteRepository.findByCorreo(correo);
-
-        if (clienteAux == null) {
-            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
-        }
-
+        Cliente clienteAux = obtenerCliente(correo);
         clienteAux.setNombre(nombre);
         clienteAux.setApellido(apellido);
         clienteRepository.save(clienteAux);
@@ -170,10 +185,7 @@ public class ClienteService {
     }
 
     public JsonObject obtenerJsonCliente(String correo) throws ClienteNoEncontradoException {
-        Cliente cliente = clienteRepository.findByCorreo(correo);
-        if (cliente == null) {
-            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
-        }
+        Cliente cliente = obtenerCliente(correo);
         return clienteConverter.jsonCliente(cliente);
     }
 
@@ -200,4 +212,35 @@ public class ClienteService {
         return menuConverter.listaJsonMenu(menus);
     }
 
+    public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException, MenuNoEncontradoException {
+        Cliente cliente = obtenerCliente(correo);
+        Restaurante restaurante = restauranteService.obtenerRestaurante(jsonRequestPedido.get("restaurante").getAsString());
+        DtOrdenPaypal ordenPaypal = new DtOrdenPaypal();
+        if (MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()).equals(MedioPago.PAYPAL)){
+            if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty() && !jsonRequestPedido.get("linkAprobacion").getAsString().isEmpty()){
+                ordenPaypal.setOrdenId(jsonRequestPedido.get("ordenId").getAsString());
+                ordenPaypal.setLinkAprobacion(jsonRequestPedido.get("linkAprobacion").getAsString());
+            }
+        }
+        Direccion direccion = direccionService.obtenerDireccion(jsonRequestPedido.get("direccionId").getAsLong());
+        if (direccion == null){
+            throw new ClienteNoExisteDireccionException("No existe la direccion ingresada en el sistema");
+        }
+        if (!cliente.getDirecciones().contains(direccion)){
+            throw new ClienteNoExisteDireccionException("La direccion ingresada no existe para el Cliente " + correo);
+        }
+        JsonArray jsonArray = jsonRequestPedido.get("menus").getAsJsonArray();
+        List<MenuCompra> menus = new ArrayList<>();
+        for (JsonElement jsonMenu : jsonArray){
+            Menu menu = menuService.obtenerMenu(jsonMenu.getAsJsonObject().get("id").getAsLong(),restaurante);
+            if (menu == null) {
+                throw new MenuNoEncontradoException("El menu no existe para el Restaurante " + restaurante.getNombreRestaurante());
+            }
+            MenuCompra menuCompra = menuCompraService.crearMenuCompraMenu(menu, jsonMenu.getAsJsonObject().get("cantidad").getAsInt());
+            menus.add(menuCompra);
+        }
+        return pedidoService.crearPedido(EstadoPedido.PENDIENTE,jsonRequestPedido.get("total").getAsFloat(),
+                MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()),ordenPaypal,direccion,cliente,
+                restaurante,menus); // <-- Representacion del Pedido
+    }
 }

@@ -27,9 +27,8 @@ import java.util.List;
 public class Pedido  {
 
  	@Id
- 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre;
     @Enumerated(value = EnumType.STRING)
     private EstadoPedido estado;
     private DtCalificacion calificacionCliente;
@@ -46,24 +45,18 @@ public class Pedido  {
 	private  Cliente cliente;
     @ManyToOne
 	private Restaurante restaurante;
-    @OneToMany(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+    @OneToMany//(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
 	private List<MenuCompra> menusCompra = new ArrayList<>();
-    @OneToOne (mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+    @OneToOne //(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
     
     public Pedido () {
     }
     
-    public Pedido(String nombre, EstadoPedido estado, LocalDate fechaHoraProcesado, Float total,
-				  MedioPago medioPago, LocalDate fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
-		this.nombre = nombre;
+    public Pedido(EstadoPedido estado, Float total, MedioPago medioPago) {
 		this.estado = estado;
-		this.fechaHoraProcesado = fechaHoraProcesado;
 		this.total = total;
 		this.medioPago = medioPago;
-		this.fechaHoraEntrega = fechaHoraEntrega;
-		this.direccion = direccion;
-		this.ordenPaypal = ordenPaypal;
 	}
     
 }
