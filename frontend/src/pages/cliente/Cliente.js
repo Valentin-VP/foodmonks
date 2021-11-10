@@ -6,6 +6,8 @@ import { Grafico } from "../Grafico";
 import BuscarMenusPromociones from "./BuscarMenusPromociones";
 import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
+import PerfilCliente from "./PerfilCliente";
+import ModificarDireccion from "./ModificarDireccion";
 import { CartProvider } from "react-use-cart";
 import styled from "styled-components";
 
@@ -31,7 +33,9 @@ function Cliente() {
                 <Route path="/cart" component={Cart} />
                 <Route path="/listarProductos" component={BuscarMenusPromociones}/>
               </CartProvider>
-              <Route path="/grafica" component={Grafico} />
+              <Route exact path="/perfil" component={PerfilCliente} />
+              <Route exact path="/modificarDireccion" component={ModificarDireccion} />
+              <Route exact path="/grafica" component={Grafico} />
               {/* <Route path="no-match" component={NoMatch} /> */}
             </Fragment>
           </Switch>

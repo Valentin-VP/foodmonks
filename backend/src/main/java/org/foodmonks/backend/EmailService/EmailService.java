@@ -5,6 +5,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,8 @@ public class EmailService {
 	private final JavaMailSender emailSender;
 	//private final TemplateEngine templateEngine;
 	
-	//@Value("${mail.username}")
-    private String mailReclamos = System.getenv("mail.username");
+	@Value("${mail.username}")
+    private String mailReclamos;
 
 	@Autowired
 	public EmailService(JavaMailSender emailSender) {

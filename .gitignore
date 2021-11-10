@@ -83,13 +83,11 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
 ### Docker ###
-docker/compose/dev/.env
-docker/compose/dev/.env_java
 frontend/.env
 .gitignore
 .gitignore
 frontend/package-lock.json
-docker/*.tar
+docker/.env
 docker/.env_java
 docker/.env_react
-docker/.env
+docker/*.tar

@@ -11,6 +11,7 @@
     "axios": "^0.22.0",
     "bootstrap": "^5.1.1",
     "chart.js": "^3.5.1",
+    "env-cmd": "^10.1.0",
     "firebase": "^9.1.3",
     "js-base64": "^3.7.2",
     "rapidoc": "^9.1.3",
@@ -19,12 +20,14 @@
     "react-chartjs-2": "^3.0.5",
     "react-datepicker": "^4.3.0",
     "react-dom": "^17.0.2",
+    "react-icons": "^4.3.1",
     "react-redux": "^7.2.5",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
     "react-toastify": "^8.0.3",
     "react-use-cart": "^1.11.2",
     "styled-components": "^5.3.1",
+    "styled-react-modal": "^2.1.0",
     "use-places-autocomplete": "^1.10.0",
     "web-vitals": "^1.1.2"
   },
@@ -32,7 +35,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start:development": "env-cmd -f .env.development start",
+    "build:development": "env-cmd -f .env.development build"
   },
   "eslintConfig": {
     "extends": [

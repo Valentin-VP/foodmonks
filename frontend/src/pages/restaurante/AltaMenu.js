@@ -48,13 +48,15 @@ const Styles = styled.div`
       margin-top: 15px;
       &:focus {
         box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
+        background-color: #e87121;
       }
       &:hover {
         background-color: #da6416;
       }
-      $:active {
-        background-color: black !important;
+      &:active {
+        background-color: #e87121;
       }
+
     }
   }
 

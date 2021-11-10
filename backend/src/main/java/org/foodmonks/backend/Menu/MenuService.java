@@ -17,11 +17,11 @@ public class MenuService {
 
     private final MenuRepository menuRepository;
     private final RestauranteRepository restauranteRepository;
-    private final MenuConvertidor menuConvertidor;
+    private final MenuConverter menuConverter;
 
     @Autowired
-    public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, MenuConvertidor menuConvertidor)
-    { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConvertidor = menuConvertidor; }
+    public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, MenuConverter menuConverter)
+    { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConverter = menuConverter; }
 
     public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente{
 
@@ -79,12 +79,13 @@ public class MenuService {
     }
 
     public JsonObject infoMenu(Long id, String correo) {
-        return menuConvertidor.jsonMenu(menuRepository.findByIdAndRestaurante(id,
+        return menuConverter.jsonMenu(menuRepository.findByIdAndRestaurante(id,
                 restauranteRepository.findById(correo).get()));
     }
 
     public List<JsonObject> listarMenu(String correoRestaurante){
-        return menuConvertidor.listaJsonMenu(menuRepository.findMenusByRestaurante(
+
+        return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(
                 restauranteRepository.findById(correoRestaurante).get()));
     }
 

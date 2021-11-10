@@ -5,12 +5,15 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,10 +31,11 @@ public class RestauranteService {
     private final UsuarioRepository usuarioRepository;
     private final MenuService menuService;
     private final RestauranteConverter restauranteConverter;
+    private final PedidoService pedidoService;
 
     @Autowired
-    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter) {
-        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.restauranteConverter = restauranteConverter;
+    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter, PedidoService pedidoService) {
+        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.restauranteConverter = restauranteConverter; this.pedidoService = pedidoService;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -46,7 +50,7 @@ public class RestauranteService {
         restauranteRepository.save(restaurante);
     }
 
-    public void modificarEstado(String correo,EstadoRestaurante estado) {
+    public void modificarEstado(String correo, EstadoRestaurante estado) {
         Restaurante restauranteAux = restauranteRepository.findByCorreo(correo);
         restauranteAux.setEstado(estado);
         restauranteRepository.save(restauranteAux);
@@ -77,6 +81,40 @@ public class RestauranteService {
         return restaurante.getEstado();
     }
 
+    public JsonObject obtenerJsonRestaurante(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return restauranteConverter.jsonRestaurante(restaurante);
+
+    }
+  
+    public void registrarPagoEfectivo(String correo, Long idPedido) throws RestauranteNoEncontradoException, PedidoNoExisteException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        if (!pedidoService.existePedido(idPedido)){
+            throw new PedidoNoExisteException("No existe el pedido con id "+ idPedido);
+        }
+        if (!pedidoService.existePedidoRestaurante(idPedido,restaurante)){
+            throw new RestauranteNoEncontradoException("No existe el pedido con id " + idPedido + " para el Restaurante " + correo);
+        }
+        pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.FINALIZADO);
+      }
+  
+  
+    public List<JsonObject> listarPedidosEfectivoConfirmados(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null){
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        //System.out.println(restaurante.getNombreRestaurante() + restaurante.getPedidos());
+        return pedidoService.listaPedidosEfectivoConfirmados(restaurante);
+    }
+  
+  
     public List<JsonObject> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
         if (!nombreRestaurante.isEmpty()){
             return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));
