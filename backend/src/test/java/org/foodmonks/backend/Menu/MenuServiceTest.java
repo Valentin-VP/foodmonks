@@ -2,6 +2,7 @@ package org.foodmonks.backend.Menu;
 
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
+import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -51,7 +52,7 @@ class MenuServiceTest {
     }
 
     @Test
-    void altaMenu() throws UsuarioNoRestaurante, MenuNombreExistente {
+    void altaMenu() throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException {
         /* Se debe crear un [Restaurante] (vacío porque no se utiliza ningún atributo del mismo en la función que está bajo test)
         * Se debe crear un [Menu] que tenga datos para poder comparar que los dos tengan el mismo contenido luego del .save
         * NOTA: Como no existe un 'equals' y un 'hashcode' en la clase [Menu], no se pueden comparar dos objetos de este tipo porque...

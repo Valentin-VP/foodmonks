@@ -60,6 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .antMatchers("/api/v1/cliente/eliminarCuenta").hasRole("CLIENTE")
                         .antMatchers("/api/v1/admin/listarUsuarios").hasRole("ADMIN")
+                        .antMatchers("/api/v1/cliente/realizarPedido").hasRole("CLIENTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
                         UsernamePasswordAuthenticationFilter.class);

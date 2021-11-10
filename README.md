@@ -1,6 +1,11 @@
 # FoodMonks
 
-## Release 3.0
+## Release 3.1
+Fix de listado usuarios
+Fix de tests de Menu
+Fix de Direccion
+Fix de API Google Maps
+Fix de autenticación en algunos requests
 
 ## Funcionalidades:
 

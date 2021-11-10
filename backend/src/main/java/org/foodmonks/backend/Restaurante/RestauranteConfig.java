@@ -2,13 +2,8 @@ package org.foodmonks.backend.Restaurante;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Menu.Menu;
-import org.foodmonks.backend.Menu.MenuRepository;
-import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

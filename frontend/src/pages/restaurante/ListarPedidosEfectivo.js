@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { actualizarEstadoPedido, actualizarEstadoUsuario, obtenerPedidosSinFinalizarEfectivo } from "../../services/Requests";
+import { actualizarEstadoPedido, obtenerPedidosSinFinalizarEfectivo } from "../../services/Requests";
 import { ModalItem } from "../../components/ModalItem"
 import { Noti } from "../../components/Notification";
-import { Col, Modal, Row, Table } from "react-bootstrap";
+import { Col, Row} from "react-bootstrap";
 
 const Styles = styled.div`
   .lista{

@@ -5,7 +5,6 @@ import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
