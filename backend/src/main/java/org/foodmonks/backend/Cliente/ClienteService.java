@@ -189,15 +189,15 @@ public class ClienteService {
     public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal){
 
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
-f        List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
+        List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
 
         if(!categoria.isEmpty()){
 
             CategoriaMenu categoriaMenu = CategoriaMenu.valueOf(categoria);
-            return menuConvertidor.listaJsonMenu(menuRepository.findMenuByRestauranteAndCategoria(restaurante,categoriaMenu));
+            return menuConverter.listaJsonMenu(menuRepository.findMenuByRestauranteAndCategoria(restaurante,categoriaMenu));
         }
 
-        return menuConvertidor.listaJsonMenu(menus);
+        return menuConverter.listaJsonMenu(menus);
     }
 
 }
