@@ -145,7 +145,7 @@ export const Cart = () => {
     const jsonPedido = {
       restaurante: perfil.correo, //falta arreglar el restaurante
       direccionId: document.getElementById("direcciones").value, // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
-      medioPago: "Efectivo", //String: vale 'PayPal' o 'Efectivo'
+      medioPago: "EFECTIVO", //String: vale 'PayPal' o 'Efectivo'
       total: cartTotal,
       ordenId: "", // Lo que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
       linkAprobacion: "", // URL que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
