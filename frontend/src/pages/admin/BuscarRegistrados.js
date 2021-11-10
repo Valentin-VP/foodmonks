@@ -67,6 +67,7 @@ export default function BuscarRegistrados() {
 
   useEffect(() => {
     fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [startDate, setStartDate] = useState(null);
@@ -194,8 +195,8 @@ export default function BuscarRegistrados() {
                       onChange={handleChange}
                       id="estado"
                     >
-                      {estado.map((item) => (
-                        <option key={item.estado} value={item.value}>
+                      {estado.map((item,index) => (
+                        <option key={index} value={item.value}>
                           {item.estado}
                         </option>
                       ))}
@@ -203,13 +204,13 @@ export default function BuscarRegistrados() {
                     <label htmlFor="estado">Estado</label>
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                       <div className="form-floating">
                           <div className="checkbox">
                               <label>
                                   <input
                                       name="ordenar"
-                                      class="form-check-input"
+                                      className="form-check-input"
                                       type="checkbox"
                                       checked={values.ordenar}
                                       onChange={handleChange}

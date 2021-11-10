@@ -1,8 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Table } from "react-bootstrap";
+import React from "react";
 import styled from "styled-components";
-import { actualizarEstadoUsuario } from "../../services/Requests";
-import { Noti } from "../../components/Notification"
 import { Layout } from "../../components/Layout";
 import RestauranteCard from "../../components/RestauranteCard";
 
@@ -10,7 +7,7 @@ const Styles = styled.div`
   h1 {
     text-align: center;
   }
-  table{
+  table {
     background-color: white;
   }
   img {
@@ -32,15 +29,15 @@ const Styles = styled.div`
   }
 `;
 
-export default function ListadoRestaurantesAbiertos({data}) {
-    return (
+export default function ListadoRestaurantesAbiertos({ data }) {
+  return (
     <>
-        <Styles>
-          <Layout>
-            <div className="table-responsive justify-content-center" id="list">
+      <Styles>
+        <Layout>
+          <div className="table-responsive justify-content-center" id="list">
             <table className="table table-hover m-0">
               <tbody>
-                  {/* <tr>
+                {/* <tr>
                       <td>
                         <img
                           src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/restaurant-logo-design-template-b281aeadaa832c28badd72c1f6c5caad_screen.jpg?ts=1595421543"
@@ -55,9 +52,8 @@ export default function ListadoRestaurantesAbiertos({data}) {
                     </tr> */}
                 {data.map((item, index) => {
                   return (
-                    <div className="column">
+                    <div className="column" key={index}>
                       <RestauranteCard
-                        key={index}
                         correo={item.correo}
                         imagen={item.imagen}
                         nombre={item.nombreRestaurante}
@@ -70,9 +66,9 @@ export default function ListadoRestaurantesAbiertos({data}) {
                 })}
               </tbody>
             </table>
-            </div>
-          </Layout>  
-        </Styles>
+          </div>
+        </Layout>
+      </Styles>
     </>
-    )
+  );
 }

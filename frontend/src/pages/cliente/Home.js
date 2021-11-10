@@ -66,9 +66,8 @@ export default function Home() {
         <div className="row justify-content-center">
           {prods.productData.map((item, index) => {
             return (
-              <div className="column">
+              <div className="column" key={index}>
                 <ItemCard
-                  key={index}
                   img={item.img}
                   title={item.title}
                   desc={item.desc}
