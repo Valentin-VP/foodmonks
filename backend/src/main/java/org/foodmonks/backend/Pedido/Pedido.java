@@ -26,7 +26,7 @@ import java.util.List;
 @Entity
 public class Pedido  {
 
- 	@Id
+ 	  @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(value = EnumType.STRING)
@@ -38,25 +38,24 @@ public class Pedido  {
     @Enumerated(value = EnumType.STRING)
     private MedioPago medioPago;
     private LocalDate fechaHoraEntrega;
-	@ManyToOne
+    @ManyToOne
     private Direccion direccion;
     private DtOrdenPaypal ordenPaypal;
     @ManyToOne
-	private  Cliente cliente;
+    private  Cliente cliente;
     @ManyToOne
-	private Restaurante restaurante;
+    private Restaurante restaurante;
     @OneToMany//(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
-	private List<MenuCompra> menusCompra = new ArrayList<>();
+    private List<MenuCompra> menusCompra = new ArrayList<>();
     @OneToOne //(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
     
-    public Pedido () {
-    }
-    
+    public Pedido () {}
+  
     public Pedido(EstadoPedido estado, Float total, MedioPago medioPago) {
-		this.estado = estado;
-		this.total = total;
-		this.medioPago = medioPago;
+      this.estado = estado;
+      this.total = total;
+      this.medioPago = medioPago;
 	}
     
 }

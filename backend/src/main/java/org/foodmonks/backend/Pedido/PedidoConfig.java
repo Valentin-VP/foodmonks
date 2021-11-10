@@ -34,6 +34,7 @@ public class PedidoConfig {
 
             pedidoRepository.save(pedido);
             // ejemplo dar de alta pedido
+
         };
     }
 }
