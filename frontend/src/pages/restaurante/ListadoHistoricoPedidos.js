@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Col } from "react-bootstrap";
-import Pagination from "@material-ui/lab/Pagination";
 
 const Styles = styled.div`
   .lista{
@@ -44,20 +43,6 @@ const Styles = styled.div`
     }
   }
 
-  .MuiPaginationItem-page.Mui-selected{
-    background-color: #e87121;
-    &:focus {
-      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
-      background-color: #f87121;
-    }
-    &:hover {
-      background-color: #da6416;
-    }
-    &:active {
-      background-color: #d87121;
-    }
-  }
-
   .row, .col{
     
     padding: 1px;
@@ -90,16 +75,7 @@ const Styles = styled.div`
 
 `;
 
-export default function ListadoHistoricoPedidos({datos, cantidadPages, onPageChange, onVisible}) {
-    const [page, setPage] = useState(1);
-
-    const handlePageChange = (e, page) => {
-      setPage(page);
-    };
-
-    useEffect(()=>(
-      onPageChange(page)
-    ), [page])
+export default function ListadoHistoricoPedidos({datos, onVisible}) {
 
     return (
     <>
@@ -156,19 +132,6 @@ export default function ListadoHistoricoPedidos({datos, cantidadPages, onPageCha
                         )}) : null}
                     </tbody>
                     </table>
-                    {(datos.pedidos && datos.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
-                        <Pagination
-                          className="my-3"
-                          count={cantidadPages ? cantidadPages : 0}
-                          page={page}
-                          siblingCount={1}
-                          boundaryCount={1}
-                          variant="outlined"
-                          shape="rounded"
-                          onChange={handlePageChange}
-                        />
-                    </Col> : null}
-                  {(!datos.pedidos || !datos.pedidos.length > 0)  && <h5 className="text-center h5 mb-3 fw-normal">No se encontraron pedidos completados o devueltos.</h5>}
               </div>
             </div>
           </main>

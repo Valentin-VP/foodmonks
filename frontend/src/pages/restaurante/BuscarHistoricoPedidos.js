@@ -1,9 +1,11 @@
 import { React, Fragment, useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { fetchRestaurantesBusqueda, obtenerPedidosHistorico } from "../../services/Requests";
+import { obtenerPedidosHistorico } from "../../services/Requests";
 import { Noti } from "../../components/Notification"
 import ListadoHistoricoPedidos from "./ListadoHistoricoPedidos";
 import DatePicker from "react-datepicker";
+import { Col } from "react-bootstrap";
+import Pagination from "@material-ui/lab/Pagination";
 
 const Styles = styled.div`
   .form{
@@ -48,6 +50,19 @@ const Styles = styled.div`
   }
   #fecha{
     height: 58px;
+  }
+  .MuiPaginationItem-page.Mui-selected{
+    background-color: #e87121;
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
+      background-color: #f87121;
+    }
+    &:hover {
+      background-color: #da6416;
+    }
+    &:active {
+      background-color: #d87121;
+    }
   }
 `;
 
@@ -119,8 +134,8 @@ export default function BuscarHistoricoPedidos() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    fetch();
+    setPage(1);
+    onPageChange(1);
   };
 
   const onVisible = (id) => {
@@ -134,6 +149,13 @@ export default function BuscarHistoricoPedidos() {
     console.log(items);
     setData({...data, pedidos: items});
   }
+
+  const [page, setPage] = useState(1);
+
+  const handlePageChange = (e, value) => {
+    setPage(value);
+    onPageChange(value);
+  };
 
   return (
     <Styles>
@@ -239,6 +261,18 @@ export default function BuscarHistoricoPedidos() {
                 <div class="row align-items-center">
                   <div class="col-md">
                     {<ListadoHistoricoPedidos datos={data} cantidadPages={data.totalPages} onPageChange={onPageChange} onVisible={onVisible}/>}
+                      {(data.pedidos && data.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
+                        <Pagination
+                          className="my-3"
+                          count={data.totalPages ? data.totalPages : 0}
+                          page={page}
+                          siblingCount={1}
+                          boundaryCount={1}
+                          variant="outlined"
+                          shape="rounded"
+                          onChange={handlePageChange}
+                        />
+                      </Col> : <h5 className="text-center h5 mb-3 fw-normal">No se encontraron pedidos completados o devueltos.</h5>}
                   </div>
                 </div>
               </div>

@@ -1,13 +1,13 @@
 package org.foodmonks.backend.Pedido;
 
+import org.foodmonks.backend.MenuCompra.MenuCompra;
+import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.CriterioQuery;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 public class PedidoSpecification  implements Specification<Pedido> {
     private CriterioQuery criteria;
@@ -44,7 +44,23 @@ public class PedidoSpecification  implements Specification<Pedido> {
                 return builder.equal(root.get(criteria.getKey()), criteria.getValue());
             }
         }
+        else if (criteria.getOperation().equalsIgnoreCase("p:ru")) {
+            Join<Pedido, Restaurante> join = root.join("restaurante", JoinType.LEFT);
+            if (join.get(criteria.getKey()).getJavaType() == String.class) {
+                return builder.like(builder.lower(join.get(criteria.getKey())), "%" + criteria.getValue().toString().toLowerCase(Locale.ROOT) + "%");
+            } else {
+                return builder.equal(join.get(criteria.getKey()), criteria.getValue());
+            }
+        }
+        else if (criteria.getOperation().equalsIgnoreCase("p:mc")) {
+            query.distinct(true);
+            Join<Pedido, MenuCompra> join = root.join("menusCompra", JoinType.LEFT);
+            if (join.get(criteria.getKey()).getJavaType() == String.class) {
+                return builder.like(builder.lower(join.get(criteria.getKey())), "%" + criteria.getValue().toString().toLowerCase(Locale.ROOT) + "%");
+            } else {
+                return builder.equal(builder.lower(join.get(criteria.getKey())), criteria.getValue());
+            }
+        }
         return null;
     }
 }
-
