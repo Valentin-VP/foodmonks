@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
@@ -166,6 +167,8 @@ public class RestauranteController {
             return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
             return new ResponseEntity<>(usuarioNoRestaurante, HttpStatus.FORBIDDEN);
+        } catch (MenuPrecioException menuPrecioException) {
+            return new ResponseEntity<>(menuPrecioException, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
