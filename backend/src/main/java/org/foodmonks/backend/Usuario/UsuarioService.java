@@ -5,6 +5,9 @@ import org.foodmonks.backend.Cliente.ClienteRepository;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoBloqueadoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoDesbloqueadoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEliminadoException;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
@@ -280,6 +283,9 @@ public class UsuarioService {
 					 throw new EmailNoEnviadoException("Usuario eliminado, " +e.getMessage());
 				 }
 	}
-	
+
+	public Usuario ObtenerUsuario (String correo) {
+		return usuarioRepository.findByCorreo(correo);
+	}
 
 }

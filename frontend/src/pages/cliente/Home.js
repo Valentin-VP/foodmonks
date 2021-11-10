@@ -1,9 +1,10 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { Layout } from "../../components/Layout";
 import { Portada } from "../../components/Portada";
 import styled from "styled-components";
 import ItemCard from "../../components/itemCard";
 import prods from "../../productos";
+import BuscarRestaurantesAbiertos from "./BuscarRestaurantesAbiertos";
 
 const Styles = styled.div`
   .top {
@@ -17,36 +18,46 @@ const Styles = styled.div`
       color: #0074d9;
     }
   }
+  .column {
+    float: left;
+    width: 300px;
+    padding: 0 10px;
+    margin-bottom: 5%;
+  }
 
   .prods {
     text-align: center;
   }
 
-  .column {
-    float: left;
-    width: 25%;
+  @media screen and (max-width: 700px) {
+    .column {
+      width: 100%;
+      display: block;
+      margin-bottom: 20px;
+    }
   }
+  
 `;
 
-export const Home = () => (
+export default function Home() {
+
+  useEffect(() => {
+    if(sessionStorage.getItem("restauranteId") !== null) {
+      sessionStorage.removeItem("restauranteId");
+      sessionStorage.removeItem("restauranteImagen");
+      sessionStorage.removeItem("restauranteCalif");
+      sessionStorage.removeItem("restauranteNombre");
+    }
+  }, []);
+
+  return (
   <Styles>
     <React.Fragment>
       <Portada />
       <Layout>
         <h2>Restaurantes</h2>
-        <ul className="list-group">
-          <li className="list-group-item">1. El Tío Bistró</li>
-          <li className="list-group-item">2. Primuseum</li>
-          <li className="list-group-item">3. Cafe Gourmand</li>
-          <li className="list-group-item">4. Ashot Shawarma</li>
-          <li className="list-group-item">5. Alquimista Montevideo</li>
-          <li className="list-group-item">6. Es Mercat</li>
-          <li className="list-group-item">7. estrecho</li>
-          <li className="list-group-item">8. Restaurante Tandory</li>
-          <li className="list-group-item">9. RUDY Burgers</li>
-          <li className="list-group-item">10. Candy Bar</li>
-          <li className="list-group-item">11. Baco Vino y Bistró</li>
-        </ul>
+        <BuscarRestaurantesAbiertos />
+        
         <div className="top">
           <a href="/grafica">Top Restaurantes</a>
         </div>
@@ -55,9 +66,8 @@ export const Home = () => (
         <div className="row justify-content-center">
           {prods.productData.map((item, index) => {
             return (
-              <div className="column">
+              <div className="column" key={index}>
                 <ItemCard
-                  key={index}
                   img={item.img}
                   title={item.title}
                   desc={item.desc}
@@ -71,4 +81,5 @@ export const Home = () => (
       </Layout>
     </React.Fragment>
   </Styles>
-);
+  );
+}

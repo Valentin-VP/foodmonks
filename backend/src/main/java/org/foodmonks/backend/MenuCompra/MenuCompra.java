@@ -13,17 +13,16 @@ import javax.persistence.*;
 @Entity
 public class MenuCompra {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
     private Float price;
     private String descripcion;
     private Float multiplicadorPromocion;
     private String imagen;
+    private Integer cantidad;
     @Enumerated(value = EnumType.STRING)
     private CategoriaMenu categoria;
-    @ManyToOne
-    private Pedido pedido;
 
     public MenuCompra() {
     }
