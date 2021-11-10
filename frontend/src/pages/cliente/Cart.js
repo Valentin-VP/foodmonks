@@ -9,6 +9,8 @@ import { IoBagAddSharp, IoBagRemoveSharp } from "react-icons/io5";
 import { MdDeleteForever, MdOutlinePayments } from "react-icons/md";
 import { ImPaypal } from "react-icons/im";
 import PaypalCheckoutButton from "../../components/PaypalCheckoutButton";
+import { hacerPedidoEfectivo } from "../../services/Requests";
+import { NotiError, Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   .card {
@@ -132,7 +134,30 @@ export const Cart = () => {
 
   const onEfectivo = (e) => {
     e.preventDefault();
-    console.log("efectivo");
+    var menus = [];
+    items.forEach(menu => {
+      const aux = {
+        id: menu.id,
+        cantidad: menu.quantity, 
+      }
+      menus.push(aux);
+    });
+    const jsonPedido = {
+      restaurante: perfil.correo, //falta arreglar el restaurante
+      direccionId: document.getElementById("direcciones").value, // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
+      medioPago: "EFECTIVO", //String: vale 'PayPal' o 'Efectivo'
+      total: cartTotal,
+      ordenId: "", // Lo que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
+      linkAprobacion: "", // URL que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
+      menus: menus
+    };
+    console.log(jsonPedido);
+    hacerPedidoEfectivo(jsonPedido).then((response) =>{
+      console.log(response);
+      Noti("Pedido realizado con exito");
+    }).catch((error) => {
+      NotiError(error.response.data);
+    });
   };
 
   const onPaypal = (e) => {
@@ -141,14 +166,19 @@ export const Cart = () => {
   };
 
   const getOrder = () => {
-    let order = {customer: perfil.nombre, total: cartTotal};
-    const orderItems = items.map((item)=>{
-      return {name: `${item.title + " ($" + (item.price * item.quantity) + ")"}`, price: item.price, quantity: item.quantity, currency: 'USD'}
-    })
-    order = {...order, items: orderItems};
+    let order = { customer: perfil.nombre, total: cartTotal };
+    const orderItems = items.map((item) => {
+      return {
+        name: `${item.title + " ($" + item.price * item.quantity + ")"}`,
+        price: item.price,
+        quantity: item.quantity,
+        currency: "USD",
+      };
+    });
+    order = { ...order, items: orderItems };
     console.log(order);
     return order;
-  } 
+  };
 
   return (
     <React.Fragment>
@@ -215,7 +245,7 @@ export const Cart = () => {
                 >
                   {perfil.direcciones.map((direccion, index) => {
                     return (
-                      <option className="dir" value={direccion}>
+                      <option key={index} className="dir" value={direccion.id}>
                         {direccion.calle + " " + direccion.numero}
                       </option>
                     );
@@ -237,9 +267,7 @@ export const Cart = () => {
                   </Button>
                 </div>
                 <div className="row bPagoP">
-                  <PaypalCheckoutButton
-                    order={getOrder()}
-                  />
+                  <PaypalCheckoutButton order={getOrder} />
                   {/* <Button variant="primary" className="ppb" onClick={onPaypal} value="paypal">
                     </Button> */}
                 </div>
