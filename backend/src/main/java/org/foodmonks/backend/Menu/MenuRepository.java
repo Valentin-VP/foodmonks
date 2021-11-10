@@ -15,4 +15,5 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     List<Menu> findMenuByCategoria(CategoriaMenu categoriaMenu);
     Boolean existsMenuByRestauranteAndCategoria(Restaurante restaurante, CategoriaMenu categoriaMenu);
     List<Menu> findMenuByPriceBetween(Float precioInicial, Float precioFinal);
+    List<Menu> findMenuByRestauranteAndCategoria(Restaurante restaurante, CategoriaMenu categoriaMenu);
 }

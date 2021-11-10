@@ -9,6 +9,7 @@ import org.foodmonks.backend.Direccion.DireccionRepository;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuConverter;
 import org.foodmonks.backend.Menu.MenuRepository;
+import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
@@ -188,7 +189,15 @@ public class ClienteService {
     public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal){
 
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
-        return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(restaurante));
+f        List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
+
+        if(!categoria.isEmpty()){
+
+            CategoriaMenu categoriaMenu = CategoriaMenu.valueOf(categoria);
+            return menuConvertidor.listaJsonMenu(menuRepository.findMenuByRestauranteAndCategoria(restaurante,categoriaMenu));
+        }
+
+        return menuConvertidor.listaJsonMenu(menus);
     }
 
 }
