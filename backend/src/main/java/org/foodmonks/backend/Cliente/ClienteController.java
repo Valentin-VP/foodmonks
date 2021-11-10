@@ -13,8 +13,10 @@ import lombok.SneakyThrows;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
+import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -252,7 +254,6 @@ public class ClienteController {
             restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
 
             for (JsonObject restaurante : restaurantesAbiertos) {
-                JsonObject res = new JsonObject();
                 jsonArray.add(restaurante);
             }
         } catch(JsonIOException e) {
@@ -261,6 +262,40 @@ public class ClienteController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @Operation(summary = "Listar los Menús y Promociones ofrecidos por un Restaurante",
+            description = "Lista de los Menús y Promociones que ofrece un Restaurante, aplicando búsqueda opcional por filtros",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedido", "cliente", "menú", "promoción" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarProductosRestaurante")
+    public ResponseEntity<?> listarProductosRestaurante(
+            @RequestParam(name = "id") String restauranteCorreo,
+            @RequestParam(required = false, name = "categoria") String categoria,
+            @RequestParam(required = false, name = "precioInicial") Float precioInicial,
+            @RequestParam(required = false, name = "precioFinal") Float precioFinal
+            ) {
+
+        List<JsonObject> listarProductosRestaurante = new ArrayList<>();
+        JsonArray jsonArray = new JsonArray();
+
+        try {
+            //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+            listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+
+            for (JsonObject restaurante : listarProductosRestaurante) {
+                jsonArray.add(restaurante);
+            }
+
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+  
+  
     @Operation(summary = "Realizar un nuevo Pedido a un Restaurante",
             description = "Realizar un nuevo Pedido a un Restaurante",
             tags = { "cliente", "pedido" })

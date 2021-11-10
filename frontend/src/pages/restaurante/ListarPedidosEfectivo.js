@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { actualizarEstadoPedido, actualizarEstadoUsuario, obtenerPedidosSinFinalizarEfectivo } from "../../services/Requests";
+import { actualizarEstadoPedido, obtenerPedidosSinFinalizarEfectivo } from "../../services/Requests";
 import { ModalItem } from "../../components/ModalItem"
 import { Noti } from "../../components/Notification";
-import { Col, Modal, Row, Table } from "react-bootstrap";
+import { Col, Row} from "react-bootstrap";
 
 const Styles = styled.div`
   .lista{
@@ -64,7 +64,6 @@ const Styles = styled.div`
 
 export default function ListadoPedidosEfectivo() {
     const [data, setData] = useState([]);
-    const [test, setTest] = useState(false);
     const [modal, setModal] = useState({show: false, item: []});
     const fetch = () => {
       //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];

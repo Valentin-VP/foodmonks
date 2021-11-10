@@ -6,17 +6,24 @@ import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
-import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
+import org.foodmonks.backend.Usuario.UsuarioService;
+import org.foodmonks.backend.Direccion.DireccionRepository;
 import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.Menu.MenuConverter;
+import org.foodmonks.backend.Menu.MenuRepository;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteRepository;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
+import org.foodmonks.backend.Usuario.UsuarioRepository;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
+import org.foodmonks.backend.datatypes.CategoriaMenu;
+import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.MenuCompra.MenuCompraService;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
-import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
-import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoPedido;
@@ -24,6 +31,7 @@ import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.google.gson.JsonObject;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,6 +42,9 @@ public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
+    private final MenuRepository menuRepository;
+    private final RestauranteRepository restauranteRepository;
+    private final MenuConverter menuConverter;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
@@ -43,8 +54,18 @@ public class ClienteService {
     private final MenuService menuService;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder , UsuarioService usuarioService, DireccionService direccionService, ClienteConverter clienteConverter, PedidoService pedidoService, RestauranteService restauranteService, MenuCompraService menuCompraService, MenuService menuService) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; this.usuarioService = usuarioService; this.direccionService = direccionService; this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; this.menuService = menuService;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
+                          UsuarioService usuarioService, DireccionService direccionService, 
+                          ClienteConverter clienteConverter, PedidoService pedidoService, 
+                          RestauranteService restauranteService, MenuCompraService menuCompraService, 
+                          MenuService menuService, MenuRepository menuRepository,
+                          RestauranteRepository restauranteRepository, MenuConverter menuConverter) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
+        this.usuarioService = usuarioService; this.direccionService = direccionService; 
+        this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
+        this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
+        this.menuService = menuService; this.menuRepository = menuRepository;
+        this.restauranteRepository = restauranteRepository; this.menuConverter = menuConverter;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -175,6 +196,20 @@ public class ClienteService {
             }
         }
         return null;
+    }
+
+    public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal){
+
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
+
+        if(!categoria.isEmpty()){
+
+            CategoriaMenu categoriaMenu = CategoriaMenu.valueOf(categoria);
+            return menuConverter.listaJsonMenu(menuRepository.findMenuByRestauranteAndCategoria(restaurante,categoriaMenu));
+        }
+
+        return menuConverter.listaJsonMenu(menus);
     }
 
     public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException, MenuNoEncontradoException {

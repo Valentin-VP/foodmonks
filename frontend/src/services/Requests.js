@@ -12,6 +12,11 @@ export const getMenuId = () => {
   return sessionStorage.getItem("menuId");
 };
 
+//retorna la id del restaurante para el listado de menus y promociones
+export const getRestauranteId = () => {
+  return sessionStorage.getItem("restauranteId");
+};
+
 //---------------------------------------LOGIN--------------------------------------------
 
 export const getToken = () => {
@@ -141,6 +146,21 @@ export const fetchPromos = () => {
   response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
   return response;
 };
+
+export const fetchMenusPromos = (datos) => {
+  const restauranteId = getRestauranteId();
+  console.log(restauranteId);
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${restauranteId}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+}
 
 export const getMenuInfo = () => {
   const menuId = getMenuId();
@@ -275,7 +295,7 @@ export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
     },
   });
 };
