@@ -24,12 +24,12 @@ const Styles = styled.div`
     border-collapse: collapse;
     border: 3px solid #FEFEFE;
     width: 100%;
+    table-layout: fixed;
   }
 
   td, tr {
-
     border: 1px solid #eee;
-    padding: 6px;
+    padding: 2px;
     width: 8%;
     &:hover{
       background-color: #FFFFF5;
@@ -41,20 +41,6 @@ const Styles = styled.div`
     font-size: 18px;
     &:hover{
       background-color: #FFFFF1;
-    }
-  }
-
-  .MuiPaginationItem-page.Mui-selected{
-    background-color: #e87121;
-    &:focus {
-      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
-      background-color: #f87121;
-    }
-    &:hover {
-      background-color: #da6416;
-    }
-    &:active {
-      background-color: #d87121;
     }
   }
 
@@ -90,20 +76,11 @@ const Styles = styled.div`
 
 `;
 
-export default function ListadoPedidosRealizados({datos, cantidadPages, onPageChange, onVisibleMenu, onVisibleReclamo}) {
-    const [page, setPage] = useState(1);
-
-    const handlePageChange = (e, page) => {
-      setPage(page);
-    };
+export default function ListadoPedidosRealizados({datos, onVisibleMenu, onVisibleReclamo}) {
 
     const onReclamar = (item) => {
       // Mandar datos a pagina de reclamos (e ir a dicha pagina)
     };
-
-    useEffect(()=>(
-      onPageChange(page)
-    ), [page])
 
     return (
     <>
@@ -179,19 +156,6 @@ export default function ListadoPedidosRealizados({datos, cantidadPages, onPageCh
                         )}) : null}
                     </tbody>
                     </table>
-                    {(datos.pedidos && datos.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
-                        <Pagination
-                          className="my-3"
-                          count={cantidadPages ? cantidadPages : 0}
-                          page={page}
-                          siblingCount={1}
-                          boundaryCount={1}
-                          variant="outlined"
-                          shape="rounded"
-                          onChange={handlePageChange}
-                        />
-                    </Col> : null}
-                  {(!datos.pedidos || !datos.pedidos.length > 0)  && <h5 className="text-center h5 mb-3 fw-normal">No se encontraron pedidos.</h5>}
               </div>
             </div>
           </main>

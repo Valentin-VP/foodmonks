@@ -357,7 +357,7 @@ export const obtenerPedidosRealizados = (datos, fechaIni, fechaFin, page) => {
 
   const response = axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarPedidosRealizados?estadoPedido=${datos.estadoPedido}&nombreMenu=${datos.nombreMenu}&nombreRestaurante=${datos.nombreRestaurante}&medioPago=${datos.medioPago}&orden=${datos.ordenamiento}&fecha=${fecha}&total=${total}&page=${page}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarPedidosRealizados?estadoPedido=${datos.estadoPedido}&nombreMenu=${datos.nombreMenu}&nombreRestaurante=${datos.nombreRestaurante}&medioPago=${datos.medioPago}&orden=${datos.ordenamiento}&fecha=${fecha}&total=${total}&page=${page}&size=5`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
