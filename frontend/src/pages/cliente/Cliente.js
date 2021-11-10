@@ -1,8 +1,9 @@
 import { React, Fragment } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { Home } from "./Home";
+import Home from "./Home";
 import { Cart } from "./Cart";
 import { Grafico } from "../Grafico";
+import BuscarMenusPromociones from "./BuscarMenusPromociones";
 import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
 import PerfilCliente from "./PerfilCliente";
@@ -29,7 +30,8 @@ function Cliente() {
               <CartProvider>
                 {/* el home tiene su propio layout*/}
                 <Route exact path="/" component={Home} />
-                <Route exact path="/cart" component={Cart} />
+                <Route path="/cart" component={Cart} />
+                <Route path="/listarProductos" component={BuscarMenusPromociones}/>
               </CartProvider>
               <Route exact path="/perfil" component={PerfilCliente} />
               <Route exact path="/modificarDireccion" component={ModificarDireccion} />

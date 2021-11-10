@@ -58,6 +58,10 @@ export default function BuscarRestaurantesAbiertos() {
     calificacion: false,
   });
 
+  useEffect(() => {
+    fetch();
+  }, []);
+
   let categoria = [
     { nombre: "(Cualquiera)", value: "" },
     { nombre: "Pizzas", value: "PIZZAS" },
