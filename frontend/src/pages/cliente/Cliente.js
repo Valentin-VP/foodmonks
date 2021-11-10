@@ -37,6 +37,11 @@ function Cliente() {
                   path="/modificarDireccion"
                   component={ModificarDireccion}
                 />
+                <Route
+                  exact
+                  path="/listarProductos"
+                  component={BuscarMenusPromociones}
+                />
                 <Route exact path="/grafica" component={Grafico} />
                 {/* <Route path="no-match" component={NoMatch} /> */}
               </Fragment>

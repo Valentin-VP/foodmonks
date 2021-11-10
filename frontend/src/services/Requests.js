@@ -4,6 +4,7 @@ import axios from "axios";
 export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
+  localStorage.removeItem("react-use-cart");
   window.location.replace("/");
 };
 
