@@ -1,6 +1,5 @@
 import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
-import { Error } from "../../components/Error";
 import { fetchMenusPromos } from "../../services/Requests";
 import ListadoMenusPromociones from "./ListarMenusPromociones";
 import { PortadaRestaurante } from "../../components/PortadaRestaurante";
@@ -60,6 +59,7 @@ export default function BuscarMenusPromociones() {
 
   useEffect(() => {
     fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const props = {
@@ -116,8 +116,8 @@ export default function BuscarMenusPromociones() {
           <div className="container-lg">
             <main className="form">
               <form id="inputs" onSubmit={handleSubmit}>
-                <div class="row align-items-center">
-                    <div class="col-md-4">
+                <div className="row align-items-center">
+                    <div className="col-md-4">
                         <div className="form-floating">
                             <select 
                                 name="categoria"
@@ -128,10 +128,10 @@ export default function BuscarMenusPromociones() {
                                   <option key={item.nombre} value={item.value}>{item.nombre}</option>
                                 ))}
                             </select>
-                            <label for="categoria">Categoría</label>
+                            <label htmlFor="categoria">Categoría</label>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div className="col-md-3">
                         <div className="form-floating">
                             <input 
                                 name="precioInicial"
@@ -140,10 +140,10 @@ export default function BuscarMenusPromociones() {
                                 id="precioInicial"
                                 value={values.precioInicial}>
                             </input>
-                            <label for="precioInicial">Precio Inicial</label>
+                            <label htmlFor="precioInicial">Precio Inicial</label>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div className="col-md-3">
                         <div className="form-floating">
                             <input 
                                 name="precioFinal"
@@ -152,7 +152,7 @@ export default function BuscarMenusPromociones() {
                                 id="precioFinal"
                                 value={values.precioFinal}>
                             </input>
-                            <label for="precioFinal">Precio Final</label>
+                            <label htmlFor="precioFinal">Precio Final</label>
                         </div>
                     </div>
                 </div>
@@ -163,8 +163,8 @@ export default function BuscarMenusPromociones() {
               </form>
 
                 <div className="form-floating">
-                  <div class="row align-items-center">
-                    <div class="col-md">
+                  <div className="row align-items-center">
+                    <div className="col-md">
                       {listar && <ListadoMenusPromociones data={data} />}
                     </div>
                   </div>
