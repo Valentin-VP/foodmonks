@@ -29,8 +29,11 @@ public class MenuCompraService {
         return menuCompra;
     }
 
-    public MenuCompra crearMenuCompraMenu (Menu menu){
-        return menuCompraConverter.menuCompra(menu);
+    public MenuCompra crearMenuCompraMenu (Menu menu, int cantidad){
+        MenuCompra menuCompra = menuCompraConverter.menuCompra(menu);
+        menuCompra.setCantidad(cantidad);
+        menuCompraRepository.save(menuCompra);
+        return menuCompra;
     }
 
 }

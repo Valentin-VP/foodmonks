@@ -21,14 +21,22 @@ public class PedidoConverter {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
         jsonPedido.addProperty("estado", pedido.getEstado().name());
-        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente().getPuntaje());
-        jsonPedido.addProperty("comentarioCliente", pedido.getCalificacionCliente().getComentario());
-        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante().getPuntaje());
-        jsonPedido.addProperty("comentarioRestaurante", pedido.getCalificacionRestaurante().getComentario());
-        jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().toString());
+        if (pedido.getCalificacionCliente() != null){
+            jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente().getPuntaje());
+            jsonPedido.addProperty("comentarioCliente", pedido.getCalificacionCliente().getComentario());
+        }
+        if (pedido.getCalificacionRestaurante() != null){
+            jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante().getPuntaje());
+            jsonPedido.addProperty("comentarioRestaurante", pedido.getCalificacionRestaurante().getComentario());
+        }
+        if (pedido.getFechaHoraProcesado() != null) {
+            jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().toString());
+        }
         jsonPedido.addProperty("total", pedido.getTotal());
         jsonPedido.addProperty("medioPago", pedido.getMedioPago().name());
-        jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().toString());
+        if (pedido.getFechaHoraEntrega() != null) {
+            jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().toString());
+        }
         return jsonPedido;
     }
 }

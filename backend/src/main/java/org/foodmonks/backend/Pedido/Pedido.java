@@ -27,7 +27,7 @@ import java.util.List;
 public class Pedido  {
 
  	@Id
- 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(value = EnumType.STRING)
     private EstadoPedido estado;

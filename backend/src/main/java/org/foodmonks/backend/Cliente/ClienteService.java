@@ -201,7 +201,8 @@ public class ClienteService {
             if (menu == null) {
                 throw new MenuNoEncontradoException("El menu no existe para el Restaurante " + restaurante.getNombreRestaurante());
             }
-            menus.add(menuCompraService.crearMenuCompraMenu(menu));
+            MenuCompra menuCompra = menuCompraService.crearMenuCompraMenu(menu, jsonMenu.getAsJsonObject().get("cantidad").getAsInt());
+            menus.add(menuCompra);
         }
         return pedidoService.crearPedido(EstadoPedido.PENDIENTE,jsonRequestPedido.get("total").getAsFloat(),
                 MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()),ordenPaypal,direccion,cliente,
