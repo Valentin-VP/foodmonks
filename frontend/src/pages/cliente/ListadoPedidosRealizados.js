@@ -90,11 +90,15 @@ const Styles = styled.div`
 
 `;
 
-export default function ListadoPedidosRealizados({datos, cantidadPages, onPageChange, onVisible}) {
+export default function ListadoPedidosRealizados({datos, cantidadPages, onPageChange, onVisibleMenu, onVisibleReclamo}) {
     const [page, setPage] = useState(1);
 
     const handlePageChange = (e, page) => {
       setPage(page);
+    };
+
+    const onReclamar = (item) => {
+      // Mandar datos a pagina de reclamos (e ir a dicha pagina)
     };
 
     useEffect(()=>(
@@ -124,12 +128,20 @@ export default function ListadoPedidosRealizados({datos, cantidadPages, onPageCh
                                   <td>Fecha Entrega: {item.fechaHoraEntrega}</td>
                                   <td>Calificación: {item.calificacionCliente!=="" ? item.calificacionCliente : "Sin Calificar"}</td>
                                   <td>Total: ${item.total}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisible(item.id))}>
-                                    +
+                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisibleMenu(item.id))}>
+                                    Menús
                                   </button>}</td>
+                                  <td>{(item.reclamo && item.reclamo.id) ?
+                                    (<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisibleReclamo(item.id))}>
+                                    Ver Reclamo
+                                    </button>) :
+                                    (<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onReclamar(item.id))}>
+                                    Reclamar
+                                    </button>) 
+                                  }</td>
                                 </tr>
                               </Col>
-                              {item.visible && 
+                              {item.visibleMenu && 
                                 <Col>
                                   {(item.menus ? item.menus.map((menu, menuindex) => {
                                   return (
@@ -151,6 +163,17 @@ export default function ListadoPedidosRealizados({datos, cantidadPages, onPageCh
                                     </>
                                   )}) : null)}
                                 </Col>
+                              }
+                              {item.visibleReclamo && 
+                                  ((item.reclamo && item.reclamo.id) ? (
+                                    <Col>
+                                      <tr key={item.reclamo.id}>
+                                          <td>Razón: {item.reclamo.razon}</td>
+                                          <td>Comentario: {item.reclamo.comentario}</td>
+                                          <td>Fecha Reclamo: {item.reclamo.fecha}</td>
+                                      </tr>
+                                    </Col>
+                                  ) : null)
                               }
                             </>
                         )}) : null}

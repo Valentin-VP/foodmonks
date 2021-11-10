@@ -128,17 +128,29 @@ export default function BuscarPedidosRealizados() {
     fetch();
   };
 
-  const onVisible = (id) => {
+  const onVisibleMenu = (id) => {
     let items = [...data.pedidos];
     //de paso le pregunto si tiene menus (normalmente deberia tener), sino tiene no hago nada
     items.map((i)=>{
       if (i.id===id && i.menus)
-        i.visible = !i.visible;
+        i.visibleMenu = !i.visibleMenu;
       return i
     });
     console.log(items);
     setData({...data, pedidos: items});
   }
+
+  const onVisibleReclamo = (id) => {
+    let items = [...data.pedidos];
+    //le pregunto si tiene reclamo
+    items.map((i)=>{
+      if (i.id===id && i.reclamo)
+        i.visibleReclamo = !i.visibleReclamo;
+      return i
+    });
+    console.log(items);
+    setData({...data, pedidos: items});
+  }  
 
   return (
     <Styles>
@@ -267,7 +279,7 @@ export default function BuscarPedidosRealizados() {
               <div className="form-floating">
                 <div class="row align-items-center">
                   <div class="col-md">
-                    {<ListadoPedidosRealizados datos={data} cantidadPages={data.totalPages} onPageChange={onPageChange} onVisible={onVisible}/>}
+                    {<ListadoPedidosRealizados datos={data} cantidadPages={data.totalPages} onPageChange={onPageChange} onVisibleMenu={onVisibleMenu} onVisibleReclamo={onVisibleReclamo}/>}
                   </div>
                 </div>
               </div>
