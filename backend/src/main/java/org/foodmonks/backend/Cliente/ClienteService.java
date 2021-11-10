@@ -150,7 +150,7 @@ public class ClienteService {
         }catch(NumberFormatException e){
             e.printStackTrace();
             pageFinal = 0;
-            sizeFinal = 5;
+            sizeFinal = 1000;
         }
         return pedidoService.listaPedidosRealizados(cliente, estado, nombreMenu, nombreRestaurante, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
