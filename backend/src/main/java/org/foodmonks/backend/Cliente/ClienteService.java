@@ -175,7 +175,11 @@ public class ClienteService {
     public void agregarTokenMobile(String email, String mobileToken) throws ClienteNoEncontradoException {
         // guardar mobiletoken al cliente con id email
         Cliente cliente = obtenerCliente(email);
-        cliente.setMobileToken(mobileToken);
+        if (mobileToken.isBlank()){
+            cliente.setMobileToken(null);
+        } else {
+            cliente.setMobileToken(mobileToken);
+        }
         clienteRepository.save(cliente);
     }
 }
