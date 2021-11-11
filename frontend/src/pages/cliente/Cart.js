@@ -7,6 +7,7 @@ import { Layout } from "../../components/Layout";
 import { Loading } from "../../components/Loading";
 import { IoBagAddSharp, IoBagRemoveSharp } from "react-icons/io5";
 import { MdDeleteForever, MdOutlinePayments } from "react-icons/md";
+import { ImPaypal } from "react-icons/im";
 import PaypalCheckoutButton from "../../components/PaypalCheckoutButton";
 import { hacerPedidoEfectivo } from "../../services/Requests";
 import { NotiError, Noti } from "../../components/Notification";
@@ -30,8 +31,8 @@ const Styles = styled.div`
     margin-top: 20px;
   }
   img {
+    height: 6rem;
     border-radius: 5px;
-    object-fit: cover;
   }
   .btn-info {
     color: white;
@@ -142,10 +143,10 @@ export const Cart = () => {
       menus.push(aux);
     });
     const jsonPedido = {
-      restaurante: sessionStorage.getItem("restauranteCart"), //falta arreglar el restaurante
+      restaurante: perfil.correo, //falta arreglar el restaurante
       direccionId: document.getElementById("direcciones").value, // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
       medioPago: "EFECTIVO", //String: vale 'PayPal' o 'Efectivo'
-      total: Math.round((cartTotal + Number.EPSILON) * 100) / 100,
+      total: cartTotal,
       ordenId: "", // Lo que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
       linkAprobacion: "", // URL que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
       menus: menus
@@ -154,7 +155,6 @@ export const Cart = () => {
     hacerPedidoEfectivo(jsonPedido).then((response) =>{
       console.log(response);
       Noti("Pedido realizado con exito");
-      emptyCart();
     }).catch((error) => {
       NotiError(error.response.data);
     });
@@ -171,7 +171,7 @@ export const Cart = () => {
       menus.push(aux);
     });
     const jsonPedido = {
-      restaurante: sessionStorage.getItem("restauranteCart"), // Seria el correo del restaurante (esto es del cliente)
+      restaurante: perfil.correo, // Seria el correo del restaurante (esto es del cliente)
       direccionId: document.getElementById("direcciones").value,
       medioPago: "PAYPAL",
       total: cartTotal,
@@ -201,7 +201,7 @@ export const Cart = () => {
       };
     });
     order = { ...order, items: orderItems };
-    console.log(order);
+    //console.log(order);
     return order;
   };
 
@@ -218,9 +218,9 @@ export const Cart = () => {
                     return (
                       <tr key={index}>
                         <td>
-                          <img src={item.imagen} alt="productimg" width="120" />
+                          <img src={item.img} alt="productimg" width="100" />
                         </td>
-                        <td className="font-weight-bold">{item.nombre}</td>
+                        <td>{item.title}</td>
                         <td>Cantidad: {item.quantity}</td>
                         <td>Precio Total: {item.price * item.quantity}</td>
                         <td>
@@ -280,7 +280,7 @@ export const Cart = () => {
 
                 <label className="mb-2">Total de items: {totalItems}</label>
                 <h4>Finalizar Compra</h4>
-                <h5 className="mb-4">Precio final: $ {Math.round((cartTotal + Number.EPSILON) * 100) / 100}</h5>
+                <h5 className="mb-4">Precio final: $ {cartTotal}</h5>
                 <div className="row bPagoE">
                   <Button
                     className="eButton"
@@ -292,7 +292,7 @@ export const Cart = () => {
                   </Button>
                 </div>
                 <div className="row bPagoP">
-                  <PaypalCheckoutButton order={getOrder} onAuthorizeCallback={onPaypal} />
+                  <PaypalCheckoutButton order={getOrder()} onAuthorizeCallback={onPaypal} />
                   {/* <Button variant="primary" className="ppb" onClick={onPaypal} value="paypal">
                     </Button> */}
                 </div>
