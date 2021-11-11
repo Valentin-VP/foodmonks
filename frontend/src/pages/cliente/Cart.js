@@ -183,6 +183,7 @@ export const Cart = () => {
     paypalEnviarCART(jsonPedido).then((response) =>{
       console.log(response);
       Noti("Pedido realizado con exito");
+      emptyCart();
     }).catch((error) => {
       NotiError(error.response.data);
     });
