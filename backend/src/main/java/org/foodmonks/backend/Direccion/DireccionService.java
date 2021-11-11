@@ -43,7 +43,7 @@ public class DireccionService {
 
     public void verificarDirecccion(JsonObject jsonDireccion) throws DireccionNumeroException {
         if (!jsonDireccion.get("numero").getAsString().matches("[0-9]*") || jsonDireccion.get("numero").getAsString().isBlank()) {
-            throw new DireccionNumeroException("El precio debe ser un numero real");
+            throw new DireccionNumeroException("El numero de puerta debe ser un numero real");
         }
     }
 
