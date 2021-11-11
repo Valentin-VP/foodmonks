@@ -4,13 +4,15 @@ import { Button } from "react-bootstrap";
 
 const Styles = styled.div`
   .card {
-    margin-left: 20px;
-    margin-right: 20px;
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
   img {
     object-fit: cover;
     border-radius: 3px 3px 0px 0px;
+    height: 12rem;
   }
 
   .btn-primary {
@@ -30,28 +32,29 @@ const Styles = styled.div`
 `;
 
 const RestauranteCard = (props) => {
-    const onClick = () => {
-        sessionStorage.setItem("restauranteId", props.correo);
-        sessionStorage.setItem("restauranteImagen", props.imagen);
-        sessionStorage.setItem("restauranteCalif", props.calificacion);
-        sessionStorage.setItem("restauranteNombre", props.nombre);
-    }
+  const onClick = () => {
+    sessionStorage.setItem("restauranteId", props.correo);
+    sessionStorage.setItem("restauranteImagen", props.imagen);
+    sessionStorage.setItem("restauranteCalif", props.calificacion);
+    sessionStorage.setItem("restauranteNombre", props.nombre);
+    window.location.replace("/listarProductos");
+  };
 
   return (
     <Styles>
-      <div className="card">
-        <img src={props.imagen} alt="productimg" height="200" />
+      <div className="card" onClick={() => onClick()}>
+        <img src={props.imagen} alt="restauranteimg" />
         <div className="card-body">
           <h5 className="card-title">{props.nombre}</h5>
-          <h5 className="card-subtitle">Tel: {props.telefono}</h5>
+          <h5 className="card-subtitle">Teléfono: {props.telefono}</h5>
           <p className="card-text">{props.calificacion}⭐</p>
-          <Button
-            href="/listarProductos"
-            className="btn-primary margin-auto"
-            onClick={() => onClick()}
-          >
-            Acceder
-          </Button>
+          {/* <Button
+              href="/listarProductos"
+              className="btn-primary margin-auto"
+              onClick={() => onClick()}
+            >
+              Acceder
+            </Button> */}
         </div>
       </div>
     </Styles>

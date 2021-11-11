@@ -10,10 +10,6 @@ const Styles = styled.div`
   table {
     background-color: white;
   }
-  img {
-    height: 9rem;
-    border-radius: 8px;
-  }
   .column {
     float: left;
     width: 300px;
