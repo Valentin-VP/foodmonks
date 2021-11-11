@@ -172,4 +172,7 @@ public class ClienteService {
         return null;
     }
 
+    public void agregarTokenMobile(String email, String mobileToken) {
+        // guardar mobiletoken al cliente con id email
+    }
 }
