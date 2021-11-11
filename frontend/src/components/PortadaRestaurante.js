@@ -35,6 +35,12 @@ const Styles = styled.div`
     position: relative;
     text-align: right;
   }
+
+  img {
+    height: 8rem;
+    width: 8rem;
+    object-fit: cover;
+  }
 `;
 
 export const PortadaRestaurante = ({props}) => (

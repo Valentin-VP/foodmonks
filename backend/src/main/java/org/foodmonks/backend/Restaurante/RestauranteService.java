@@ -3,7 +3,9 @@ package org.foodmonks.backend.Restaurante;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
+import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.PedidoService;
@@ -18,7 +20,6 @@ import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,12 @@ public class RestauranteService {
     private final PedidoService pedidoService;
 
     @Autowired
-    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder , UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter, PedidoService pedidoService) {
-        this.restauranteRepository = restauranteRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.menuService = menuService; this.restauranteConverter = restauranteConverter; this.pedidoService = pedidoService;
+    public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder ,
+                              UsuarioRepository usuarioRepository, MenuService menuService,
+                              RestauranteConverter restauranteConverter, PedidoService pedidoService) {
+        this.restauranteRepository = restauranteRepository;this.passwordEncoder = passwordEncoder;
+        this.usuarioRepository = usuarioRepository; this.menuService = menuService;
+        this.restauranteConverter = restauranteConverter; this.pedidoService = pedidoService;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -56,7 +61,7 @@ public class RestauranteService {
         restauranteRepository.save(restauranteAux);
     }
 
-    public void createSolicitudAltaRestaurante(String nombre, String apellido, String correo, String password, LocalDate now, float calificacion, String nombreRestaurante, String rut, Direccion direccion, EstadoRestaurante pendiente, String telefono, String descripcion, String cuentaPaypal, String url,ArrayList<JsonObject> jsonMenus) throws UsuarioExisteException, ClienteDireccionException, RestauranteFaltaMenuException, UsuarioNoRestaurante, MenuNombreExistente {
+    public void createSolicitudAltaRestaurante(String nombre, String apellido, String correo, String password, LocalDate now, float calificacion, String nombreRestaurante, String rut, Direccion direccion, EstadoRestaurante pendiente, String telefono, String descripcion, String cuentaPaypal, String url,ArrayList<JsonObject> jsonMenus) throws UsuarioExisteException, ClienteDireccionException, RestauranteFaltaMenuException, UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException {
         if (usuarioRepository.findByCorreo(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
@@ -134,6 +139,14 @@ public class RestauranteService {
             return restauranteConverter.listaRestaurantes(result);
         }
         return restauranteConverter.listaRestaurantes(restaurantes);
+    }
+
+    public Restaurante obtenerRestaurante(String correo) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
+        }
+        return restaurante;
     }
 
 }

@@ -22,26 +22,34 @@ const Styles = styled.div`
 function Cliente() {
   return (
     <Styles>
-      <div id="page-container">
-        <NavigationBar />
-        <Router>
-          <Switch>
-            <Fragment>
-              <CartProvider>
+      <CartProvider>
+        <div id="page-container">
+          <NavigationBar />
+          <Router>
+            <Switch>
+              <Fragment>
                 {/* el home tiene su propio layout*/}
                 <Route exact path="/" component={Home} />
-                <Route path="/cart" component={Cart} />
-                <Route path="/listarProductos" component={BuscarMenusPromociones}/>
-              </CartProvider>
-              <Route exact path="/perfil" component={PerfilCliente} />
-              <Route exact path="/modificarDireccion" component={ModificarDireccion} />
-              <Route exact path="/grafica" component={Grafico} />
-              {/* <Route path="no-match" component={NoMatch} /> */}
-            </Fragment>
-          </Switch>
-        </Router>
-        <Footer />
-      </div>
+                <Route exact path="/cart" component={Cart} />
+                <Route exact path="/perfil" component={PerfilCliente} />
+                <Route
+                  exact
+                  path="/modificarDireccion"
+                  component={ModificarDireccion}
+                />
+                <Route
+                  exact
+                  path="/listarProductos"
+                  component={BuscarMenusPromociones}
+                />
+                <Route exact path="/grafica" component={Grafico} />
+                {/* <Route path="no-match" component={NoMatch} /> */}
+              </Fragment>
+            </Switch>
+          </Router>
+          <Footer />
+        </div>
+      </CartProvider>
     </Styles>
   );
 }

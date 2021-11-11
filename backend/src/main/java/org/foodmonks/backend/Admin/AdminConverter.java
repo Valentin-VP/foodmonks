@@ -18,6 +18,14 @@ public class AdminConverter {
         return gsonAdmins;
     }
 
+    public JsonArray arrayJsonAdmin (List<Admin> admins){
+        JsonArray arrayJsonAdmins = new JsonArray();
+        for (Admin admin : admins){
+            arrayJsonAdmins.add(jsonAdmin(admin));
+        }
+        return arrayJsonAdmins;
+    }
+
     public JsonObject jsonAdmin(Admin admin) {
         JsonObject jsonAdmin = new JsonObject();
         jsonAdmin.addProperty("correo", admin.getCorreo());

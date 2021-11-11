@@ -4,6 +4,7 @@ import axios from "axios";
 export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
+  localStorage.removeItem("react-use-cart");
   window.location.replace("/");
 };
 
@@ -219,14 +220,18 @@ export const cambiarEstado = (estado) => {
 };
 
 export const actualizarEstadoPedido = (estado, id) => {
-  return axios({
+  const response = axios({
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/actualizarEstadoPedido/${id}`,
     data: {estado: estado},
     headers: {
       Authorization: "Bearer " + getToken(),
-    },
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
   });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((error)=>{checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
+  return response;
 };
 
 export const altaAdmin = (datos) => {
@@ -259,7 +264,8 @@ export const obtenerPedidosSinFinalizarEfectivo = () => {
       'RefreshAuthentication': "Bearer " + getRefreshToken(),
     }
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((error)=>{checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
   return response;
 };
 
@@ -355,10 +361,27 @@ export const checkPwdRecoveryToken = (email, ptoken) => {
   const datos = { email: email ? email : "", token: ptoken ? ptoken : "" };
   console.log(datos);
   return axios({
-    method: "POST",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/check`,
-    data: datos,
+      method:"POST",
+      url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/check`,
+      data:datos
   });
+};
+
+export const paypalEnviarCART=(datos)=>{
+  console.log(datos);
+  const response = axios({
+    method:"POST",
+    url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/realizarPedido`,
+    data:datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response
+    .then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((error)=> {checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
+    return response;
 };
 
 export const agregarDireccion = (direccion) => {
@@ -427,4 +450,17 @@ export const fetchRestaurantesBusqueda = (datos) => {
   });
   response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
   return response;
+};
+
+
+export const hacerPedidoEfectivo = (datos) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/realizarPedido`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
 };

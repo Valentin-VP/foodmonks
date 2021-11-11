@@ -23,17 +23,14 @@ const Styles = styled.div`
 export default function ListadoMenusPromociones({ data }) {
   return (
     <Styles>
-      <React.Fragment>
         <Layout>
-          <h2>Menus y Promociones</h2>
-          <h3> Promociones </h3>
+          <h2> Promociones </h2>
+          <div className="row justify-content-left">
           {data.map((item, index) => {
             return (
-              <div className="row justify-content-left">
-                {item.multiplicadorPromocion !== 0 ? (
-                  <div className="column">
+                item.multiplicadorPromocion !== 0 ? (
+                  <div className="column" key={index}>
                     <ItemCard
-                      key={index}
                       img={item.imagen}
                       title={item.nombre}
                       desc={item.multiplicador}
@@ -41,31 +38,28 @@ export default function ListadoMenusPromociones({ data }) {
                       item={item}
                     />
                   </div>
-                ) : null}
-              </div>
+                ) : null
             );
           })}
           <hr />
-          <h3> Menus </h3>
+          <h2> Menus </h2>
           {data.map((item, index) => {
             return (
-              <div className="row justify-content-left">
-                {item.multiplicadorPromocion === 0 ? (
-                  <div className="column">
+                item.multiplicadorPromocion === 0 ? (
+                  <div className="column" key={index}>
                     <ItemCard
-                      key={index}
                       img={item.imagen}
                       title={item.nombre}
                       price={item.price}
                       item={item}
                     />
                   </div>
-                ) : null}
-              </div>
+                ) : null
+              
             );
           })}
+          </div>
         </Layout>
-      </React.Fragment>
     </Styles>
   );
 }

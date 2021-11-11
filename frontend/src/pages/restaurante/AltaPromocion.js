@@ -128,7 +128,6 @@ function AltaPromocion() {
 
     const onSubmit = (e) => {
         e.preventDefault();
-        document.getElementById("submit").disabled = true;
         menuRetorno.nombre = state.nombre;
         menuRetorno.categoria = state.categoria;
         menuRetorno.descripcion = state.descripcion;
@@ -137,6 +136,7 @@ function AltaPromocion() {
         menuRetorno.imagen = state.imgUrl;
 
         altaMenu(menuRetorno).then((response) => {//request al backend
+            document.getElementById("submit").disabled = true;
             console.log("entro al then");
             setSuccess(<Alert variant="success">Promocion creada con exito!</Alert>);
             console.log(response);
@@ -146,7 +146,7 @@ function AltaPromocion() {
             }, 3000);
         }).catch((error) => {
             console.log(error.response.data);
-            setSuccess(<Alert variant="danger" error={error.response.data.detailMessage} />);
+            setSuccess(<Alert variant="danger">{error.response.data.detailMessage}</Alert>);
         });
     };
 
@@ -208,7 +208,7 @@ function AltaPromocion() {
                     max="100"
                     min="1"
                     required
-                    defaultValue="0"
+                    defaultValue="1"
                     onChange={handleChange}
                     />
                     <label htmlFor="floatingInput">Descuento</label>

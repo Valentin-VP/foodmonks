@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
-import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Usuario;
@@ -27,7 +26,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.Base64;
 import java.util.List;
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -109,7 +107,7 @@ public class AdminController {
     public ResponseEntity<?> listarUsuarios(@RequestParam(required = false, name = "correo") String correo, @RequestParam(required = false, name = "tipoUser") String tipoUser,
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
                                             @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden) {
-        List<Usuario> listaUsuarios = new ArrayList<>();
+        List<Usuario> listaUsuarios;
         JsonArray jsonArray = new JsonArray();
         try {
             listaUsuarios = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden);
@@ -161,7 +159,7 @@ public class AdminController {
     @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{correo}")
     public ResponseEntity<?> cambiarEstadoUsuario(@RequestHeader("Authorization") String token, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))) @RequestBody String estado, @PathVariable String correo) {
-        JsonObject JsonEstado = new JsonObject();
+        JsonObject JsonEstado;
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 
         String state = JsonEstado.get("estado").getAsString();

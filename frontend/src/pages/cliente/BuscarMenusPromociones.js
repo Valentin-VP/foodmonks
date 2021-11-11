@@ -17,7 +17,7 @@ const Styles = styled.div`
     margin-bottom: 15px;
   }
 
-  button {
+  #buscar {
     color: white;
     background-color: #e87121;
     border: none;
@@ -157,7 +157,7 @@ export default function BuscarMenusPromociones() {
                     </div>
                 </div>
 
-                <button className="w-100 btn btn-md btn-primary" type="submit">
+                <button id="buscar" className="w-100 btn btn-md btn-primary" type="submit">
                   Buscar
                 </button>
               </form>
