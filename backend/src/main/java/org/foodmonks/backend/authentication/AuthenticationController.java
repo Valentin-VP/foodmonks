@@ -99,7 +99,7 @@ public class AuthenticationController {
             if (checkMobile(agent)){
                 try{
                     clienteService.agregarTokenMobile(authenticationRequest.getEmail(), authenticationRequest.getMobileToken());
-                } catch (NullPointerException e){
+                } catch (NullPointerException | ClienteNoEncontradoException e){
                     //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
                 }
