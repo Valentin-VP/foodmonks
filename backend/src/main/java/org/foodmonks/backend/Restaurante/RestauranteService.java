@@ -6,6 +6,7 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
@@ -15,6 +16,7 @@ import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -118,9 +120,20 @@ public class RestauranteService {
         if (!pedidoService.existePedidoRestaurante(idPedido,restaurante)){
             throw new RestauranteNoEncontradoException("No existe el pedido con id " + idPedido + " para el Restaurante " + correo);
         }
-        pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.valueOf(estado.trim().toUpperCase(Locale.ROOT)));
+        Pedido pedido = pedidoService.buscarPedidoId(idPedido);
+
         if (estado.equals("CONFIRMADO")){
             pedidoService.cambiarFechasEntregaProcesado(idPedido, minutos);
+            if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)){
+                pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.CONFIRMADO);
+            }else{
+                pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.FINALIZADO);
+            }
+        }else if (estado.equals("RECHAZADO")){
+            pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.RECHAZADO);
+            if (pedido.getMedioPago().equals(MedioPago.PAYPAL)){
+                // HACER DEVOLUCION DE PAYPAL
+            }
         }
     }
 
