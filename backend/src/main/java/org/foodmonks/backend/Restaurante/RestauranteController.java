@@ -158,7 +158,7 @@ public class RestauranteController {
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
             menuService.altaMenu(jsonMenu, correoRestaurante);
         } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNombreExistente menuNombreExistente) {
             return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
@@ -192,7 +192,7 @@ public class RestauranteController {
                 }
             }
         } catch (JsonIOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
@@ -222,9 +222,9 @@ public class RestauranteController {
                 }
             }
         } catch (JsonIOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch(ExpiredJwtException a) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(a.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
@@ -252,7 +252,7 @@ public class RestauranteController {
             jsonMenu.addProperty("id", menuId);
             menuService.modificarMenu(jsonMenu, correo);
         } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
             return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
@@ -279,7 +279,7 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             menuService.eliminarMenu(menuId, correo);
         } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -303,7 +303,7 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             retorno = menuService.infoMenu(menuId, correo);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(retorno, HttpStatus.OK);
     }
@@ -327,7 +327,7 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             retorno = restauranteService.obtenerJsonRestaurante(correo);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(retorno, HttpStatus.OK);
     }
@@ -350,7 +350,7 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
         } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
