@@ -2,8 +2,8 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.foodmonks.backend.Direccion.DireccionService;
+import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,12 +42,15 @@ public class RestauranteController {
     private final RestauranteService restauranteService;
     private final MenuService menuService;
     private final TokenHelper tokenHelp;
+    private final DireccionService direccionService;
 
     @Autowired
-    RestauranteController(RestauranteService restauranteService, MenuService menuService, TokenHelper tokenHelper) {
+    RestauranteController(RestauranteService restauranteService, MenuService menuService,
+                          TokenHelper tokenHelper, DireccionService direccionService) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
         this.tokenHelp = tokenHelper;
+        this.direccionService = direccionService;
     }
 
     @Operation(summary = "Crea un nuevo Restaurante",
@@ -69,19 +72,12 @@ public class RestauranteController {
             // Obtener direccion
             JsonObject jsonDireccion = jsonRestaurante.get("direccion").getAsJsonObject();
             System.out.println("jsonDireccion "+jsonDireccion);
-            Direccion direccion = new Direccion(
-                    jsonDireccion.get("numero").getAsInt(),
-                    jsonDireccion.get("calle").getAsString(),
-                    jsonDireccion.get("esquina").getAsString(),
-                    jsonDireccion.get("detalles").getAsString(),
-                    jsonDireccion.get("latitud").getAsString(),
-                    jsonDireccion.get("longitud").getAsString()
-            );
+            Direccion direccion = direccionService.crearDireccion(jsonDireccion);
 
             // Obtener los menus
             JsonArray jsonMenusRequest = jsonRestaurante.get("menus").getAsJsonArray();
             System.out.println("jsonMenusRequest " + jsonMenusRequest);
-            ArrayList<JsonObject> jsonMenus = new ArrayList<JsonObject>();
+            ArrayList<JsonObject> jsonMenus = new ArrayList<>();
             for (JsonElement json: jsonMenusRequest) {
                 JsonObject jsonMenu = json.getAsJsonObject();
                 jsonMenus.add(jsonMenu);
@@ -161,14 +157,12 @@ public class RestauranteController {
             String correoRestaurante = tokenHelp.getUsernameFromToken(newToken);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
             menuService.altaMenu(jsonMenu, correoRestaurante);
-        } catch(JsonParseException e) {
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (MenuNombreExistente menuNombreExistente) {
             return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
             return new ResponseEntity<>(usuarioNoRestaurante, HttpStatus.FORBIDDEN);
-        } catch (MenuPrecioException menuPrecioException) {
-            return new ResponseEntity<>(menuPrecioException, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -184,14 +178,13 @@ public class RestauranteController {
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        String correo = "";
-        List<JsonObject> listaMenu = new ArrayList<JsonObject>();
+        List<JsonObject> listaMenu;
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
-            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
             listaMenu = menuService.listarMenu(correo);
             for(JsonObject jsonMenu : listaMenu) {
                 if(jsonMenu.get("multiplicadorPromocion").getAsString().equals("0.0")) {
@@ -215,7 +208,7 @@ public class RestauranteController {
     @GetMapping(path = "/listarPromocion")
     public ResponseEntity<?> listPromo(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        List<JsonObject> listaPromo = new ArrayList<JsonObject>();
+        List<JsonObject> listaPromo;
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
@@ -258,7 +251,7 @@ public class RestauranteController {
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
             jsonMenu.addProperty("id", menuId);
             menuService.modificarMenu(jsonMenu, correo);
-        } catch(JsonParseException e) {
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
             return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);
@@ -326,7 +319,7 @@ public class RestauranteController {
     @GetMapping(path = "/getInfoRestaurante")
     public ResponseEntity<?> getRestauranteInfo(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        JsonObject retorno = new JsonObject();
+        JsonObject retorno;
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
@@ -403,9 +396,9 @@ public class RestauranteController {
     @PutMapping(path = "/actualizarEstadoPedido/{idPedido}")
     public ResponseEntity<?> actualizarEstadoPedido(@RequestHeader("Authorization") String token, @PathVariable String idPedido, @RequestBody String nuevoEstado) {
         String newtoken = "";
-        JsonObject jsonPedido = new JsonObject();
+        JsonObject jsonPedido;
 
-        String estado = "";
+        String estado;
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);

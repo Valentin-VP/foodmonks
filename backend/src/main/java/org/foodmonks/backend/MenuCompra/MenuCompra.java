@@ -2,10 +2,7 @@ package org.foodmonks.backend.MenuCompra;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
-import org.foodmonks.backend.persistencia.MenuID;
-
 import javax.persistence.*;
 
 @Getter

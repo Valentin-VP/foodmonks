@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
-import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.authentication.TokenHelper;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -248,10 +245,9 @@ public class ClienteController {
     public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
                                                         @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
         //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
-        List<JsonObject> restaurantesAbiertos = new ArrayList<>();
         JsonArray jsonArray = new JsonArray();
         try {
-            restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
+            List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
 
             for (JsonObject restaurante : restaurantesAbiertos) {
                 jsonArray.add(restaurante);
@@ -278,12 +274,10 @@ public class ClienteController {
             @RequestParam(required = false, name = "precioFinal") Float precioFinal
             ) {
 
-        List<JsonObject> listarProductosRestaurante = new ArrayList<>();
         JsonArray jsonArray = new JsonArray();
-
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
-            listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
 
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);

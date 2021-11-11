@@ -6,7 +6,6 @@ import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.foodmonks.backend.Cliente.Cliente;
-import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
@@ -15,8 +14,6 @@ import org.foodmonks.backend.datatypes.DtCalificacion;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
-import org.springframework.boot.context.properties.bind.Name;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

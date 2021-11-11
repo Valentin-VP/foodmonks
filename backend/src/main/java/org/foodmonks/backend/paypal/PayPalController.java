@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 @Slf4j
 public class PayPalController {
 
-    private PayPalService payPalService;
+    private final PayPalService payPalService;
 
     @Autowired
     public PayPalController(PayPalService payPalService) {
@@ -29,7 +29,7 @@ public class PayPalController {
         Double total = detallesOrden.get("total").getAsDouble();
         log.info("Total: " + total);
         final URI callbackUrl = callbackUrl(request);
-        log.info("callbackUrl: " + callbackUrl.toString());
+        log.info("callbackUrl: " + callbackUrl);
         OrdenPaypal ordenPaypal = payPalService.orderRequest(total, callbackUrl);
         return "redirect:"+ ordenPaypal.getLinkAprobacion();
     }

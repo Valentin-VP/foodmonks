@@ -21,8 +21,10 @@ public class AdminService {
     private final AdminConverter adminConverter;
 
     @Autowired
-    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder, UsuarioRepository usuarioRepository, AdminConverter adminConverter ) {
-        this.adminRepository = adminRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository; this.adminConverter = adminConverter;
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder,
+                        UsuarioRepository usuarioRepository, AdminConverter adminConverter ) {
+        this.adminRepository = adminRepository; this.passwordEncoder = passwordEncoder;
+        this.usuarioRepository = usuarioRepository; this.adminConverter = adminConverter;
     }
 
     public void crearAdmin(String correo, String nombre, String apellido, String password) throws UsuarioExisteException {
