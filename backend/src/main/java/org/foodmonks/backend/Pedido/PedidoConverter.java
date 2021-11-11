@@ -1,8 +1,8 @@
 package org.foodmonks.backend.Pedido;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +15,14 @@ public class PedidoConverter {
             gsonPedidos.add(jsonPedido(pedido));
         }
         return gsonPedidos;
+    }
+
+    public JsonArray arrayJsonPedido (List<Pedido> pedidos){
+        JsonArray arrayJsonPedido = new JsonArray();
+        for (Pedido pedido : pedidos){
+            arrayJsonPedido.add(jsonPedido(pedido));
+        }
+        return arrayJsonPedido;
     }
 
     public JsonObject jsonPedido(Pedido pedido) {
