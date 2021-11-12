@@ -1,6 +1,5 @@
 package org.foodmonks.backend.Menu;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.springframework.stereotype.Component;
 

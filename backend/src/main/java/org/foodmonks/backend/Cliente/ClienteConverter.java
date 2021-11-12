@@ -28,6 +28,14 @@ public class ClienteConverter {
         return gsonClientes;
     }
 
+    public JsonArray arrayJsonCliente (List<Cliente> clientes){
+        JsonArray arrayJsonClientes = new JsonArray();
+        for (Cliente cliente : clientes){
+            arrayJsonClientes.add(jsonCliente(cliente));
+        }
+        return arrayJsonClientes;
+    }
+
     public JsonObject jsonCliente(Cliente cliente) {
         JsonObject jsonCliente = new JsonObject();
         jsonCliente.addProperty("correo", cliente.getCorreo());
