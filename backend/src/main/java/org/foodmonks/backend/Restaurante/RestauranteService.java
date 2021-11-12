@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Restaurante;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -156,4 +157,7 @@ public class RestauranteService {
         restauranteRepository.save(restaurante);
     }
 
+    public JsonArray listarReclamos(String correoRestaurante, boolean orden, String correoCliente, String razon) {
+        return new JsonArray();
+    }
 }
