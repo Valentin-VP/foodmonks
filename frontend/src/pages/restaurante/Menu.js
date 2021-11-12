@@ -3,6 +3,7 @@ import { Layout } from "../../components/Layout";
 import { Button, InputGroup } from "react-bootstrap";
 import styled from "styled-components";
 import { fetchMenus, eliminarMenu } from "../../services/Requests";
+import { SiAddthis } from "react-icons/si";
 
 const Styles = styled.div`
   #cabecera {
@@ -19,10 +20,19 @@ const Styles = styled.div`
   }
 
   #alta {
-    width: 50px;
-    background-color: #009933;
+    background-color: transparent;
     border: none;
     border-radius: 5px;
+    bottom: 8px;
+    &:focus {
+      box-shadow: none;
+    }
+
+    SiAddthis {
+      &:focus {
+        box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
+      }
+    }
   }
 
   h1 {
@@ -31,6 +41,7 @@ const Styles = styled.div`
   img {
     height: 6rem;
     border-radius: 5px;
+    object-fit: cover;
   }
   .miBoton {
     color: white;
@@ -94,7 +105,7 @@ function Menu() {
         <InputGroup id="cabecera">
           <h2 id="titulo">Mis Menús</h2>
           <Button id="alta" variant="success" href="/altaMenu">
-            {"+"}
+            <SiAddthis className="text-center" size="2.5rem" color="008f39" />
           </Button>
         </InputGroup>
         <div className="row justify-content-center">
@@ -142,7 +153,7 @@ function Menu() {
                           </Button>
                         </div>
                         <div className="row">
-                          <Button 
+                          <Button
                             className="miBoton"
                             href="/promocionar"
                             onClick={() => {

@@ -1,8 +1,8 @@
 package org.foodmonks.backend.Menu;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,14 @@ public class MenuConverter {
         return gsonMenus;
     }
 
+    public JsonArray arrayJsonMenu (List<Menu> menus){
+        JsonArray arrayJsonMenu = new JsonArray();
+        for (Menu menu : menus){
+            arrayJsonMenu.add(jsonMenu(menu));
+        }
+        return arrayJsonMenu;
+    }
+
     public JsonObject jsonMenu(Menu menu) {
         JsonObject jsonMenu = new JsonObject();
         jsonMenu.addProperty("id", menu.getId());
@@ -27,6 +35,7 @@ public class MenuConverter {
         jsonMenu.addProperty("multiplicadorPromocion", menu.getMultiplicadorPromocion());
         jsonMenu.addProperty("imagen", menu.getImagen());
         jsonMenu.addProperty("categoria", menu.getCategoria().name());
+        jsonMenu.addProperty("restaurante", menu.getRestaurante().getCorreo());
         return jsonMenu;
     }
 

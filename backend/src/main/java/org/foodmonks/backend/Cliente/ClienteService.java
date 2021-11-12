@@ -1,10 +1,14 @@
 package org.foodmonks.backend.Cliente;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
+import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
+import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
@@ -19,11 +23,23 @@ import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
 import org.foodmonks.backend.Reclamo.ReclamoService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioService;
+import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
+import org.foodmonks.backend.datatypes.CategoriaMenu;
+import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
+import org.foodmonks.backend.MenuCompra.MenuCompraService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoCliente;
+import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,26 +52,31 @@ public class ClienteService {
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
-    private final PedidoConverter pedidoConverter;
     private final PedidoService pedidoService;
+    private final RestauranteService restauranteService;
+    private final MenuCompraService menuCompraService;
+    private final MenuService menuService;
+    private final PedidoConverter pedidoConverter;
     private final EmailService emailService;
     private final ReclamoService reclamoService;
 
     @Autowired
-    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder,
-                          UsuarioService usuarioService, DireccionService direccionService,
-                          ClienteConverter clienteConverter, PedidoConverter pedidoConverter,
-                          PedidoService pedidoService, EmailService emailService,
-                          ReclamoService reclamoService) {
-        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder;
-        this.usuarioService = usuarioService; this.direccionService = direccionService;
-        this.clienteConverter = clienteConverter; this.pedidoConverter = pedidoConverter;
-        this.pedidoService = pedidoService; this.emailService = emailService;
-        this.reclamoService = reclamoService;
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
+                          UsuarioService usuarioService, DireccionService direccionService, 
+                          ClienteConverter clienteConverter, PedidoService pedidoService, 
+                          RestauranteService restauranteService, MenuCompraService menuCompraService, 
+                          MenuService menuService, PedidoConverter pedidoConverter,
+                          EmailService emailService, ReclamoService reclamoService) {
+        this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
+        this.usuarioService = usuarioService; this.direccionService = direccionService; 
+        this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
+        this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
+        this.menuService = menuService; this.pedidoConverter = pedidoConverter;
+        this.emailService = emailService; this.reclamoService = reclamoService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
-                             Float calificacion, JsonObject jsonDireccion, EstadoCliente activo) throws ClienteDireccionException, UsuarioExisteException {
+                             Float calificacion, JsonObject jsonDireccion, EstadoCliente activo) throws ClienteDireccionException, UsuarioExisteException, DireccionNumeroException {
         if (usuarioService.ObtenerUsuario(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
@@ -79,19 +100,9 @@ public class ClienteService {
         return clienteRepository.findByCorreo(correo);
     }
 
-/*    public void modificarCliente(Cliente cliente) {
-        clienteRepository.save(cliente);
-    }*/
-
-
     public void modificarCliente(String correo, String nombre, String apellido) throws ClienteNoEncontradoException {
 
-        Cliente clienteAux = clienteRepository.findByCorreo(correo);
-
-        if (clienteAux == null) {
-            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
-        }
-
+        Cliente clienteAux = obtenerCliente(correo);
         clienteAux.setNombre(nombre);
         clienteAux.setApellido(apellido);
         clienteRepository.save(clienteAux);
@@ -109,7 +120,7 @@ public class ClienteService {
         return cliente.getEstado();
     }
 
-    public JsonObject agregarDireccionCliente(String correo, JsonObject jsonDireccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException {
+    public JsonObject agregarDireccionCliente(String correo, JsonObject jsonDireccion) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteExisteDireccionException, DireccionNumeroException {
         Cliente cliente = obtenerCliente(correo);
         if (jsonDireccion.get("latitud").getAsString().isEmpty() && jsonDireccion.get("longitud").getAsString().isEmpty()){
             throw new ClienteDireccionException("Debe ingresar una dirección");
@@ -151,7 +162,7 @@ public class ClienteService {
 
     }
 
-    public void modificarDireccionCliente(String correo, Long idDireccionActual, JsonObject jsonDireccionNueva) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteNoExisteDireccionException {
+    public void modificarDireccionCliente(String correo, Long idDireccionActual, JsonObject jsonDireccionNueva) throws ClienteNoEncontradoException, ClienteDireccionException, ClienteNoExisteDireccionException, DireccionNumeroException {
         Cliente cliente = obtenerCliente(correo);
         Direccion direccionActual = direccionService.obtenerDireccion(idDireccionActual);
         if (direccionActual == null){
@@ -181,10 +192,7 @@ public class ClienteService {
     }
 
     public JsonObject obtenerJsonCliente(String correo) throws ClienteNoEncontradoException {
-        Cliente cliente = clienteRepository.findByCorreo(correo);
-        if (cliente == null) {
-            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
-        }
+        Cliente cliente = obtenerCliente(correo);
         return clienteConverter.jsonCliente(cliente);
     }
 
@@ -197,6 +205,63 @@ public class ClienteService {
         return null;
     }
 
+    public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal) throws RestauranteNoEncontradoException {
+
+        Restaurante restaurante = restauranteService.obtenerRestaurante(correo);
+        List<JsonObject> menus = menuService.obtenerListaMenu(restaurante);
+
+        if(!categoria.isEmpty()){
+            return menuService.listMenuRestauranteCategoria(restaurante,CategoriaMenu.valueOf(categoria));
+        }
+
+        return menus;
+    }
+
+    public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException, MenuNoEncontradoException, MenuIdException, PedidoTotalException {
+        verificarJsonPedido(jsonRequestPedido);
+        Cliente cliente = obtenerCliente(correo);
+        Restaurante restaurante = restauranteService.obtenerRestaurante(jsonRequestPedido.get("restaurante").getAsString());
+        DtOrdenPaypal ordenPaypal = new DtOrdenPaypal();
+        if (MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()).equals(MedioPago.PAYPAL)){
+            if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty() && !jsonRequestPedido.get("linkAprobacion").getAsString().isEmpty()){
+                ordenPaypal.setOrdenId(jsonRequestPedido.get("ordenId").getAsString());
+                ordenPaypal.setLinkAprobacion(jsonRequestPedido.get("linkAprobacion").getAsString());
+            }
+        }
+        Direccion direccion = direccionService.obtenerDireccion(jsonRequestPedido.get("direccionId").getAsLong());
+        if (direccion == null){
+            throw new ClienteNoExisteDireccionException("No existe la direccion ingresada en el sistema");
+        }
+        if (!cliente.getDirecciones().contains(direccion)){
+            throw new ClienteNoExisteDireccionException("La direccion ingresada no existe para el Cliente " + correo);
+        }
+        JsonArray jsonArray = jsonRequestPedido.get("menus").getAsJsonArray();
+        List<MenuCompra> menus = new ArrayList<>();
+        for (JsonElement jsonMenu : jsonArray){
+            if (!jsonMenu.getAsJsonObject().get("id").getAsString().matches("[0-9]*") || jsonMenu.getAsJsonObject().get("id").getAsString().isBlank()){
+                throw new MenuIdException("El formado del menu con id " + jsonMenu.getAsJsonObject().get("id").getAsString()
+                + " es invalido");
+            }
+            Menu menu = menuService.obtenerMenu(jsonMenu.getAsJsonObject().get("id").getAsLong(),restaurante);
+            if (menu == null) {
+                throw new MenuNoEncontradoException("El menu no existe para el Restaurante " + restaurante.getNombreRestaurante());
+            }
+            MenuCompra menuCompra = menuCompraService.crearMenuCompraMenu(menu, jsonMenu.getAsJsonObject().get("cantidad").getAsInt());
+            menus.add(menuCompra);
+        }
+        return pedidoService.crearPedido(EstadoPedido.PENDIENTE,jsonRequestPedido.get("total").getAsFloat(),
+                MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()),ordenPaypal,direccion,cliente,
+                restaurante,menus); // <-- Representacion del Pedido
+    }
+
+    public void verificarJsonPedido(JsonObject jsonRequestPedido) throws MenuIdException, PedidoTotalException {
+        if (!jsonRequestPedido.get("direccionId").getAsString().matches("[0-9]*") || jsonRequestPedido.get("direccionId").getAsString().isBlank()){
+            throw new MenuIdException("El id de la direccion no es un numero entero");
+        }
+        if (!jsonRequestPedido.get("total").getAsString().matches("^\\d+(.\\d+)*$") || jsonRequestPedido.get("total").getAsString().isBlank()){
+            throw new PedidoTotalException("El total no esta en formato de numero real");
+        }
+    }
     public JsonArray listaPedidos(String correo) throws ClienteNoEncontradoException {
         Cliente cliente = obtenerCliente(correo);
         return pedidoConverter.arrayJsonPedido(cliente.getPedidos());
