@@ -356,34 +356,4 @@ public class ClienteController {
         }
     }
 
-    @Operation(summary = "Agregar un Reclamo",
-            description = "Agrega un nuevo Reclamo a un Pedido del Cliente",
-            tags = { "cliente", "reclamo" })
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Reclamo agregado"),
-            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
-    })
-    @PostMapping(path = "/agregarReclamo")
-    public ResponseEntity<?> realizarReclamo(
-            @RequestHeader("Authorization") String token,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(mediaType = "application/json"))
-            @RequestBody String reclamo) {
-        try {
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(strToken);
-            JsonObject jsonReclamo = new Gson().fromJson(reclamo, JsonObject.class);
-            JsonObject jsonResponse = clienteService.agregarReclamo(correo, jsonReclamo);
-            return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
-        } catch(JsonIOException | PedidoNoExisteException | EmailNoEnviadoException | PedidoIdException |
-                ReclamoComentarioException | ReclamoRazonException | ReclamoNoFinalizadoException |
-                ReclamoExisteException | ClienteNoEncontradoException | ClientePedidoNoCoincideException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
 }
