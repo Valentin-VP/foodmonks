@@ -308,6 +308,6 @@ public class AuthenticationController {
     }
 
     public boolean checkMobile(String agent){
-        return (agent.toLowerCase(Locale.ROOT).contains("android") || agent.toLowerCase(Locale.ROOT).contains("iphone"));
+        return (agent.toLowerCase(Locale.ROOT).contains("mobile"));
     }
  }
