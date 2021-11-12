@@ -272,6 +272,9 @@ public class ClienteService {
         verificarJsonReclamo(jsonReclamo);
         Cliente cliente = obtenerCliente(correo);
         Pedido pedido = pedidoService.obtenerPedido(jsonReclamo.get("pedidoId").getAsLong());
+        if (pedido.getCliente() == null) {
+            throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
+        }
         if (!cliente.getCorreo().equals(pedido.getCliente().getCorreo())){
             throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
         }

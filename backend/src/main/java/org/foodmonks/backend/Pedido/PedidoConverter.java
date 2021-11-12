@@ -56,7 +56,7 @@ public class PedidoConverter {
         }
         jsonPedido.addProperty("cliente",pedido.getCliente().getCorreo());
         jsonPedido.addProperty("restaurante",pedido.getRestaurante().getCorreo());
-        if (pedido.getReclamo().getId() != null) {
+        if (pedido.getReclamo() != null) {
             jsonPedido.addProperty("reclamo",pedido.getReclamo().getId());
         }
         JsonArray jsonMenus = menuCompraConverter.arrayJsonMenuCompra(pedido.getMenusCompra());
