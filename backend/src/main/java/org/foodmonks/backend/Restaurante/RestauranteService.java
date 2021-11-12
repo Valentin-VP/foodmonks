@@ -9,6 +9,7 @@ import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -147,6 +148,12 @@ public class RestauranteService {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
         return restaurante;
+    }
+
+    public void agregarReclamoRestaurante(Restaurante restaurante, Reclamo reclamo){
+        List<Reclamo> reclamos = restaurante.getReclamos();
+        reclamos.add(reclamo);
+        restauranteRepository.save(restaurante);
     }
 
 }

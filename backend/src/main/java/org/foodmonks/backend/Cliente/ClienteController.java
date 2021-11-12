@@ -19,6 +19,7 @@ import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
@@ -349,9 +350,10 @@ public class ClienteController {
             JsonObject jsonReclamo = new Gson().fromJson(reclamo, JsonObject.class);
             JsonObject jsonResponse = clienteService.agregarReclamo(correo, jsonReclamo);
             return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
-        } catch(JsonIOException | PedidoNoExisteException | EmailNoEnviadoException | PedidoIdException |
-                ReclamoComentarioException | ReclamoRazonException | ReclamoNoFinalizadoException |
-                ReclamoExisteException | ClienteNoEncontradoException | ClientePedidoNoCoincideException e) {
+        } catch(JsonIOException | PedidoNoExisteException | EmailNoEnviadoException | PedidoIdException
+                | ReclamoComentarioException | ReclamoRazonException | ReclamoNoFinalizadoException
+                | ReclamoExisteException | ClienteNoEncontradoException | ClientePedidoNoCoincideException
+                | PedidoSinRestauranteException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
