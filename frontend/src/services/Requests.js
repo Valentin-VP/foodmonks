@@ -234,6 +234,22 @@ export const actualizarEstadoPedido = (estado, id) => {
   return response;
 };
 
+export const actualizarEstadoPedidoPendientes = (estado, id, minutos) => {
+  const response = axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/actualizarEstadoPedido/${id}`,
+    data: {estado: estado,
+            minutos: minutos},
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
+  return response;
+};
+
 export const altaAdmin = (datos) => {
   return axios({
     method: "POST",
@@ -266,6 +282,40 @@ export const obtenerPedidosSinFinalizarEfectivo = () => {
   });
   response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
     .catch((error)=>{checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const obtenerPedidosSinConfirmar = () => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPedidosPendientes`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const obtenerPedidosHistorico = (datos, fechaIni, fechaFin, page) => {
+  const fIni = fechaIni ? fechaIni.toISOString().slice(0,10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
+  const fFin = fechaFin ? fechaFin.toISOString().slice(0,10) : fIni;
+  const fecha = (fIni!==""&&fFin!=="") ? fIni + "," + fFin : "";
+  const total = (datos.minTotal!==""&&datos.maxTotal!=="") ? datos.minTotal + "," + datos.maxTotal : "";
+
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarHistoricoPedidos?estadoPedido=${datos.estadoPedido}&medioPago=${datos.medioPago}&orden=${datos.ordenamiento}&fecha=${fecha}&total=${total}&page=${page}`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
   return response;
 };
 
@@ -464,3 +514,4 @@ export const hacerPedidoEfectivo = (datos) => {
     },
   });
 };
+

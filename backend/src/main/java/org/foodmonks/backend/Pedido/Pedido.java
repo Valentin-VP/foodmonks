@@ -15,6 +15,7 @@ import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,11 +31,11 @@ public class Pedido  {
     private EstadoPedido estado;
     private DtCalificacion calificacionCliente;
     private DtCalificacion calificacionRestaurante;
-    private LocalDate fechaHoraProcesado;
+    private LocalDateTime fechaHoraProcesado;
     private Float total;
     @Enumerated(value = EnumType.STRING)
     private MedioPago medioPago;
-    private LocalDate fechaHoraEntrega;
+    private LocalDateTime fechaHoraEntrega;
     @ManyToOne
     private Direccion direccion;
     private DtOrdenPaypal ordenPaypal;
@@ -47,6 +48,17 @@ public class Pedido  {
     @OneToOne //(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
     
+    public Pedido(String nombre, EstadoPedido estado, LocalDateTime fechaHoraProcesado, Float total,
+				  MedioPago medioPago, LocalDateTime fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
+		this.nombre = nombre;
+		this.estado = estado;
+		this.fechaHoraProcesado = fechaHoraProcesado;
+		this.total = total;
+		this.medioPago = medioPago;
+		this.fechaHoraEntrega = fechaHoraEntrega;
+		this.direccion = direccion;
+		this.ordenPaypal = ordenPaypal;
+
     public Pedido () {}
   
     public Pedido(EstadoPedido estado, Float total, MedioPago medioPago) {
