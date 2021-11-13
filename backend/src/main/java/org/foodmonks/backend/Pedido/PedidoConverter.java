@@ -87,10 +87,14 @@ public class PedidoConverter {
 
         if(pedido.getFechaHoraEntrega() != null) {
             jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraEntrega", "Sin Fecha");
         }
 
         if(pedido.getFechaHoraProcesado() != null) {
             jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraProcesado", "Sin Fecha");
         }
 
         if (pedido.getCliente()!=null){
