@@ -309,8 +309,7 @@ export default function ListadoPedidosPendientes(abierto) {
               setModal({item:[], estado: "", show:false})}
             }
             onCancelar={()=>
-              {alert("Cerrar");
-              setModal({item:[], estado: "", show:false})}
+              {setModal({item:[], estado: "", show:false})}
             }
           ></ModalItem>
         </div>

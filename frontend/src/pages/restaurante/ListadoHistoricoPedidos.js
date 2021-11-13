@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Col } from "react-bootstrap";
-import Pagination from "@material-ui/lab/Pagination";
 
 const Styles = styled.div`
   .lista{
@@ -25,9 +24,7 @@ const Styles = styled.div`
     border: 3px solid #FEFEFE;
     width: 100%;
   }
-
   td, tr {
-
     border: 1px solid #eee;
     padding: 6px;
     width: 8%;
@@ -35,7 +32,6 @@ const Styles = styled.div`
       background-color: #FFFFF5;
     }
   }
-
   #itemId {
     font-weight: lighter;
     font-size: 18px;
@@ -43,35 +39,17 @@ const Styles = styled.div`
       background-color: #FFFFF1;
     }
   }
-
-  .MuiPaginationItem-page.Mui-selected{
-    background-color: #e87121;
-    &:focus {
-      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
-      background-color: #f87121;
-    }
-    &:hover {
-      background-color: #da6416;
-    }
-    &:active {
-      background-color: #d87121;
-    }
-  }
-
   .row, .col{
     
     padding: 1px;
   }
-
   img {
     height: 6rem;
     border-radius: 5px;
   }
-
   .text-center {
     position: relative;
   }
-
   button {
     color: white;
     background-color: #e87121;
@@ -87,19 +65,9 @@ const Styles = styled.div`
       background-color: #e87121;
     }
   }
-
 `;
 
-export default function ListadoHistoricoPedidos({datos, cantidadPages, onPageChange, onVisible}) {
-    const [page, setPage] = useState(1);
-
-    const handlePageChange = (e, page) => {
-      setPage(page);
-    };
-
-    useEffect(()=>(
-      onPageChange(page)
-    ), [page])
+export default function ListadoHistoricoPedidos({datos, onVisible}) {
 
     return (
     <>
@@ -143,10 +111,11 @@ export default function ListadoHistoricoPedidos({datos, cantidadPages, onPageCha
                                                   hight="150"
                                               />
                                           </td>
-                                          <td>Menú: {menu.menu}</td>
-                                          <td>Precio: ${menu.precio}</td>
+                                          <td>Menú: {menu.menu} (x{menu.cantidad})</td>
+                                          <td>Precio Unitario: ${menu.precio}</td>
                                           <td>Descuento: {menu.multiplicadorPromocion} %</td>
-                                          <td>Total Parcial: ${menu.calculado}</td>
+                                          <td>Total Parcial: ${menu.precioPorCantidad}</td>
+                                          <td>Total Final: ${menu.calculado}</td>
                                       </tr>
                                     </>
                                   )}) : null)}
@@ -156,19 +125,6 @@ export default function ListadoHistoricoPedidos({datos, cantidadPages, onPageCha
                         )}) : null}
                     </tbody>
                     </table>
-                    {(datos.pedidos && datos.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
-                        <Pagination
-                          className="my-3"
-                          count={cantidadPages ? cantidadPages : 0}
-                          page={page}
-                          siblingCount={1}
-                          boundaryCount={1}
-                          variant="outlined"
-                          shape="rounded"
-                          onChange={handlePageChange}
-                        />
-                    </Col> : null}
-                  {(!datos.pedidos || !datos.pedidos.length > 0)  && <h5 className="text-center h5 mb-3 fw-normal">No se encontraron pedidos completados o devueltos.</h5>}
               </div>
             </div>
           </main>
