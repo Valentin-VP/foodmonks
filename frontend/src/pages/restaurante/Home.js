@@ -3,6 +3,7 @@ import { Layout } from "../../components/Layout";
 import styled from "styled-components";
 import { Noti } from "../../components/Notification";
 import { cambiarEstado, fetchRestauranteInfo } from "../../services/Requests";
+import ListadoPedidosPendientes from "./ListadoPedidosPendientes";
 // import ItemCard from "../../components/itemCard";
 // import prods from "../../productos";
 
@@ -60,29 +61,30 @@ function Home() {
     }
   };
   return (
-    <Styles>
-      <React.Fragment>
-        <Layout>
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="aperturaCierreSwitch"
-              onChange={onChangeEstado}
-              checked={abierto}
-            ></input>
-            <label
-              className="form-check-label"
-              htmlFor="aperturaCierreSwitch"
-              id="aperturaCierreLabel"
-            >
-              El restaurante esta {abierto ? "Abierto" : "Cerrado"}
-            </label>
-          </div>
-          <h2 id="titulo">Pedidos Pendientes</h2>
-        </Layout>
-      </React.Fragment>
-    </Styles>
+
+  <Styles>
+    <React.Fragment>
+      <Layout>
+        <div className="form-check form-switch">
+          <input 
+            className="form-check-input" 
+            type="checkbox" 
+            id="aperturaCierreSwitch" 
+            onChange={onChangeEstado} 
+            checked={abierto}
+          ></input>
+          <label 
+            className="form-check-label" 
+            htmlFor="aperturaCierreSwitch" 
+            id="aperturaCierreLabel">El restaurante esta {abierto ? "Abierto" : "Cerrado"}
+          </label>
+        </div>
+        <h2 id="titulo">Esto es de un restaurante</h2>
+        <ListadoPedidosPendientes />
+      </Layout>
+    </React.Fragment>
+  </Styles>
+
   );
 }
 

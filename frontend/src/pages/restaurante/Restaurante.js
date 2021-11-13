@@ -10,6 +10,7 @@ import ListadoPedidosEfectivo from "./ListarPedidosEfectivo";
 import { Footer } from "../../components/Footer";
 import { NavigationBar } from "./NavBar";
 import Promocion from "./Promocion";
+import BuscarHistoricoPedidos from "./BuscarHistoricoPedidos";
 
 const Styles = styled.div`
   #page-container {
@@ -33,6 +34,7 @@ function Restaurante() {
             <Route exact path="/altaMenu" component={AltaMenu} />
             <Route exact path="/promocionar" component={AltaPromocion}/>
             <Route exact path="/promocion" component={Promocion} />
+            <Route exact path="/historico" component={BuscarHistoricoPedidos} />
             <Route exact path="/listadoPedidosEfectivo" component={ListadoPedidosEfectivo} />
             {/* <Route path="no-match" component={NoMatch} /> */}
           </Switch>
