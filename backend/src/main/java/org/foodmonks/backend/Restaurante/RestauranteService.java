@@ -11,6 +11,7 @@ import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.Reclamo;
+import org.foodmonks.backend.Reclamo.ReclamoConverter;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -35,14 +36,17 @@ public class RestauranteService {
     private final MenuService menuService;
     private final RestauranteConverter restauranteConverter;
     private final PedidoService pedidoService;
+    private final ReclamoConverter reclamoConverter;
 
     @Autowired
     public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder ,
                               UsuarioRepository usuarioRepository, MenuService menuService,
-                              RestauranteConverter restauranteConverter, PedidoService pedidoService) {
+                              RestauranteConverter restauranteConverter, PedidoService pedidoService,
+                              ReclamoConverter reclamoConverter) {
         this.restauranteRepository = restauranteRepository;this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = usuarioRepository; this.menuService = menuService;
         this.restauranteConverter = restauranteConverter; this.pedidoService = pedidoService;
+        this.reclamoConverter = reclamoConverter;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -171,7 +175,47 @@ public class RestauranteService {
         restauranteRepository.save(restaurante);
     }
 
-    public JsonArray listarReclamos(String correoRestaurante, boolean orden, String correoCliente, String razon) {
-        return new JsonArray();
+    public JsonArray listarReclamos(String correoRestaurante, boolean orden, String correoCliente, String razon) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = obtenerRestaurante(correoRestaurante);
+        if (orden) {
+            if (!correoCliente.isBlank()){
+
+            }
+            if (!razon.isBlank()){
+
+            }
+            return reclamoConverter.arrayJsonReclamo(restaurante.getReclamos());
+        } else {
+            if (!correoCliente.isBlank()){
+                return reclamoConverter.arrayJsonReclamo(obtenerReclamoCliente(restaurante,correoCliente));
+            }
+            if (!razon.isBlank()){
+                return reclamoConverter.arrayJsonReclamo(obtenerReclamoRazon(restaurante,razon));
+            }
+            return reclamoConverter.arrayJsonReclamo(restaurante.getReclamos());
+        }
     }
+
+    public List<Reclamo> obtenerReclamoCliente (Restaurante restaurante, String correoCliente){
+        List<Reclamo> reclamos = new ArrayList<>();
+        for (Reclamo reclamo : restaurante.getReclamos()){
+            if (reclamo.getPedido() != null && reclamo.getPedido().getCliente() != null && !reclamo.getPedido().getCliente().getCorreo().isBlank()){
+                if (reclamo.getPedido().getCliente().getCorreo().equals(correoCliente)){
+                    reclamos.add(reclamo);
+                }
+            }
+        }
+        return reclamos;
+    }
+
+    public List<Reclamo> obtenerReclamoRazon (Restaurante restaurante, String razon){
+        List<Reclamo> reclamos = new ArrayList<>();
+        for (Reclamo reclamo : restaurante.getReclamos()){
+            if (!reclamo.getRazon().isBlank() && reclamo.getRazon().contains(razon)){
+                reclamos.add(reclamo);
+            }
+        }
+        return reclamos;
+    }
+
 }
