@@ -6,6 +6,7 @@ import Menu from "./Menu";
 import AltaPromocion from "./AltaPromocion";
 import ModificarMenu from "./ModificarMenu";
 import AltaMenu from "./AltaMenu";
+import ListadoPedidosEfectivo from "./ListarPedidosEfectivo";
 import { Footer } from "../../components/Footer";
 import { NavigationBar } from "./NavBar";
 import Promocion from "./Promocion";
@@ -34,6 +35,7 @@ function Restaurante() {
             <Route exact path="/promocionar" component={AltaPromocion}/>
             <Route exact path="/promocion" component={Promocion} />
             <Route exact path="/historico" component={BuscarHistoricoPedidos} />
+            <Route exact path="/listadoPedidosEfectivo" component={ListadoPedidosEfectivo} />
             {/* <Route path="no-match" component={NoMatch} /> */}
           </Switch>
         </Router>
