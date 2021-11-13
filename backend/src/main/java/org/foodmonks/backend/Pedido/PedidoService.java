@@ -43,7 +43,7 @@ public class PedidoService {
     }
 
     public List<JsonObject> listaPedidosPendientes(Restaurante restaurante){
-        return pedidoConvertidor.listaJsonPedidoPendientes(pedidoRepository.findPedidosByRestauranteAndEstado(restaurante, EstadoPedido.PENDIENTE));
+        return pedidoConverter.listaJsonPedidoPendientes(pedidoRepository.findPedidosByRestauranteAndEstado(restaurante, EstadoPedido.PENDIENTE));
     }
 
     public JsonObject listaPedidosHistorico(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size){
@@ -103,7 +103,7 @@ public class PedidoService {
         Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
         result = pedidoPage.getContent();
 
-        JsonObject jsonObject = pedidoConvertidor.listaJsonPedidoPaged(result);
+        JsonObject jsonObject = pedidoConverter.listaJsonPedidoPaged(result);
         jsonObject.addProperty("currentPage", pedidoPage.getNumber());
         jsonObject.addProperty("totalItems", pedidoPage.getTotalElements());
         jsonObject.addProperty("totalPages", pedidoPage.getTotalPages());
