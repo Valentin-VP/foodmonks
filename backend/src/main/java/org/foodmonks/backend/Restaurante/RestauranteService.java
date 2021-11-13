@@ -122,24 +122,38 @@ public class RestauranteService {
   
   
     public List<JsonObject> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
-        if (!nombreRestaurante.isEmpty()){
-            return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));
-        }
+
         if (ordenCalificacion) {
-            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
-        }
-        List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
-        if (!categoriaMenu.isEmpty()) {
-            List<Restaurante> result = new ArrayList<>();
-            CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
-            for (Restaurante restaurante : restaurantes){
-                if (menuService.existeCategoriaMenu(restaurante,categoria)){
-                    result.add(restaurante);
-                }
+            if (!nombreRestaurante.isBlank()){
+                return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,EstadoRestaurante.ABIERTO));
             }
-            return restauranteConverter.listaRestaurantes(result);
+            if (!categoriaMenu.isBlank()) {
+                List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
+                CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
+                return obtenerRestauranteMenuConCategoria(restaurantes,categoria);
+            }
+            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
+        } else {
+            if (!nombreRestaurante.isBlank()){
+                return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));
+            }
+            if (!categoriaMenu.isBlank()) {
+                List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+                CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
+                return obtenerRestauranteMenuConCategoria(restaurantes,categoria);
+            }
+            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
         }
-        return restauranteConverter.listaRestaurantes(restaurantes);
+    }
+
+    public List<JsonObject> obtenerRestauranteMenuConCategoria(List<Restaurante> restaurantes, CategoriaMenu categoriaMenu){
+        List<Restaurante> result = new ArrayList<>();
+        for (Restaurante restaurante : restaurantes) {
+            if (menuService.existeCategoriaMenu(restaurante, categoriaMenu)) {
+                result.add(restaurante);
+            }
+        }
+        return restauranteConverter.listaRestaurantes(result);
     }
 
     public Restaurante obtenerRestaurante(String correo) throws RestauranteNoEncontradoException {
