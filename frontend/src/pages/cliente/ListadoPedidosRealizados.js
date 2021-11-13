@@ -132,10 +132,11 @@ export default function ListadoPedidosRealizados({datos, onVisibleMenu, onVisibl
                                                   hight="150"
                                               />
                                           </td>
-                                          <td>Menú: {menu.menu}</td>
-                                          <td>Precio: ${menu.precio}</td>
+                                          <td>Menú: {menu.menu} (x{menu.cantidad})</td>
+                                          <td>Precio Unitario: ${menu.precio}</td>
                                           <td>Descuento: {menu.multiplicadorPromocion} %</td>
-                                          <td>Total Parcial: ${menu.calculado}</td>
+                                          <td>Total Parcial: ${menu.precioPorCantidad}</td>
+                                          <td>Total Final: ${menu.calculado}</td>
                                       </tr>
                                     </>
                                   )}) : null)}

@@ -1,6 +1,5 @@
 package org.foodmonks.backend.Pedido;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
@@ -8,13 +7,55 @@ import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.stereotype.Component;
 
-import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class PedidoConvertidor {
+public class PedidoConverter {
+
+    public List<JsonObject> listaJsonPedido(List<Pedido> pedidos){
+        List<JsonObject> gsonPedidos = new ArrayList<>();
+        for (Pedido pedido : pedidos){
+            gsonPedidos.add(jsonPedido(pedido));
+        }
+        return gsonPedidos;
+    }
+
+    public JsonArray arrayJsonPedido (List<Pedido> pedidos){
+        JsonArray arrayJsonPedido = new JsonArray();
+        for (Pedido pedido : pedidos){
+            arrayJsonPedido.add(jsonPedido(pedido));
+        }
+        return arrayJsonPedido;
+    }
+
+    public JsonObject jsonPedido(Pedido pedido) {
+        JsonObject jsonPedido= new JsonObject();
+        jsonPedido.addProperty("id", pedido.getId());
+        jsonPedido.addProperty("estado", pedido.getEstado().name());
+        if (pedido.getCalificacionCliente() != null){
+            jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente().getPuntaje());
+            jsonPedido.addProperty("comentarioCliente", pedido.getCalificacionCliente().getComentario());
+        }
+        if (pedido.getCalificacionRestaurante() != null){
+            jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante().getPuntaje());
+            jsonPedido.addProperty("comentarioRestaurante", pedido.getCalificacionRestaurante().getComentario());
+        }
+        if (pedido.getFechaHoraProcesado() != null) {
+            jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraProcesado", "Sin Fecha");
+        }
+        jsonPedido.addProperty("total", pedido.getTotal());
+        jsonPedido.addProperty("medioPago", pedido.getMedioPago().name());
+        if (pedido.getFechaHoraEntrega() != null) {
+            jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraEntrega", "Sin Fecha");
+        }
+        return jsonPedido;
+    }
 
     // Para Listar pedidos sin confirmar
     public List<JsonObject> listaJsonPedidoPendientes(List<Pedido> pedidos){
@@ -29,7 +70,6 @@ public class PedidoConvertidor {
     public JsonObject jsonPedidoPendientes(Pedido pedido) {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
-        jsonPedido.addProperty("nombre", pedido.getNombre());
         jsonPedido.addProperty("direccion", pedido.getDireccion().getCalle() + " "
                 + pedido.getDireccion().getNumero().toString() + " esq. "
                 + pedido.getDireccion().getEsquina()
@@ -45,8 +85,17 @@ public class PedidoConvertidor {
         jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getPuntaje().toString() : "");
         jsonPedido.addProperty("calificacionClienteComentario", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getComentario() : "");
 
-        jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        if(pedido.getFechaHoraEntrega() != null) {
+            jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraEntrega", "Sin Fecha");
+        }
+
+        if(pedido.getFechaHoraProcesado() != null) {
+            jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraProcesado", "Sin Fecha");
+        }
 
         if (pedido.getCliente()!=null){
             jsonPedido.addProperty("nombreApellidoCliente", pedido.getCliente().getNombre() + " " + pedido.getCliente().getApellido());
@@ -73,9 +122,10 @@ public class PedidoConvertidor {
                 jsonMenuCompra.addProperty("menu", m.getNombre());
                 jsonMenuCompra.addProperty("imagen", m.getImagen());
                 jsonMenuCompra.addProperty("precio", m.getPrice().toString());
-                jsonMenuCompra.addProperty("multiplicadorPromocion", m.getMultiplicadorPromocion()*100);
-                jsonMenuCompra.addProperty("calculado", Math.round(m.getPrice() * (1 - m.getMultiplicadorPromocion()) * 100) / 100);
-                //jsonMenuCompra.addProperty("cantidad", m.getCantidad().toString());
+                jsonMenuCompra.addProperty("multiplicadorPromocion", m.getMultiplicadorPromocion());
+                jsonMenuCompra.addProperty("precioPorCantidad", Math.round(m.getPrice() * m.getCantidad()));
+                jsonMenuCompra.addProperty("calculado", Math.round((m.getPrice() - (m.getPrice() * (m.getMultiplicadorPromocion() / 100))) * m.getCantidad()));
+                jsonMenuCompra.addProperty("cantidad", m.getCantidad().toString());
                 jsonMenus.add(jsonMenuCompra);
             }
             jsonPedido.add("menus", jsonMenus);

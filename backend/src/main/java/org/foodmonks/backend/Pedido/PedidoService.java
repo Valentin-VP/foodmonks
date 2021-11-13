@@ -1,6 +1,5 @@
 package org.foodmonks.backend.Pedido;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Restaurante.Restaurante;
@@ -16,25 +15,22 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
-    private final PedidoConvertidor pedidoConvertidor;
+    private final PedidoConverter pedidoConverter;
 
     @Autowired
-    public PedidoService(PedidoRepository pedidoRepository, PedidoConvertidor pedidoConvertidor){
-        this.pedidoRepository = pedidoRepository; this.pedidoConvertidor = pedidoConvertidor;
+    public PedidoService(PedidoRepository pedidoRepository, PedidoConverter pedidoConverter){
+        this.pedidoRepository = pedidoRepository; this.pedidoConverter = pedidoConverter;
     }
 
     public List<JsonObject> listaPedidosPendientes(Restaurante restaurante){
-        return pedidoConvertidor.listaJsonPedidoPendientes(pedidoRepository.findPedidosByRestauranteAndEstado(restaurante, EstadoPedido.PENDIENTE));
+        return pedidoConverter.listaJsonPedidoPendientes(pedidoRepository.findPedidosByRestauranteAndEstado(restaurante, EstadoPedido.PENDIENTE));
     }
 
     public JsonObject listaPedidosHistorico(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size){
@@ -94,7 +90,7 @@ public class PedidoService {
         Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
         result = pedidoPage.getContent();
 
-        JsonObject jsonObject = pedidoConvertidor.listaJsonPedidoPaged(result);
+        JsonObject jsonObject = pedidoConverter.listaJsonPedidoPaged(result);
         jsonObject.addProperty("currentPage", pedidoPage.getNumber());
         jsonObject.addProperty("totalItems", pedidoPage.getTotalElements());
         jsonObject.addProperty("totalPages", pedidoPage.getTotalPages());
@@ -161,7 +157,7 @@ public class PedidoService {
         Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
         result = pedidoPage.getContent();
 
-        JsonObject jsonObject = pedidoConvertidor.listaJsonPedidoPaged(result);
+        JsonObject jsonObject = pedidoConverter.listaJsonPedidoPaged(result);
         jsonObject.addProperty("currentPage", pedidoPage.getNumber());
         jsonObject.addProperty("totalItems", pedidoPage.getTotalElements());
         jsonObject.addProperty("totalPages", pedidoPage.getTotalPages());
