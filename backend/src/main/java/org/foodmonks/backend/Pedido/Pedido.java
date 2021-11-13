@@ -24,7 +24,7 @@ import java.util.List;
 @Entity
 public class Pedido  {
 
- 	  @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(value = EnumType.STRING)
@@ -48,16 +48,16 @@ public class Pedido  {
     @OneToOne //(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
     
-    public Pedido(String nombre, EstadoPedido estado, LocalDateTime fechaHoraProcesado, Float total,
+    public Pedido(EstadoPedido estado, LocalDateTime fechaHoraProcesado, Float total,
 				  MedioPago medioPago, LocalDateTime fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
-		this.nombre = nombre;
-		this.estado = estado;
-		this.fechaHoraProcesado = fechaHoraProcesado;
-		this.total = total;
-		this.medioPago = medioPago;
-		this.fechaHoraEntrega = fechaHoraEntrega;
-		this.direccion = direccion;
-		this.ordenPaypal = ordenPaypal;
+        this.estado = estado;
+        this.fechaHoraProcesado = fechaHoraProcesado;
+        this.total = total;
+        this.medioPago = medioPago;
+        this.fechaHoraEntrega = fechaHoraEntrega;
+        this.direccion = direccion;
+        this.ordenPaypal = ordenPaypal;
+    }
 
     public Pedido () {}
   
