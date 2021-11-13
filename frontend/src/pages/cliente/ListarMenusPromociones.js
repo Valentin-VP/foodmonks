@@ -23,43 +23,38 @@ const Styles = styled.div`
 export default function ListadoMenusPromociones({ data }) {
   return (
     <Styles>
-        <Layout>
-          <h2> Promociones </h2>
-          <div className="row justify-content-left">
+      <Layout>
+        <h2> Promociones </h2>
+        <div className="row justify-content-left">
           {data.map((item, index) => {
-            return (
-                item.multiplicadorPromocion !== 0 ? (
-                  <div className="column" key={index}>
-                    <ItemCard
-                      img={item.imagen}
-                      title={item.nombre}
-                      desc={item.multiplicador}
-                      price={item.price}
-                      item={item}
-                    />
-                  </div>
-                ) : null
-            );
+            return item.multiplicadorPromocion !== 0 ? (
+              <div className="column" key={index}>
+                <ItemCard
+                  img={item.imagen}
+                  title={item.nombre}
+                  desc={item.multiplicadorPromocion}
+                  price={item.price}
+                  item={item}
+                />
+              </div>
+            ) : null;
           })}
           <hr />
           <h2> Menus </h2>
           {data.map((item, index) => {
-            return (
-                item.multiplicadorPromocion === 0 ? (
-                  <div className="column" key={index}>
-                    <ItemCard
-                      img={item.imagen}
-                      title={item.nombre}
-                      price={item.price}
-                      item={item}
-                    />
-                  </div>
-                ) : null
-              
-            );
+            return item.multiplicadorPromocion === 0 ? (
+              <div className="column" key={index}>
+                <ItemCard
+                  img={item.imagen}
+                  title={item.nombre}
+                  price={item.price}
+                  item={item}
+                />
+              </div>
+            ) : null;
           })}
-          </div>
-        </Layout>
+        </div>
+      </Layout>
     </Styles>
   );
 }

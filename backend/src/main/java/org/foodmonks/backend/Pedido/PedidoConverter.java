@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
+import org.foodmonks.backend.MenuCompra.MenuCompraConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -13,6 +15,13 @@ import java.util.List;
 
 @Component
 public class PedidoConverter {
+
+    private final MenuCompraConverter menuCompraConverter;
+
+    @Autowired
+    public PedidoConverter (MenuCompraConverter menuCompraConverter){
+        this.menuCompraConverter = menuCompraConverter;
+    }
 
     public List<JsonObject> listaJsonPedido(List<Pedido> pedidos){
         List<JsonObject> gsonPedidos = new ArrayList<>();
@@ -50,6 +59,13 @@ public class PedidoConverter {
         if (pedido.getFechaHoraEntrega() != null) {
             jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().toString());
         }
+        jsonPedido.addProperty("cliente",pedido.getCliente().getCorreo());
+        jsonPedido.addProperty("restaurante",pedido.getRestaurante().getCorreo());
+        if (pedido.getReclamo() != null) {
+            jsonPedido.addProperty("reclamo",pedido.getReclamo().getId());
+        }
+        JsonArray jsonMenus = menuCompraConverter.arrayJsonMenuCompra(pedido.getMenusCompra());
+        jsonPedido.add("menus",jsonMenus);
         return jsonPedido;
     }
 

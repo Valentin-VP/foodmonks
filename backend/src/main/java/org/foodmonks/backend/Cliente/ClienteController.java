@@ -10,10 +10,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.SneakyThrows;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
+import org.foodmonks.backend.Cliente.Exceptions.ClientePedidoNoCoincideException;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -308,12 +318,42 @@ public class ClienteController {
                 strToken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(strToken);
-
             // Obtener detalles del pedido
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
             return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
-        }catch (Exception e){
+        }catch (Exception e){            
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Operation(summary = "Agregar un Reclamo",
+            description = "Agrega un nuevo Reclamo a un Pedido del Cliente",
+            tags = { "cliente", "reclamo" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Reclamo agregado"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @PostMapping(path = "/agregarReclamo")
+    public ResponseEntity<?> realizarReclamo(
+            @RequestHeader("Authorization") String token,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json"))
+            @RequestBody String reclamo) {
+        try {
+            // Obtener correo del cliente
+            String strToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                strToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(strToken);
+            JsonObject jsonReclamo = new Gson().fromJson(reclamo, JsonObject.class);
+            JsonObject jsonResponse = clienteService.agregarReclamo(correo, jsonReclamo);
+            return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
+        } catch(JsonIOException | PedidoNoExisteException | EmailNoEnviadoException | PedidoIdException
+                | ReclamoComentarioException | ReclamoRazonException | ReclamoNoFinalizadoException
+                | ReclamoExisteException | ClienteNoEncontradoException | ClientePedidoNoCoincideException
+                | PedidoSinRestauranteException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

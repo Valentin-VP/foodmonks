@@ -10,12 +10,16 @@ const Styles = styled.div`
     margin-right: 20px;
   }
 
+  #desc {
+    color: #c8d200;
+  }
+
   img {
     object-fit: cover;
     border-radius: 3px 3px 0px 0px;
   }
 
-  .btn-primary{
+  .btn-primary {
     color: white;
     background-color: #e87121;
     border: none;
@@ -32,22 +36,24 @@ const Styles = styled.div`
 `;
 
 const ItemCard = (props) => {
-  const {isEmpty, addItem, items, removeItem } = useCart();
+  const { isEmpty, addItem, items, removeItem } = useCart();
 
   const agregarItem = (item) => {
-    if(isEmpty){
+    if (isEmpty) {
       sessionStorage.setItem("restauranteCart", item.restaurante);
       console.log(item.price);
-      item.price = item.price - item.multiplicadorPromocion / 100;
+      item.price =
+        props.price - props.price * (props.item.multiplicadorPromocion / 100);
       console.log(item.price);
       addItem(item);
-    }else if(sessionStorage.getItem("restauranteCart") === item.restaurante){
-      item.price = item.price - item.multiplicadorPromocion / 100;
+    } else if (sessionStorage.getItem("restauranteCart") === item.restaurante) {
+      item.price =
+        props.price - props.price * (props.item.multiplicadorPromocion / 100);
       addItem(item);
-    }else{
+    } else {
       NotiError("Ya estas comprando en otro restaurante");
     }
-  }
+  };
 
   // const agregarItem = (item) => {
   //   if (isEmpty) {
@@ -75,8 +81,18 @@ const ItemCard = (props) => {
         <img src={props.img} alt="productimg" height="200" />
         <div className="card-body">
           <h5 className="card-title">{props.title}</h5>
-          <h5 className="card-subtitle">$ {props.price - (props.item.multiplicadorPromocion/100)}</h5>
-          <p className="card-text">{props.desc}</p>
+          <h5 className="card-subtitle">
+            ${" "}
+            {props.price -
+              props.price * (props.item.multiplicadorPromocion / 100)}
+          </h5>
+          {props.desc === undefined ? (
+            <p />
+          ) : (
+            <p id="desc" className="card-text">
+              {props.desc} %
+            </p>
+          )}
           {items.find((item) => item.id === props.item.id) === undefined ? (
             <Button
               className="btn-primary margin-auto"

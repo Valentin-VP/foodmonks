@@ -61,6 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/cliente/eliminarCuenta").hasRole("CLIENTE")
                         .antMatchers("/api/v1/admin").hasRole("ADMIN")
                         .antMatchers("/api/v1/paypal/order/**").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/agregarReclamo").hasRole("CLIENTE")
                         .antMatchers("/api/v1/admin/listarUsuarios").hasRole("ADMIN")
                         .antMatchers("/api/v1/cliente/realizarPedido").hasRole("CLIENTE")
                         .anyRequest().authenticated())
