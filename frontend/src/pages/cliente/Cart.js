@@ -194,7 +194,7 @@ export const Cart = () => {
     };
     const orderItems = items.map((item) => {
       return {
-        name: `${item.title + " ($" + item.price * item.quantity + ")"}`,
+        name: `${item.nombre + " (subtotal $" + item.price * item.quantity + ")"}`,
         price: Math.round((item.price + Number.EPSILON) * 100) / 100
         ,
         quantity: item.quantity,

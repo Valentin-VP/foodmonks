@@ -91,6 +91,7 @@ export default function BuscarHistoricoPedidos() {
     { nombre: "(Devuelto y Finalizado)", value: "" },
     { nombre: "Devuelto", value: "DEVUELTO" },
     { nombre: "Finalizado", value: "FINALIZADO"},
+    { nombre: "Rechazado", value: "RECHAZADO"},
   ];
 
   let medioPago = [
