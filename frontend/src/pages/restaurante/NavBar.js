@@ -91,6 +91,7 @@ export const NavigationBar = () => (
             <NavDropdown title="Restaurante" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
               <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
+              <NavDropdown.Item href="/reclamos">Reclamos</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
                 Cerrar Sesion

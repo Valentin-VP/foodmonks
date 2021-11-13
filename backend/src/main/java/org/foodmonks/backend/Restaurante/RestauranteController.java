@@ -509,7 +509,7 @@ public class RestauranteController {
     }
 
     //listar buscar reclamos hechos por clientes
-
+    @GetMapping(path = "/listarReclamos")
     public ResponseEntity<?> listarReclamos(
             @RequestHeader("Authorization") String token,
             @RequestParam(required = false, name = "orden") boolean orden,
