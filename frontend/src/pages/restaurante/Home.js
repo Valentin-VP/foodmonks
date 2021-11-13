@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Layout } from "../../components/Layout";
 import styled from "styled-components";
 import { Noti } from "../../components/Notification";
@@ -30,11 +30,11 @@ const Styles = styled.div`
 `;
 
 function Home() {
-  const [abierto, setAbierto] = useState(false);//true: ABIERTO, false: CERRADO
+  const [abierto, setAbierto] = useState(false); //true: ABIERTO, false: CERRADO
 
   useEffect(() => {
     fetchRestauranteInfo().then((response) => {
-      if(response.data.estado === "ABIERTO") {
+      if (response.data.estado === "ABIERTO") {
         setAbierto(true);
         document.getElementById("aperturaCierreSwitch").checked = true;
       } else {
@@ -45,7 +45,7 @@ function Home() {
   }, []);
 
   const onChangeEstado = () => {
-    if(!abierto) {
+    if (!abierto) {
       //llamo al backend con estado ABIERTO
       cambiarEstado("ABIERTO").then((response) => {
         setAbierto(true);
@@ -58,19 +58,31 @@ function Home() {
         Noti("CERRADO!!");
       });
     }
-  }
+  };
   return (
-  <Styles>
-    <React.Fragment>
-      <Layout>
-        <div className="form-check form-switch">
-          <input className="form-check-input" type="checkbox" id="aperturaCierreSwitch" onChange={onChangeEstado} checked={abierto}></input>
-          <label className="form-check-label" htmlFor="aperturaCierreSwitch" id="aperturaCierreLabel">El restaurante esta {abierto ? "Abierto" : "Cerrado"}</label>
-        </div>
-        <h2 id="titulo">Esto es de un restaurante</h2>
-      </Layout>
-    </React.Fragment>
-  </Styles>
+    <Styles>
+      <React.Fragment>
+        <Layout>
+          <div className="form-check form-switch">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="aperturaCierreSwitch"
+              onChange={onChangeEstado}
+              checked={abierto}
+            ></input>
+            <label
+              className="form-check-label"
+              htmlFor="aperturaCierreSwitch"
+              id="aperturaCierreLabel"
+            >
+              El restaurante esta {abierto ? "Abierto" : "Cerrado"}
+            </label>
+          </div>
+          <h2 id="titulo">Pedidos Pendientes</h2>
+        </Layout>
+      </React.Fragment>
+    </Styles>
   );
 }
 
