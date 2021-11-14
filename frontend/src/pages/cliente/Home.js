@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { Layout } from "../../components/Layout";
 import { Portada } from "../../components/Portada";
 import styled from "styled-components";
@@ -36,50 +36,51 @@ const Styles = styled.div`
       margin-bottom: 20px;
     }
   }
-  
 `;
 
 export default function Home() {
-
   useEffect(() => {
-    if(sessionStorage.getItem("restauranteId") !== null) {
+    if (sessionStorage.getItem("restauranteId") !== null) {
       sessionStorage.removeItem("restauranteId");
       sessionStorage.removeItem("restauranteImagen");
       sessionStorage.removeItem("restauranteCalif");
       sessionStorage.removeItem("restauranteNombre");
+      sessionStorage.setItem("values-categoria", "");
+      sessionStorage.setItem("values-precioInicial", "");
+      sessionStorage.setItem("values-precioFinal", "");
     }
   }, []);
 
   return (
-  <Styles>
-    <React.Fragment>
-      <Portada />
-      <Layout>
-        <h2>Restaurantes</h2>
-        <BuscarRestaurantesAbiertos />
-        
-        <div className="top">
-          <a href="/grafica">Top Restaurantes</a>
-        </div>
+    <Styles>
+      <React.Fragment>
+        <Portada />
+        <Layout>
+          <h2>Restaurantes</h2>
+          <BuscarRestaurantesAbiertos />
 
-        <h2 className="prods">Productos</h2>
-        <div className="row justify-content-center">
-          {prods.productData.map((item, index) => {
-            return (
-              <div className="column" key={index}>
-                <ItemCard
-                  img={item.img}
-                  title={item.title}
-                  desc={item.desc}
-                  price={item.price}
-                  item={item}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </Layout>
-    </React.Fragment>
-  </Styles>
+          <div className="top">
+            <a href="/grafica">Top Restaurantes</a>
+          </div>
+
+          <h2 className="prods">Productos</h2>
+          <div className="row justify-content-center">
+            {prods.productData.map((item, index) => {
+              return (
+                <div className="column" key={index}>
+                  <ItemCard
+                    img={item.img}
+                    title={item.title}
+                    desc={item.desc}
+                    price={item.price}
+                    item={item}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </Layout>
+      </React.Fragment>
+    </Styles>
   );
 }
