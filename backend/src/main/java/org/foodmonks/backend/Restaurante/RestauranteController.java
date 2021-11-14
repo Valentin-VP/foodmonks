@@ -458,7 +458,7 @@ public class RestauranteController {
     }
 
   
-@Operation(summary = "Cambia el estado del pedido",
+    @Operation(summary = "Cambia el estado del pedido",
             description = "Cambia el estado del pedido al estado necesario.",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "pedido" })

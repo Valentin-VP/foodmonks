@@ -1,9 +1,7 @@
 package org.foodmonks.backend.Reclamo;
 
-import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 import javax.persistence.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.foodmonks.backend.Pedido.Pedido;
@@ -20,7 +18,7 @@ public class Reclamo {
     private Long id;
 	private String razon;
 	private String comentario;
-	private LocalDate fecha;
+	private LocalDateTime fecha;
 	@Id
 	@OneToOne
 	@JoinColumn(
@@ -33,7 +31,7 @@ public class Reclamo {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Reclamo(String razon, String comentario, LocalDate fecha, Pedido pedido) {
+	public Reclamo(String razon, String comentario, LocalDateTime fecha, Pedido pedido) {
 		super();
 		this.razon = razon;
 		this.comentario = comentario;

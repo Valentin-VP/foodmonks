@@ -16,7 +16,7 @@ import java.util.List;
 
 @Configuration
 public class PedidoConfig {
-    @Bean
+/*    @Bean
     CommandLineRunner commandLineRunnerPedido(PedidoRepository pedidoRepository, RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder) {
         return args ->{
 
@@ -36,5 +36,5 @@ public class PedidoConfig {
             // ejemplo dar de alta pedido
 
         };
-    }
+    }*/
 }

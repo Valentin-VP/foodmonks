@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -279,7 +280,7 @@ public class ClienteService {
         if (!cliente.getCorreo().equals(pedido.getCliente().getCorreo())){
             throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
         }
-        JsonObject reclamo = reclamoService.crearReclamo(jsonReclamo.get("razon").getAsString(),jsonReclamo.get("comentario").getAsString(),LocalDate.now(),pedido);
+        JsonObject reclamo = reclamoService.crearReclamo(jsonReclamo.get("razon").getAsString(),jsonReclamo.get("comentario").getAsString(), LocalDateTime.now(),pedido);
         String[] cc = new String[1];
         cc[0] = pedido.getCliente().getCorreo();
         emailService.enviarMail(pedido.getRestaurante().getCorreo(),jsonReclamo.get("razon").getAsString(),jsonReclamo.get("comentario").getAsString(),cc);
