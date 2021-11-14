@@ -515,3 +515,13 @@ export const hacerPedidoEfectivo = (datos) => {
   });
 };
 
+export const listarRestaurantesPorEstado = (estadoRestaurante) => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarRestaurantesPorEstado?estadoRestaurante=${estadoRestaurante}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+};
