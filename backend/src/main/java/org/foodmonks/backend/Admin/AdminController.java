@@ -204,7 +204,7 @@ public class AdminController {
     ) {
         JsonArray jsonArray = new JsonArray();
         try {
-            jsonArray = adminService.listaRestaurantesPorEstado(estadoRestaurante);
+            jsonArray = adminService.listarRestaurantesPorEstado(estadoRestaurante);
         } catch(JsonIOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

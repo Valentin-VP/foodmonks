@@ -71,7 +71,7 @@ public class AdminService {
         adminRepository.save(admin);
     }
 
-    public JsonArray listaRestaurantesPorEstado(String estadoRestaurante) {
+    public JsonArray listarRestaurantesPorEstado(String estadoRestaurante) {
         // se comunica con RestauranteService para obtener los datos
         return new JsonArray();
     }
