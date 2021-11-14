@@ -69,12 +69,15 @@ function MyProvider({ children }) {
   const [datos, setDatos] = useState([]);
   const [cargando, isLoading] = useState(true);
   const values = {
-    categoria: sessionStorage.getItem("values-categoria"),
-    precioInicial: sessionStorage.getItem("values-precioInicial"),
-    precioFinal: sessionStorage.getItem("values-precioFinal"),
+    categoria: "",
+    precioInicial: "",
+    precioFinal: "",
   };
 
   useEffect(() => {
+    values.categoria = sessionStorage.getItem("values-categoria");
+    values.precioInicial = sessionStorage.getItem("values-precioInicial");
+    values.precioFinal = sessionStorage.getItem("values-precioFinal");
     fetch();
   }, []);
 

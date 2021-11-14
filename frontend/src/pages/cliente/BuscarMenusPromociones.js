@@ -72,25 +72,19 @@ export default function BuscarMenusPromociones() {
     { nombre: "Otros", value: "OTROS" },
   ];
 
-  useEffect(() => {
-    sessionStorage.setItem("values-categoria", values.categoria);
-    sessionStorage.setItem("values-precioInicial", values.precioInicial);
-    sessionStorage.setItem("values-precioFinal", values.precioFinal);
-  }, []);
-
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
       ...values,
       [e.target.name]: e.target.value,
     }));
-    sessionStorage.setItem("values-categoria", values.categoria);
-    sessionStorage.setItem("values-precioInicial", values.precioInicial);
-    sessionStorage.setItem("values-precioFinal", values.precioFinal);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    sessionStorage.setItem("values-categoria", values.categoria);
+    sessionStorage.setItem("values-precioInicial", values.precioInicial);
+    sessionStorage.setItem("values-precioFinal", values.precioFinal);
     window.location.reload();
   };
 
