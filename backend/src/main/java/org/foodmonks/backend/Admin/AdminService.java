@@ -86,6 +86,9 @@ public class AdminService {
         restauranteAux.setEstado(EstadoRestaurante.valueOf(estadoRestaurante));
         restauranteRepository.save(restauranteAux);
         JsonObject response = new JsonObject();
+        if (estadoRestaurante.equals("CERRADO")){
+            estadoRestaurante = "APROBADA";
+        }
         response.addProperty("resultadoCambioEstado", estadoRestaurante);
         return response;
     }
