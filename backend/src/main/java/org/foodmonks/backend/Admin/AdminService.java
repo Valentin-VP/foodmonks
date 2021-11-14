@@ -85,8 +85,9 @@ public class AdminService {
         }
         restauranteAux.setEstado(EstadoRestaurante.valueOf(estadoRestaurante));
         restauranteRepository.save(restauranteAux);
-
-        return restauranteConverter.jsonRestaurante(restauranteAux);
+        JsonObject response = new JsonObject();
+        response.addProperty("resultadoCambioEstado", estadoRestaurante);
+        return response;
     }
 
     public void enviarCorreo(String correoRestaurante, String resultadoCambioEstado, String comentariosCambioEstado) throws EmailNoEnviadoException {
