@@ -74,10 +74,17 @@ export const NavigationBar = () => (
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
             <Nav.Item>
+              <Nav.Link href="/promocion">Promociones</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
               <Nav.Link href="/menu">Menús</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link href="/listadoPedidosEfectivo">Cobrar Pedidos Efectivo</Nav.Link>
             </Nav.Item>
             <NavDropdown title="Restaurante" menuVariant="color">
               <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
+              <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
                 Cerrar Sesion

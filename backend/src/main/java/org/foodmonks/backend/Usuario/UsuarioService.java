@@ -1,9 +1,15 @@
 package org.foodmonks.backend.Usuario;
+
 import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Cliente.Cliente;
+import org.foodmonks.backend.Cliente.ClienteRepository;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoBloqueadoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoDesbloqueadoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEliminadoException;
+import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +18,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEncontradoException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,14 +29,17 @@ public class UsuarioService {
 	private final UsuarioRepository usuarioRepository;
 	private final TemplateEngine templateEngine;
 	private final EmailService emailService;
-  private final PasswordEncoder passwordEncoder;
+  	private final PasswordEncoder passwordEncoder;
+	private final ClienteRepository clienteRepository;
+	private final RestauranteRepository restauranteRepository;
 	
 	@Autowired
-	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine, EmailService emailService, PasswordEncoder passwordEncoder) {
-		this.usuarioRepository = usuarioRepository;
-		this.templateEngine = templateEngine;
-		this.emailService = emailService;
-    this.passwordEncoder = passwordEncoder;
+	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine,
+						  EmailService emailService, PasswordEncoder passwordEncoder,
+						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository) {
+		this.usuarioRepository = usuarioRepository; this.templateEngine = templateEngine;
+		this.emailService = emailService; this.passwordEncoder = passwordEncoder;
+		this.clienteRepository = clienteRepository; this.restauranteRepository = restauranteRepository;
 	}
   
   public void cambiarPassword(String correo, String password) throws UsuarioNoEncontradoException {
@@ -51,6 +59,16 @@ public class UsuarioService {
 		List<Usuario> listaUsuarios = usuarioRepository.findAll();
 
 		//filtros:
+		if(orden) {//ordenamiento por calificacion(cliente o restaurante)
+			//necesito ambas listas por como ordeno los usuarios
+			if(tipoUser.equals("cliente")) {
+				List<Cliente> auxListOrdenCliente = clienteRepository.findAllByRolesOrderByCalificacionDesc("ROLE_CLIENTE");
+				listaUsuarios = new ArrayList<>(auxListOrdenCliente);
+			} else {
+				List<Restaurante> auxListOrdenRestaurante = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
+				listaUsuarios = new ArrayList<>(auxListOrdenRestaurante);
+			}
+		}
 		if(!correo.isEmpty()) {//filtro por correo(cliente, restaurante o admin)
 			List<Usuario> auxList = new ArrayList<>();
 			for(Usuario user: listaUsuarios) {
@@ -96,41 +114,9 @@ public class UsuarioService {
 				}
 			}
 			listaUsuarios = auxList;
-			if(orden) {//ordenamiento por calificacion(cliente o restaurante)
-				List<Cliente> auxListOrdenCliente = new ArrayList<>();
-				List<Restaurante> auxListOrdenRestaurante = new ArrayList<>();
-				//necesito ambas listas por como ordeno los usuarios
-				if(tipoUser.equals("cliente")) {
-					for(Usuario user: listaUsuarios) {
-						Cliente cliente = (Cliente) usuarioRepository.findByCorreo((user.getCorreo()));
-						auxListOrdenCliente.add(cliente);
-						//ordenamiento por calificacion global de cliente
-						auxListOrdenCliente.sort(new Comparator<Cliente>() {
-							@Override
-							public int compare(Cliente c1, Cliente c2) {
-								return c1.getCalificacion().compareTo(c2.getCalificacion());//de menor a mayor
-							}
-						});
-					}
-					listaUsuarios = new ArrayList<Usuario>(auxListOrdenCliente);
-				} else {
-					for(Usuario user: listaUsuarios) {
-						Restaurante restaurante = (Restaurante) usuarioRepository.findByCorreo(user.getCorreo());
-						auxListOrdenRestaurante.add(restaurante);
-						//ordenamiento por calificacion global de restaurante
-						auxListOrdenRestaurante.sort(new Comparator<Restaurante>() {
-							@Override
-							public int compare(Restaurante r1, Restaurante r2) {
-								return r1.getCalificacion().compareTo(r2.getCalificacion());//de menor a mayor
-							}
-						});
-					}
-					listaUsuarios = new ArrayList<>(auxListOrdenRestaurante);
-				}
-			}
 		}
 		if(!estado.isEmpty()) {//filtro por estado(cliente o restaurante)
-			List<Usuario> auxList = new ArrayList<Usuario>();
+			List<Usuario> auxList = new ArrayList<>();
 			for (Usuario user : listaUsuarios) {
 				if (estado.equals("BLOQUEADO") || estado.equals("ELIMINADO")) {
 					if (user instanceof Cliente) {
@@ -256,7 +242,9 @@ public class UsuarioService {
 					     cliente.setEstado(EstadoCliente.ELIMINADO);
 					     usuarioRepository.save(cliente);
 					}
-				} else 
+				} else if (usuario instanceof Admin){
+					usuarioRepository.delete(usuario);
+				} else
 					throw new  UsuarioNoEncontradoException("Usuario "+correo+" no encontrado.");
 				
 				//ENVIAR NOTIFICACION EMAIL
@@ -270,6 +258,9 @@ public class UsuarioService {
 					 throw new EmailNoEnviadoException("Usuario eliminado, " +e.getMessage());
 				 }
 	}
-	
+
+	public Usuario ObtenerUsuario (String correo) {
+		return usuarioRepository.findByCorreo(correo);
+	}
 
 }

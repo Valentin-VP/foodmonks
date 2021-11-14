@@ -4,6 +4,8 @@ package org.foodmonks.backend.Admin;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import com.google.gson.JsonObject;
+import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,13 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final AdminRepository adminRepository;
     private final UsuarioRepository usuarioRepository;
+    private final AdminConverter adminConverter;
 
     @Autowired
-    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder, UsuarioRepository usuarioRepository ) {
-        this.adminRepository = adminRepository; this.passwordEncoder = passwordEncoder; this.usuarioRepository = usuarioRepository;
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder,
+                        UsuarioRepository usuarioRepository, AdminConverter adminConverter ) {
+        this.adminRepository = adminRepository; this.passwordEncoder = passwordEncoder;
+        this.usuarioRepository = usuarioRepository; this.adminConverter = adminConverter;
     }
 
     public void crearAdmin(String correo, String nombre, String apellido, String password) throws UsuarioExisteException {
@@ -38,8 +43,7 @@ public class AdminService {
     }
 
     public Admin buscarAdmin(String correo) {
-        Admin aux = adminRepository.findByCorreo(correo);
-        return aux;
+        return adminRepository.findByCorreo(correo);
     }
 
     public void modificarAdmin(Admin admin) {
@@ -62,5 +66,14 @@ public class AdminService {
         // podría incluir mencionar que el cambio fue realizado con éxito, pero falló el envío del correo
     }
 
+
+    public JsonObject obtenerJsonAdmin (String correo) throws AdminNoEncontradoException {
+        Admin admin = adminRepository.findByCorreo(correo);
+        if (admin == null) {
+            throw new AdminNoEncontradoException("No existe el Admin " + correo);
+        }
+        return adminConverter.jsonAdmin(admin);
+
+    }
 
 }

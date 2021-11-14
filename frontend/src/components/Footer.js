@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { CgMail } from "react-icons/cg";
 
 const Styles = styled.div`
   .footer {
@@ -18,7 +19,10 @@ export const Footer = () => (
     <React.Fragment>
       <footer className="footer py-3">
         <div className="container">
-          <span>foodmonksoficial@gmail.com</span>
+          <span>
+            <CgMail color="white" fontSize="1.5rem"/>
+            {" "}foodmonksoficial@gmail.com
+          </span>
         </div>
       </footer>
     </React.Fragment>

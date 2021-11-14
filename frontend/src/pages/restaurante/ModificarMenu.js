@@ -164,9 +164,14 @@ function ModificarMenu() {
                 console.log(response);
                 sessionStorage.removeItem("menuId");
                 setTimeout(() => {
-                  window.location.replace("/menu");
+                  if(state.descuento === 0) {
+                    window.location.replace("/menu");
+                  } else {
+                    window.location.replace("/promocion");
+                  }
                 }, 3000);
               }).catch((error) =>{
+                console.log(error.message);
                 setSuccess(<Alert variant="danger" error={error.response.data.detailMessage} />);
               });
             });
@@ -193,7 +198,8 @@ function ModificarMenu() {
       <div id="page-container"></div>
       <section className="form-alta">
         <Form>
-          <h4>Modificar Menú</h4>
+          {state.descuento === 0 ? <h4>Modificar Menú</h4>
+          : <h4>Modificar Promocion</h4>}
           {/*nombre del menu*/}
           <div className="form-floating">
             <input
@@ -234,18 +240,20 @@ function ModificarMenu() {
           </div>
           {/*descuento*/}
           <div className="form-floating">
-            <input
-              className="form-control"
-              type="number"
-              name="descuento"
-              id="descuento"
-              placeholder="Descuento"
-              max="100"
-              min="0"
-              defaultValue="0"
-              onChange={handleChange}
-            />
-            <label htmlFor="floatingInput">Descuento</label>
+              <input
+                className="form-control"
+                type="number"
+                name="descuento"
+                id="descuento"
+                placeholder="Descuento"
+                max="100"
+                min="1"
+                required
+                defaultValue={state.descuento}
+                onChange={handleChange}
+                disabled={state.descuento === 0}
+              />
+              <label htmlFor="floatingInput">Descuento</label>
           </div>
           <FloatingLabel controlId="floatingSelect" label="Categoría">
             <Form.Select
@@ -261,7 +269,7 @@ function ModificarMenu() {
               ))}
             </Form.Select>
           </FloatingLabel>
-          <label className="mb-2">Imágen del menú</label>
+          <label className="mb-2">Imágen</label>
           {/* image uploader */}
           <Form.Control className="mb-3" type="file" size="lg" onChange={handleUpload} />
           {success}

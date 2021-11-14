@@ -16,12 +16,10 @@ import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.authentication.TokenHelper;
-import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.comparator.ComparableComparator;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,8 +28,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.Base64;
 import java.util.List;
-import java.time.LocalDate;
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -43,13 +39,15 @@ public class AdminController {
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
     private final UsuarioService usuarioService;
+    private final TokenHelper tokenHelp;
 
     @Autowired
-    AdminController(AdminService adminService, ClienteService clienteService, RestauranteService restauranteService, UsuarioService usuarioService) {
+    AdminController(AdminService adminService, ClienteService clienteService, RestauranteService restauranteService, UsuarioService usuarioService, TokenHelper tokenHelp) {
         this.adminService = adminService;
         this.clienteService = clienteService;
         this.restauranteService = restauranteService;
         this.usuarioService = usuarioService;
+        this.tokenHelp = tokenHelp;
     }
 
 
@@ -99,11 +97,19 @@ public class AdminController {
         adminService.modificarAdmin(admin);
     }
 
+    @Operation(summary = "Listar los Usuarios",
+            description = "Lista de los Usuarios de el sistema",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "usuario" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Usuario.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @GetMapping(path = "/listarUsuarios")
     public ResponseEntity<?> listarUsuarios(@RequestParam(required = false, name = "correo") String correo, @RequestParam(required = false, name = "tipoUser") String tipoUser,
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
                                             @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden) {
-        List<Usuario> listaUsuarios = new ArrayList<>();
+        List<Usuario> listaUsuarios;
         JsonArray jsonArray = new JsonArray();
         try {
             listaUsuarios = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden);
@@ -118,6 +124,7 @@ public class AdminController {
                     usuario.addProperty("estado", cliente.getEstado().toString());
                     usuario.addProperty("nombre", cliente.getNombre());
                     usuario.addProperty("apellido", cliente.getApellido());
+                    usuario.addProperty("calificacion", cliente.getCalificacion().toString());
                     jsonArray.add(usuario);
                 } else if(listaUsuario instanceof Restaurante){//si es restaurante
                     Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
@@ -127,6 +134,7 @@ public class AdminController {
                     usuario.addProperty("descripcion", restaurante.getDescripcion());
                     usuario.addProperty("nombre", restaurante.getNombreRestaurante());
                     usuario.addProperty("telefono", restaurante.getTelefono());
+                    usuario.addProperty("calificacion", restaurante.getCalificacion().toString());
                     jsonArray.add(usuario);
                 } else if(listaUsuario instanceof Admin) {
                     Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());
@@ -142,10 +150,18 @@ public class AdminController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @Operation(summary = "Cambiar estado de un Usuario",
+            description = "Cambia el estado de un Usuario",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "usuario" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{correo}")
-    public ResponseEntity<?> cambiarEstadoUsuario(@RequestBody String estado, @PathVariable String correo) {
-        JsonObject JsonEstado = new JsonObject();
+    public ResponseEntity<?> cambiarEstadoUsuario(@RequestHeader("Authorization") String token, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))) @RequestBody String estado, @PathVariable String correo) {
+        JsonObject JsonEstado;
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 
         String state = JsonEstado.get("estado").getAsString();
@@ -155,6 +171,12 @@ public class AdminController {
                 usuarioService.bloquearUsuario(correo);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "ELIMINAR":
+                if ( token != null && token.startsWith("Bearer ")) {
+                    String newToken = token.substring(7);
+                    if (tokenHelp.getUsernameFromToken(newToken).equals(correo)){
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede eliminar este usuario.");
+                    }
+                }
                 usuarioService.eliminarUsuario(correo);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "DESBLOQUEAR":

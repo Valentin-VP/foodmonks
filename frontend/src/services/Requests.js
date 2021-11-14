@@ -4,12 +4,18 @@ import axios from "axios";
 export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
+  localStorage.removeItem("react-use-cart");
   window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
 export const getMenuId = () => {
   return sessionStorage.getItem("menuId");
+};
+
+//retorna la id del restaurante para el listado de menus y promociones
+export const getRestauranteId = () => {
+  return sessionStorage.getItem("restauranteId");
 };
 
 //---------------------------------------LOGIN--------------------------------------------
@@ -20,18 +26,18 @@ export const getToken = () => {
 
 export const getRefreshToken = () => {
   return localStorage.getItem("refreshToken");
-}
+};
 
 export const checkTokens = (auth, refreshAuth) => {
   const newAuth = auth.substring(7);
   const newRefreshAuth = refreshAuth.substring(7);
-  if(getToken() != null && getRefreshToken() != null) {
-    if(newAuth !== getToken() || newRefreshAuth !== getRefreshToken()) {
+  if (getToken() != null && getRefreshToken() != null) {
+    if (newAuth !== getToken() || newRefreshAuth !== getRefreshToken()) {
       localStorage.setItem("token", auth);
       localStorage.setItem("refreshToken", refreshAuth);
     }
   }
-}
+};
 
 export const userLogin = (authRequest) => {
   return axios({
@@ -47,10 +53,15 @@ export const fetchUserData = () => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/userinfo`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
   return response;
 };
 
@@ -61,7 +72,6 @@ export const registrarCliente = (cliente) => {
     data: cliente,
   });
 };
-
 
 export const registrarRestaurante = (restaurante) => {
   return axios({
@@ -76,10 +86,15 @@ export const eliminarMenu = (menuId) => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/eliminarMenu/${menuId}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
   return response;
 };
 
@@ -90,10 +105,15 @@ export const modMenu = (menuInfo, id) => {
     data: menuInfo,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
   return response;
 };
 
@@ -103,12 +123,45 @@ export const fetchMenus = () => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarMenu`,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
+  return response;
+};
+
+export const fetchPromos = () => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPromocion`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
       'RefreshAuthentication': "Bearer " + getRefreshToken(),
     },
   });
   response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
   return response;
 };
+
+export const fetchMenusPromos = (datos) => {
+  const restauranteId = getRestauranteId();
+  console.log(restauranteId);
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${restauranteId}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+}
 
 export const getMenuInfo = () => {
   const menuId = getMenuId();
@@ -117,10 +170,15 @@ export const getMenuInfo = () => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/getInfoMenu/${menuId}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
   return response;
 };
 
@@ -131,23 +189,64 @@ export const altaMenu = (menu) => {
     data: menu,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
   return response;
 };
 
 export const cambiarEstado = (estado) => {
-  const response = axios ({
+  const response = axios({
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/modificarEstado/${estado}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
+  return response;
+};
+
+export const actualizarEstadoPedido = (estado, id) => {
+  const response = axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/actualizarEstadoPedido/${id}`,
+    data: {estado: estado},
     headers: {
       Authorization: "Bearer " + getToken(),
       'RefreshAuthentication': "Bearer " + getRefreshToken(),
     }
   });
-  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((error)=>{checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const actualizarEstadoPedidoPendientes = (estado, id, minutos) => {
+  const response = axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/actualizarEstadoPedido/${id}`,
+    data: {estado: estado,
+            minutos: minutos},
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
   return response;
 };
 
@@ -162,15 +261,62 @@ export const altaAdmin = (datos) => {
   });
 };
 
-
 export const eliminarCuentaClientePropia = () => {
-  return axios ({
+  return axios({
     method: "DELETE",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCuenta`,
     headers: {
       Authorization: "Bearer " + getToken(),
+    },
+  });
+};
+
+export const obtenerPedidosSinFinalizarEfectivo = () => {
+  const response = axios ({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPedidosEfectivoCompletado`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
     }
   });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((error)=>{checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const obtenerPedidosSinConfirmar = () => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarPedidosPendientes`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const obtenerPedidosHistorico = (datos, fechaIni, fechaFin, page) => {
+  const fIni = fechaIni ? fechaIni.toISOString().slice(0,10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
+  const fFin = fechaFin ? fechaFin.toISOString().slice(0,10) : fIni;
+  const fecha = (fIni!==""&&fFin!=="") ? fIni + "," + fFin : "";
+  const total = (datos.minTotal!==""&&datos.maxTotal!=="") ? datos.minTotal + "," + datos.maxTotal : "";
+
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarHistoricoPedidos?estadoPedido=${datos.estadoPedido}&medioPago=${datos.medioPago}&orden=${datos.ordenamiento}&fecha=${fecha}&total=${total}&page=${page}`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
+  return response;
 };
 
 //----------------------------------USUARIOS---------------------------------------------------
@@ -181,9 +327,10 @@ export const fetchUsuarios = () => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}/api/v1/admin/listarUsuarios`,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-}
+};
 
 export const eliminarUsuario = (correoUsuario) => {
   return axios({
@@ -193,27 +340,39 @@ export const eliminarUsuario = (correoUsuario) => {
       Authorization: "Bearer " + getToken(),
     },
   });
-}
+};
 
 export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
-  const fIni = fechaIni ? fechaIni.toISOString().slice(0,10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
-  const fFin = fechaFin ? fechaFin.toISOString().slice(0,10) : fIni;
+  const fIni = fechaIni ? fechaIni.toISOString().slice(0, 10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
+  const fFin = fechaFin ? fechaFin.toISOString().slice(0, 10) : fIni;
   return axios({
     method: "GET",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
     },
   });
 };
+
+export const fetchRestauranteInfo = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/getInfoRestaurante`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+}
 
 export const actualizarEstadoUsuario = (estado, id) => {
   console.log(estado);
   return axios({
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstado/${id}`,
-    data: {estado: estado},
+    data: { estado: estado },
     headers: {
       Authorization: "Bearer " + getToken(),
     },
@@ -229,35 +388,130 @@ export const actualizarEstadoUsuario = (estado, id) => {
   });
 };*/
 
-export const recuperarPassword=(recoverRequest)=>{
+export const recuperarPassword = (recoverRequest) => {
   console.log(recoverRequest);
   return axios({
-      method:"POST",
-      url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/solicitud`,
-      data : recoverRequest
-  })
-}
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/solicitud`,
+    data: recoverRequest,
+  });
+};
 
-export const cambiarPassword=(email, pass, ptoken)=>{
-  const datos = {correo: email,
-    password: pass,
-    token: ptoken ? ptoken : ""}
-    console.log(datos);
+export const cambiarPassword = (email, pass, ptoken) => {
+  const datos = { correo: email, password: pass, token: ptoken ? ptoken : "" };
+  console.log(datos);
   console.log(datos);
   return axios({
-      method:"POST",
-      url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/cambio`,
-      data:datos
-  })
-}
-export const checkPwdRecoveryToken=(email, ptoken)=>{
-  const datos = {email: email ? email : "",
-    token: ptoken ? ptoken : ""}
-    console.log(datos);
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/cambio`,
+    data: datos,
+  });
+};
+export const checkPwdRecoveryToken = (email, ptoken) => {
+  const datos = { email: email ? email : "", token: ptoken ? ptoken : "" };
+  console.log(datos);
   return axios({
       method:"POST",
       url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/password/recuperacion/check`,
       data:datos
-  })
-}
+  });
+};
+
+export const paypalEnviarCART=(datos)=>{
+  console.log(datos);
+  const response = axios({
+    method:"POST",
+    url:`${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/realizarPedido`,
+    data:datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response
+    .then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((error)=> {checkTokens(error.config.headers.Authorization, error.config.headers.RefreshAuthentication)});
+    return response;
+};
+
+export const agregarDireccion = (direccion) => {
+  const response = axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/agregarDireccion`,
+    data: direccion,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const modificarDireccion = (direccion, id) => {
+  const response = axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/modificarDireccion?id=${id}`,
+    data: direccion,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const eliminarDireccion = (id) => {
+  const response = axios({
+    method: "DELETE",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarDireccion?id=${id}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const editNombre = (nombre, apellido) => {
+  const response = axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/modificarCliente?nombre=${nombre}&apellido=${apellido}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+export const fetchRestaurantesBusqueda = (datos) => {
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarAbiertos?nombre=${datos.nombre}&categoria=${datos.categoria}&orden=${datos.calificacion}`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+};
+
+
+export const hacerPedidoEfectivo = (datos) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/realizarPedido`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+};
 

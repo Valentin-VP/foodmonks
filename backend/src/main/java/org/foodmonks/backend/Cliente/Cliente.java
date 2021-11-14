@@ -93,12 +93,7 @@ public class Cliente extends Usuario {
 
     @Override
     public boolean isEnabled() {
-        EstadoCliente estado = getEstado();
-        if(estado == EstadoCliente.BLOQUEADO || estado == EstadoCliente.ELIMINADO) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(getEstado() == EstadoCliente.BLOQUEADO || getEstado() == EstadoCliente.ELIMINADO);
     }
 
 }

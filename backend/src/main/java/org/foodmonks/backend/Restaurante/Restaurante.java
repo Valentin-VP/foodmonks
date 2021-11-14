@@ -32,7 +32,7 @@ public class Restaurante extends Usuario {
     private EstadoRestaurante estado;
     private Integer telefono;
     private String descripcion;
-    private  String cuentaPaypal;
+    private String cuentaPaypal;
     private String imagen;
     @OneToMany(mappedBy="restaurante")//,cascade=CascadeType.ALL,orphanRemoval=true)
 	private List<Pedido> pedidos = new ArrayList<>();
@@ -103,10 +103,6 @@ public class Restaurante extends Usuario {
     @Override
     public boolean isEnabled() {
         EstadoRestaurante estado = getEstado();
-        if(estado == EstadoRestaurante.BLOQUEADO || estado == EstadoRestaurante.ELIMINADO || estado == EstadoRestaurante.RECHAZADO) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(estado == EstadoRestaurante.BLOQUEADO || estado == EstadoRestaurante.ELIMINADO || estado == EstadoRestaurante.RECHAZADO);
     }
 }
