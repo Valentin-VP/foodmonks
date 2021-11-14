@@ -3,6 +3,7 @@ package org.foodmonks.backend.Cliente;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
@@ -208,6 +210,7 @@ public class ClienteService {
         DtOrdenPaypal ordenPaypal = new DtOrdenPaypal();
         if (MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()).equals(MedioPago.PAYPAL)){
             if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty() && !jsonRequestPedido.get("linkAprobacion").getAsString().isEmpty()){
+                log.debug("################## ORDER ID ################\n" + jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setOrdenId(jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setLinkAprobacion(jsonRequestPedido.get("linkAprobacion").getAsString());
             }

@@ -46,15 +46,15 @@ public class RestauranteController {
 
     private final RestauranteService restauranteService;
     private final MenuService menuService;
-    private final TokenHelper tokenHelp;
+    private final RestauranteHelper restauranteHelper;
     private final DireccionService direccionService;
 
     @Autowired
     RestauranteController(RestauranteService restauranteService, MenuService menuService,
-                          TokenHelper tokenHelper, DireccionService direccionService) {
+                          RestauranteHelper restauranteHelper, DireccionService direccionService) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
-        this.tokenHelp = tokenHelper;
+        this.restauranteHelper = restauranteHelper;
         this.direccionService = direccionService;
     }
 
@@ -156,10 +156,7 @@ public class RestauranteController {
             @RequestBody String infoMenu) {
         String newToken = "";
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correoRestaurante = tokenHelp.getUsernameFromToken(newToken);
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
             menuService.altaMenu(jsonMenu, correoRestaurante);
         } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
@@ -186,10 +183,7 @@ public class RestauranteController {
         List<JsonObject> listaMenu;
         JsonArray jsonArray = new JsonArray();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             listaMenu = menuService.listarMenu(correo);
             for(JsonObject jsonMenu : listaMenu) {
                 if(jsonMenu.get("multiplicadorPromocion").getAsString().equals("0.0")) {
@@ -212,14 +206,10 @@ public class RestauranteController {
     })
     @GetMapping(path = "/listarPromocion")
     public ResponseEntity<?> listPromo(@RequestHeader("Authorization") String token) {
-        String newtoken = "";
         List<JsonObject> listaPromo;
         JsonArray jsonArray = new JsonArray();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             listaPromo = menuService.listarMenu(correo);
             for(JsonObject jsonPromo : listaPromo) {
                 if(!jsonPromo.get("multiplicadorPromocion").getAsString().equals("0.0")) {
@@ -245,13 +235,8 @@ public class RestauranteController {
     @PutMapping(path = "/modificarMenu/{menuId}")
     public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @PathVariable Long menuId, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)))
     @RequestBody String updatedMenu) {
-        String newtoken = "";
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
-
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             // Transformar json string en JsonObject
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
             jsonMenu.addProperty("id", menuId);
@@ -276,12 +261,8 @@ public class RestauranteController {
     })
     @DeleteMapping(path = "/eliminarMenu/{menuId}")
     public ResponseEntity<?> deleteMenu(@RequestHeader("Authorization") String token, @PathVariable Long menuId) {
-        String newtoken = "";
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             menuService.eliminarMenu(menuId, correo);
         } catch(Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -299,13 +280,9 @@ public class RestauranteController {
     })
     @GetMapping(path = "getInfoMenu/{menuId}")
     public ResponseEntity<?> getMenuInfo(@RequestHeader("Authorization") String token, @PathVariable Long menuId) {
-        String newtoken = "";
         JsonObject retorno;
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             retorno = menuService.infoMenu(menuId, correo);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -323,13 +300,9 @@ public class RestauranteController {
     })
     @GetMapping(path = "/getInfoRestaurante")
     public ResponseEntity<?> getRestauranteInfo(@RequestHeader("Authorization") String token) {
-        String newtoken = "";
         JsonObject retorno;
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             retorno = restauranteService.obtenerJsonRestaurante(correo);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -347,12 +320,8 @@ public class RestauranteController {
     })
     @PutMapping(path = "/modificarEstado/{estado}")
     public ResponseEntity<?> modificarEstado(@RequestHeader("Authorization") String token, @PathVariable String estado){
-        String newtoken = "";
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
         } catch(Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -371,15 +340,10 @@ public class RestauranteController {
     })
     @GetMapping(path = "/listarPedidosPendientes")
     public ResponseEntity<?> listarPedidosPendientes(@RequestHeader("Authorization") String token) {
-        String newtoken = "";
-        String correo = "";
         List<JsonObject> listaMenu = new ArrayList<JsonObject>();
         JsonArray jsonArray = new JsonArray();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             listaMenu = restauranteService.listarPedidosPendientes(correo);
             for(JsonObject jsonMenu : listaMenu) {
                 jsonArray.add(jsonMenu);
@@ -402,14 +366,10 @@ public class RestauranteController {
     })
     @GetMapping(path = "/listarPedidosEfectivoCompletado")
     public ResponseEntity<?> listarPedidosEfectivoCompletado(@RequestHeader("Authorization") String token) {
-        String newtoken = "";
         List<JsonObject> listaPedidos;
         JsonArray jsonArray = new JsonArray();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             listaPedidos = restauranteService.listarPedidosEfectivoConfirmados(correo);
             for(JsonObject jsonMenu : listaPedidos) {
                 jsonArray.add(jsonMenu);
@@ -439,15 +399,10 @@ public class RestauranteController {
                                                     @RequestParam(required = false, name = "total") String total,
                                                     @RequestParam(defaultValue = "0",required = false, name = "page") String page,
                                                     @RequestParam(defaultValue = "5", required = false, name = "size") String size) {
-        String newtoken = "";
-        String correo = "";
         List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
         JsonObject jsonObject = new JsonObject();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             jsonObject = restauranteService.listarHistoricoPedidos(correo, estadoPedido, medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
@@ -468,16 +423,10 @@ public class RestauranteController {
     })
     @PutMapping(path = "/actualizarEstadoPedido/{idPedido}")
     public ResponseEntity<?> actualizarEstadoPedido(@RequestHeader("Authorization") String token, @PathVariable String idPedido, @RequestBody String nuevoEstado) {
-        String newtoken = "";
         JsonObject jsonPedido = new JsonObject();
-
-
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
             String estado = "";
-            String correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = restauranteHelper.obtenerCorreoDelToken(token);
             jsonPedido = new Gson().fromJson(nuevoEstado, JsonObject.class);
             estado = jsonPedido.get("estado").getAsString();
             if (estado!=null){
@@ -506,5 +455,20 @@ public class RestauranteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok("Se cambió el estado del pedido.");
+    }
+
+    @PostMapping("/realizarDevolucion")
+    public ResponseEntity<?> realizarDevolucion(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "idPedido") String idPedido,
+            @RequestParam(required = false, name = "montoDevolucion") String montoDevolucion){
+        JsonObject response = new JsonObject();
+        try {
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
+            response = restauranteService.realizarDevolucion(correoRestaurante, idPedido, montoDevolucion);
+        } catch(Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

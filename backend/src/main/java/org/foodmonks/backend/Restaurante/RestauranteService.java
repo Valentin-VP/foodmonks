@@ -253,4 +253,10 @@ public class RestauranteService {
         }
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
+
+    public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String montoDevolucion) {
+        JsonObject response = new JsonObject();
+        response.addProperty("Mensaje", "Devolucion prueba");
+        return response;
+    }
 }
