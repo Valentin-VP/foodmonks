@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -275,30 +276,26 @@ public class RestauranteService {
 
     public JsonArray listarReclamos(String correoRestaurante, boolean orden, String correoCliente, String razon) throws RestauranteNoEncontradoException {
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
-        if (orden) {
-            if (!correoCliente.isBlank()){
-
-            }
-            if (!razon.isBlank()){
-
-            }
-            return reclamoConverter.arrayJsonReclamo(restaurante.getReclamos());
-        } else {
-            if (!correoCliente.isBlank()){
-                return reclamoConverter.arrayJsonReclamo(obtenerReclamoCliente(restaurante,correoCliente));
-            }
-            if (!razon.isBlank()){
-                return reclamoConverter.arrayJsonReclamo(obtenerReclamoRazon(restaurante,razon));
-            }
-            return reclamoConverter.arrayJsonReclamo(restaurante.getReclamos());
+        List<Reclamo> reclamos;
+        if (!correoCliente.isBlank()){
+            reclamos = obtenerReclamoCliente(restaurante,correoCliente);
         }
+        if (!razon.isBlank()){
+            reclamos = obtenerReclamoRazon(restaurante,razon);
+        } else {
+            reclamos = restaurante.getReclamos();
+        }
+        if (orden) {
+            reclamos.sort(Comparator.comparing(Reclamo::getFecha).reversed());
+        }
+        return reclamoConverter.arrayJsonReclamo(reclamos);
     }
 
     public List<Reclamo> obtenerReclamoCliente (Restaurante restaurante, String correoCliente){
         List<Reclamo> reclamos = new ArrayList<>();
         for (Reclamo reclamo : restaurante.getReclamos()){
             if (reclamo.getPedido() != null && reclamo.getPedido().getCliente() != null && !reclamo.getPedido().getCliente().getCorreo().isBlank()){
-                if (reclamo.getPedido().getCliente().getCorreo().equals(correoCliente)){
+                if (reclamo.getPedido().getCliente().getCorreo().contains(correoCliente)){
                     reclamos.add(reclamo);
                 }
             }
