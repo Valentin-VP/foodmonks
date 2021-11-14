@@ -6,11 +6,21 @@ import com.google.gson.JsonObject;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.foodmonks.backend.Restaurante.RestauranteRepository;
+import org.foodmonks.backend.Restaurante.RestauranteConverter;
+import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.datatypes.EstadoRestaurante;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.EmailService.EmailService;
+import org.foodmonks.backend.Usuario.Usuario;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,12 +32,23 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final UsuarioRepository usuarioRepository;
     private final AdminConverter adminConverter;
+    private final RestauranteRepository restauranteRepository;
+    private final RestauranteConverter restauranteConverter;
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder,
-                        UsuarioRepository usuarioRepository, AdminConverter adminConverter ) {
+                        UsuarioRepository usuarioRepository, AdminConverter adminConverter,
+                        RestauranteRepository restauranteRepository,
+                        RestauranteConverter restauranteConverter) {
         this.adminRepository = adminRepository; this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = usuarioRepository; this.adminConverter = adminConverter;
+        this.restauranteRepository = restauranteRepository; this.restauranteConverter = restauranteConverter;
     }
 
     public void crearAdmin(String correo, String nombre, String apellido, String password) throws UsuarioExisteException {
@@ -55,17 +76,41 @@ public class AdminService {
         return new JsonArray();
     }
 
-    public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) {
-        JsonObject respuesta = new JsonObject();
-        respuesta.addProperty("resultadoCambioEstado", "Cambio exitoso");
-        return respuesta;
+    public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) throws RestauranteNoEncontradoException {
+
+        Restaurante restauranteAux = restauranteRepository.findByCorreo(correoRestaurante);
+
+        if (restauranteAux == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correoRestaurante);
+        }
+        restauranteAux.setEstado(EstadoRestaurante.valueOf(estadoRestaurante));
+        restauranteRepository.save(restauranteAux);
+
+        return restauranteConverter.jsonRestaurante(restauranteAux);
     }
 
     public void enviarCorreo(String correoRestaurante, String resultadoCambioEstado, String comentariosCambioEstado) throws EmailNoEnviadoException {
-        // respecto a la falla de enviar el correo, el mensaje de la excepción,
-        // podría incluir mencionar que el cambio fue realizado con éxito, pero falló el envío del correo
-    }
 
+        Usuario usuarioAux = usuarioRepository.findByCorreo(correoRestaurante);
+
+        String nombre = usuarioAux.getNombre() + ", " + usuarioAux.getApellido();
+
+        Context context = new Context();
+        context.setVariable("user", nombre);
+        String contenido = "Estimado usuario, su solicitud de alta fue " + resultadoCambioEstado;
+                if(!comentariosCambioEstado.isEmpty()) {
+                    contenido = contenido + " por el siguiente motivo : " + comentariosCambioEstado;
+                }
+        System.out.println(contenido);
+        context.setVariable("contenido",contenido);
+        String htmlContent = templateEngine.process("aprobar-rechazar", context);
+        try {
+            emailService.enviarMail(correoRestaurante, "Resultado solicitud nuevo restaurante", htmlContent, null);
+        }catch (EmailNoEnviadoException e) {
+            System.out.println(e.getMessage());
+            throw new EmailNoEnviadoException(e.getMessage());
+        }
+    }
 
     public JsonObject obtenerJsonAdmin (String correo) throws AdminNoEncontradoException {
         Admin admin = adminRepository.findByCorreo(correo);
