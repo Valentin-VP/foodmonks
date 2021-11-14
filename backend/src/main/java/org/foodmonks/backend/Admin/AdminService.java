@@ -1,6 +1,9 @@
 package org.foodmonks.backend.Admin;
 
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
@@ -46,6 +49,23 @@ public class AdminService {
     public void modificarAdmin(Admin admin) {
         adminRepository.save(admin);
     }
+
+    public JsonArray listaRestaurantesPorEstado(String estadoRestaurante) {
+        // se comunica con RestauranteService para obtener los datos
+        return new JsonArray();
+    }
+
+    public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) {
+        JsonObject respuesta = new JsonObject();
+        respuesta.addProperty("resultadoCambioEstado", "Cambio exitoso");
+        return respuesta;
+    }
+
+    public void enviarCorreo(String correoRestaurante, String resultadoCambioEstado, String comentariosCambioEstado) throws EmailNoEnviadoException {
+        // respecto a la falla de enviar el correo, el mensaje de la excepción,
+        // podría incluir mencionar que el cambio fue realizado con éxito, pero falló el envío del correo
+    }
+
 
     public JsonObject obtenerJsonAdmin (String correo) throws AdminNoEncontradoException {
         Admin admin = adminRepository.findByCorreo(correo);
