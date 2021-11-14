@@ -38,9 +38,19 @@ function ListarReclamos({ reclamos }) {
   const [pedido, setPedido] = useState();
   const [loading, isLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [isAceptar, setIsAceptar] = useState(false);
+  const [isRechazar, setIsRechazar] = useState(false);
 
   const toggleModal = (e) => {
     setIsOpen(!isOpen);
+  };
+
+  const toggleModalAceptar = (e) => {
+    setIsAceptar(!isAceptar);
+  };
+
+  const toggleModalRechazar = (e) => {
+    setIsRechazar(!isRechazar);
   };
 
   const obtenerPedido = (id) => {
@@ -95,7 +105,7 @@ function ListarReclamos({ reclamos }) {
                           <button
                             className="btn btn-sm btn-secondary"
                             type="button"
-                            onClick={(e) => aceptarReclamo()}
+                            onClick={(e) => toggleModalAceptar()}
                           >
                             Aceptar reclamo
                           </button>
@@ -106,7 +116,7 @@ function ListarReclamos({ reclamos }) {
                           <button
                             className="btn btn-sm btn-secondary"
                             type="button"
-                            onClick={(e) => rechazarReclamo()}
+                            onClick={(e) => toggleModalRechazar()}
                           >
                             Rechazar reclamo
                           </button>
@@ -140,6 +150,46 @@ function ListarReclamos({ reclamos }) {
             </div>
           </StyledModal>
         ) : null}
+        <StyledModal
+          isAceptar={isAceptar}
+          onBackgroundClick={toggleModalAceptar}
+          onEscapeKeydown={toggleModalAceptar}
+        >
+          <h2>Reclamo</h2>
+          <hr />
+          <div className="cuerpo">
+            <input />
+            {/* input para mensaje del restaurante*/}
+          </div>
+          <div className="abajo">
+            <Button variant="danger" onClick={aceptarReclamo}>
+              Aceptar
+            </Button>
+            <Button variant="secondary" onClick={toggleModal}>
+              Cancelar
+            </Button>
+          </div>
+        </StyledModal>
+        <StyledModal
+          isOpen={isRechazar}
+          onBackgroundClick={toggleModalRechazar}
+          onEscapeKeydown={toggleModalRechazar}
+        >
+          <h2>Reclamo</h2>
+          <hr />
+          <div className="cuerpo">
+            <input />
+            {/* input para mensaje del restaurante*/}
+          </div>
+          <div className="abajo">
+            <Button variant="danger" onClick={rechazarReclamo}>
+              Rechazar
+            </Button>
+            <Button variant="secondary" onClick={toggleModal}>
+              Cancelar
+            </Button>
+          </div>
+        </StyledModal>
       </ModalProvider>
     </Styles>
   );
