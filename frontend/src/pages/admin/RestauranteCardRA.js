@@ -11,7 +11,7 @@ const Styles = styled.div`
   img {
     object-fit: cover;
     border-radius: 3px 3px 0px 0px;
-    height: 12rem;
+    height: 17rem;
   }
 
   .btn-primary {
@@ -31,22 +31,14 @@ const Styles = styled.div`
 `;
 
 const RestauranteCard = (props) => {
-  const onClick = () => {
-    sessionStorage.setItem("restauranteId", props.correo);
-    sessionStorage.setItem("restauranteImagen", props.imagen);
-    sessionStorage.setItem("restauranteCalif", props.calificacion);
-    sessionStorage.setItem("restauranteNombre", props.nombre);
-    window.location.replace("/listarProductos");
-  };
 
   return (
     <Styles>
-      <div className="card" onClick={() => onClick()}>
+      <div className="card">
         <img src={props.imagen} alt="restauranteimg" />
         <div className="card-body">
           <h5 className="card-title">{props.nombre}</h5>
           <h5 className="card-subtitle">Teléfono: {props.telefono}</h5>
-          <p className="card-text">{props.calificacion}⭐</p>
         </div>
       </div>
     </Styles>
