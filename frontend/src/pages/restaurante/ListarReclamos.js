@@ -23,6 +23,14 @@ const StyledModal = Modal.styled`
   Button {
     margin-left: 5px;
   }
+  #inputRechazar {
+    type="text"
+    border-radius: 5px;
+  }
+  #inputAceptar {
+    type="text"
+    border-radius: 5px;
+  }
 `;
 
 const Styles = styled.div`
@@ -74,124 +82,135 @@ function ListarReclamos({ reclamos }) {
   const rechazarReclamo = () => {};
 
   return (
-    <Styles>
-      <ModalProvider>
-        <div className="table-responsive justify-content-center" id="list">
-          <table className="table table-hover">
-            <tbody>
-              {reclamos.map((reclamo) => {
-                return (
-                  <div>
-                    <tr key={reclamo.id}>
-                      <td>Razon: {reclamo.razon}</td>
-                      <td>Fecha: {reclamo.fecha}</td>
-                      <td>Comentario: {reclamo.comentario}</td>
-                      <td>
-                        {
-                          <button
-                            className="btn btn-sm btn-secondary"
-                            type="button"
-                            onClick={(e) => {
-                              obtenerPedido(reclamo.pedidoId);
-                              toggleModal();
-                            }}
-                          >
-                            Pedido
-                          </button>
-                        }
-                      </td>
-                      <td>
-                        {
-                          <button
-                            className="btn btn-sm btn-secondary"
-                            type="button"
-                            onClick={(e) => toggleModalAceptar()}
-                          >
-                            Aceptar reclamo
-                          </button>
-                        }
-                      </td>
-                      <td>
-                        {
-                          <button
-                            className="btn btn-sm btn-secondary"
-                            type="button"
-                            onClick={(e) => toggleModalRechazar()}
-                          >
-                            Rechazar reclamo
-                          </button>
-                        }
-                      </td>
-                    </tr>
-                  </div>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        {!loading ? (
+    <>
+      <Styles>
+        <ModalProvider>
+          <div className="table-responsive justify-content-center" id="list">
+            <table className="table table-hover">
+              <tbody>
+                {reclamos.map((reclamo) => {
+                  return (
+                    <>
+                      <br />
+                      <tr key={reclamo.id}>
+                        <td>PEDIDO: {reclamo.idPedido}</td>
+                        <th scope="col" />
+                        <td>RAZON: {reclamo.razon}</td>
+                        <th scope="col" />
+                        <td>FECHA: {reclamo.fecha}</td>
+                        <th scope="col" />
+                        <td>COMENTARIO: {reclamo.comentario}</td>
+                        <td>
+                          {
+                            <button
+                              className="btn btn-sm btn-secondary"
+                              type="button"
+                              onClick={(e) => {
+                                obtenerPedido(reclamo.pedidoId);
+                                toggleModal();
+                              }}
+                            >
+                              INFO PEDIDO
+                            </button>
+                          }
+                        </td>
+                        <th scope="col" />
+                        <td>
+                          {
+                            <button
+                              className="btn btn-sm btn-secondary"
+                              type="button"
+                              onClick={(e) => toggleModalAceptar()}
+                            >
+                              ACEPTAR RECLAMO
+                            </button>
+                          }
+                        </td>
+                        <th scope="col" />
+                        <td>
+                          {
+                            <button
+                              className="btn btn-sm btn-secondary"
+                              type="button"
+                              onClick={(e) => toggleModalRechazar()}
+                            >
+                              RECHAZAR RECLAMO
+                            </button>
+                          }
+                        </td>
+                        <th scope="col" />
+                      </tr>
+                      <br />
+                    </>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {!loading ? (
+            <StyledModal
+              isOpen={isOpen}
+              onBackgroundClick={toggleModal}
+              onEscapeKeydown={toggleModal}
+            >
+              <h2>Información Pedido</h2>
+              <hr />
+              <div className="cuerpo">
+                <p>Precio: {pedido.precio}</p>
+                <p>Descripcion: {pedido.descripcion}</p>
+                <p>Cantidad: {pedido.cantidad}</p>
+                <p>Categoria: {pedido.categoria}</p>
+              </div>
+              <div className="abajo">
+                <Button variant="secondary" onClick={toggleModal}>
+                  Ok
+                </Button>
+              </div>
+            </StyledModal>
+          ) : null}
           <StyledModal
-            isOpen={isOpen}
-            onBackgroundClick={toggleModal}
-            onEscapeKeydown={toggleModal}
+            isOpen={isAceptar}
+            onBackgroundClick={toggleModalAceptar}
+            onEscapeKeydown={toggleModalAceptar}
           >
-            <h2>Información Pedido</h2>
+            <h2>Aceptar Reclamo</h2>
             <hr />
             <div className="cuerpo">
-              <p>Precio: {pedido.precio}</p>
-              <p>Descripcion: {pedido.descripcion}</p>
-              <p>Cantidad: {pedido.cantidad}</p>
-              <p>Categoria: {pedido.categoria}</p>
+              <input id="inputAceptar" />
+              {/* input para mensaje del restaurante*/}
             </div>
             <div className="abajo">
+              <Button variant="danger" onClick={aceptarReclamo}>
+                Aceptar
+              </Button>
               <Button variant="secondary" onClick={toggleModal}>
-                Ok
+                Cancelar
               </Button>
             </div>
           </StyledModal>
-        ) : null}
-        <StyledModal
-          isOpen={isAceptar}
-          onBackgroundClick={toggleModalAceptar}
-          onEscapeKeydown={toggleModalAceptar}
-        >
-          <h2>Reclamo</h2>
-          <hr />
-          <div className="cuerpo">
-            <input />
-            {/* input para mensaje del restaurante*/}
-          </div>
-          <div className="abajo">
-            <Button variant="danger" onClick={aceptarReclamo}>
-              Aceptar
-            </Button>
-            <Button variant="secondary" onClick={toggleModal}>
-              Cancelar
-            </Button>
-          </div>
-        </StyledModal>
-        <StyledModal
-          isOpen={isRechazar}
-          onBackgroundClick={toggleModalRechazar}
-          onEscapeKeydown={toggleModalRechazar}
-        >
-          <h2>Reclamo</h2>
-          <hr />
-          <div className="cuerpo">
-            <input />
-            {/* input para mensaje del restaurante*/}
-          </div>
-          <div className="abajo">
-            <Button variant="danger" onClick={rechazarReclamo}>
-              Rechazar
-            </Button>
-            <Button variant="secondary" onClick={toggleModal}>
-              Cancelar
-            </Button>
-          </div>
-        </StyledModal>
-      </ModalProvider>
-    </Styles>
+          <StyledModal
+            isOpen={isRechazar}
+            onBackgroundClick={toggleModalRechazar}
+            onEscapeKeydown={toggleModalRechazar}
+          >
+            <h2>Rechazar Reclamo</h2>
+            <hr />
+            <div className="cuerpo">
+              <input id="inputRechazar" />
+              {/* input para mensaje del restaurante*/}
+            </div>
+            <div className="abajo">
+              <Button variant="danger" onClick={rechazarReclamo}>
+                Rechazar
+              </Button>
+              <Button variant="secondary" onClick={toggleModal}>
+                Cancelar
+              </Button>
+            </div>
+          </StyledModal>
+        </ModalProvider>
+      </Styles>
+    </>
   );
 }
 
