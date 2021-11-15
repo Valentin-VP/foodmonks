@@ -1,6 +1,7 @@
 package org.foodmonks.backend.Pedido;
 
 import com.google.gson.JsonObject;
+import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.CriterioQuery;
@@ -101,6 +102,73 @@ public class PedidoService {
         return jsonObject;
     }
 
+    public JsonObject listaPedidosRealizados(Cliente cliente, EstadoPedido estadoPedido, String nombreMenu, String nombreRestaurante, MedioPago medioPago, String orden, LocalDateTime[] fecha, Float[] total, int page, int size){
+
+        List<Pedido> result;
+
+        PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
+        List<CriterioQuery> querys = new ArrayList<>();
+
+        if (estadoPedido != null) {
+            querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+//            result = pedidoRepository.findAll(estadoSpec);
+            //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
+        }
+
+        if (nombreRestaurante != null) {
+            querys.add(new CriterioQuery("nombreRestaurante","p:ru",nombreRestaurante, false));
+        }
+
+        if (nombreMenu != null) {
+            querys.add(new CriterioQuery("nombre","p:mc",nombreMenu, false));
+        }
+//        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+        if (medioPago != null) {
+            querys.add(new CriterioQuery("medioPago",":",medioPago, false));
+            //result = pedidos.stream().filter(p -> p.getMedioPago().equals(medioPago)).collect(Collectors.toList());
+            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+        }
+
+        if (total != null){
+            querys.add(new CriterioQuery("total",">",total[0], false));
+            querys.add(new CriterioQuery("total","<",total[1], false));
+            //result = pedidos.stream().filter(p -> (p.getTotal() >= total[0] && p.getTotal() <= total[1])).collect(Collectors.toList());
+            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+        }
+
+        if (fecha != null){
+            querys.add(new CriterioQuery("fechaHoraEntrega",">",fecha[0], false));
+            querys.add(new CriterioQuery("fechaHoraEntrega","<",fecha[1].plusDays(1), false));
+//            result = pedidos.stream().filter(p -> (
+//                    p.getFechaHoraEntrega().isAfter(LocalDateTime.from(fecha[0]))
+//                            && p.getFechaHoraEntrega().isBefore(LocalDateTime.from(fecha[1]))
+//            )).collect(Collectors.toList());
+//            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
+        }
+        for(CriterioQuery c : querys){
+            builder.with(c);
+        }
+        Specification<Pedido> p = builder.build();
+        List<Order> orders = new ArrayList<>();
+        if (orden != null){
+            if (orden.equals("asc"))
+                orders.add(new Order(Sort.Direction.ASC, "total"));
+                //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal)).collect(Collectors.toList());
+            else if (orden.equals("desc"))
+                orders.add(new Order(Sort.Direction.DESC, "total"));
+            //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal).reversed()).collect(Collectors.toList());
+        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+        Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
+        result = pedidoPage.getContent();
+
+        JsonObject jsonObject = pedidoConverter.listaJsonPedidoPaged(result);
+        jsonObject.addProperty("currentPage", pedidoPage.getNumber());
+        jsonObject.addProperty("totalItems", pedidoPage.getTotalElements());
+        jsonObject.addProperty("totalPages", pedidoPage.getTotalPages());
+        return jsonObject;
+    }
+
 
     public List<JsonObject> listaPedidosEfectivoConfirmados(Restaurante restaurante){
         return pedidoConverter.listaJsonPedido(pedidoRepository.findPedidosByRestauranteAndEstadoAndMedioPago(restaurante, EstadoPedido.CONFIRMADO, MedioPago.EFECTIVO));
@@ -112,6 +180,11 @@ public class PedidoService {
 
     public boolean existePedidoRestaurante (Long idPedido, Restaurante restaurante) {
         return pedidoRepository.existsPedidoByIdAndRestaurante(idPedido,restaurante); }
+
+    public Pedido buscarPedidoId (Long idPedido) {
+        Pedido pedido = pedidoRepository.findPedidoById(idPedido);
+        return pedido;
+    }
 
     public void cambiarEstadoPedido(Long idPedido, EstadoPedido estadoPedido){
         Pedido pedido = pedidoRepository.findPedidoById(idPedido);
