@@ -151,7 +151,7 @@ function ListarReclamos({ reclamos }) {
           </StyledModal>
         ) : null}
         <StyledModal
-          isAceptar={isAceptar}
+          isOpen={isAceptar}
           onBackgroundClick={toggleModalAceptar}
           onEscapeKeydown={toggleModalAceptar}
         >
