@@ -1,6 +1,7 @@
 package org.foodmonks.backend.paypal;
 
 import com.paypal.core.PayPalEnvironment;
+import com.paypal.core.PayPalHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +35,21 @@ public class PayPalConfig {
                 paypalSdkConfig().get("clientId"),
                 paypalSdkConfig().get("clientSecret")
         );
+    }
+
+    /**
+     *PayPal HTTP client instance with environment that has access
+     *credentials context. Use to invoke PayPal APIs.
+     */
+    PayPalHttpClient client = new PayPalHttpClient(getPayPalEnvironment());
+
+    /**
+     *Method to get client object
+     *
+     *@return PayPalHttpClient client
+     */
+    public PayPalHttpClient client() {
+        return this.client;
     }
 
 }
