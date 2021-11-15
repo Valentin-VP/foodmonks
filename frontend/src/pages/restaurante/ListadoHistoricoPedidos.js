@@ -39,6 +39,7 @@ const Styles = styled.div`
       background-color: #FFFFF1;
     }
   }
+
   .row, .col{
     
     padding: 1px;

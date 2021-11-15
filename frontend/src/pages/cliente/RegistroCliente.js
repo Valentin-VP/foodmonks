@@ -147,10 +147,10 @@ function RegistroCliente() {
               if (response.status === 201) {
                 setAlerta("Registro hecho con exito");
                 setTipo("success");
-                //setTimeout(() => { window.location.replace("/"); }, 5000); //para esperar 5 segundos y redireccionar
+                setTimeout(() => { window.location.replace("/"); }, 2000); //para esperar 5 segundos y redireccionar
               }
-            }).catch((err) =>{
-                setAlerta(err.response.data);
+            }).catch((error) =>{
+                setAlerta("Error en el alta");
                 setTipo("danger");        
             });
           } else {
@@ -161,10 +161,9 @@ function RegistroCliente() {
         console.log(registro.direccion);
       })
       .catch((error) => {
-        setAlerta(error.response.data);
+        setAlerta("Error en el alta");
         setTipo("danger");
       });
-    // registrarCliente(registro);
   };
 
   let errorMsg;

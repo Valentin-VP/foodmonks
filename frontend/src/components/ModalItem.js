@@ -1,4 +1,3 @@
-import react from 'react';
 import { Button, Modal } from 'react-bootstrap';
 
 export const ModalItem = ({titulo, cuerpo, visible, onCancelar, onAceptar}) => {

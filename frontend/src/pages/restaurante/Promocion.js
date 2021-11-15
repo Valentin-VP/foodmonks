@@ -29,6 +29,7 @@ const Styles = styled.div`
   img {
     height: 6rem;
     border-radius: 5px;
+    object-fit: cover;
   }
   .miBoton {
     color: white;

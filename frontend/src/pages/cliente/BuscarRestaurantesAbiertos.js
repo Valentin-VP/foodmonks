@@ -1,4 +1,4 @@
-import { React, Fragment, useState, useEffect, useRef } from "react";
+import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
 import { fetchRestaurantesBusqueda } from "../../services/Requests";
 import ListadoRestaurantesAbiertos from "./ListadoRestaurantesAbiertos";
@@ -58,6 +58,11 @@ export default function BuscarRestaurantesAbiertos() {
     calificacion: false,
   });
 
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   let categoria = [
     { nombre: "(Cualquiera)", value: "" },
     { nombre: "Pizzas", value: "PIZZAS" },
@@ -77,7 +82,6 @@ export default function BuscarRestaurantesAbiertos() {
     //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
     fetchRestaurantesBusqueda(values).then((response)=>{
       if (response.status===200){
-        console.log(response.data);
         setData(response.data);
       }else{
         Noti(response.data);
@@ -115,8 +119,8 @@ export default function BuscarRestaurantesAbiertos() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
-              <div class="row align-items-center">
-                  <div class="col-lg">
+              <div className="row align-items-center">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <input 
                               name="nombre"
@@ -125,10 +129,10 @@ export default function BuscarRestaurantesAbiertos() {
                               id="nombre"
                               value={values.nombre}>
                           </input>
-                          <label for="nombre">Nombre</label>
+                          <label htmlFor="nombre">Nombre</label>
                       </div>
                   </div>
-                  <div class="col-lg">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <select 
                               name="categoria"
@@ -139,16 +143,16 @@ export default function BuscarRestaurantesAbiertos() {
                                 <option key={item.nombre} value={item.value}>{item.nombre}</option>
                               ))}
                           </select>
-                          <label for="categoria">Categoría</label>
+                          <label htmlFor="categoria">Categoría</label>
                       </div>
                   </div>
-                  <div class="col-lg">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <div className="checkbox">
                               <label>
                                   <input
                                       name="calificacion"
-                                      class="form-check-input"
+                                      className="form-check-input"
                                       type="checkbox"
                                       checked={values.calificacion}
                                       onChange={handleChange}
@@ -169,8 +173,8 @@ export default function BuscarRestaurantesAbiertos() {
               </div>
 
               <div className="form-floating">
-                <div class="row align-items-center">
-                  <div class="col-md">
+                <div className="row align-items-center">
+                  <div className="col-md">
                     {<ListadoRestaurantesAbiertos data={data} />}
                   </div>
                 </div>

@@ -232,7 +232,6 @@ export default function ListadoPedidosPendientes(abierto) {
                               <Col>
                                 <tr key={item.id}>
                                   <td>ID Pedido: {item.id}</td>
-                                  <td>Nombre: {item.nombre}</td>
                                   <td>Dirección: {item.direccion}</td>
                                   <td>Cliente: {item.nombreApellidoCliente}</td>
                                   <td>Medio de Pago: {item.medioPago}</td>
@@ -262,10 +261,11 @@ export default function ListadoPedidosPendientes(abierto) {
                                                   hight="150"
                                               />
                                           </td>
-                                          <td>Menú: {menu.menu}</td>
-                                          <td>Precio: ${menu.precio}</td>
+                                          <td>Menú: {menu.menu} (x{menu.cantidad})</td>
+                                          <td>Precio Unitario: ${menu.precio}</td>
                                           <td>Descuento: {menu.multiplicadorPromocion} %</td>
-                                          <td>Total Parcial: ${menu.calculado}</td>
+                                          <td>Total Parcial: ${menu.precioPorCantidad}</td>
+                                          <td>Total Final: ${menu.calculado}</td>
                                           {/* <td>Cantidad: ${item.cantidad}</td> */}
                                       </tr>
                                     </>

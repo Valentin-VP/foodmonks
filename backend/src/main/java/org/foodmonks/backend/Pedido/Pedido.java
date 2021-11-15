@@ -61,6 +61,7 @@ public class Pedido  {
 
     public Pedido () {}
 
+
     public Pedido(EstadoPedido estado, Float total, MedioPago medioPago) {
         this.estado = estado;
         this.total = total;
@@ -68,3 +69,4 @@ public class Pedido  {
     }
 
 }
+
