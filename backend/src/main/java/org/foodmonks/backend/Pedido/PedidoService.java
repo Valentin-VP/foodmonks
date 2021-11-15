@@ -122,6 +122,11 @@ public class PedidoService {
     public boolean existePedidoRestaurante (Long idPedido, Restaurante restaurante) {
         return pedidoRepository.existsPedidoByIdAndRestaurante(idPedido,restaurante); }
 
+    public Pedido buscarPedidoId (Long idPedido) {
+        Pedido pedido = pedidoRepository.findPedidoById(idPedido);
+        return pedido;
+    }
+
     public void cambiarEstadoPedido(Long idPedido, EstadoPedido estadoPedido){
         Pedido pedido = pedidoRepository.findPedidoById(idPedido);
         pedido.setEstado(estadoPedido);
