@@ -1,9 +1,9 @@
-import { React, Fragment, useState, useEffect, useRef } from "react";
+import { React, Fragment, useState } from "react";
 import styled from "styled-components";
-import { obtenerPedidosHistorico } from "../../services/Requests";
+import { obtenerPedidosRealizados } from "../../services/Requests";
 import { Noti } from "../../components/Notification"
-import ListadoHistoricoPedidos from "./ListadoHistoricoPedidos";
 import DatePicker from "react-datepicker";
+import ListadoPedidosRealizados from "./ListadoPedidosRealizados";
 import { Col } from "react-bootstrap";
 import Pagination from "@material-ui/lab/Pagination";
 
@@ -14,9 +14,11 @@ const Styles = styled.div`
   .text-center {
     position: relative;
   }
+
   .form-floating {
     margin-bottom: 15px;
   }
+
   button {
     color: white;
     background-color: #e87121;
@@ -33,11 +35,13 @@ const Styles = styled.div`
       background-color: #e87121;
     }
   }
+
   input {
     &:focus {
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
     }
   }
+
   .form-check-input{
     &:hover {
       border-color: #2080FF;
@@ -47,6 +51,7 @@ const Styles = styled.div`
   #fecha{
     height: 58px;
   }
+
   .MuiPaginationItem-page.Mui-selected{
     background-color: #e87121;
     &:focus {
@@ -62,12 +67,14 @@ const Styles = styled.div`
   }
 `;
 
-export default function BuscarHistoricoPedidos() {
+export default function BuscarPedidosRealizados() {
   const [data, setData] = useState([]);
   //const [isLoading, setIsLoading] = useState(false);
   //const [loaded, setLoaded] = useState(false);
   //const [error, setError] = useState(false);
   const [values, setValues] = useState({
+    nombreRestaurante: "",
+    nombreMenu: "",
     estadoPedido: "",
     medioPago: "",
     minTotal: "",
@@ -84,10 +91,12 @@ export default function BuscarHistoricoPedidos() {
   };
 
   let estadoPedido = [
-    { nombre: "(Devuelto y Finalizado)", value: "" },
+    { nombre: "(Cualquiera)", value: "" },
     { nombre: "Devuelto", value: "DEVUELTO" },
     { nombre: "Finalizado", value: "FINALIZADO"},
     { nombre: "Rechazado", value: "RECHAZADO"},
+    { nombre: "A la Espera", value: "CONFIRMADO"},
+    { nombre: "Pendiente", value: "PENDIENTE"},    
   ];
 
   let medioPago = [
@@ -105,7 +114,7 @@ export default function BuscarHistoricoPedidos() {
   const fetch = (page) => {
     let p = page ? page - 1 : 0;
     console.log(p);
-    obtenerPedidosHistorico(values, startDate, endDate, p).then((response)=>{
+    obtenerPedidosRealizados(values, startDate, endDate, p).then((response)=>{
       if (response.status===200){
         //console.log(response.data);
         setData(response.data);
@@ -135,17 +144,29 @@ export default function BuscarHistoricoPedidos() {
     onPageChange(1);
   };
 
-  const onVisible = (id) => {
+  const onVisibleMenu = (id) => {
     let items = [...data.pedidos];
     //de paso le pregunto si tiene menus (normalmente deberia tener), sino tiene no hago nada
     items.map((i)=>{
       if (i.id===id && i.menus)
-        i.visible = !i.visible;
+        i.visibleMenu = !i.visibleMenu;
       return i
     });
     console.log(items);
     setData({...data, pedidos: items});
   }
+
+  const onVisibleReclamo = (id) => {
+    let items = [...data.pedidos];
+    //le pregunto si tiene reclamo
+    items.map((i)=>{
+      if (i.id===id && i.reclamo)
+        i.visibleReclamo = !i.visibleReclamo;
+      return i
+    });
+    console.log(items);
+    setData({...data, pedidos: items});
+  }  
 
   const [page, setPage] = useState(1);
 
@@ -220,6 +241,30 @@ export default function BuscarHistoricoPedidos() {
                   </div>
                   <div class="col-lg">
                       <div className="form-floating">
+                          <input 
+                              name="nombreRestaurante"
+                              className="form-control"
+                              type="text"
+                              onChange={handleChange}
+                              id="nombreRestaurante"
+                              value={values.nombreRestaurante}>
+                          </input>
+                          <label htmlFor="nombreRestaurante">Restaurante</label>
+                      </div>
+                      <div className="form-floating">
+                          <input 
+                              name="nombreMenu"
+                              className="form-control"
+                              type="text"
+                              onChange={handleChange}
+                              id="nombreMenu"
+                              value={values.nombreMenu}>
+                          </input>
+                          <label htmlFor="nombreMenu">Menú</label>
+                      </div>
+                  </div>
+                  <div class="col-lg">
+                      <div className="form-floating">
                           <select 
                               name="estadoPedido"
                               className="form-select"
@@ -257,8 +302,8 @@ export default function BuscarHistoricoPedidos() {
               <div className="form-floating">
                 <div class="row align-items-center">
                   <div class="col-md">
-                    {<ListadoHistoricoPedidos datos={data} cantidadPages={data.totalPages} onPageChange={onPageChange} onVisible={onVisible}/>}
-                      {(data.pedidos && data.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
+                    {<ListadoPedidosRealizados datos={data} onVisibleMenu={onVisibleMenu} onVisibleReclamo={onVisibleReclamo}/>}
+                    {(data.pedidos && data.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
                         <Pagination
                           className="my-3"
                           count={data.totalPages ? data.totalPages : 0}
@@ -269,7 +314,7 @@ export default function BuscarHistoricoPedidos() {
                           shape="rounded"
                           onChange={handlePageChange}
                         />
-                      </Col> : <h5 className="text-center h5 mb-3 fw-normal">No se encontraron pedidos completados o devueltos.</h5>}
+                    </Col> : <h5 className="text-center h5 mb-3 fw-normal">No se encontraron pedidos.</h5>}
                   </div>
                 </div>
               </div>
