@@ -1,7 +1,7 @@
 package org.foodmonks.backend.Pedido;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.CriterioQuery;
 import org.foodmonks.backend.datatypes.EstadoPedido;
@@ -14,21 +14,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.MedioPago;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
@@ -149,6 +140,14 @@ public class PedidoService {
         pedido.setMenusCompra(menus);
         pedidoRepository.save(pedido);
         return pedidoConverter.jsonPedido(pedido);
+    }
+
+    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
+        Pedido pedido = pedidoRepository.findPedidoById(id);
+        if (pedido == null) {
+            throw new PedidoNoExisteException("No existe pedido con id " + id);
+        }
+        return pedido;
     }
 
 }

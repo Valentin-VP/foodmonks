@@ -1,6 +1,5 @@
 package org.foodmonks.backend.paypal;
 
-import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
@@ -20,11 +19,10 @@ public class PayPalService implements PaymentService{
     private final String DEVOLUTION_LINK_REL = "";
 
     private final PayPalHttpClient payPalHttpClient;
-    private PayPalEnvironment getPayPalEnvironment;
 
     @Autowired
-    public PayPalService (PayPalEnvironment getPayPalEnvironment){
-        payPalHttpClient = new PayPalHttpClient(getPayPalEnvironment);
+    public PayPalService (PayPalConfig payPalConfig){
+        this.payPalHttpClient = payPalConfig.client;
     }
 
     @SneakyThrows

@@ -467,7 +467,7 @@ public class RestauranteController {
         JsonObject response = new JsonObject();
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
-            response = restauranteService.realizarDevolucion(correoRestaurante, idPedido, montoDevolucion, montoDevolucion, estadoDevolucion);
+            response = restauranteService.realizarDevolucion(correoRestaurante, idPedido, montoDevolucion, motivoDevolucion, estadoDevolucion);
         } catch(Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

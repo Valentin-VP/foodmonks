@@ -4,11 +4,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
@@ -27,6 +30,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,22 +51,26 @@ public class RestauranteService {
     private final MenuService menuService;
     private final RestauranteConverter restauranteConverter;
     private final PedidoService pedidoService;
+    private final TemplateEngine templateEngine;
 
     @Autowired
 
     public RestauranteService(
-        RestauranteRepository restauranteRepository, 
-        PasswordEncoder passwordEncoder, 
+        RestauranteRepository restauranteRepository,
+        PasswordEncoder passwordEncoder,
         UsuarioRepository usuarioRepository,
-        MenuService menuService, 
-        RestauranteConverter restauranteConverter, 
-        PedidoService pedidoService) {
-            this.restauranteRepository = restauranteRepository; 
-            this.passwordEncoder = passwordEncoder; 
+        MenuService menuService,
+        RestauranteConverter restauranteConverter,
+        PedidoService pedidoService,
+        TemplateEngine templateEngine
+        ) {
+            this.restauranteRepository = restauranteRepository;
+            this.passwordEncoder = passwordEncoder;
             this.usuarioRepository = usuarioRepository; 
             this.menuService = menuService; 
             this.restauranteConverter = restauranteConverter;
             this.pedidoService = pedidoService;
+            this.templateEngine = templateEngine;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -254,7 +264,29 @@ public class RestauranteService {
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
 
-    public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String montoDevolucion) {
+    public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String montoDevolucion, String motivoDevolucion, Boolean estadoDevolucion) throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException {
+        Restaurante restaurante = obtenerRestaurante(correoRestaurante);
+        if (!idPedido.matches("[0-9]*") || idPedido.isBlank()){
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        Pedido pedido = pedidoService.obtenerPedido(Long.valueOf(idPedido));
+        if (estadoDevolucion) {
+            if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) && pedido.getMedioPago().equals(MedioPago.EFECTIVO)){
+                pedidoService.cambiarEstadoPedido(pedido.getId(),EstadoPedido.DEVUELTO);
+
+            } else if ((pedido.getEstado().equals(EstadoPedido.FINALIZADO) && pedido.getMedioPago().equals(MedioPago.PAYPAL))){
+
+            }
+        } else {
+            if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
+
+            } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)){
+                Context context = new Context();
+                context.setVariable("user", pedido.getCliente().getNombre());
+                context.setVariable("contenido","Su reclamo al pedido # ");
+                String htmlContent = templateEngine.process("bloquear-desbloquear-eliminar", context);
+            }
+        }
         JsonObject response = new JsonObject();
         response.addProperty("Mensaje", "Devolucion prueba");
         return response;
