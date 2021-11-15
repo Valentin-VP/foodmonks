@@ -72,8 +72,11 @@ public class AdminService {
     }
 
     public JsonArray listarRestaurantesPorEstado(String estadoRestaurante) {
-        // se comunica con RestauranteService para obtener los datos
-        return new JsonArray();
+
+        List<Restaurante> restauranteAux = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.valueOf(estadoRestaurante));
+        JsonArray resultado = restauranteConverter.arrayJsonRestaurantes(restauranteAux);
+
+        return resultado;
     }
 
     public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) throws RestauranteNoEncontradoException {
