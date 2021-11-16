@@ -48,7 +48,6 @@ public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
-    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
@@ -56,21 +55,18 @@ public class ClienteService {
     private final RestauranteService restauranteService;
     private final MenuCompraService menuCompraService;
     private final MenuService menuService;
-    private final DireccionRepository direccionRepository;
 
     @Autowired
     public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
                           UsuarioService usuarioService, DireccionService direccionService, 
                           ClienteConverter clienteConverter, PedidoService pedidoService, 
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
-                          MenuService menuService, UsuarioRepository usuarioRepository,
-                          DireccionRepository direccionRepository) {
+                          MenuService menuService) {
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
         this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
-        this.menuService = menuService; this.usuarioRepository = usuarioRepository;
-        this.direccionRepository = direccionRepository;
+        this.menuService = menuService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
