@@ -86,6 +86,7 @@ public class PedidoService {
 //            )).collect(Collectors.toList());
 //            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
+        querys.add(new CriterioQuery("correo", "p:ru", restaurante.getCorreo(), false));
         for(CriterioQuery c : querys){
             builder.with(c);
         }
@@ -117,6 +118,7 @@ public class PedidoService {
         PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
         List<CriterioQuery> querys = new ArrayList<>();
 
+        querys.add(new CriterioQuery("cliente", ":", cliente,false));
         if (estadoPedido != null) {
             querys.add(new CriterioQuery("estado",":",estadoPedido, false));
 //            result = pedidoRepository.findAll(estadoSpec);
