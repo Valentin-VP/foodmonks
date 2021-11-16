@@ -2,12 +2,10 @@ package org.foodmonks.backend.Cliente;
 
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Direccion.DireccionRepository;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.DireccionService;
@@ -24,8 +22,6 @@ import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.MenuCompra.MenuCompraService;
-import org.foodmonks.backend.Pedido.PedidoService;
-import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoCliente;
@@ -50,7 +46,6 @@ public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
-    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
@@ -58,21 +53,18 @@ public class ClienteService {
     private final RestauranteService restauranteService;
     private final MenuCompraService menuCompraService;
     private final MenuService menuService;
-    private final DireccionRepository direccionRepository;
 
     @Autowired
     public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
                           UsuarioService usuarioService, DireccionService direccionService, 
                           ClienteConverter clienteConverter, PedidoService pedidoService, 
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
-                          MenuService menuService, UsuarioRepository usuarioRepository,
-                          DireccionRepository direccionRepository) {
+                          MenuService menuService) {
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
         this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
-        this.menuService = menuService; this.usuarioRepository = usuarioRepository;
-        this.direccionRepository = direccionRepository;
+        this.menuService = menuService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -289,7 +281,8 @@ public class ClienteService {
         Restaurante restaurante = restauranteService.obtenerRestaurante(jsonRequestPedido.get("restaurante").getAsString());
         DtOrdenPaypal ordenPaypal = new DtOrdenPaypal();
         if (MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()).equals(MedioPago.PAYPAL)){
-            if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty() && !jsonRequestPedido.get("linkAprobacion").getAsString().isEmpty()){
+            System.out.println("orderID: " + jsonRequestPedido.get("ordenId").getAsString());
+            if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty()){
                 log.debug("################## ORDER ID ################\n" + jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setOrdenId(jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setLinkAprobacion(jsonRequestPedido.get("linkAprobacion").getAsString());

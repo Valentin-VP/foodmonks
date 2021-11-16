@@ -13,7 +13,6 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
-import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Restaurante.Restaurante;
@@ -26,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 

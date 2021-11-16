@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
@@ -22,6 +24,7 @@ import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoExcep
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.foodmonks.backend.datatypes.MedioPago;
+import org.foodmonks.backend.paypal.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,6 +56,8 @@ public class RestauranteService {
     private final RestauranteConverter restauranteConverter;
     private final PedidoService pedidoService;
     private final TemplateEngine templateEngine;
+    private final EmailService emailService;
+    private final PayPalService payPalService;
 
     @Autowired
 
@@ -62,7 +68,9 @@ public class RestauranteService {
         MenuService menuService,
         RestauranteConverter restauranteConverter,
         PedidoService pedidoService,
-        TemplateEngine templateEngine
+        TemplateEngine templateEngine,
+        EmailService emailService,
+        PayPalService payPalService
         ) {
             this.restauranteRepository = restauranteRepository;
             this.passwordEncoder = passwordEncoder;
@@ -71,6 +79,8 @@ public class RestauranteService {
             this.restauranteConverter = restauranteConverter;
             this.pedidoService = pedidoService;
             this.templateEngine = templateEngine;
+            this.emailService = emailService;
+            this.payPalService = payPalService;
     }
 
     public List<Restaurante> listarRestaurante(){
@@ -275,7 +285,7 @@ public class RestauranteService {
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
 
-    public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String montoDevolucion, String motivoDevolucion, Boolean estadoDevolucion) throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException {
+    public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String montoDevolucion, String motivoDevolucion, Boolean estadoDevolucion) throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException, EmailNoEnviadoException, IOException {
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
         if (!idPedido.matches("[0-9]*") || idPedido.isBlank()){
             throw new PedidoIdException("El id del pedido no es un numero entero");
@@ -287,16 +297,22 @@ public class RestauranteService {
 
             } else if ((pedido.getEstado().equals(EstadoPedido.FINALIZADO) && pedido.getMedioPago().equals(MedioPago.PAYPAL))){
 
+                payPalService.refundOrder(payPalService.captureAuth("authId").result().id());
             }
         } else {
-            if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
-
-            } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)){
-                Context context = new Context();
-                context.setVariable("user", pedido.getCliente().getNombre());
-                context.setVariable("contenido","Su reclamo al pedido # ");
-                String htmlContent = templateEngine.process("bloquear-desbloquear-eliminar", context);
+            Context context = new Context();
+            context.setVariable("user", pedido.getCliente().getNombre());
+            if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
+                context.setVariable("contenido","Su reclamo al pedido #" + pedido.getId() +
+                        " , Paypal order#" + pedido.getOrdenPaypal().getOrdenId() + " ha sido rechazado");
+            } else {
+                context.setVariable("contenido","Su reclamo al pedido #" + pedido.getId() +
+                        " ha sido rechazado por el Restaurante " + pedido.getRestaurante().getNombreRestaurante());
             }
+            context.setVariable("motivo",motivoDevolucion);
+            String htmlContent = templateEngine.process("reclamo-rechazado", context);
+
+            emailService.enviarMail(pedido.getCliente().getCorreo(), "Reclamo rechazado", htmlContent,null);
         }
         JsonObject response = new JsonObject();
         response.addProperty("Mensaje", "Devolucion prueba");
