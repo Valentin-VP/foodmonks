@@ -17,7 +17,7 @@ import { Loading } from "./components/Loading";
 
 toast.configure(); //esto esta para poder enviar las notificaciones
 function App() {
-  const [tipoUser, setTipoUser] = useState("ROLE_CLIENTE");
+  const [tipoUser, setTipoUser] = useState(null);
   if (getToken() !== null) {
     fetchUserData()
       .then((response) => {
