@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Col } from "react-bootstrap";
+import Pagination from "@material-ui/lab/Pagination";
 
 const Styles = styled.div`
   .lista{
@@ -23,15 +24,18 @@ const Styles = styled.div`
     border-collapse: collapse;
     border: 3px solid #FEFEFE;
     width: 100%;
+    table-layout: fixed;
   }
+
   td, tr {
     border: 1px solid #eee;
-    padding: 6px;
+    padding: 2px;
     width: 8%;
     &:hover{
       background-color: #FFFFF5;
     }
   }
+
   #itemId {
     font-weight: lighter;
     font-size: 18px;
@@ -44,13 +48,16 @@ const Styles = styled.div`
     
     padding: 1px;
   }
+
   img {
     height: 6rem;
     border-radius: 5px;
   }
+
   .text-center {
     position: relative;
   }
+
   button {
     color: white;
     background-color: #e87121;
@@ -66,39 +73,52 @@ const Styles = styled.div`
       background-color: #e87121;
     }
   }
+
 `;
 
-export default function ListadoHistoricoPedidos({datos, onVisible}) {
+export default function ListadoPedidosRealizados({datos, onVisibleMenu, onVisibleReclamo}) {
+
+    const onReclamar = (item) => {
+      // Mandar datos a pagina de reclamos (e ir a dicha pagina)
+    };
 
     return (
     <>
       <Styles>
         <div className="container-lg">
           <main className="lista">
-            <h1 className="text-center h5 mb-3 fw-normal">Pedidos Recibidos</h1>
+            <h1 className="text-center h5 mb-3 fw-normal">Pedidos Realizados</h1>
             <div className="form-floating">
               <div className="table-responsive justify-content-center">
                     <table className="table table-hover">
                     <tbody>
-                      {datos.pedidos ? datos.pedidos.map((item) => {
+                      {datos && datos.pedidos ? datos.pedidos.map((item) => {
                           return (
                             <>
                               <Col>
                                 <tr key={item.id}>
                                   <td id="itemId">ID Pedido: {item.id}</td>
                                   <td>Dirección: {item.direccion}</td>
-                                  <td>Cliente: {item.nombreApellidoCliente}</td>
+                                  <td>Restaurante: {item.nombreRestaurante}</td>
                                   <td>Medio de Pago: {item.medioPago}</td>
                                   <td>Estado: {item.estadoPedido}</td>
                                   <td>Fecha Entrega: {item.fechaHoraEntrega}</td>
-                                  <td>Calificación: {item.calificacionRestaurante!=="" ? item.calificacionRestaurante : "Sin Calificar"}</td>
+                                  <td>Calificación: {item.calificacionCliente!=="" ? item.calificacionCliente : "Sin Calificar"}</td>
                                   <td>Total: ${item.total}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisible(item.id))}>
-                                    +
+                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisibleMenu(item.id))}>
+                                    Menús
                                   </button>}</td>
+                                  <td>{(item.reclamo && item.reclamo.id) ?
+                                    (<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisibleReclamo(item.id))}>
+                                    Ver Reclamo
+                                    </button>) :
+                                    (<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onReclamar(item.id))}>
+                                    Reclamar
+                                    </button>) 
+                                  }</td>
                                 </tr>
                               </Col>
-                              {item.visible && 
+                              {item.visibleMenu && 
                                 <Col>
                                   {(item.menus ? item.menus.map((menu, menuindex) => {
                                   return (
@@ -121,6 +141,17 @@ export default function ListadoHistoricoPedidos({datos, onVisible}) {
                                     </>
                                   )}) : null)}
                                 </Col>
+                              }
+                              {item.visibleReclamo && 
+                                  ((item.reclamo && item.reclamo.id) ? (
+                                    <Col>
+                                      <tr key={item.reclamo.id}>
+                                          <td>Razón: {item.reclamo.razon}</td>
+                                          <td>Comentario: {item.reclamo.comentario}</td>
+                                          <td>Fecha Reclamo: {item.reclamo.fecha}</td>
+                                      </tr>
+                                    </Col>
+                                  ) : null)
                               }
                             </>
                         )}) : null}

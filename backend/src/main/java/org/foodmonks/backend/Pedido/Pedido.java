@@ -47,9 +47,9 @@ public class Pedido  {
     private List<MenuCompra> menusCompra = new ArrayList<>();
     @OneToOne //(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
-    
+
     public Pedido(EstadoPedido estado, LocalDateTime fechaHoraProcesado, Float total,
-				  MedioPago medioPago, LocalDateTime fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
+                  MedioPago medioPago, LocalDateTime fechaHoraEntrega, Direccion direccion, DtOrdenPaypal ordenPaypal) {
         this.estado = estado;
         this.fechaHoraProcesado = fechaHoraProcesado;
         this.total = total;
@@ -60,11 +60,13 @@ public class Pedido  {
     }
 
     public Pedido () {}
-  
+
+
     public Pedido(EstadoPedido estado, Float total, MedioPago medioPago) {
-      this.estado = estado;
-      this.total = total;
-      this.medioPago = medioPago;
-	}
-    
+        this.estado = estado;
+        this.total = total;
+        this.medioPago = medioPago;
+    }
+
 }
+
