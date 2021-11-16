@@ -637,3 +637,15 @@ export const fetchPedidoFromReclamo = (pedidoId) => {
     },
   });
 };
+
+export const realizarReclamo = (reclamo) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/agregarReclamo`,
+    data: reclamo,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Form, FloatingLabel } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
 import { Layout } from "../../components/Layout";
+import { realizarReclamo } from "../../services/Requests";
 
 const Styles = styled.div`
 
@@ -64,35 +65,26 @@ const Styles = styled.div`
   }
 
   #descripcion {
-    size: 30;
+    margin-bottom: 10px;
+    width: 100%;
+    height: 150px;
+    border-radius: 5px;
+    resize: none;
   }
 
   #asunto {
-    maxlength: 15;
+    border-radius: 5px;
+    resize: none;
   }
 `;
 
 function Reclamo() {
   const [mail, setMail] = useState({
-    motivo: "",
+    pedidoId: sessionStorage.getItem("pedidoId"),
     razon: "",
-    descripcion: "",
+    comentario: "",
   });
-  const [componente, setComponente] = useState(null);
-
-  let motivos = [
-    { nombre: "N/A", valor: "" },
-    { nombre: "", valor: "" },
-    { nombre: "", valor: "" },
-    { nombre: "", valor: "" },
-  ];
-
-  let razones = [
-    { nombre: "N/A", valor: "" },
-    { nombre: "", valor: "" },
-    { nombre: "", valor: "" },
-    { nombre: "", valor: "" },
-  ];
+  const [success, setSuccess] = useState(null);
 
   const handleChange = (e) => {
     e.persist();
@@ -102,8 +94,27 @@ function Reclamo() {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log("submit");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    realizarReclamo(mail)
+      .then((response) => {
+        document.getElementById("submit").disabled = true;
+        console.log("entro al then");
+        setSuccess(
+          <Alert variant="success">Promocion creada con exito!</Alert>
+        );
+        console.log(response);
+        sessionStorage.removeItem("pedidoId");
+        setTimeout(() => {
+          window.location.replace("/listarPedidos"); //o como se llame el listar pedidos realizados de un cliente
+        }, 3000);
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+        setSuccess(
+          <Alert variant="danger">{error.response.data.detailMessage}</Alert>
+        );
+      });
   };
 
   return (
@@ -112,29 +123,32 @@ function Reclamo() {
       <section className="form-mail">
         <Layout>
           <h4> Reclamo </h4>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <div>
+              <label htmlFor="floatingInput"> Asunto </label>
               <input
                 className="form-control"
                 type="text"
                 name="asunto"
                 id="asunto"
                 onChange={handleChange}
+                required
               />
-              <label htmlFor="floatingInput"> Asunto </label>
             </div>
+            <br />
             <div>
-              <input
+              <label htmlFor="floatingInput"> Descripcion </label>
+              <textarea
                 className="form-control"
                 type="text"
                 name="descripcion"
                 id="descripcion"
                 onChange={handleChange}
+                required
               />
-              <label htmlFor="floatingInput"> Descripcion </label>
             </div>
-            {componente}
-            <Button id="submit" onClick={handleSubmit}>
+            {success}
+            <Button type="submit" id="submit">
               Enviar
             </Button>
           </Form>

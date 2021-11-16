@@ -10,6 +10,7 @@ import PerfilCliente from "./PerfilCliente";
 import ModificarDireccion from "./ModificarDireccion";
 import { CartProvider } from "react-use-cart";
 import styled from "styled-components";
+import Reclamo from "./Reclamo";
 
 const Styles = styled.div`
   #page-container {
@@ -43,6 +44,7 @@ function Cliente() {
                   component={BuscarMenusPromociones}
                 />
                 <Route exact path="/grafica" component={Grafico} />
+                <Route exact path="/reclamo" component={Reclamo} />
                 {/* <Route path="no-match" component={NoMatch} /> */}
               </Fragment>
             </Switch>
