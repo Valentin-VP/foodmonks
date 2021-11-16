@@ -282,7 +282,7 @@ public class ClienteService {
         DtOrdenPaypal ordenPaypal = new DtOrdenPaypal();
         if (MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()).equals(MedioPago.PAYPAL)){
             System.out.println("orderID: " + jsonRequestPedido.get("ordenId").getAsString());
-            if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty()){
+            if (!jsonRequestPedido.get("ordenId").getAsString().isBlank()){
                 log.debug("################## ORDER ID ################\n" + jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setOrdenId(jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setLinkAprobacion(jsonRequestPedido.get("linkAprobacion").getAsString());

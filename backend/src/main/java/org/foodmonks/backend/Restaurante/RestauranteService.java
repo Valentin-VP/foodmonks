@@ -287,6 +287,8 @@ public class RestauranteService {
 
     public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String montoDevolucion, String motivoDevolucion, Boolean estadoDevolucion) throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException, EmailNoEnviadoException, IOException {
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
+        JsonObject response = new JsonObject();
+        response.addProperty("Mensaje", "Devolucion");
         if (!idPedido.matches("[0-9]*") || idPedido.isBlank()){
             throw new PedidoIdException("El id del pedido no es un numero entero");
         }
@@ -297,7 +299,7 @@ public class RestauranteService {
 
             } else if ((pedido.getEstado().equals(EstadoPedido.FINALIZADO) && pedido.getMedioPago().equals(MedioPago.PAYPAL))){
 
-                payPalService.refundOrder(payPalService.captureAuth("authId").result().id());
+              response.addProperty("status",payPalService.refundOrder(payPalService.getOrder(pedido.getOrdenPaypal().getOrdenId())));
             }
         } else {
             Context context = new Context();
@@ -314,8 +316,7 @@ public class RestauranteService {
 
             emailService.enviarMail(pedido.getCliente().getCorreo(), "Reclamo rechazado", htmlContent,null);
         }
-        JsonObject response = new JsonObject();
-        response.addProperty("Mensaje", "Devolucion prueba");
+
         return response;
     }
 }

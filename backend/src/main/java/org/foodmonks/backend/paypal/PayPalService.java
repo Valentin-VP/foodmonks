@@ -5,8 +5,6 @@ import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
-import com.paypal.payments.Capture;
-import com.paypal.payments.AuthorizationsCaptureRequest;
 import com.paypal.payments.CapturesRefundRequest;
 import com.paypal.payments.RefundRequest;
 import lombok.SneakyThrows;
@@ -82,14 +80,14 @@ public class PayPalService implements PaymentService{
 
     // DEVOLUCION
 
-    public HttpResponse<Capture> captureAuth(String authId) throws IOException {
-        AuthorizationsCaptureRequest request = new AuthorizationsCaptureRequest(authId);
-        request.requestBody(buildRequestBody());
-        HttpResponse<Capture> response = payPalHttpClient.execute(request);
-        return response;
+    public String getOrder(String orderId) throws IOException {
+        OrdersGetRequest request = new OrdersGetRequest(orderId);
+        //3. Call PayPal to get the transaction
+        HttpResponse<Order> response = payPalHttpClient.execute(request);
+        return response.result().purchaseUnits().get(0).payments().captures().get(0).id();
     }
 
-    public HttpResponse<com.paypal.payments.Refund> refundOrder(String captureId) throws IOException {
+    public String refundOrder(String captureId) throws IOException {
         CapturesRefundRequest request = new CapturesRefundRequest(captureId);
         request.prefer("return=representation");
         request.requestBody(buildRequestBody());
@@ -104,7 +102,7 @@ public class PayPalService implements PaymentService{
         }
         System.out.println("Full response body:");
         System.out.println(new Gson().fromJson(response.result().toString(), String.class));
-        return response;
+        return response.result().status();
     }
 
     // Creating a body for partial refund request.
@@ -114,10 +112,10 @@ public class PayPalService implements PaymentService{
 
     public RefundRequest buildRequestBody() {
         RefundRequest refundRequest = new RefundRequest();
-        com.paypal.payments.Money money = new com.paypal.payments.Money();
+/*        com.paypal.payments.Money money = new com.paypal.payments.Money();
         money.currencyCode("USD");
-        money.value("20.00");
-        refundRequest.amount(money);
+        money.value("20.00");*/
+       // refundRequest.amount(money);
 
         return refundRequest;
     }
