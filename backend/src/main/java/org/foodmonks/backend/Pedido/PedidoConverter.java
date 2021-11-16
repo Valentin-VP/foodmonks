@@ -2,6 +2,7 @@ package org.foodmonks.backend.Pedido;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.foodmonks.backend.Direccion.DireccionConverter;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
@@ -17,10 +18,13 @@ import java.util.List;
 public class PedidoConverter {
 
     private final MenuCompraConverter menuCompraConverter;
+    private final DireccionConverter direccionConverter;
 
     @Autowired
-    public PedidoConverter (MenuCompraConverter menuCompraConverter){
+    public PedidoConverter (MenuCompraConverter menuCompraConverter,
+                            DireccionConverter direccionConverter){
         this.menuCompraConverter = menuCompraConverter;
+        this.direccionConverter = direccionConverter;
     }
 
     public List<JsonObject> listaJsonPedido(List<Pedido> pedidos){
@@ -59,8 +63,15 @@ public class PedidoConverter {
         if (pedido.getFechaHoraEntrega() != null) {
             jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().toString());
         }
-        jsonPedido.addProperty("cliente",pedido.getCliente().getCorreo());
-        jsonPedido.addProperty("restaurante",pedido.getRestaurante().getCorreo());
+        if (pedido.getDireccion() != null){
+            jsonPedido.add("direccion",direccionConverter.jsonDireccion(pedido.getDireccion()));
+        }
+        if (pedido.getCliente() != null) {
+            jsonPedido.addProperty("cliente",pedido.getCliente().getCorreo());
+        }
+        if (pedido.getRestaurante() != null){
+            jsonPedido.addProperty("restaurante",pedido.getRestaurante().getCorreo());
+        }
         if (pedido.getReclamo() != null) {
             jsonPedido.addProperty("reclamo",pedido.getReclamo().getId());
         }

@@ -373,10 +373,10 @@ public class ClienteController {
     @GetMapping("/obtenerPedido")
     public ResponseEntity<?> obtenerPedido(
             @RequestParam(name = "id") String idPedido){
-        JsonObject pedidoResponse = new JsonObject();
+        JsonObject pedidoResponse;
         try{
             Long id = Long.valueOf(idPedido);
-            //pedidoResponse = pedidoService.buscarPedidoId(id);
+            pedidoResponse = pedidoService.buscarPedidoId(id);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
