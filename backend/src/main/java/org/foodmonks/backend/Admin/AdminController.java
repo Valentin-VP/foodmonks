@@ -13,6 +13,7 @@ import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -203,7 +204,7 @@ public class AdminController {
     ) {
         JsonArray jsonArray = new JsonArray();
         try {
-            jsonArray = adminService.listaRestaurantesPorEstado(estadoRestaurante);
+            jsonArray = adminService.listarRestaurantesPorEstado(estadoRestaurante);
         } catch(JsonIOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -226,6 +227,7 @@ public class AdminController {
     ) {
         JsonObject jsonResponse = new JsonObject();
         try{
+            estadoRestaurante = estadoRestaurante.toUpperCase();
             jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
             JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
             String comentarios = body.get("comentarios").getAsString();
@@ -236,7 +238,7 @@ public class AdminController {
             // correoRestaurante: Destinatario del Correo
             // resultadoCambioEstado: Contiene 'APROBADO' o 'RECHAZADO
             // comentariosCambioEstado: Empty si es una aprobación, de lo contrario contiene el motivo del rechazo
-        } catch(JsonIOException | EmailNoEnviadoException e) {
+        } catch(JsonIOException | EmailNoEnviadoException | RestauranteNoEncontradoException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonResponse, HttpStatus.OK);

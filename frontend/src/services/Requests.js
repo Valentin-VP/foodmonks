@@ -635,3 +635,41 @@ export const hacerPedidoEfectivo = (datos) => {
     },
   });
 };
+
+export const listarRestaurantesPorEstado = (estadoRestaurante) => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarRestaurantesPorEstado?estadoRestaurante=${estadoRestaurante}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const cambiarEstadoRestaurante = (restaurante, estadoRestaurante, mensaje) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstadoRestaurante?correoRestaurante=${restaurante}&estadoRestaurante=${estadoRestaurante}`,
+    data: mensaje,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const getMenusFromRestaurante = (restaurante) => {
+  var vacia = "";
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${restaurante}&categoria=${vacia}&precioInicial=${vacia}&precioFinal=${vacia}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+}
+
