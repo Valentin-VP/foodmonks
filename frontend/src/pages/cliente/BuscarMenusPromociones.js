@@ -132,7 +132,6 @@ export default function BuscarMenusPromociones() {
                       className="form-control"
                       onChange={handleChange}
                       id="precioFinal"
-                      required={values.precioInicial !== 0}
                       value={values.precioFinal}
                     ></input>
                     <label htmlFor="precioFinal">Precio Final</label>
