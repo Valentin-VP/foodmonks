@@ -20,6 +20,8 @@ import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
+import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
@@ -45,12 +47,14 @@ public class ClienteController {
     private final TokenHelper tokenHelp;
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
+    private final PedidoService pedidoService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService) {
+    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService, PedidoService pedidoService) {
         this.clienteService = clienteService;
         this.tokenHelp = tokenHelp;
         this.restauranteService = restauranteService;
+        this.pedidoService = pedidoService;
     }
 
     @Operation(summary = "Crea un nuevo Cliente",
@@ -356,6 +360,27 @@ public class ClienteController {
                 | PedidoSinRestauranteException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Operation(summary = "Obtiene detalles de un Pedido",
+            description = "Obtiene un Pedido con su información",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedido"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping("/obtenerPedido")
+    public ResponseEntity<?> obtenerPedido(
+            @RequestParam(name = "id") String idPedido){
+        JsonObject pedidoResponse = new JsonObject();
+        try{
+            Long id = Long.valueOf(idPedido);
+            //pedidoResponse = pedidoService.buscarPedidoId(id);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(pedidoResponse, HttpStatus.OK);
     }
 
 }
