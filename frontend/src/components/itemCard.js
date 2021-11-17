@@ -10,13 +10,19 @@ const Styles = styled.div`
     margin-right: 20px;
   }
 
-  #desc {
-    color: #c8d200;
+  itemImg {
+    #desc {
+      color: #c8d200;
+    }
   }
 
   img {
     object-fit: cover;
     border-radius: 3px 3px 0px 0px;
+    height: 200px;
+    position: relative;
+    top: 0;
+    left: 0;
   }
 
   .btn-primary {
@@ -32,6 +38,20 @@ const Styles = styled.div`
     $:active {
       background-color: black !important;
     }
+  }
+
+  #descuento {
+    color: #59eb59;
+  }
+
+  #promo {
+    position: absolute;
+    height: 6rem;
+    text-align: right;
+  }
+
+  p {
+    margin-bottom: 0;
   }
 `;
 
@@ -78,7 +98,13 @@ const ItemCard = (props) => {
   return (
     <Styles>
       <div className="card">
-        <img src={props.img} alt="productimg" height="200" />
+        <img src={props.img} id="itemImg" alt="productimg"></img>
+        {props.item.multiplicadorPromocion !== 0 ? (
+          <img
+            id="promo"
+            src="https://www.moteur.ma/media/images/other/promo_icon_fr.png"
+          ></img>
+        ) : null}
         <div className="card-body">
           <h5 className="card-title">{props.title}</h5>
           <h5 className="card-subtitle">

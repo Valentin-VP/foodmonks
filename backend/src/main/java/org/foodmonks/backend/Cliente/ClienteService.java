@@ -1,13 +1,19 @@
 package org.foodmonks.backend.Cliente;
 
+import com.google.gson.JsonObject;
+import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Direccion.DireccionRepository;
+import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
-import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
+import org.foodmonks.backend.Menu.MenuConverter;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
+import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
@@ -41,16 +47,24 @@ import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import org.foodmonks.backend.Menu.MenuRepository;
 
 @Service
 public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
+    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
@@ -58,6 +72,9 @@ public class ClienteService {
     private final RestauranteService restauranteService;
     private final MenuCompraService menuCompraService;
     private final MenuService menuService;
+    private final MenuConverter menuConverter;
+    private final MenuRepository menuRepository;
+    private final DireccionRepository direccionRepository;
     private final PedidoConverter pedidoConverter;
     private final EmailService emailService;
     private final ReclamoService reclamoService;
@@ -67,13 +84,20 @@ public class ClienteService {
                           UsuarioService usuarioService, DireccionService direccionService, 
                           ClienteConverter clienteConverter, PedidoService pedidoService, 
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
-                          MenuService menuService, PedidoConverter pedidoConverter,
+                          MenuService menuService,MenuConverter menuConverter,
+                          MenuRepository menuRepository, UsuarioRepository usuarioRepository,
+                          DireccionRepository direccionRepository, PedidoConverter pedidoConverter,
                           EmailService emailService, ReclamoService reclamoService) {
+
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
         this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
-        this.menuService = menuService; this.pedidoConverter = pedidoConverter;
+        this.menuService = menuService; this.menuConverter = menuConverter; 
+        this.menuRepository = menuRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.direccionRepository = direccionRepository;
+        this.pedidoConverter = pedidoConverter;
         this.emailService = emailService; this.reclamoService = reclamoService;
     }
 
@@ -193,6 +217,72 @@ public class ClienteService {
         return cliente;
     }
 
+    public JsonObject listarPedidosRealizados(String correo, String estadoPedido, String nombreMenu, String nombreRestaurante, String medioPago, String orden, String fecha, String total, String page, String size) throws ClienteNoEncontradoException {
+        Cliente cliente = clienteRepository.findByCorreo(correo);
+        if (cliente==null) {
+            throw new ClienteNoEncontradoException("No existe el Cliente " + correo);
+        }
+        String[] _total = (total!=null && total.contains(",")) ? total.split(",") : null;
+        String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
+        Float[] totalFinal = new Float[2];
+        LocalDateTime[] fechaFinal = new LocalDateTime[2];
+
+        MedioPago pago = null;
+        EstadoPedido estado = null;
+        int pageFinal = 0;
+        int sizeFinal = 10;
+        if (estadoPedido!= null && !estadoPedido.equals("")) {
+            try {
+                estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
+            }catch(IllegalArgumentException e){
+                estado = null;
+            }
+        }
+        if (nombreRestaurante!= null && nombreRestaurante.equals("")) {
+            nombreRestaurante = null;
+        }
+        if (nombreMenu!= null && nombreMenu.equals("")) {
+            nombreMenu = null;
+        }
+        if (medioPago!= null && !medioPago.equals("")) {
+            try{
+                pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
+            }catch(IllegalArgumentException e){
+                pago = null;
+            }
+        }
+
+        if (_total != null && _total[0] != null && _total[1] != null){
+            try{
+                totalFinal[0] = Math.abs(Float.valueOf(_total[0]));
+                totalFinal[1] = Math.abs(Float.valueOf(_total[1]));
+            }catch(NumberFormatException e){
+                totalFinal = null;
+            }
+        }else
+            totalFinal = null;
+
+        if (_fecha != null && _fecha[0] != null && _fecha[1] != null){
+            try{
+                fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+                fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+            }catch(DateTimeException e){
+                fechaFinal = null;
+            }
+        }else
+            fechaFinal = null;
+
+        try{
+            pageFinal = Integer.parseInt(page);
+            sizeFinal = Integer.parseInt(size);
+        }catch(NumberFormatException e){
+            e.printStackTrace();
+            pageFinal = 0;
+            sizeFinal = 1000;
+        }
+        return pedidoService.listaPedidosRealizados(cliente, estado, nombreMenu, nombreRestaurante, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
+    }
+
     public JsonObject obtenerJsonCliente(String correo) throws ClienteNoEncontradoException {
         Cliente cliente = obtenerCliente(correo);
         return clienteConverter.jsonCliente(cliente);
@@ -210,13 +300,59 @@ public class ClienteService {
     public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal) throws RestauranteNoEncontradoException {
 
         Restaurante restaurante = restauranteService.obtenerRestaurante(correo);
-        List<JsonObject> menus = menuService.obtenerListaMenu(restaurante);
 
-        if(!categoria.isEmpty()){
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + restaurante);
+        }
+
+        List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
+        List<Menu> resultado = new ArrayList<>();
+
+        if(!categoria.isBlank() && precioInicial == null && precioFinal == null){
             return menuService.listMenuRestauranteCategoria(restaurante,CategoriaMenu.valueOf(categoria));
         }
 
-        return menus;
+        if(!categoria.isBlank() && precioInicial != null && precioFinal != null){
+
+                CategoriaMenu categoriaMenu = CategoriaMenu.valueOf(categoria);
+
+            if (menuService.existeCategoriaMenu(restaurante,categoriaMenu)) {
+
+                for (Menu menu : menus) {
+                    if (menu.getMultiplicadorPromocion() != 0) {
+                        float precioPromo =  (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
+
+                        if(precioInicial <= precioPromo && precioFinal >= precioPromo){
+                            resultado.add(menu);
+                        }
+                    }else{
+                        if(precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()){
+                            resultado.add(menu);
+                        }
+                    }
+                }
+                return menuConverter.listaJsonMenu(resultado);
+            }
+        }
+        if(categoria.isBlank() && precioInicial != null && precioFinal != null){
+
+            for (Menu menu : menus) {
+                if (menu.getMultiplicadorPromocion() != 0) {
+                    float precioPromo =  (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
+
+                    if(precioInicial <= precioPromo && precioFinal >= precioPromo){
+                        resultado.add(menu);
+                    }
+                }else{
+                    if(precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()){
+                        resultado.add(menu);
+                    }
+                }
+            }
+            return menuConverter.listaJsonMenu(resultado);
+        }
+
+        return menuConverter.listaJsonMenu(menus);
     }
 
     public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException, MenuNoEncontradoException, MenuIdException, PedidoTotalException {

@@ -94,10 +94,10 @@ public class PedidoConverter {
     public JsonObject jsonPedidoPendientes(Pedido pedido) {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
-        jsonPedido.addProperty("direccion", pedido.getDireccion().getCalle() + " "
+        jsonPedido.addProperty("direccion", pedido.getDireccion()!=null ? (pedido.getDireccion().getCalle() + " "
                 + pedido.getDireccion().getNumero().toString() + " esq. "
                 + pedido.getDireccion().getEsquina()
-                + (pedido.getDireccion().getDetalles()!=null ? " (" + pedido.getDireccion().getDetalles()+ ")" : ""));
+                + (pedido.getDireccion().getDetalles()!=null ? " (" + pedido.getDireccion().getDetalles()+ ")" : "")) : "?");
         jsonPedido.addProperty("total", pedido.getTotal());
         jsonPedido.addProperty("medioPago", pedido.getMedioPago() == MedioPago.PAYPAL ? "PayPal" : "Efectivo");
         jsonPedido.addProperty("estadoPedido", pedido.getEstado() == EstadoPedido.DEVUELTO ? "Devuelto" :
@@ -111,10 +111,14 @@ public class PedidoConverter {
 
         if(pedido.getFechaHoraEntrega() != null) {
             jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraEntrega", "Sin Fecha");
         }
 
         if(pedido.getFechaHoraProcesado() != null) {
             jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }else{
+            jsonPedido.addProperty("fechaHoraProcesado", "Sin Fecha");
         }
 
         if (pedido.getCliente()!=null){
@@ -142,9 +146,10 @@ public class PedidoConverter {
                 jsonMenuCompra.addProperty("menu", m.getNombre());
                 jsonMenuCompra.addProperty("imagen", m.getImagen());
                 jsonMenuCompra.addProperty("precio", m.getPrice().toString());
-                jsonMenuCompra.addProperty("multiplicadorPromocion", m.getMultiplicadorPromocion()*100);
-                jsonMenuCompra.addProperty("calculado", Math.round(m.getPrice() * (1 - m.getMultiplicadorPromocion()) * 100) / 100);
-                //jsonMenuCompra.addProperty("cantidad", m.getCantidad().toString());
+                jsonMenuCompra.addProperty("multiplicadorPromocion", m.getMultiplicadorPromocion());
+                jsonMenuCompra.addProperty("precioPorCantidad", Math.round(m.getPrice() * m.getCantidad()));
+                jsonMenuCompra.addProperty("calculado", Math.round((m.getPrice() - (m.getPrice() * (m.getMultiplicadorPromocion() / 100))) * m.getCantidad()));
+                jsonMenuCompra.addProperty("cantidad", m.getCantidad().toString());
                 jsonMenus.add(jsonMenuCompra);
             }
             jsonPedido.add("menus", jsonMenus);
@@ -167,4 +172,6 @@ public class PedidoConverter {
         result.add("pedidos", jsonArray);
         return result;
     }
+
 }
+

@@ -110,7 +110,6 @@ export default function ListadoPedidosEfectivo() {
                               <Col>
                                 <tr key={item.id}>
                                   <td>ID Pedido: {item.id}</td>
-                                  <td>Nombre: {item.nombre}</td>
                                   <td>Fecha Confirmación: {item.fechaHoraProcesado}</td>
                                   <td>Fecha Entrega: {item.fechaHoraEntrega}</td>
                                   <td>Total: ${item.total}</td>

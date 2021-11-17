@@ -91,6 +91,8 @@ export const NavigationBar = () => {
                 </NavDropdown.Item>
                 {/* Esto no va acá sino en el perfil del usuario */}
                 <NavDropdown.Divider />
+                <NavDropdown.Item href="/listadoPedidos">Pedidos Realizados</NavDropdown.Item>  
+                <NavDropdown.Divider />
                 <NavDropdown.Item onClick={clearState}>
                   Cerrar Sesion <FiLogOut color="black" />
                 </NavDropdown.Item>
@@ -114,3 +116,4 @@ export const NavigationBar = () => {
     </Styles>
   );
 };
+

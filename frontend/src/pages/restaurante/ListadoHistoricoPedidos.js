@@ -24,9 +24,7 @@ const Styles = styled.div`
     border: 3px solid #fefefe;
     width: 100%;
   }
-
-  td,
-  tr {
+  td, tr {
     border: 1px solid #eee;
     padding: 6px;
     width: 8%;
@@ -34,7 +32,6 @@ const Styles = styled.div`
       background-color: #fffff5;
     }
   }
-
   #itemId {
     font-weight: lighter;
     font-size: 18px;
@@ -47,16 +44,13 @@ const Styles = styled.div`
   .col {
     padding: 1px;
   }
-
   img {
     height: 6rem;
     border-radius: 5px;
   }
-
   .text-center {
     position: relative;
   }
-
   button {
     color: white;
     background-color: #e87121;
@@ -133,22 +127,16 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
                                                   alt="productimg"
                                                   width="150"
                                                   hight="150"
-                                                />
-                                              </td>
-                                              <td>Menú: {menu.menu}</td>
-                                              <td>Precio: ${menu.precio}</td>
-                                              <td>
-                                                Descuento:{" "}
-                                                {menu.multiplicadorPromocion} %
-                                              </td>
-                                              <td>
-                                                Total Parcial: ${menu.calculado}
-                                              </td>
-                                            </tr>
-                                          </>
-                                        );
-                                      })
-                                    : null}
+                                              />
+                                          </td>
+                                          <td>Menú: {menu.menu} (x{menu.cantidad})</td>
+                                          <td>Precio Unitario: ${menu.precio}</td>
+                                          <td>Descuento: {menu.multiplicadorPromocion} %</td>
+                                          <td>Total Parcial: ${menu.precioPorCantidad}</td>
+                                          <td>Total Final: ${menu.calculado}</td>
+                                      </tr>
+                                    </>
+                                  )}) : null)}
                                 </Col>
                               )}
                             </>

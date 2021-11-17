@@ -604,6 +604,26 @@ export const fetchRestaurantesBusqueda = (datos) => {
   return response;
 };
 
+export const obtenerPedidosRealizados = (datos, fechaIni, fechaFin, page) => {
+  const fIni = fechaIni ? fechaIni.toISOString().slice(0,10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
+  const fFin = fechaFin ? fechaFin.toISOString().slice(0,10) : fIni;
+  const fecha = (fIni!==""&&fFin!=="") ? fIni + "," + fFin : "";
+  const total = (datos.minTotal!==""&&datos.maxTotal!=="") ? datos.minTotal + "," + datos.maxTotal : "";
+
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarPedidosRealizados?estadoPedido=${datos.estadoPedido}&nombreMenu=${datos.nombreMenu}&nombreRestaurante=${datos.nombreRestaurante}&medioPago=${datos.medioPago}&orden=${datos.ordenamiento}&fecha=${fecha}&total=${total}&page=${page}&size=5`,
+    data: datos,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)})
+    .catch((err)=>{checkTokens(err.config.headers.Authorization, err.config.headers.RefreshAuthentication)});
+  return response;
+};
+
 export const hacerPedidoEfectivo = (datos) => {
   return axios({
     method: "POST",
@@ -612,6 +632,29 @@ export const hacerPedidoEfectivo = (datos) => {
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const listarRestaurantesPorEstado = (estadoRestaurante) => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarRestaurantesPorEstado?estadoRestaurante=${estadoRestaurante}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const cambiarEstadoRestaurante = (restaurante, estadoRestaurante, mensaje) => {
+  return axios({
+    method: "PUT",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstadoRestaurante?correoRestaurante=${restaurante}&estadoRestaurante=${estadoRestaurante}`,
+    data: mensaje,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -626,6 +669,20 @@ export const fetchReclamos = (values) => {
     },
   });
 };
+
+export const getMenusFromRestaurante = (restaurante) => {
+  var vacia = "";
+  const response = axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${restaurante}&categoria=${vacia}&precioInicial=${vacia}&precioFinal=${vacia}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+    }
+  });
+  response.then((res) => {checkTokens(res.config.headers.Authorization, res.config.headers.RefreshAuthentication)});
+  return response;
+}
 
 export const fetchPedidoFromReclamo = (pedidoId) => {
   return axios({
