@@ -287,7 +287,7 @@ public class RestauranteService {
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
 
-    public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String montoDevolucion, String motivoDevolucion, Boolean estadoDevolucion) throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException, EmailNoEnviadoException, IOException, PedidoDevolucionException, PedidoDistintoRestauranteException {
+    public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String motivoDevolucion, Boolean estadoDevolucion) throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException, EmailNoEnviadoException, IOException, PedidoDevolucionException, PedidoDistintoRestauranteException {
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
         JsonObject response = new JsonObject();
         response.addProperty("Mensaje", "Devolucion");

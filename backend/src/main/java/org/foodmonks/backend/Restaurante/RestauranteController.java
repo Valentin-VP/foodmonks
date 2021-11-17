@@ -461,13 +461,14 @@ public class RestauranteController {
     public ResponseEntity<?> realizarDevolucion(
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "idPedido") String idPedido,
-            @RequestParam(name = "motivoDevolucion") String motivoDevolucion,
             @RequestParam(name = "estadoDevolucion") boolean estadoDevolucion,
-            @RequestParam(required = false, name = "montoDevolucion") String montoDevolucion){
+            @RequestBody String motivoDevolucion){
         JsonObject response = new JsonObject();
         try {
+            JsonObject jsonMotivoDevolucion = new Gson().fromJson(motivoDevolucion, JsonObject.class);
+            String motivo = jsonMotivoDevolucion.get("motivoDevolucion").getAsString();
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
-            response = restauranteService.realizarDevolucion(correoRestaurante, idPedido, montoDevolucion, motivoDevolucion, estadoDevolucion);
+            response = restauranteService.realizarDevolucion(correoRestaurante, idPedido, motivo, estadoDevolucion);
         } catch(Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

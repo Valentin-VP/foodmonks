@@ -64,6 +64,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/paypal/order/**").hasRole("CLIENTE")
                         .antMatchers("/api/v1/admin/listarUsuarios").hasRole("ADMIN")
                         .antMatchers("/api/v1/cliente/realizarPedido").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/restaurante/realizarDevolucion").hasRole("RESTAURANTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
                         UsernamePasswordAuthenticationFilter.class);
