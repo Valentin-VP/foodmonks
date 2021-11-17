@@ -13,6 +13,7 @@ import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.MenuConverter;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
+import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
@@ -41,6 +42,7 @@ public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
+    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
@@ -50,6 +52,7 @@ public class ClienteService {
     private final MenuService menuService;
     private final MenuConverter menuConverter;
     private final MenuRepository menuRepository;
+    private final DireccionRepository direccionRepository;
 
     @Autowired
     public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
@@ -57,12 +60,16 @@ public class ClienteService {
                           ClienteConverter clienteConverter, PedidoService pedidoService, 
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
                           MenuService menuService,MenuConverter menuConverter,
-                          MenuRepository menuRepository) {
+                          MenuRepository menuRepository, UsuarioRepository usuarioRepository,
+                          DireccionRepository direccionRepository) {
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
         this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
-        this.menuService = menuService; this.menuConverter = menuConverter; this.menuRepository = menuRepository;
+        this.menuService = menuService; this.menuConverter = menuConverter; 
+        this.menuRepository = menuRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.direccionRepository = direccionRepository;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
