@@ -327,7 +327,7 @@ public class RestauranteService {
                 context.setVariable("mensaje", "Te hemos realizado una devolucion de $" + pedido.getTotal() + " en tu cuenta de Paypal.");
                 htmlContent = templateEngine.process("reclamo-aceptado-paypal", context);
             }
-            emailService.enviarMail(pedido.getCliente().getCorreo(), "Reclamo aceptado", htmlContent,cc);
+            emailService.enviarMail(pedido.getCliente().getCorreo(), "Reclamo aceptado :" + pedido.getReclamo().getRazon(), htmlContent,cc);
             pedidoService.cambiarEstadoPedido(pedido.getId(),EstadoPedido.DEVUELTO);
         } else {
             if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
@@ -342,7 +342,7 @@ public class RestauranteService {
                 context.setVariable("motivo",motivoDevolucion);
                 htmlContent = templateEngine.process("reclamo-rechazado-efectivo", context);
             }
-            emailService.enviarMail(pedido.getCliente().getCorreo(), "Reclamo rechazado", htmlContent,cc);
+            emailService.enviarMail(pedido.getCliente().getCorreo(), "Reclamo rechazo: " + pedido.getReclamo().getRazon(), htmlContent,cc);
             response.addProperty("status","Mail de rechazo enviado");
             pedidoService.cambiarEstadoPedido(pedido.getId(),EstadoPedido.RECLAMORECHAZADO);
         }
