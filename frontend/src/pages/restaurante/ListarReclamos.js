@@ -24,12 +24,11 @@ const StyledModal = Modal.styled`
     margin-left: 5px;
   }
   #inputRechazar {
-    type="text"
+    margin-bottom: 10px;
+    width: 100%;
+    height: 150px;
     border-radius: 5px;
-  }
-  #inputAceptar {
-    type="text"
-    border-radius: 5px;
+    resize: none;
   }
 `;
 
@@ -48,6 +47,7 @@ function ListarReclamos({ reclamos }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAceptar, setIsAceptar] = useState(false);
   const [isRechazar, setIsRechazar] = useState(false);
+  const [comentario, setComentario] = useState();
 
   const toggleModal = (e) => {
     setIsOpen(!isOpen);
@@ -77,9 +77,19 @@ function ListarReclamos({ reclamos }) {
       });
   };
 
-  const aceptarReclamo = () => {};
+  const handleChangeRechazar = (e) => {
+    e.persist();
+    setComentario(e.target.value);
+  };
 
-  const rechazarReclamo = () => {};
+  const aceptarReclamo = (precio) => {
+    console.log(precio);
+  };
+
+  const rechazarReclamo = (precio) => {
+    console.log(precio);
+    console.log(comentario);
+  };
 
   return (
     <>
@@ -120,7 +130,10 @@ function ListarReclamos({ reclamos }) {
                             <button
                               className="btn btn-sm btn-secondary"
                               type="button"
-                              onClick={(e) => toggleModalAceptar()}
+                              onClick={(e) => {
+                                obtenerPedido(reclamo.pedidoId);
+                                toggleModalAceptar();
+                              }}
                             >
                               ACEPTAR RECLAMO
                             </button>
@@ -132,7 +145,10 @@ function ListarReclamos({ reclamos }) {
                             <button
                               className="btn btn-sm btn-secondary"
                               type="button"
-                              onClick={(e) => toggleModalRechazar()}
+                              onClick={(e) => {
+                                obtenerPedido(reclamo.pedidoId);
+                                toggleModalRechazar();
+                              }}
                             >
                               RECHAZAR RECLAMO
                             </button>
@@ -173,17 +189,19 @@ function ListarReclamos({ reclamos }) {
             onBackgroundClick={toggleModalAceptar}
             onEscapeKeydown={toggleModalAceptar}
           >
-            <h2>Aceptar Reclamo</h2>
+            <h2>Aceptar Reclamo {pedido.id}</h2>
             <hr />
             <div className="cuerpo">
-              <input id="inputAceptar" />
-              {/* input para mensaje del restaurante*/}
+              {/*<textarea id="inputAceptar" />*/}
+              <span>
+                ¿Seguro que desea aceptar el reclamo y realizar la devolución?
+              </span>
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={aceptarReclamo}>
+              <Button variant="danger" onClick={aceptarReclamo(pedido.price)}>
                 Aceptar
               </Button>
-              <Button variant="secondary" onClick={toggleModal}>
+              <Button variant="secondary" onClick={toggleModalAceptar}>
                 Cancelar
               </Button>
             </div>
@@ -193,17 +211,16 @@ function ListarReclamos({ reclamos }) {
             onBackgroundClick={toggleModalRechazar}
             onEscapeKeydown={toggleModalRechazar}
           >
-            <h2>Rechazar Reclamo</h2>
+            <h2>Rechazar Reclamo {pedido.id}</h2>
             <hr />
             <div className="cuerpo">
-              <input id="inputRechazar" />
-              {/* input para mensaje del restaurante*/}
+              <textarea id="inputRechazar" onChange={handleChangeRechazar} />
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={rechazarReclamo}>
+              <Button variant="danger" onClick={rechazarReclamo(pedido.price)}>
                 Rechazar
               </Button>
-              <Button variant="secondary" onClick={toggleModal}>
+              <Button variant="secondary" onClick={toggleModalRechazar}>
                 Cancelar
               </Button>
             </div>
