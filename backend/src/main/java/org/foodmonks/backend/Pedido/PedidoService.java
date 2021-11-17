@@ -14,21 +14,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import com.google.gson.JsonObject;
-import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.MedioPago;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 
@@ -191,11 +181,6 @@ public class PedidoService {
 
     public boolean existePedidoRestaurante (Long idPedido, Restaurante restaurante) {
         return pedidoRepository.existsPedidoByIdAndRestaurante(idPedido,restaurante); }
-
-    public Pedido buscarPedidoId (Long idPedido) {
-        Pedido pedido = pedidoRepository.findPedidoById(idPedido);
-        return pedido;
-    }
 
     public void cambiarEstadoPedido(Long idPedido, EstadoPedido estadoPedido){
         Pedido pedido = pedidoRepository.findPedidoById(idPedido);

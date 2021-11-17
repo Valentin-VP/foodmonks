@@ -185,7 +185,7 @@ public class RestauranteService {
         if (!pedidoService.existePedidoRestaurante(idPedido,restaurante)){
             throw new RestauranteNoEncontradoException("No existe el pedido con id " + idPedido + " para el Restaurante " + correo);
         }
-        Pedido pedido = pedidoService.buscarPedidoId(idPedido);
+        Pedido pedido = pedidoService.obtenerPedido(idPedido);
 
         if (estado.equals("CONFIRMADO")){
             pedidoService.cambiarFechasEntregaProcesado(idPedido, minutos);
