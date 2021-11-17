@@ -64,7 +64,7 @@ const Styles = styled.div`
     margin-bottom: 13px;
   }
 
-  #descripcion {
+  #comentario {
     margin-bottom: 10px;
     width: 100%;
     height: 150px;
@@ -72,7 +72,7 @@ const Styles = styled.div`
     resize: none;
   }
 
-  #asunto {
+  #razon {
     border-radius: 5px;
     resize: none;
   }
@@ -106,7 +106,7 @@ function Reclamo() {
         console.log(response);
         sessionStorage.removeItem("pedidoId");
         setTimeout(() => {
-          window.location.replace("/listarPedidos"); //o como se llame el listar pedidos realizados de un cliente
+          window.location.replace("/listadoPedidos"); //o como se llame el listar pedidos realizados de un cliente
         }, 3000);
       })
       .catch((error) => {
@@ -125,24 +125,24 @@ function Reclamo() {
           <h4> Reclamo </h4>
           <Form onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="floatingInput"> Asunto </label>
+              <label htmlFor="floatingInput"> Razon </label>
               <input
                 className="form-control"
                 type="text"
-                name="asunto"
-                id="asunto"
+                name="razon"
+                id="razon"
                 onChange={handleChange}
                 required
               />
             </div>
             <br />
             <div>
-              <label htmlFor="floatingInput"> Descripcion </label>
+              <label htmlFor="floatingInput"> Comentario </label>
               <textarea
                 className="form-control"
                 type="text"
-                name="descripcion"
-                id="descripcion"
+                name="comentario"
+                id="comentario"
                 onChange={handleChange}
                 required
               />

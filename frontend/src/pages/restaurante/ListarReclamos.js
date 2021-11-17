@@ -6,6 +6,11 @@ import { Noti } from "../../components/Notification";
 import { Button } from "react-bootstrap";
 
 const StyledModal = Modal.styled`
+  * {
+    margin: 0;
+    box-sizing: border-box;
+  }
+
   border-radius: 5px;
   padding: 1.5%;
   width: 25%;
@@ -33,6 +38,11 @@ const StyledModal = Modal.styled`
 `;
 
 const Styles = styled.div`
+  * {
+    margin: 0;
+    box-sizing: border-box;
+  }
+
   h1 {
     text-align: center;
   }
@@ -82,12 +92,12 @@ function ListarReclamos({ reclamos }) {
     setComentario(e.target.value);
   };
 
-  const aceptarReclamo = (precio) => {
-    console.log(precio);
+  const aceptarReclamo = () => {
+    console.log("aceptar");
   };
 
-  const rechazarReclamo = (precio) => {
-    console.log(precio);
+  const rechazarReclamo = () => {
+    console.log("rechazar");
     console.log(comentario);
   };
 
@@ -116,7 +126,7 @@ function ListarReclamos({ reclamos }) {
                               className="btn btn-sm btn-secondary"
                               type="button"
                               onClick={(e) => {
-                                obtenerPedido(reclamo.pedidoId);
+                                obtenerPedido(reclamo.idPedido);
                                 toggleModal();
                               }}
                             >
@@ -131,7 +141,7 @@ function ListarReclamos({ reclamos }) {
                               className="btn btn-sm btn-secondary"
                               type="button"
                               onClick={(e) => {
-                                obtenerPedido(reclamo.pedidoId);
+                                obtenerPedido(reclamo.idPedido);
                                 toggleModalAceptar();
                               }}
                             >
@@ -146,7 +156,7 @@ function ListarReclamos({ reclamos }) {
                               className="btn btn-sm btn-secondary"
                               type="button"
                               onClick={(e) => {
-                                obtenerPedido(reclamo.pedidoId);
+                                obtenerPedido(reclamo.idPedido);
                                 toggleModalRechazar();
                               }}
                             >
@@ -168,14 +178,15 @@ function ListarReclamos({ reclamos }) {
               isOpen={isOpen}
               onBackgroundClick={toggleModal}
               onEscapeKeydown={toggleModal}
+              pedido={pedido}
             >
               <h2>Información Pedido</h2>
               <hr />
               <div className="cuerpo">
-                <p>Precio: {pedido.precio}</p>
-                <p>Descripcion: {pedido.descripcion}</p>
-                <p>Cantidad: {pedido.cantidad}</p>
-                <p>Categoria: {pedido.categoria}</p>
+                <p>Precio: {pedido.total}$</p>
+                <p>Medio de Pago: {pedido.medioPago}</p>
+                <p>Restaurante: {pedido.nombreRestaurante}</p>
+                <p>Cliente: {pedido.nombreApellidoCliente}</p>
               </div>
               <div className="abajo">
                 <Button variant="secondary" onClick={toggleModal}>
@@ -189,16 +200,15 @@ function ListarReclamos({ reclamos }) {
             onBackgroundClick={toggleModalAceptar}
             onEscapeKeydown={toggleModalAceptar}
           >
-            <h2>Aceptar Reclamo {pedido.id}</h2>
+            <h2>Aceptar Reclamo</h2>
             <hr />
             <div className="cuerpo">
-              {/*<textarea id="inputAceptar" />*/}
               <span>
                 ¿Seguro que desea aceptar el reclamo y realizar la devolución?
               </span>
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={aceptarReclamo(pedido.price)}>
+              <Button variant="danger" onClick={aceptarReclamo}>
                 Aceptar
               </Button>
               <Button variant="secondary" onClick={toggleModalAceptar}>
@@ -211,13 +221,15 @@ function ListarReclamos({ reclamos }) {
             onBackgroundClick={toggleModalRechazar}
             onEscapeKeydown={toggleModalRechazar}
           >
-            <h2>Rechazar Reclamo {pedido.id}</h2>
+            <h2>Rechazar Reclamo</h2>
             <hr />
             <div className="cuerpo">
+              <br />
+              <span> ¿Cual es la razon de el rechazo? </span>
               <textarea id="inputRechazar" onChange={handleChangeRechazar} />
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={rechazarReclamo(pedido.price)}>
+              <Button variant="danger" onClick={rechazarReclamo}>
                 Rechazar
               </Button>
               <Button variant="secondary" onClick={toggleModalRechazar}>

@@ -24,7 +24,8 @@ const Styles = styled.div`
     border: 3px solid #fefefe;
     width: 100%;
   }
-  td, tr {
+  td,
+  tr {
     border: 1px solid #eee;
     padding: 6px;
     width: 8%;
@@ -127,16 +128,31 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
                                                   alt="productimg"
                                                   width="150"
                                                   hight="150"
-                                              />
-                                          </td>
-                                          <td>Menú: {menu.menu} (x{menu.cantidad})</td>
-                                          <td>Precio Unitario: ${menu.precio}</td>
-                                          <td>Descuento: {menu.multiplicadorPromocion} %</td>
-                                          <td>Total Parcial: ${menu.precioPorCantidad}</td>
-                                          <td>Total Final: ${menu.calculado}</td>
-                                      </tr>
-                                    </>
-                                  )}) : null)}
+                                                />
+                                              </td>
+                                              <td>
+                                                Menú: {menu.menu} (x
+                                                {menu.cantidad})
+                                              </td>
+                                              <td>
+                                                Precio Unitario: ${menu.precio}
+                                              </td>
+                                              <td>
+                                                Descuento:{" "}
+                                                {menu.multiplicadorPromocion} %
+                                              </td>
+                                              <td>
+                                                Total Parcial: $
+                                                {menu.precioPorCantidad}
+                                              </td>
+                                              <td>
+                                                Total Final: ${menu.calculado}
+                                              </td>
+                                            </tr>
+                                          </>
+                                        );
+                                      })
+                                    : null}
                                 </Col>
                               )}
                             </>

@@ -40,7 +40,7 @@ const Styles = styled.div`
     }
   }
 
-  #descuento {
+  #desc {
     color: #59eb59;
   }
 
@@ -100,6 +100,7 @@ const ItemCard = (props) => {
       <div className="card">
         <img src={props.img} id="itemImg" alt="productimg"></img>
         {props.item.multiplicadorPromocion !== 0 ? (
+          // eslint-disable-next-line jsx-a11y/alt-text
           <img
             id="promo"
             src="https://www.moteur.ma/media/images/other/promo_icon_fr.png"
@@ -112,8 +113,8 @@ const ItemCard = (props) => {
             {props.price -
               props.price * (props.item.multiplicadorPromocion / 100)}
           </h5>
-          {props.desc === undefined ? (
-            <p />
+          {props.desc === 0 ? (
+            <p ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ />
           ) : (
             <p id="desc" className="card-text">
               {props.desc} %

@@ -234,7 +234,7 @@ public class PedidoService {
         return pedido;
     }
 
-    public JsonObject buscarPedidoId(Long id) throws PedidoNoExisteException {
+    public JsonObject buscarPedidoById(Long id) throws PedidoNoExisteException {
         return pedidoConverter.jsonPedido(obtenerPedido(id));
     }
 

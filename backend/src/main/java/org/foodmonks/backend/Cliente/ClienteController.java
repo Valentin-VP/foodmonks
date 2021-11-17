@@ -402,25 +402,4 @@ public class ClienteController {
         }
     }
 
-    @Operation(summary = "Obtiene detalles de un Pedido",
-            description = "Obtiene un Pedido con su información",
-            security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedido"})
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
-            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
-    })
-    @GetMapping("/obtenerPedido")
-    public ResponseEntity<?> obtenerPedido(
-            @RequestParam(name = "id") String idPedido){
-        JsonObject pedidoResponse;
-        try{
-            Long id = Long.valueOf(idPedido);
-            pedidoResponse = pedidoService.buscarPedidoId(id);
-        }catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(pedidoResponse, HttpStatus.OK);
-    }
-
 }
