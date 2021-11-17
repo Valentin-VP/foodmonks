@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Direccion.DireccionConverter;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
+import org.foodmonks.backend.Reclamo.ReclamoConverter;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.foodmonks.backend.MenuCompra.MenuCompraConverter;
@@ -19,12 +20,15 @@ public class PedidoConverter {
 
     private final MenuCompraConverter menuCompraConverter;
     private final DireccionConverter direccionConverter;
+    private final ReclamoConverter reclamoConverter;
 
     @Autowired
     public PedidoConverter (MenuCompraConverter menuCompraConverter,
-                            DireccionConverter direccionConverter){
+                            DireccionConverter direccionConverter,
+                            ReclamoConverter reclamoConverter){
         this.menuCompraConverter = menuCompraConverter;
         this.direccionConverter = direccionConverter;
+        this.reclamoConverter = reclamoConverter;
     }
 
     public List<JsonObject> listaJsonPedido(List<Pedido> pedidos){
@@ -47,33 +51,30 @@ public class PedidoConverter {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
         jsonPedido.addProperty("estado", pedido.getEstado().name());
-        if (pedido.getCalificacionCliente() != null){
-            jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente().getPuntaje());
-            jsonPedido.addProperty("comentarioCliente", pedido.getCalificacionCliente().getComentario());
-        }
-        if (pedido.getCalificacionRestaurante() != null){
-            jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante().getPuntaje());
-            jsonPedido.addProperty("comentarioRestaurante", pedido.getCalificacionRestaurante().getComentario());
-        }
-        if (pedido.getFechaHoraProcesado() != null) {
-            jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().toString());
-        }
+        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getPuntaje().toString() : "");
+        jsonPedido.addProperty("comentarioCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getComentario() : "");
+        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "");
+        jsonPedido.addProperty("comentarioRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getComentario() : "");
+        jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraEntrega() != null ? pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
         jsonPedido.addProperty("total", pedido.getTotal());
         jsonPedido.addProperty("medioPago", pedido.getMedioPago().name());
-        if (pedido.getFechaHoraEntrega() != null) {
-            jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().toString());
-        }
+        jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega() != null ? pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
         if (pedido.getDireccion() != null){
-            jsonPedido.add("direccion",direccionConverter.jsonDireccion(pedido.getDireccion()));
+            jsonPedido.add("direccion", direccionConverter.jsonDireccion(pedido.getDireccion()));
+        } else {
+            jsonPedido.addProperty("direccion","");
         }
-        if (pedido.getCliente() != null) {
-            jsonPedido.addProperty("cliente",pedido.getCliente().getCorreo());
-        }
+        jsonPedido.addProperty("nombreApellidoCliente", pedido.getCliente() != null ? pedido.getCliente().getNombre() + " " + pedido.getCliente().getApellido() : "");
         if (pedido.getRestaurante() != null){
-            jsonPedido.addProperty("restaurante",pedido.getRestaurante().getCorreo());
+            jsonPedido.addProperty("nombreRestaurante", pedido.getRestaurante().getNombreRestaurante());
+            jsonPedido.addProperty("imagenRestaurante", pedido.getRestaurante().getImagen());
+        } else {
+            jsonPedido.addProperty("restaurante","");
         }
         if (pedido.getReclamo() != null) {
-            jsonPedido.addProperty("reclamo",pedido.getReclamo().getId());
+            jsonPedido.add("reclamo", reclamoConverter.jsonReclamo(pedido.getReclamo()));
+        } else {
+            jsonPedido.addProperty("reclamo","");
         }
         JsonArray jsonMenus = menuCompraConverter.arrayJsonMenuCompra(pedido.getMenusCompra());
         jsonPedido.add("menus",jsonMenus);
