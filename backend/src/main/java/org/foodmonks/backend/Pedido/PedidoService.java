@@ -2,10 +2,9 @@ package org.foodmonks.backend.Pedido;
 
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Cliente;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.datatypes.CriterioQuery;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.MedioPago;
+import org.foodmonks.backend.datatypes.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,21 +13,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import com.google.gson.JsonObject;
-import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
-import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.datatypes.DtOrdenPaypal;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.MedioPago;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -221,6 +210,40 @@ public class PedidoService {
         pedido.setMenusCompra(menus);
         pedidoRepository.save(pedido);
         return pedidoConverter.jsonPedido(pedido);
+    }
+
+    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
+        Pedido pedido = pedidoRepository.findPedidoById(id);
+        if (pedido == null) {
+            throw new PedidoNoExisteException("No existe pedido con id " + id);
+        }
+        return pedido;
+    }
+
+    public void calificarRestaurante(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
+        Pedido pedido = obtenerPedido(idPedido);
+        pedido.setCalificacionRestaurante(calificacion);
+        Restaurante restaurante = pedido.getRestaurante();
+        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCalificacion() + calificacion.getPuntaje())/(restaurante.getCalificacion() + 1));
+        restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() + 1);
+        pedidoRepository.save(pedido);
+    }
+
+    public void modificarCalificacionRestaurante(Long idPedido, DtCalificacion calificacionAnterior, DtCalificacion calificacionNueva) throws PedidoNoExisteException {
+        Pedido pedido = obtenerPedido(idPedido);
+        pedido.setCalificacionRestaurante(calificacionNueva);
+        Restaurante restaurante = pedido.getRestaurante();
+        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacionAnterior.getPuntaje() + calificacionNueva.getPuntaje()) / restaurante.getCantidadCalificaciones());
+        pedidoRepository.save(pedido);
+    }
+
+    public void eliminarCalificacionRestaurante(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
+        Pedido pedido = obtenerPedido(idPedido);
+        pedido.setCalificacionRestaurante(null);
+        Restaurante restaurante = pedido.getRestaurante();
+        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacion.getPuntaje()) / (restaurante.getCantidadCalificaciones()) - 1);
+        restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() - 1);
+        pedidoRepository.save(pedido);
     }
 
 }

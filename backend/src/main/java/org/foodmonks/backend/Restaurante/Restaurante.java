@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class Restaurante extends Usuario {
 
     private Float calificacion;
+    private Integer cantidadCalificaciones;
     private String nombreRestaurante;
     private Integer rut;
     @OneToOne(cascade=CascadeType.ALL)

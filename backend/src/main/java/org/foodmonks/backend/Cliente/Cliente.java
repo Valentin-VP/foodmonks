@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class Cliente extends Usuario {
 
     private Float calificacion;
+    private Integer cantidadCalificaciones;
     @ManyToMany(cascade=CascadeType.ALL)
     private List<Direccion> direcciones = new ArrayList<>();
     @Enumerated(value = EnumType.STRING)
