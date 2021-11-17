@@ -13,6 +13,7 @@ import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
+import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
