@@ -175,16 +175,14 @@ function ListadoMenusPromociones() {
                 <ItemCard
                   img={item.imagen}
                   title={item.nombre}
-                  desc={item.multiplicador}
+                  desc={item.multiplicadorPromocion}
                   price={item.price}
                   item={item}
                 />
               </div>
             );
           })}
-
           {loading && more && <Loading />}
-
           {!loading && more && <div ref={setElement} id="scroll"></div>}
         </div>
       </Layout>

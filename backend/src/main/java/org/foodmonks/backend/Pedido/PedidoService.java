@@ -30,6 +30,7 @@ import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 
 @Service
 public class PedidoService {
@@ -223,6 +224,18 @@ public class PedidoService {
         pedido.setMenusCompra(menus);
         pedidoRepository.save(pedido);
         return pedidoConverter.jsonPedido(pedido);
+    }
+    
+    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
+        Pedido pedido = pedidoRepository.findPedidoById(id);
+        if (pedido == null) {
+            throw new PedidoNoExisteException("No existe pedido con id " + id);
+        }
+        return pedido;
+    }
+
+    public JsonObject buscarPedidoId(Long id) throws PedidoNoExisteException {
+        return pedidoConverter.jsonPedido(obtenerPedido(id));
     }
 
 }

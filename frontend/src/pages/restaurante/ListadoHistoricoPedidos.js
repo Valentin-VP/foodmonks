@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Col } from "react-bootstrap";
 
 const Styles = styled.div`
-  .lista{
+  .lista {
     padding-top: 35px;
   }
   .form-floating {
@@ -17,31 +17,31 @@ const Styles = styled.div`
     font-family: "Poppins", sans-serif;
   }
   table {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     text-align: center;
     font-family: "Poppins", sans-serif;
     border-collapse: collapse;
-    border: 3px solid #FEFEFE;
+    border: 3px solid #fefefe;
     width: 100%;
   }
   td, tr {
     border: 1px solid #eee;
     padding: 6px;
     width: 8%;
-    &:hover{
-      background-color: #FFFFF5;
+    &:hover {
+      background-color: #fffff5;
     }
   }
   #itemId {
     font-weight: lighter;
     font-size: 18px;
-    &:hover{
-      background-color: #FFFFF1;
+    &:hover {
+      background-color: #fffff1;
     }
   }
 
-  .row, .col{
-    
+  .row,
+  .col {
     padding: 1px;
   }
   img {
@@ -68,9 +68,9 @@ const Styles = styled.div`
   }
 `;
 
-export default function ListadoHistoricoPedidos({datos, onVisible}) {
-
-    return (
+export default function ListadoHistoricoPedidos({ datos, onVisible }) {
+  console.log(datos);
+  return (
     <>
       <Styles>
         <div className="container-lg">
@@ -78,9 +78,10 @@ export default function ListadoHistoricoPedidos({datos, onVisible}) {
             <h1 className="text-center h5 mb-3 fw-normal">Pedidos Recibidos</h1>
             <div className="form-floating">
               <div className="table-responsive justify-content-center">
-                    <table className="table table-hover">
-                    <tbody>
-                      {datos.pedidos ? datos.pedidos.map((item) => {
+                <table className="table table-hover">
+                  <tbody>
+                    {datos.pedidos
+                      ? datos.pedidos.map((item) => {
                           return (
                             <>
                               <Col>
@@ -90,22 +91,38 @@ export default function ListadoHistoricoPedidos({datos, onVisible}) {
                                   <td>Cliente: {item.nombreApellidoCliente}</td>
                                   <td>Medio de Pago: {item.medioPago}</td>
                                   <td>Estado: {item.estadoPedido}</td>
-                                  <td>Fecha Entrega: {item.fechaHoraEntrega}</td>
-                                  <td>Calificación: {item.calificacionRestaurante!=="" ? item.calificacionRestaurante : "Sin Calificar"}</td>
+                                  <td>
+                                    Fecha Entrega: {item.fechaHoraEntrega}
+                                  </td>
+                                  <td>
+                                    Calificación:{" "}
+                                    {item.calificacionRestaurante !== ""
+                                      ? item.calificacionRestaurante
+                                      : "Sin Calificar"}
+                                  </td>
                                   <td>Total: ${item.total}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(onVisible(item.id))}>
-                                    +
-                                  </button>}</td>
+                                  <td>
+                                    {
+                                      <button
+                                        className="btn btn-sm btn-secondary"
+                                        type="button"
+                                        onClick={(e) => onVisible(item.id)}
+                                      >
+                                        +
+                                      </button>
+                                    }
+                                  </td>
                                 </tr>
                               </Col>
-                              {item.visible && 
+                              {item.visible && (
                                 <Col>
-                                  {(item.menus ? item.menus.map((menu, menuindex) => {
-                                  return (
-                                    <>
-                                      <tr key={menuindex}>
-                                          <td>
-                                              <img
+                                  {item.menus
+                                    ? item.menus.map((menu, menuindex) => {
+                                        return (
+                                          <>
+                                            <tr key={menuindex}>
+                                              <td>
+                                                <img
                                                   src={menu.imagen}
                                                   alt="productimg"
                                                   width="150"
@@ -121,16 +138,18 @@ export default function ListadoHistoricoPedidos({datos, onVisible}) {
                                     </>
                                   )}) : null)}
                                 </Col>
-                              }
+                              )}
                             </>
-                        )}) : null}
-                    </tbody>
-                    </table>
+                          );
+                        })
+                      : null}
+                  </tbody>
+                </table>
               </div>
             </div>
           </main>
         </div>
       </Styles>
     </>
-    )
+  );
 }

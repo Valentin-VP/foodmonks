@@ -11,6 +11,12 @@ const Styles = styled.div`
   }
 
   itemImg {
+    #desc {
+      color: #c8d200;
+    }
+  }
+
+  img {
     object-fit: cover;
     border-radius: 3px 3px 0px 0px;
     height: 200px;
@@ -57,12 +63,12 @@ const ItemCard = (props) => {
       sessionStorage.setItem("restauranteCart", item.restaurante);
       console.log(item.price);
       item.price =
-        item.price - item.price * (item.multiplicadorPromocion / 100);
+        props.price - props.price * (props.item.multiplicadorPromocion / 100);
       console.log(item.price);
       addItem(item);
     } else if (sessionStorage.getItem("restauranteCart") === item.restaurante) {
       item.price =
-        item.price - item.price * (item.multiplicadorPromocion / 100);
+        props.price - props.price * (props.item.multiplicadorPromocion / 100);
       addItem(item);
     } else {
       NotiError("Ya estas comprando en otro restaurante");
@@ -102,14 +108,16 @@ const ItemCard = (props) => {
         <div className="card-body">
           <h5 className="card-title">{props.title}</h5>
           <h5 className="card-subtitle">
-            $
+            ${" "}
             {props.price -
               props.price * (props.item.multiplicadorPromocion / 100)}
           </h5>
-          {props.item.multiplicadorPromocion !== 0 ? (
-            <p id="descuento">-{props.item.multiplicadorPromocion} %</p>
+          {props.desc === undefined ? (
+            <p />
           ) : (
-            <p>ㅤ</p>
+            <p id="desc" className="card-text">
+              {props.desc} %
+            </p>
           )}
           {items.find((item) => item.id === props.item.id) === undefined ? (
             <Button

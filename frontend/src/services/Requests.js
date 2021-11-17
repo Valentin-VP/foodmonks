@@ -659,6 +659,17 @@ export const cambiarEstadoRestaurante = (restaurante, estadoRestaurante, mensaje
   });
 };
 
+export const fetchReclamos = (values) => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarReclamos?orden=${values.ordenar}&cliente=${values.cliente}&razon=${values.razon}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
 export const getMenusFromRestaurante = (restaurante) => {
   var vacia = "";
   const response = axios({
@@ -673,3 +684,25 @@ export const getMenusFromRestaurante = (restaurante) => {
   return response;
 }
 
+export const fetchPedidoFromReclamo = (pedidoId) => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/obtenerPedido?pedidoId=${pedidoId}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const realizarReclamo = (reclamo) => {
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/agregarReclamo`,
+    data: reclamo,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};

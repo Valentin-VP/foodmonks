@@ -14,16 +14,31 @@ import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.MenuConverter;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.EmailService.EmailService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Pedido.PedidoConverter;
+import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
+import org.foodmonks.backend.Reclamo.ReclamoService;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.MenuCompra.MenuCompraService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoCliente;
@@ -60,6 +75,9 @@ public class ClienteService {
     private final MenuConverter menuConverter;
     private final MenuRepository menuRepository;
     private final DireccionRepository direccionRepository;
+    private final PedidoConverter pedidoConverter;
+    private final EmailService emailService;
+    private final ReclamoService reclamoService;
 
     @Autowired
     public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
@@ -68,7 +86,9 @@ public class ClienteService {
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
                           MenuService menuService,MenuConverter menuConverter,
                           MenuRepository menuRepository, UsuarioRepository usuarioRepository,
-                          DireccionRepository direccionRepository) {
+                          DireccionRepository direccionRepository, PedidoConverter pedidoConverter,
+                          EmailService emailService, ReclamoService reclamoService) {
+
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
@@ -77,6 +97,8 @@ public class ClienteService {
         this.menuRepository = menuRepository;
         this.usuarioRepository = usuarioRepository;
         this.direccionRepository = direccionRepository;
+        this.pedidoConverter = pedidoConverter;
+        this.emailService = emailService; this.reclamoService = reclamoService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -378,4 +400,39 @@ public class ClienteService {
             throw new PedidoTotalException("El total no esta en formato de numero real");
         }
     }
+    public JsonArray listaPedidos(String correo) throws ClienteNoEncontradoException {
+        Cliente cliente = obtenerCliente(correo);
+        return pedidoConverter.arrayJsonPedido(cliente.getPedidos());
+    }
+
+    public JsonObject agregarReclamo(String correo, JsonObject jsonReclamo) throws PedidoNoExisteException, EmailNoEnviadoException,
+            PedidoIdException, ReclamoComentarioException, ReclamoRazonException, ReclamoNoFinalizadoException, ReclamoExisteException, ClienteNoEncontradoException, ClientePedidoNoCoincideException, PedidoSinRestauranteException {
+        verificarJsonReclamo(jsonReclamo);
+        Cliente cliente = obtenerCliente(correo);
+        Pedido pedido = pedidoService.obtenerPedido(jsonReclamo.get("pedidoId").getAsLong());
+        if (pedido.getCliente() == null) {
+            throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
+        }
+        if (!cliente.getCorreo().equals(pedido.getCliente().getCorreo())){
+            throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
+        }
+        JsonObject reclamo = reclamoService.crearReclamo(jsonReclamo.get("razon").getAsString(),jsonReclamo.get("comentario").getAsString(), LocalDateTime.now(),pedido);
+        String[] cc = new String[1];
+        cc[0] = pedido.getCliente().getCorreo();
+        emailService.enviarMail(pedido.getRestaurante().getCorreo(),jsonReclamo.get("razon").getAsString(),jsonReclamo.get("comentario").getAsString(),cc);
+        return reclamo;
+    }
+
+    public void verificarJsonReclamo (JsonObject jsonReclamo) throws PedidoIdException, ReclamoRazonException, ReclamoComentarioException {
+        if (!jsonReclamo.get("pedidoId").getAsString().matches("[0-9]*") || jsonReclamo.get("pedidoId").getAsString().isBlank()){
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        if (jsonReclamo.get("razon").getAsString().isBlank()){
+            throw new ReclamoRazonException("La razon del reclamo no puede ser vacia");
+        }
+        if (jsonReclamo.get("comentario").getAsString().isBlank()){
+            throw new ReclamoComentarioException("El comentario del reclamo no puede ser vacio");
+        }
+    }
+
 }
