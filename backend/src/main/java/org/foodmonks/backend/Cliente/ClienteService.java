@@ -415,11 +415,11 @@ public class ClienteService {
         Context context = new Context();
         context.setVariable("user", pedido.getRestaurante().getNombreRestaurante());
         context.setVariable("pedido","Identificador pedido: #" + pedido.getId());
-        context.setVariable("correoCliente", "Mail de cliente: " + correo);
-        context.setVariable("fecha", "Fecha del reclamo: " + reclamo.get("fecha"));
+        context.setVariable("correoCliente", "Mail del cliente: " + correo);
+        context.setVariable("fecha", "Fecha del reclamo: " + LocalDateTime.now().format((DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"))));
         context.setVariable("contenido",jsonReclamo.get("comentario").getAsString());
         String htmlContent = templateEngine.process("reclamo", context);
-        emailService.enviarMail(pedido.getRestaurante().getCorreo(),jsonReclamo.get("razon").getAsString(),htmlContent,cc);
+        emailService.enviarMail(pedido.getRestaurante().getCorreo(),"Reclamo : " + jsonReclamo.get("razon").getAsString(),htmlContent,cc);
         return reclamo;
     }
 
