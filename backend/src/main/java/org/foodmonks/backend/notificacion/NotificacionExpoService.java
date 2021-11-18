@@ -75,14 +75,6 @@ public class NotificacionExpoService {
                         errorTicketMessagesString
         );
 
-        // Countdown 30s ************** PARA ELIMINAR *********************************
-        int wait = 30;
-        for (int i = wait; i >= 0; i--) {
-            System.out.print("Waiting for " + wait + " seconds. " + i + "s\r");
-            Thread.sleep(1000);
-        }
-        // **************************** PARA ELIMINAR *********************************
-
         System.out.println("Fetching reciepts...");
 
         List<String> ticketIds = (client.getTicketIdsFromPairs(okTicketMessages));
