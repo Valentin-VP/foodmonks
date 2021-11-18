@@ -2,24 +2,23 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.swagger.v3.core.util.Json;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
-import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Exceptions.*;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
-import org.foodmonks.backend.datatypes.CategoriaMenu;
+import org.foodmonks.backend.datatypes.*;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.EstadoRestaurante;
-import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -92,7 +91,7 @@ public class RestauranteService {
         if (jsonMenus.size() < 3){
             throw new RestauranteFaltaMenuException("Debe ingresar al menos 3 menus");
         }
-        Restaurante restaurante = new Restaurante(nombre,apellido,correo, passwordEncoder.encode(password),now,calificacion,nombreRestaurante,Integer.valueOf(rut),direccion,pendiente,Integer.valueOf(telefono),descripcion,cuentaPaypal,url);
+        Restaurante restaurante = new Restaurante(nombre,apellido,correo,passwordEncoder.encode(password),now,calificacion,0,nombreRestaurante,Integer.valueOf(rut),direccion,pendiente,Integer.valueOf(telefono),descripcion,cuentaPaypal,url);
         restauranteRepository.save(restaurante);
         for (JsonObject menu: jsonMenus){
             menuService.altaMenu(menu,restaurante.getCorreo());
@@ -265,4 +264,67 @@ public class RestauranteService {
         }
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
+
+    public void calificarRestaurante(String correoCliente, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException {
+        verificarJsonCalificacion(jsonCalificacion);
+        Pedido pedido = pedidoService.obtenerPedido(jsonCalificacion.get("idPedido").getAsLong());
+        if (!pedido.getCliente().getCorreo().equals(correoCliente)){
+            throw new PedidoClienteException("El cliente " + correoCliente + " no es cliente del pedido id " + jsonCalificacion.get("idPedido").getAsString());
+        }
+        DtCalificacion calificacion = new DtCalificacion(jsonCalificacion.get("puntaje").getAsFloat(),jsonCalificacion.get("comentario").getAsString());
+        pedidoService.modificarCalificacionRestaurantePedido(jsonCalificacion.get("idPedido").getAsLong(),calificacion);
+        Restaurante restaurante = pedido.getRestaurante();
+        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() + calificacion.getPuntaje())/(restaurante.getCantidadCalificaciones() + 1));
+        restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() + 1);
+        restauranteRepository.save(restaurante);
+    }
+
+    public void modificarCalificacionRestaurante(String correoCliente, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoCalificacionRestauranteException, PedidoEstadoException {
+        verificarJsonCalificacion(jsonCalificacion);
+        Pedido pedido = pedidoService.obtenerPedido(jsonCalificacion.get("idPedido").getAsLong());
+        if (!pedido.getCliente().getCorreo().equals(correoCliente)){
+            throw new PedidoClienteException("El cliente " + correoCliente + " no es cliente del pedido id " + jsonCalificacion.get("idPedido").getAsString());
+        }
+        if (pedido.getCalificacionRestaurante() == null){
+            throw new PedidoCalificacionRestauranteException("El pedido con id " + jsonCalificacion.get("idPedido").getAsString() + " no tiene calificacion Restaurante");
+        }
+        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) || !pedido.getEstado().equals(EstadoPedido.DEVUELTO) || !pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO)){
+            throw new PedidoEstadoException("El pedido id " + jsonCalificacion.get("idPedido").getAsString() + "no esta en EstadoPedido para calificar");
+        }
+        DtCalificacion calificacion = pedido.getCalificacionRestaurante();
+        DtCalificacion calificacionNueva = new DtCalificacion(jsonCalificacion.get("puntaje").getAsFloat(),jsonCalificacion.get("comentario").getAsString());
+        pedidoService.modificarCalificacionRestaurantePedido(jsonCalificacion.get("idPedido").getAsLong(),calificacionNueva);
+        Restaurante restaurante = pedido.getRestaurante();
+        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacion.getPuntaje() + calificacionNueva.getPuntaje()) / restaurante.getCantidadCalificaciones());
+        restauranteRepository.save(restaurante);
+    }
+
+    public void eliminarCalificacionRestaurante(String correoCliente, String idPedido) throws PedidoNoExisteException, PedidoIdException, PedidoClienteException, PedidoCalificacionRestauranteException {
+        if (!idPedido.matches("[0-9]*") || idPedido.isBlank()){
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        Pedido pedido = pedidoService.obtenerPedido(Long.valueOf(idPedido));
+        if (!pedido.getCliente().getCorreo().equals(correoCliente)){
+            throw new PedidoClienteException("El cliente " + correoCliente + " no es cliente del pedido id " + idPedido);
+        }
+        if (pedido.getCalificacionRestaurante() == null){
+            throw new PedidoCalificacionRestauranteException("El pedido con id " + idPedido + " no tiene calificacion Restaurante");
+        }
+        DtCalificacion calificacion = pedido.getCalificacionRestaurante();
+        pedidoService.modificarCalificacionRestaurantePedido(Long.valueOf(idPedido),null);
+        Restaurante restaurante = pedido.getRestaurante();
+        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacion.getPuntaje()) / (restaurante.getCantidadCalificaciones()) - 1);
+        restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() - 1);
+        restauranteRepository.save(restaurante);
+    }
+
+    public void verificarJsonCalificacion (JsonObject jsonCalificacion) throws PedidoIdException, PedidoPuntajeException {
+        if (!jsonCalificacion.get("idPedido").getAsString().matches("[0-9]*") || jsonCalificacion.get("idPedido").getAsString().isBlank()){
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        if (!jsonCalificacion.get("puntaje").getAsString().matches("[1-5]") || jsonCalificacion.get("puntaje").getAsString().isBlank()){
+            throw new PedidoPuntajeException("El puntaje del pedido no es un numero entero o no es un valor posible");
+        }
+    }
+
 }

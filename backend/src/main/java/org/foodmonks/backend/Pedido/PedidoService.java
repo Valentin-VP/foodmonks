@@ -220,29 +220,15 @@ public class PedidoService {
         return pedido;
     }
 
-    public void calificarRestaurante(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
+    public void modificarCalificacionRestaurantePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
         Pedido pedido = obtenerPedido(idPedido);
         pedido.setCalificacionRestaurante(calificacion);
-        Restaurante restaurante = pedido.getRestaurante();
-        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCalificacion() + calificacion.getPuntaje())/(restaurante.getCalificacion() + 1));
-        restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() + 1);
         pedidoRepository.save(pedido);
     }
 
-    public void modificarCalificacionRestaurante(Long idPedido, DtCalificacion calificacionAnterior, DtCalificacion calificacionNueva) throws PedidoNoExisteException {
+    public void modificarCalificacionClientePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
         Pedido pedido = obtenerPedido(idPedido);
-        pedido.setCalificacionRestaurante(calificacionNueva);
-        Restaurante restaurante = pedido.getRestaurante();
-        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacionAnterior.getPuntaje() + calificacionNueva.getPuntaje()) / restaurante.getCantidadCalificaciones());
-        pedidoRepository.save(pedido);
-    }
-
-    public void eliminarCalificacionRestaurante(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
-        Pedido pedido = obtenerPedido(idPedido);
-        pedido.setCalificacionRestaurante(null);
-        Restaurante restaurante = pedido.getRestaurante();
-        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacion.getPuntaje()) / (restaurante.getCantidadCalificaciones()) - 1);
-        restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() - 1);
+        pedido.setCalificacionCliente(calificacion);
         pedidoRepository.save(pedido);
     }
 

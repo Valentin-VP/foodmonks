@@ -2,34 +2,27 @@ package org.foodmonks.backend.Cliente;
 
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Direccion.DireccionRepository;
+import org.foodmonks.backend.Pedido.Exceptions.*;
+import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
-import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
-import org.foodmonks.backend.datatypes.CategoriaMenu;
+import org.foodmonks.backend.datatypes.*;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.MenuCompra.MenuCompraService;
-import org.foodmonks.backend.Pedido.PedidoService;
-import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Restaurante.RestauranteService;
-import org.foodmonks.backend.datatypes.DtOrdenPaypal;
-import org.foodmonks.backend.datatypes.EstadoCliente;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,7 +41,6 @@ public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
-    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
@@ -56,21 +48,18 @@ public class ClienteService {
     private final RestauranteService restauranteService;
     private final MenuCompraService menuCompraService;
     private final MenuService menuService;
-    private final DireccionRepository direccionRepository;
 
     @Autowired
     public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
                           UsuarioService usuarioService, DireccionService direccionService, 
                           ClienteConverter clienteConverter, PedidoService pedidoService, 
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
-                          MenuService menuService, UsuarioRepository usuarioRepository,
-                          DireccionRepository direccionRepository) {
+                          MenuService menuService) {
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
         this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
-        this.menuService = menuService; this.usuarioRepository = usuarioRepository;
-        this.direccionRepository = direccionRepository;
+        this.menuService = menuService;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -84,7 +73,7 @@ public class ClienteService {
         }
         List<Direccion> direcciones = new ArrayList<>();
         direcciones.add(direccion);
-        Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,direcciones,activo,"",null);
+        Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,0,direcciones,activo,"",null);
         clienteRepository.save(cliente);
         System.out.println("direccion " + clienteRepository.findByCorreo(correo).getDirecciones().get(0).getCalle());
     }
@@ -326,4 +315,58 @@ public class ClienteService {
             throw new PedidoTotalException("El total no esta en formato de numero real");
         }
     }
+
+    public void calificarCliente(String correoRestaurante, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoEstadoException {
+        restauranteService.verificarJsonCalificacion(jsonCalificacion);
+        Pedido pedido = pedidoService.obtenerPedido(jsonCalificacion.get("idPedido").getAsLong());
+        if (!pedido.getRestaurante().getCorreo().equals(correoRestaurante)){
+            throw new PedidoClienteException("El restaurante " + correoRestaurante + " no es restaurante del pedido id " + jsonCalificacion.get("idPedido").getAsString());
+        }
+        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) || !pedido.getEstado().equals(EstadoPedido.DEVUELTO) || !pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO)){
+            throw new PedidoEstadoException("El pedido id " + jsonCalificacion.get("idPedido").getAsString() + "no esta en EstadoPedido para calificar");
+        }
+        DtCalificacion calificacion = new DtCalificacion(jsonCalificacion.get("puntaje").getAsFloat(),jsonCalificacion.get("comentario").getAsString());
+        pedidoService.modificarCalificacionClientePedido(jsonCalificacion.get("idPedido").getAsLong(),calificacion);
+        Cliente cliente = pedido.getCliente();
+        cliente.setCalificacion((cliente.getCalificacion() * cliente.getCantidadCalificaciones() + calificacion.getPuntaje())/(cliente.getCantidadCalificaciones() + 1));
+        cliente.setCantidadCalificaciones(cliente.getCantidadCalificaciones() + 1);
+        clienteRepository.save(cliente);
+    }
+
+    public void modificarCalificacionCliente(String correoRestaurante, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoCalificacionClienteException {
+        restauranteService.verificarJsonCalificacion(jsonCalificacion);
+        Pedido pedido = pedidoService.obtenerPedido(jsonCalificacion.get("idPedido").getAsLong());
+        if (!pedido.getRestaurante().getCorreo().equals(correoRestaurante)){
+            throw new PedidoClienteException("El restaurante " + correoRestaurante + " no es restaurante del pedido id " + jsonCalificacion.get("idPedido").getAsString());
+        }
+        if (pedido.getCalificacionCliente() == null){
+            throw new PedidoCalificacionClienteException("El pedido con id " + jsonCalificacion.get("idPedido").getAsString() + " no tiene calificacion Cliente");
+        }
+        DtCalificacion calificacion = pedido.getCalificacionCliente();
+        DtCalificacion calificacionNueva = new DtCalificacion(jsonCalificacion.get("puntaje").getAsFloat(),jsonCalificacion.get("comentario").getAsString());
+        pedidoService.modificarCalificacionClientePedido(jsonCalificacion.get("idPedido").getAsLong(),calificacionNueva);
+        Cliente cliente = pedido.getCliente();
+        cliente.setCalificacion((cliente.getCalificacion() * cliente.getCantidadCalificaciones() - calificacion.getPuntaje() + calificacionNueva.getPuntaje()) / cliente.getCantidadCalificaciones());
+        clienteRepository.save(cliente);
+    }
+
+    public void eliminarCalificacionCliente(String correoRestaurante, String idPedido) throws PedidoNoExisteException, PedidoIdException, PedidoClienteException, PedidoCalificacionClienteException {
+        if (!idPedido.matches("[0-9]*") || idPedido.isBlank()){
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        Pedido pedido = pedidoService.obtenerPedido(Long.valueOf(idPedido));
+        if (!pedido.getRestaurante().getCorreo().equals(correoRestaurante)){
+            throw new PedidoClienteException("El restaurante " + correoRestaurante + " no es restaurante del pedido id " + idPedido);
+        }
+        if (pedido.getCalificacionCliente() == null){
+            throw new PedidoCalificacionClienteException("El pedido con id " + idPedido + " no tiene calificacion Cliente");
+        }
+        DtCalificacion calificacion = pedido.getCalificacionCliente();
+        pedidoService.modificarCalificacionClientePedido(Long.valueOf(idPedido),null);
+        Cliente cliente = pedido.getCliente();
+        cliente.setCalificacion((cliente.getCalificacion() * cliente.getCantidadCalificaciones() - calificacion.getPuntaje()) / (cliente.getCantidadCalificaciones()) - 1);
+        cliente.setCantidadCalificaciones(cliente.getCantidadCalificaciones() - 1);
+        clienteRepository.save(cliente);
+    }
+
 }

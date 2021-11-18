@@ -19,8 +19,8 @@ public class RestauranteConfig {
             Float calificacion = 5.0f;
             LocalDate ahora = LocalDate.now();
             Restaurante  restaurante =  new Restaurante("nombreDelRestaurante",
-                    "apellidoDelRestaurante", "restaurante2@gmail.com",
-                    passwordEncoder.encode("restaurante123"), ahora, calificacion, "NombreRestaurante", 123456, dir, EstadoRestaurante.ABIERTO, 23487123, "DescripcionRestaurante", "CuentaDePaypal", null);
+                    "apellidoDelRestaurante", "restaurante@gmail.com",
+                    passwordEncoder.encode("restaurante123"), ahora, calificacion,0, "NombreRestaurante", 123456, dir, EstadoRestaurante.ABIERTO, 23487123, "DescripcionRestaurante", "CuentaDePaypal", null);
             restauranteRepository.saveAll(List.of(restaurante));
             //ejemplo para dar de alta un restaurante
         };

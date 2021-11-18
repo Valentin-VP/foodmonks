@@ -2,6 +2,7 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
@@ -48,14 +49,17 @@ public class RestauranteController {
     private final MenuService menuService;
     private final TokenHelper tokenHelp;
     private final DireccionService direccionService;
+    private final ClienteService clienteService;
 
     @Autowired
     RestauranteController(RestauranteService restauranteService, MenuService menuService,
-                          TokenHelper tokenHelper, DireccionService direccionService) {
+                          TokenHelper tokenHelper, DireccionService direccionService,
+                          ClienteService clienteService) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
         this.tokenHelp = tokenHelper;
         this.direccionService = direccionService;
+        this.clienteService = clienteService;
     }
 
     @Operation(summary = "Crea un nuevo Restaurante",
