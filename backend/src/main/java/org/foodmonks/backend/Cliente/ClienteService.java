@@ -316,14 +316,17 @@ public class ClienteService {
         }
     }
 
-    public void calificarCliente(String correoRestaurante, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoEstadoException {
+    public void calificarCliente(String correoRestaurante, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoEstadoException, PedidoCalificacionClienteException {
         restauranteService.verificarJsonCalificacion(jsonCalificacion);
         Pedido pedido = pedidoService.obtenerPedido(jsonCalificacion.get("idPedido").getAsLong());
         if (!pedido.getRestaurante().getCorreo().equals(correoRestaurante)){
             throw new PedidoClienteException("El restaurante " + correoRestaurante + " no es restaurante del pedido id " + jsonCalificacion.get("idPedido").getAsString());
         }
-        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) || !pedido.getEstado().equals(EstadoPedido.DEVUELTO) || !pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO)){
+        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) && !pedido.getEstado().equals(EstadoPedido.DEVUELTO) && !pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO)){
             throw new PedidoEstadoException("El pedido id " + jsonCalificacion.get("idPedido").getAsString() + "no esta en EstadoPedido para calificar");
+        }
+        if (pedido.getCalificacionCliente() != null){
+            throw new PedidoCalificacionClienteException("El pedido con id " + jsonCalificacion.get("idPedido").getAsString() + " ya tiene calificacion Cliente");
         }
         DtCalificacion calificacion = new DtCalificacion(jsonCalificacion.get("puntaje").getAsFloat(),jsonCalificacion.get("comentario").getAsString());
         pedidoService.modificarCalificacionClientePedido(jsonCalificacion.get("idPedido").getAsLong(),calificacion);
@@ -364,8 +367,13 @@ public class ClienteService {
         DtCalificacion calificacion = pedido.getCalificacionCliente();
         pedidoService.modificarCalificacionClientePedido(Long.valueOf(idPedido),null);
         Cliente cliente = pedido.getCliente();
-        cliente.setCalificacion((cliente.getCalificacion() * cliente.getCantidadCalificaciones() - calificacion.getPuntaje()) / (cliente.getCantidadCalificaciones()) - 1);
-        cliente.setCantidadCalificaciones(cliente.getCantidadCalificaciones() - 1);
+        if (cliente.getCantidadCalificaciones() == 1){
+            cliente.setCalificacion(5f);
+            cliente.setCantidadCalificaciones(0);
+        } else {
+            cliente.setCalificacion((cliente.getCalificacion() * cliente.getCantidadCalificaciones() - calificacion.getPuntaje()) / (cliente.getCantidadCalificaciones() - 1));
+            cliente.setCantidadCalificaciones(cliente.getCantidadCalificaciones() - 1);
+        }
         clienteRepository.save(cliente);
     }
 

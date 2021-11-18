@@ -265,11 +265,17 @@ public class RestauranteService {
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
 
-    public void calificarRestaurante(String correoCliente, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException {
+    public void calificarRestaurante(String correoCliente, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoEstadoException, PedidoCalificacionRestauranteException {
         verificarJsonCalificacion(jsonCalificacion);
         Pedido pedido = pedidoService.obtenerPedido(jsonCalificacion.get("idPedido").getAsLong());
         if (!pedido.getCliente().getCorreo().equals(correoCliente)){
             throw new PedidoClienteException("El cliente " + correoCliente + " no es cliente del pedido id " + jsonCalificacion.get("idPedido").getAsString());
+        }
+        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) && !pedido.getEstado().equals(EstadoPedido.DEVUELTO) && !pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO)){
+            throw new PedidoEstadoException("El pedido id " + jsonCalificacion.get("idPedido").getAsString() + "no esta en EstadoPedido para calificar");
+        }
+        if (pedido.getCalificacionRestaurante() != null){
+            throw new PedidoCalificacionRestauranteException("El pedido con id " + jsonCalificacion.get("idPedido").getAsString() + " ya tiene calificacion Restaurante");
         }
         DtCalificacion calificacion = new DtCalificacion(jsonCalificacion.get("puntaje").getAsFloat(),jsonCalificacion.get("comentario").getAsString());
         pedidoService.modificarCalificacionRestaurantePedido(jsonCalificacion.get("idPedido").getAsLong(),calificacion);
@@ -279,7 +285,7 @@ public class RestauranteService {
         restauranteRepository.save(restaurante);
     }
 
-    public void modificarCalificacionRestaurante(String correoCliente, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoCalificacionRestauranteException, PedidoEstadoException {
+    public void modificarCalificacionRestaurante(String correoCliente, JsonObject jsonCalificacion) throws PedidoNoExisteException, PedidoIdException, PedidoPuntajeException, PedidoClienteException, PedidoCalificacionRestauranteException {
         verificarJsonCalificacion(jsonCalificacion);
         Pedido pedido = pedidoService.obtenerPedido(jsonCalificacion.get("idPedido").getAsLong());
         if (!pedido.getCliente().getCorreo().equals(correoCliente)){
@@ -287,9 +293,6 @@ public class RestauranteService {
         }
         if (pedido.getCalificacionRestaurante() == null){
             throw new PedidoCalificacionRestauranteException("El pedido con id " + jsonCalificacion.get("idPedido").getAsString() + " no tiene calificacion Restaurante");
-        }
-        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) || !pedido.getEstado().equals(EstadoPedido.DEVUELTO) || !pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO)){
-            throw new PedidoEstadoException("El pedido id " + jsonCalificacion.get("idPedido").getAsString() + "no esta en EstadoPedido para calificar");
         }
         DtCalificacion calificacion = pedido.getCalificacionRestaurante();
         DtCalificacion calificacionNueva = new DtCalificacion(jsonCalificacion.get("puntaje").getAsFloat(),jsonCalificacion.get("comentario").getAsString());
@@ -313,8 +316,13 @@ public class RestauranteService {
         DtCalificacion calificacion = pedido.getCalificacionRestaurante();
         pedidoService.modificarCalificacionRestaurantePedido(Long.valueOf(idPedido),null);
         Restaurante restaurante = pedido.getRestaurante();
-        restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacion.getPuntaje()) / (restaurante.getCantidadCalificaciones()) - 1);
-        restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() - 1);
+        if (restaurante.getCantidadCalificaciones() == 1){
+            restaurante.setCalificacion(5f);
+            restaurante.setCantidadCalificaciones(0);
+        } else {
+            restaurante.setCalificacion((restaurante.getCalificacion() * restaurante.getCantidadCalificaciones() - calificacion.getPuntaje()) / (restaurante.getCantidadCalificaciones() - 1));
+            restaurante.setCantidadCalificaciones(restaurante.getCantidadCalificaciones() - 1);
+        }
         restauranteRepository.save(restaurante);
     }
 
