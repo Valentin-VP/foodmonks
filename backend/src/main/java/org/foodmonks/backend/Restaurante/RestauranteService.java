@@ -325,4 +325,126 @@ public class RestauranteService {
         return reclamos;
     }
 
+/*    {
+        "meses": [
+        {
+            "mes": "Enero",
+            "año": "2021",
+            "indicadores": [
+                {"ventas efectivo": "55412", "cantidad": "544"},
+                {"ventas paypal": "44587", "cantidad": "5578"},
+                {"devoluciones efectivo": "4478", "cantidad": "558"},
+                {"devoluciones paypal": "4557", "cantidad" : "44"}
+            ],
+            "subtotal": "-4577"
+        },
+        {
+            "mes": "Febrero",
+            "año": "2021",
+            "indicadores": [
+                {"ventas efectivo": "55412", "cantidad": "544"},
+                {"ventas paypal": "44587", "cantidad": "5578"},
+                {"devoluciones efectivo": "4478", "cantidad": "558"},
+                {"devoluciones paypal": "4557", "cantidad" : "44"}
+            ],
+            "subtotal": "47552"
+        }
+    ],
+        "totales":  [
+            {"ventas efectivo": "55412", "cantidad": "544"},
+            {"ventas paypal": "44587", "cantidad": "5578"},
+            {"devoluciones efectivo": "4478", "cantidad": "558"},
+            {"devoluciones paypal": "4557", "cantidad" : "44"}
+        ]
+    }*/
+
+    public JsonObject obtenerBalance(
+            String correoRestaurante,
+            String medioPago,
+            String fecha,
+            String estadoPedido
+            // otros atributos
+    ){
+        JsonObject balance = new JsonObject();
+        JsonArray meses = new JsonArray();
+
+        // Estado Pedido
+        EstadoPedido estado = null;
+        if (estadoPedido!= null && !estadoPedido.equals("")) {
+            try {
+                estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
+            }catch(IllegalArgumentException e){
+                estado = null;
+            }
+        }
+
+        // Medio Pago
+        MedioPago pago = null;
+        if (medioPago!= null && !medioPago.equals("")) {
+            try{
+                pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
+            }catch(IllegalArgumentException e){
+                pago = null;
+            }
+        }
+
+        // Fecha
+        LocalDateTime[] fechaFinal = new LocalDateTime[2];
+        String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
+        if (_fecha != null && _fecha[0] != null && _fecha[1] != null){
+            try{
+                fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+                fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+            }catch(DateTimeException e){
+                fechaFinal = null;
+            }
+        }
+        if (_fecha != null && _fecha[0] != null && _fecha[1] != null) {
+            try {
+                if (fechaFinal != null) {
+                    fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+                    fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+                }
+            } catch (DateTimeException e) {
+                fechaFinal = null;
+            }
+        }
+        // Diferencia entre mes de fecha inicio y mes de fecha final
+        int cantidadMeses = 12;
+        for(int i =0; i < cantidadMeses; i++){
+            String mes = null;
+            // Obtener Mes a partir de cada LocalDateTime
+            String anio = null;
+            // Obtener Año a partir de cada LocalDateTime
+            JsonObject jsonMes = new JsonObject();
+            jsonMes.addProperty("mes", mes);
+            jsonMes.addProperty("anio", anio);
+            JsonArray indicadores = new JsonArray();
+
+            // Cargar los 4 json de indicadores
+            JsonObject jsonIndicador = new JsonObject();
+            float subtotal = 0;
+            // Para cada indicador
+            // Definir logica de iteracion o hacer manual las 0 --> 4 veces
+            // Obtener arreglo de la consulta al Repsoitory
+            // Sumar total y aumentar cantidad
+            // Al final de cada indicador, suma/resta al subtotal
+            float totalIndicador = 0;
+            int cantidadIndicador = 0;
+            jsonIndicador.addProperty("ventas efectivo", cantidadIndicador);
+            jsonIndicador.addProperty("cantidad", cantidadIndicador);
+
+            // Termina iteracion de indicadores
+            jsonMes.add("indicadores", indicadores);
+            jsonMes.addProperty("subtotal", subtotal);
+
+            // Termina iteracion de todo lo relacionado a un mes
+            meses.add(jsonMes);
+        }
+
+        // Terimna todo, retorno meses
+        balance.add("meses", meses);
+        return balance;
+
+    }
 }
