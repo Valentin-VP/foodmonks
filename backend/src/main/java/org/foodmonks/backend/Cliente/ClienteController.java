@@ -358,4 +358,32 @@ public class ClienteController {
         }
     }
 
+    @Operation(summary = "Realizar una calificacion a un Restaurante",
+            description = "Realizar una calificacion a un Restaurante",
+            tags = { "cliente", "pedido" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Calificacion creado"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
+    @PostMapping(path = "/calificarRestaurante")
+    public ResponseEntity<?> calificarRestaurante(
+            @RequestHeader("Authorization") String token,
+            @RequestBody String pedido){
+        try{
+            // Obtener correo del cliente
+            String strToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                strToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(strToken);
+
+            // Obtener detalles del pedido
+            JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
+            restauranteService.calificarRestaurante(correo, jsonRequestPedido.get("pedido").getAsJsonObject());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
