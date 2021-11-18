@@ -1,10 +1,7 @@
 package org.foodmonks.backend.Cliente;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -12,10 +9,25 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import lombok.SneakyThrows;
+import org.foodmonks.backend.Cliente.Exceptions.ClientePedidoNoCoincideException;
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import lombok.SneakyThrows;
+import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
+import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -25,7 +37,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -39,12 +50,14 @@ public class ClienteController {
     private final TokenHelper tokenHelp;
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
+    private final PedidoService pedidoService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService) {
+    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService, PedidoService pedidoService) {
         this.clienteService = clienteService;
         this.tokenHelp = tokenHelp;
         this.restauranteService = restauranteService;
+        this.pedidoService = pedidoService;
     }
 
     @Operation(summary = "Crea un nuevo Cliente",
@@ -249,19 +262,144 @@ public class ClienteController {
     public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
                                                         @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
         //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
-        List<JsonObject> restaurantesAbiertos = new ArrayList<>();
         JsonArray jsonArray = new JsonArray();
         try {
-            restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
+            List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
 
             for (JsonObject restaurante : restaurantesAbiertos) {
-                JsonObject res = new JsonObject();
                 jsonArray.add(restaurante);
             }
         } catch(JsonIOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Listar Pedidos Realizados",
+            description = "Lista de los pedidos realizados del Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedidos" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarPedidosRealizados")
+    public ResponseEntity<?> listarPedidosRealizados(@RequestHeader("Authorization") String token,
+                                                     @RequestParam(required = false, name = "estadoPedido") String estadoPedido,
+                                                     @RequestParam(required = false, name = "nombreMenu") String nombreMenu,
+                                                    @RequestParam(required = false, name = "nombreRestaurante") String nombreRestaurante,
+                                                    @RequestParam(required = false, name = "medioPago") String medioPago,
+                                                    @RequestParam(required = false, name = "orden") String orden,
+                                                    @RequestParam(required = false, name = "fecha") String fecha,
+                                                    @RequestParam(required = false, name = "total") String total,
+                                                    @RequestParam(defaultValue = "0",required = false, name = "page") String page,
+                                                    @RequestParam(defaultValue = "1000", required = false, name = "size") String size) {
+        String newtoken = "";
+        String correo = "";
+        List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
+        JsonObject jsonObject = new JsonObject();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            correo = tokenHelp.getUsernameFromToken(newtoken);
+            jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu, nombreRestaurante, medioPago, orden, fecha, total, page, size);
+        } catch (JsonIOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Listar los Menús y Promociones ofrecidos por un Restaurante",
+            description = "Lista de los Menús y Promociones que ofrece un Restaurante, aplicando búsqueda opcional por filtros",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedido", "cliente", "menú", "promoción" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarProductosRestaurante")
+    public ResponseEntity<?> listarProductosRestaurante(
+            @RequestParam(name = "id") String restauranteCorreo,
+            @RequestParam(required = false, name = "categoria") String categoria,
+            @RequestParam(required = false, name = "precioInicial") Float precioInicial,
+            @RequestParam(required = false, name = "precioFinal") Float precioFinal
+            ) {
+
+        JsonArray jsonArray = new JsonArray();
+        try {
+            //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+
+            for (JsonObject restaurante : listarProductosRestaurante) {
+                jsonArray.add(restaurante);
+            }
+
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+  
+  
+    @Operation(summary = "Realizar un nuevo Pedido a un Restaurante",
+            description = "Realizar un nuevo Pedido a un Restaurante",
+            tags = { "cliente", "pedido" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Pedido creado"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
+    @PostMapping(path = "/realizarPedido")
+    public ResponseEntity<?> realizarPedido(
+            @RequestHeader("Authorization") String token,
+            @RequestBody String pedido){
+        try{
+            // Obtener correo del cliente
+            String strToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                strToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(strToken);
+            // Obtener detalles del pedido
+            JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
+            JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
+            return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
+        }catch (Exception e){            
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Operation(summary = "Agregar un Reclamo",
+            description = "Agrega un nuevo Reclamo a un Pedido del Cliente",
+            tags = { "cliente", "reclamo" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Reclamo agregado"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @PostMapping(path = "/agregarReclamo")
+    public ResponseEntity<?> realizarReclamo(
+            @RequestHeader("Authorization") String token,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json"))
+            @RequestBody String reclamo) {
+        try {
+            // Obtener correo del cliente
+            String strToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                strToken = token.substring(7);
+            }
+            String correo = tokenHelp.getUsernameFromToken(strToken);
+            JsonObject jsonReclamo = new Gson().fromJson(reclamo, JsonObject.class);
+            JsonObject jsonResponse = clienteService.agregarReclamo(correo, jsonReclamo);
+            return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
+        } catch(JsonIOException | PedidoNoExisteException | EmailNoEnviadoException | PedidoIdException
+                | ReclamoComentarioException | ReclamoRazonException | ReclamoNoFinalizadoException
+                | ReclamoExisteException | ClienteNoEncontradoException | ClientePedidoNoCoincideException
+                | PedidoSinRestauranteException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

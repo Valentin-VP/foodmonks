@@ -2,8 +2,8 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import org.foodmonks.backend.Direccion.DireccionService;
+import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,22 +16,29 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.authentication.TokenHelper;
+import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
+
+import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1/restaurante")
@@ -41,12 +48,18 @@ public class RestauranteController {
     private final RestauranteService restauranteService;
     private final MenuService menuService;
     private final TokenHelper tokenHelp;
+    private final DireccionService direccionService;
+    private final PedidoService pedidoService;
 
     @Autowired
-    RestauranteController(RestauranteService restauranteService, MenuService menuService, TokenHelper tokenHelper) {
+    RestauranteController(RestauranteService restauranteService, MenuService menuService,
+                          TokenHelper tokenHelper, DireccionService direccionService,
+                          PedidoService pedidoService) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
         this.tokenHelp = tokenHelper;
+        this.direccionService = direccionService;
+        this.pedidoService = pedidoService;
     }
 
     @Operation(summary = "Crea un nuevo Restaurante",
@@ -68,19 +81,12 @@ public class RestauranteController {
             // Obtener direccion
             JsonObject jsonDireccion = jsonRestaurante.get("direccion").getAsJsonObject();
             System.out.println("jsonDireccion "+jsonDireccion);
-            Direccion direccion = new Direccion(
-                    jsonDireccion.get("numero").getAsInt(),
-                    jsonDireccion.get("calle").getAsString(),
-                    jsonDireccion.get("esquina").getAsString(),
-                    jsonDireccion.get("detalles").getAsString(),
-                    jsonDireccion.get("latitud").getAsString(),
-                    jsonDireccion.get("longitud").getAsString()
-            );
+            Direccion direccion = direccionService.crearDireccion(jsonDireccion);
 
             // Obtener los menus
             JsonArray jsonMenusRequest = jsonRestaurante.get("menus").getAsJsonArray();
             System.out.println("jsonMenusRequest " + jsonMenusRequest);
-            ArrayList<JsonObject> jsonMenus = new ArrayList<JsonObject>();
+            ArrayList<JsonObject> jsonMenus = new ArrayList<>();
             for (JsonElement json: jsonMenusRequest) {
                 JsonObject jsonMenu = json.getAsJsonObject();
                 jsonMenus.add(jsonMenu);
@@ -160,8 +166,8 @@ public class RestauranteController {
             String correoRestaurante = tokenHelp.getUsernameFromToken(newToken);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
             menuService.altaMenu(jsonMenu, correoRestaurante);
-        } catch(JsonParseException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNombreExistente menuNombreExistente) {
             return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
@@ -181,14 +187,13 @@ public class RestauranteController {
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        String correo = "";
-        List<JsonObject> listaMenu = new ArrayList<JsonObject>();
+        List<JsonObject> listaMenu;
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
-            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
             listaMenu = menuService.listarMenu(correo);
             for(JsonObject jsonMenu : listaMenu) {
                 if(jsonMenu.get("multiplicadorPromocion").getAsString().equals("0.0")) {
@@ -196,7 +201,7 @@ public class RestauranteController {
                 }
             }
         } catch (JsonIOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
@@ -212,7 +217,7 @@ public class RestauranteController {
     @GetMapping(path = "/listarPromocion")
     public ResponseEntity<?> listPromo(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        List<JsonObject> listaPromo = new ArrayList<JsonObject>();
+        List<JsonObject> listaPromo;
         JsonArray jsonArray = new JsonArray();
         try {
             if ( token != null && token.startsWith("Bearer ")) {
@@ -226,9 +231,9 @@ public class RestauranteController {
                 }
             }
         } catch (JsonIOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch(ExpiredJwtException a) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(a.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
@@ -255,8 +260,8 @@ public class RestauranteController {
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
             jsonMenu.addProperty("id", menuId);
             menuService.modificarMenu(jsonMenu, correo);
-        } catch(JsonParseException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
             return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
@@ -283,7 +288,7 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             menuService.eliminarMenu(menuId, correo);
         } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -307,7 +312,7 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             retorno = menuService.infoMenu(menuId, correo);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(retorno, HttpStatus.OK);
     }
@@ -323,7 +328,7 @@ public class RestauranteController {
     @GetMapping(path = "/getInfoRestaurante")
     public ResponseEntity<?> getRestauranteInfo(@RequestHeader("Authorization") String token) {
         String newtoken = "";
-        JsonObject retorno = new JsonObject();
+        JsonObject retorno;
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
@@ -331,7 +336,7 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             retorno = restauranteService.obtenerJsonRestaurante(correo);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(retorno, HttpStatus.OK);
     }
@@ -354,9 +359,41 @@ public class RestauranteController {
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
         } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "Listar los Pedidos Pendientes",
+            description = "Lista de los pedidos pendientes de confirmación.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "menu" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarPedidosPendientes")
+    public ResponseEntity<?> listarPedidosPendientes(@RequestHeader("Authorization") String token) {
+        String newtoken = "";
+        String correo = "";
+        List<JsonObject> listaMenu = new ArrayList<JsonObject>();
+        JsonArray jsonArray = new JsonArray();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            correo = tokenHelp.getUsernameFromToken(newtoken);
+            listaMenu = restauranteService.listarPedidosPendientes(correo);
+            for(JsonObject jsonMenu : listaMenu) {
+                jsonArray.add(jsonMenu);
+            }
+        } catch (JsonIOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+        } catch (RestauranteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
     @Operation(summary = "Listar los Pedidos en Efectivo sin cobrar",
@@ -389,6 +426,42 @@ public class RestauranteController {
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
 
+    @Operation(summary = "Listar Historico Pedidos",
+            description = "Lista de los pedidos realizados (finalizados o rechazados) al Restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedidos" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarHistoricoPedidos")
+    public ResponseEntity<?> listarHistoricoPedidos(@RequestHeader("Authorization") String token,
+                                                    @RequestParam(required = false, name = "estadoPedido") String estadoPedido,
+                                                    @RequestParam(required = false, name = "medioPago") String medioPago,
+                                                    @RequestParam(required = false, name = "orden") String orden,
+                                                    @RequestParam(required = false, name = "fecha") String fecha,
+                                                    @RequestParam(required = false, name = "total") String total,
+                                                    @RequestParam(defaultValue = "0",required = false, name = "page") String page,
+                                                    @RequestParam(defaultValue = "5", required = false, name = "size") String size) {
+        String newtoken = "";
+        String correo = "";
+        List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
+        JsonObject jsonObject = new JsonObject();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            correo = tokenHelp.getUsernameFromToken(newtoken);
+            jsonObject = restauranteService.listarHistoricoPedidos(correo, estadoPedido, medioPago, orden, fecha, total, page, size);
+        } catch (JsonIOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
+        } catch (RestauranteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
+    }
+
+  
     @Operation(summary = "Cambia el estado del pedido",
             description = "Cambia el estado del pedido al estado necesario.",
             security = @SecurityRequirement(name = "bearerAuth"),
@@ -402,20 +475,28 @@ public class RestauranteController {
         String newtoken = "";
         JsonObject jsonPedido = new JsonObject();
 
-        String estado = "";
+
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
+            String estado = "";
             String correo = tokenHelp.getUsernameFromToken(newtoken);
             jsonPedido = new Gson().fromJson(nuevoEstado, JsonObject.class);
             estado = jsonPedido.get("estado").getAsString();
             if (estado!=null){
-                if (estado.equals("FINALIZADO")){
+                if (estado.equals("FINALIZADO")) {
                     try {
                         restauranteService.registrarPagoEfectivo(correo, Long.valueOf(idPedido));
-                    }catch (NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El ID debe ser numérico.");
+                    }
+                }else if(estado.equals("CONFIRMADO") || estado.equals("RECHAZADO")){
+                    String minutos = jsonPedido.get("minutos").getAsString();
+                    try {
+                        restauranteService.actualizarEstadoPedido(correo, Long.valueOf(idPedido), estado, Integer.valueOf(minutos));
+                    } catch (NumberFormatException e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
                     }
                 }else{
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud. Estado incorrecto.");
@@ -429,5 +510,48 @@ public class RestauranteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok("Se cambió el estado del pedido.");
+    }
+
+    //listar buscar reclamos hechos por clientes
+    @GetMapping(path = "/listarReclamos")
+    public ResponseEntity<?> listarReclamos(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false, name = "orden") boolean orden,
+            @RequestParam(required = false, name = "cliente") String correoCliente,
+            @RequestParam(required = false, name = "razon") String razon
+    ) {
+        String newtoken = "";
+        JsonArray jsonArray = new JsonArray();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correoRestaurante = tokenHelp.getUsernameFromToken(newtoken);
+            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, correoCliente, razon);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Obtiene detalles de un Pedido",
+            description = "Obtiene un Pedido con su información",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedido"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping("/obtenerPedido")
+    public ResponseEntity<?> obtenerPedido(
+            @RequestParam(name = "id") String idPedido){
+        JsonObject pedidoResponse;
+        try{
+            Long id = Long.valueOf(idPedido);
+            pedidoResponse = pedidoService.buscarPedidoById(id);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(pedidoResponse, HttpStatus.OK);
     }
 }

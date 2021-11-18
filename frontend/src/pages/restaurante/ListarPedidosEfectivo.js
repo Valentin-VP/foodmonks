@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { actualizarEstadoPedido, actualizarEstadoUsuario, obtenerPedidosSinFinalizarEfectivo } from "../../services/Requests";
+import { actualizarEstadoPedido, obtenerPedidosSinFinalizarEfectivo } from "../../services/Requests";
 import { ModalItem } from "../../components/ModalItem"
 import { Noti } from "../../components/Notification";
-import { Col, Modal, Row, Table } from "react-bootstrap";
+import { Col, Row} from "react-bootstrap";
 
 const Styles = styled.div`
   .lista{
@@ -30,8 +30,8 @@ const Styles = styled.div`
 
   td, tr {
     border: 1px solid #eee;
-    padding: 8px;
-
+    padding: 5px;
+    width: 9%;
     &:hover{
       background-color: #FFFFF5;
     }
@@ -64,11 +64,8 @@ const Styles = styled.div`
 
 export default function ListadoPedidosEfectivo() {
     const [data, setData] = useState([]);
-    const [test, setTest] = useState(false);
     const [modal, setModal] = useState({show: false, item: []});
     const fetch = () => {
-      //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
-      //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
       obtenerPedidosSinFinalizarEfectivo().then((response)=>{
         if (response.status===200){
           setData(response.data);
@@ -78,7 +75,6 @@ export default function ListadoPedidosEfectivo() {
       }).catch((error)=>{
         Noti(error.message);
       })
-      //setData([...data, {tipoUser: "restaurante", nombreRestaurante: "asd", estado : "bloqueado"}]);
     }
     const updateState = (item) => {
       console.log(item);
@@ -110,41 +106,18 @@ export default function ListadoPedidosEfectivo() {
                       {data ? data.map((item, index) => {
                           return (
                             <>
-                            <Row>
+                            
                               <Col>
                                 <tr key={item.id}>
                                   <td>ID Pedido: {item.id}</td>
-                                  <td>Nombre: {item.nombre}</td>
                                   <td>Fecha Confirmación: {item.fechaHoraProcesado}</td>
                                   <td>Fecha Entrega: {item.fechaHoraEntrega}</td>
                                   <td>Total: ${item.total}</td>
                                   <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(setModal({item: item, show:true}))}>
                                     Cobrar Pago
                                   </button>}</td>
-                                  <td>{<button className="btn btn-sm btn-secondary" type="button" onClick={e=>(item.visible = !item.visible)}>
-                                    +
-                                  </button>}</td>
                                 </tr>
                               </Col>
-                            </Row>
-                              {item.visible && 
-                                <Row>
-                                  <Col>
-                                    {(data.menus ? data.menus.map((item, index) => {
-                                    return (
-                                      <>
-                                        <tr key={index}>
-                                            <td>Menú: {item.nombre}</td>
-                                            <td>Precio: ${item.precio}</td>
-                                            <td>Descuento: {item.multiplicadorPromocion} %</td>
-                                            <td>Cantidad: {item.cantidad}</td>
-                                            <td>Total Parcial: ${item.total}</td>
-                                        </tr>
-                                      </>
-                                    )}) : null)}
-                                  </Col>
-                                </Row>
-                              }
                             </>
                         )}) : null}
                     </tbody>
@@ -162,7 +135,7 @@ export default function ListadoPedidosEfectivo() {
               setModal({...modal, show:false})}
             }
             onCancelar={()=>
-              {alert("Cerrar"); setModal({item:[], show:false})}
+              {setModal({item:[], show:false})}
             }
           ></ModalItem>
         </div>

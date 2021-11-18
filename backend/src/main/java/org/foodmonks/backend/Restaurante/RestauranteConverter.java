@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import org.foodmonks.backend.Direccion.DireccionConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +24,14 @@ public class RestauranteConverter {
             gsonRestaurantes.add(jsonRestaurante(restaurante));
         }
         return gsonRestaurantes;
+    }
+
+    public JsonArray arrayJsonRestaurantes (List<Restaurante> restaurantes){
+        JsonArray arrayJsonRestaurantes = new JsonArray();
+        for (Restaurante restaurante : restaurantes){
+            arrayJsonRestaurantes.add(jsonRestaurante(restaurante));
+        }
+        return arrayJsonRestaurantes;
     }
 
     public JsonObject jsonRestaurante(Restaurante restaurante) {

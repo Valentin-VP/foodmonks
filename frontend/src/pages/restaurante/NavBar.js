@@ -27,6 +27,10 @@ const Styles = styled.div`
     margin-left: 25px;
   }
 
+  .navbar-light .navbar-toggler-icon {
+    background-image: url("https://icons.veryicon.com/png/o/food--drinks/food-series-1/hamburger-46.png");
+  }
+
   .navbar-toggler {
     margin-right: 20px;
   }
@@ -80,10 +84,13 @@ export const NavigationBar = () => (
               <Nav.Link href="/menu">Menús</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link href="/listadoPedidosEfectivo">Cobrar Pedidos Efectivo</Nav.Link>
+              <Nav.Link href="/listadoPedidosEfectivo">
+                Cobrar Pedidos Efectivo
+              </Nav.Link>
             </Nav.Item>
             <NavDropdown title="Restaurante" menuVariant="color">
-              <NavDropdown.Item href="#action/3.3">Prueba</NavDropdown.Item>
+              <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
+              <NavDropdown.Item href="/reclamos">Reclamos</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
                 Cerrar Sesion

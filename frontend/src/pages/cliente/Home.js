@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Layout } from "../../components/Layout";
 import { Portada } from "../../components/Portada";
 import styled from "styled-components";
@@ -36,51 +36,51 @@ const Styles = styled.div`
       margin-bottom: 20px;
     }
   }
-  
 `;
 
-export const Home = () => (
-  <Styles>
-    <React.Fragment>
-      <Portada />
-      <Layout>
-        <h2>Restaurantes</h2>
-        <BuscarRestaurantesAbiertos />
-        <ul className="list-group">
-          <li className="list-group-item">1. El Tío Bistró</li>
-          <li className="list-group-item">2. Primuseum</li>
-          <li className="list-group-item">3. Cafe Gourmand</li>
-          <li className="list-group-item">4. Ashot Shawarma</li>
-          <li className="list-group-item">5. Alquimista Montevideo</li>
-          <li className="list-group-item">6. Es Mercat</li>
-          <li className="list-group-item">7. estrecho</li>
-          <li className="list-group-item">8. Restaurante Tandory</li>
-          <li className="list-group-item">9. RUDY Burgers</li>
-          <li className="list-group-item">10. Candy Bar</li>
-          <li className="list-group-item">11. Baco Vino y Bistró</li>
-        </ul>
-        <div className="top">
-          <a href="/grafica">Top Restaurantes</a>
-        </div>
+export default function Home() {
+  useEffect(() => {
+    if (sessionStorage.getItem("restauranteId") !== null) {
+      sessionStorage.removeItem("restauranteId");
+      sessionStorage.removeItem("restauranteImagen");
+      sessionStorage.removeItem("restauranteCalif");
+      sessionStorage.removeItem("restauranteNombre");
+      sessionStorage.setItem("values-categoria", "");
+      sessionStorage.setItem("values-precioInicial", "");
+      sessionStorage.setItem("values-precioFinal", "");
+    }
+  }, []);
 
-        <h2 className="prods">Productos</h2>
-        <div className="row justify-content-center">
-          {prods.productData.map((item, index) => {
-            return (
-              <div className="column">
-                <ItemCard
-                  key={index}
-                  img={item.img}
-                  title={item.title}
-                  desc={item.desc}
-                  price={item.price}
-                  item={item}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </Layout>
-    </React.Fragment>
-  </Styles>
-);
+  return (
+    <Styles>
+      <React.Fragment>
+        <Portada />
+        <Layout>
+          <h2>Restaurantes</h2>
+          <BuscarRestaurantesAbiertos />
+
+          <div className="top">
+            <a href="/grafica">Top Restaurantes</a>
+          </div>
+
+          <h2 className="prods">Productos</h2>
+          <div className="row justify-content-center">
+            {prods.productData.map((item, index) => {
+              return (
+                <div className="column" key={index}>
+                  <ItemCard
+                    img={item.img}
+                    title={item.title}
+                    desc={item.desc}
+                    price={item.price}
+                    item={item}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </Layout>
+      </React.Fragment>
+    </Styles>
+  );
+}

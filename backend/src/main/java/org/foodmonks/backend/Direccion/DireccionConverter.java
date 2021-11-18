@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Direccion;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,14 @@ public class DireccionConverter {
             gsonDirecciones.add(jsonDireccion(direccion));
         }
         return gsonDirecciones;
+    }
+
+    public JsonArray arrayJsonDireccion (List<Direccion> direcciones){
+        JsonArray arrayJsonDireccion = new JsonArray();
+        for (Direccion direccion : direcciones){
+            arrayJsonDireccion.add(jsonDireccion(direccion));
+        }
+        return arrayJsonDireccion;
     }
 
     public JsonObject jsonDireccion(Direccion direccion) {
