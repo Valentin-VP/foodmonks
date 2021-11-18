@@ -82,7 +82,7 @@ export const NavigationBar = () => (
             <Nav.Item>
               <Nav.Link onClick={Noti}>Notificacion</Nav.Link>
             </Nav.Item>
-            <NavDropdown title="Administrador" menuVariant="color">
+            <NavDropdown align="end" title="Administrador" menuVariant="color">
               <NavDropdown.Item href="/buscarUsuarios">
                 Buscar Usuario
               </NavDropdown.Item>

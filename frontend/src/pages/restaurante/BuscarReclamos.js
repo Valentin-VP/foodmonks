@@ -107,10 +107,10 @@ function BuscarReclamos() {
                 <div className="col-lg">
                   <div className="form-floating">
                     <input
-                      name="correo"
+                      name="cliente"
                       className="form-control"
                       onChange={handleChange}
-                      id="correo"
+                      id="cliente"
                       value={values.cliente}
                     ></input>
                     <label htmlFor="correo">Email del Cliente</label>

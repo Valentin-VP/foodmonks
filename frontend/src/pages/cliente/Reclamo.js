@@ -111,9 +111,7 @@ function Reclamo() {
       })
       .catch((error) => {
         console.log(error.response.data);
-        setSuccess(
-          <Alert variant="danger">{error.response.data.detailMessage}</Alert>
-        );
+        setSuccess(<Alert variant="danger">{error.response.data}</Alert>);
       });
   };
 

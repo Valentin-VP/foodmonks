@@ -85,13 +85,15 @@ export const NavigationBar = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="items">
-              <NavDropdown title="Cliente" menuVariant="color">
+              <NavDropdown align="end" title="Cliente" menuVariant="color">
                 <NavDropdown.Item href="/perfil">
                   Perfil <CgProfile color="black" />
                 </NavDropdown.Item>
                 {/* Esto no va acá sino en el perfil del usuario */}
                 <NavDropdown.Divider />
-                <NavDropdown.Item href="/listadoPedidos">Pedidos Realizados</NavDropdown.Item>  
+                <NavDropdown.Item href="/listadoPedidos">
+                  Pedidos Realizados
+                </NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={clearState}>
                   Cerrar Sesion <FiLogOut color="black" />
@@ -116,4 +118,3 @@ export const NavigationBar = () => {
     </Styles>
   );
 };
-
