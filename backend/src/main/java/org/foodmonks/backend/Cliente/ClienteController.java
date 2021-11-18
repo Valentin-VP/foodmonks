@@ -15,7 +15,6 @@ import org.foodmonks.backend.Cliente.Exceptions.ClientePedidoNoCoincideException
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
-import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;

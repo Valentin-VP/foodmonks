@@ -1,6 +1,8 @@
 package org.foodmonks.backend.paypal;
 
 import com.paypal.core.PayPalEnvironment;
+import com.paypal.core.PayPalHttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +17,7 @@ public class PayPalConfig {
     private String clientId;
     @Value("${paypal.client.secret}")
     private String clientSecret;
+
 
     @Bean
     public Map<String, String> paypalSdkConfig() {
