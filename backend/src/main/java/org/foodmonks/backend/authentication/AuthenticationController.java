@@ -37,6 +37,7 @@ import org.thymeleaf.context.Context;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Locale;
 
 
 @RestController
@@ -77,7 +78,10 @@ public class AuthenticationController {
     private TemplateEngine templateEngine;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@Parameter @RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public ResponseEntity<?> login(
+            @Parameter @RequestBody AuthenticationRequest authenticationRequest,
+            @RequestHeader("User-Agent") String agent
+    ) throws InvalidKeySpecException, NoSuchAlgorithmException {
         final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
 
@@ -92,7 +96,15 @@ public class AuthenticationController {
             AuthenticationResponse response = new AuthenticationResponse();
             response.setToken(jwtToken);
             response.setRefreshToken(jwtRefreshToken);
+            if (checkMobile(agent)){
+                try{
+                    clienteService.agregarTokenMobile(authenticationRequest.getEmail(), authenticationRequest.getMobileToken());
+                } catch (NullPointerException | ClienteNoEncontradoException e){
+                    //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+                }
 
+            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -293,5 +305,9 @@ public class AuthenticationController {
 
     private boolean clienteNoHabilitado(String correo) throws ClienteNoEncontradoException {
         return !(clienteService.clienteEstado(correo) == EstadoCliente.ACTIVO);
+    }
+
+    public boolean checkMobile(String agent){
+        return (agent.toLowerCase(Locale.ROOT).contains("mobile"));
     }
  }

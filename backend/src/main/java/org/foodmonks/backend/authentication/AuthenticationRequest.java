@@ -6,17 +6,20 @@ public class AuthenticationRequest {
 
     private String email;
     private String password;
+    private String mobileToken;
+
     public String getEmail() {
         byte[] decodedBytesMail = Base64.getDecoder().decode(this.email);
-        String decodedMail = new String(decodedBytesMail);
-        return decodedMail;
+        return new String(decodedBytesMail);
     }
 
     public String getPassword() {
         byte[] decodedBytesPass = Base64.getDecoder().decode(this.password);
-        String decodedPassword = new String(decodedBytesPass);
-        return decodedPassword;
+        return new String(decodedBytesPass);
     }
 
-
+    public String getMobileToken() {
+        byte[] decodedBytesMobileToken = Base64.getDecoder().decode(this.mobileToken);
+        return new String(decodedBytesMobileToken);
+    }
 }

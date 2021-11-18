@@ -294,6 +294,17 @@ public class ClienteService {
         return null;
     }
 
+    public void agregarTokenMobile(String email, String mobileToken) throws ClienteNoEncontradoException {
+        // guardar mobiletoken al cliente con id email
+        Cliente cliente = obtenerCliente(email);
+        if (mobileToken.isBlank()){
+            cliente.setMobileToken(null);
+        } else {
+            cliente.setMobileToken(mobileToken);
+        }
+        clienteRepository.save(cliente);
+    }
+
     public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal) throws RestauranteNoEncontradoException {
 
         Restaurante restaurante = restauranteService.obtenerRestaurante(correo);
