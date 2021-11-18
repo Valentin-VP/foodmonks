@@ -325,7 +325,7 @@ public class RestauranteService {
         return reclamos;
     }
 
-/*    {
+/*    balance = {
         "meses": [
         {
             "mes": "Enero",
@@ -367,6 +367,17 @@ public class RestauranteService {
     ){
         JsonObject balance = new JsonObject();
         JsonArray meses = new JsonArray();
+        JsonArray totales = new JsonArray();
+
+        float totalVentasEfectivo = 0;
+        int cantidadVentasEfectivo = 0;
+        float totalVentasPayPal = 0;
+        int cantidadVentasPayPal = 0;
+        float totalDevolucionesEfectivo = 0;
+        int cantidadDevolucionesEfectivo = 0;
+        float totalDevolucionesPayPal = 0;
+        int cantidadDevolucionesPayPal = 0;
+        // Preparo
 
         // Estado Pedido
         EstadoPedido estado = null;
@@ -434,6 +445,9 @@ public class RestauranteService {
             jsonIndicador.addProperty("ventas efectivo", cantidadIndicador);
             jsonIndicador.addProperty("cantidad", cantidadIndicador);
 
+            // Al final de cada indicador, sumar a el total correspondiente al total que sea
+            totalVentasEfectivo += totalIndicador;
+            cantidadVentasEfectivo += cantidadIndicador;
             // Termina iteracion de indicadores
             jsonMes.add("indicadores", indicadores);
             jsonMes.addProperty("subtotal", subtotal);
@@ -442,8 +456,31 @@ public class RestauranteService {
             meses.add(jsonMes);
         }
 
-        // Terimna todo, retorno meses
+        // Cargo totales
+
+        JsonObject ventasEfectivoTotal = new JsonObject();
+        ventasEfectivoTotal.addProperty("ventasEfectivo", totalVentasEfectivo);
+        ventasEfectivoTotal.addProperty("cantidad", cantidadVentasEfectivo);
+
+        JsonObject ventasPayPalTotal = new JsonObject();
+        ventasPayPalTotal.addProperty("ventasPayPal", 0);
+        ventasPayPalTotal.addProperty("cantidad", 0);
+
+        JsonObject devolucionesEfectivoTotal = new JsonObject();
+        devolucionesEfectivoTotal.addProperty("devolucionesEfectivo", 0);
+        devolucionesEfectivoTotal.addProperty("cantidad", 0);
+
+        JsonObject devolucionesPayPalTotal = new JsonObject();
+        devolucionesPayPalTotal.addProperty("devolucionesPayPal", 0);
+        devolucionesPayPalTotal.addProperty("cantidad", 0);
+
+        // Termina todo, retorno balance
+        totales.add(ventasEfectivoTotal);
+        totales.add(ventasPayPalTotal);
+        totales.add(devolucionesEfectivoTotal);
+        totales.add(devolucionesPayPalTotal);
         balance.add("meses", meses);
+        balance.add("totales", totales);
         return balance;
 
     }
