@@ -16,7 +16,7 @@ const Styles = styled.div`
     font-size: 30px;
     font-family: "Poppins", sans-serif;
   }
-  table {
+  .tabla {
     background-color: #ffffff;
     text-align: center;
     font-family: "Poppins", sans-serif;
@@ -78,16 +78,15 @@ export default function ResultadoBalance({ datos }) {
           <main className="lista">
             <h1 className="text-center h5 mb-3 fw-normal">Balance</h1>
             <div className="form-floating">
-              <div className="table-responsive justify-content-center">
-                <table className="table table-hover">
-                  <tbody>
+              <div className="table-responsive justify-content-center tabla">
+
                     {datos.meses
                       ? datos.meses.map((item, index) => {
                           return (
                             <>
                               <Col>
                                 <tr key={index}>
-                                  <th>{item.mes} {item.anio}</th>
+                                  <th>{item.mes} {item.año}</th>
                                   <th>Egresos</th>
                                   <th>Ingresos</th>
                                   <th>Cantidad</th>
@@ -107,17 +106,17 @@ export default function ResultadoBalance({ datos }) {
                                             <td>{valor.ventasPaypal}</td>
                                             <td>{valor.cantidad}</td>
                                         </tr>
-                                    )} else if (valor.devolucionEfectivo) {return(
-                                        <tr key={valor.devolucionEfectivo}>
+                                    )} else if (valor.devolucionesEfectivo) {return(
+                                        <tr key={valor.devolucionesEfectivo}>
                                             <td id="itemId">Devoluciones Efectivo</td>
-                                            <td>{valor.devolucionEfectivo}</td>
+                                            <td>{valor.devolucionesEfectivo}</td>
                                             <td></td>
                                             <td>{valor.cantidad}</td>
                                         </tr>
-                                    )} else if (valor.devolucionPaypal) {return(
-                                        <tr key={valor.devolucionPaypal}>
+                                    )} else if (valor.devolucionesPaypal) {return(
+                                        <tr key={valor.devolucionesPaypal}>
                                             <td id="itemId">Devoluciones Paypal</td>
-                                            <td>{valor.devolucionPaypal}</td>
+                                            <td>{valor.devolucionesPaypal}</td>
                                             <td></td>
                                             <td>{valor.cantidad}</td>
                                         </tr>
@@ -135,9 +134,11 @@ export default function ResultadoBalance({ datos }) {
                           )}
                         )
                       : null}
+                     
                     {datos.totales ?
                     <Col>
-                        <tr key={1}>
+                        <br/>
+                        <tr key={2}>
                             <th>Totales</th>
                             <th>Egresos</th>
                             <th>Ingresos</th>
@@ -158,17 +159,17 @@ export default function ResultadoBalance({ datos }) {
                                     <td>{valor.ventasPaypal}</td>
                                     <td>{valor.cantidad}</td>
                                 </tr>
-                            )} else if (valor.devolucionEfectivo) {return(
-                                <tr key={valor.devolucionEfectivo}>
+                            )} else if (valor.devolucionesEfectivo) {return(
+                                <tr key={valor.devolucionesEfectivo}>
                                     <td id="itemId">Devoluciones Efectivo</td>
-                                    <td>{valor.devolucionEfectivo}</td>
+                                    <td>{valor.devolucionesEfectivo}</td>
                                     <td></td>
                                     <td>{valor.cantidad}</td>
                                 </tr>
-                            )} else if (valor.devolucionPaypal) {return(
-                                <tr key={valor.devolucionPaypal}>
+                            )} else if (valor.devolucionesPaypal) {return(
+                                <tr key={valor.devolucionesPaypal}>
                                     <td id="itemId">Devoluciones Paypal</td>
-                                    <td>{valor.devolucionPaypal}</td>
+                                    <td>{valor.devolucionesPaypal}</td>
                                     <td></td>
                                     <td>{valor.cantidad}</td>
                                 </tr>
@@ -176,8 +177,7 @@ export default function ResultadoBalance({ datos }) {
                             }
                         )}
                     </Col> : null}
-                  </tbody>
-                </table>
+                  
               </div>
             </div>
           </main>
