@@ -90,6 +90,7 @@ export const NavigationBar = () => (
             </Nav.Item>
             <NavDropdown title="Restaurante" menuVariant="color">
               <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
+              <NavDropdown.Item href="/balance">Balance</NavDropdown.Item>
               <NavDropdown.Item href="/reclamos">Reclamos</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
