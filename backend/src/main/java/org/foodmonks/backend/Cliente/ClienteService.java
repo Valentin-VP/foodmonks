@@ -14,11 +14,23 @@ import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.MenuConverter;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.EmailService.EmailService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Pedido.PedidoConverter;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
+import org.foodmonks.backend.Reclamo.ReclamoService;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
@@ -43,13 +55,14 @@ import java.util.List;
 import java.util.Locale;
 
 import org.foodmonks.backend.Menu.MenuRepository;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.TemplateEngine;
 
 @Service
 public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
-    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final DireccionService direccionService;
     private final ClienteConverter clienteConverter;
@@ -59,7 +72,10 @@ public class ClienteService {
     private final MenuService menuService;
     private final MenuConverter menuConverter;
     private final MenuRepository menuRepository;
-    private final DireccionRepository direccionRepository;
+    private final PedidoConverter pedidoConverter;
+    private final EmailService emailService;
+    private final ReclamoService reclamoService;
+    private final TemplateEngine templateEngine;
 
     @Autowired
     public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
@@ -67,16 +83,19 @@ public class ClienteService {
                           ClienteConverter clienteConverter, PedidoService pedidoService, 
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
                           MenuService menuService,MenuConverter menuConverter,
-                          MenuRepository menuRepository, UsuarioRepository usuarioRepository,
-                          DireccionRepository direccionRepository) {
+                          MenuRepository menuRepository, PedidoConverter pedidoConverter,
+                          EmailService emailService, ReclamoService reclamoService,
+                          TemplateEngine templateEngine) {
+
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
         this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
         this.menuService = menuService; this.menuConverter = menuConverter; 
         this.menuRepository = menuRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.direccionRepository = direccionRepository;
+        this.pedidoConverter = pedidoConverter;
+        this.emailService = emailService; this.reclamoService = reclamoService;
+        this.templateEngine = templateEngine;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -378,4 +397,42 @@ public class ClienteService {
             throw new PedidoTotalException("El total no esta en formato de numero real");
         }
     }
+
+    public JsonObject agregarReclamo(String correo, JsonObject jsonReclamo) throws PedidoNoExisteException, EmailNoEnviadoException,
+            PedidoIdException, ReclamoComentarioException, ReclamoRazonException, ReclamoNoFinalizadoException, ReclamoExisteException, ClienteNoEncontradoException, ClientePedidoNoCoincideException, PedidoSinRestauranteException {
+        verificarJsonReclamo(jsonReclamo);
+        Cliente cliente = obtenerCliente(correo);
+        Pedido pedido = pedidoService.obtenerPedido(jsonReclamo.get("pedidoId").getAsLong());
+        if (pedido.getCliente() == null) {
+            throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
+        }
+        if (!cliente.getCorreo().equals(pedido.getCliente().getCorreo())){
+            throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
+        }
+        JsonObject reclamo = reclamoService.crearReclamo(jsonReclamo.get("razon").getAsString(),jsonReclamo.get("comentario").getAsString(), LocalDateTime.now(),pedido);
+        String[] cc = new String[1];
+        cc[0] = correo;
+        Context context = new Context();
+        context.setVariable("user", pedido.getRestaurante().getNombreRestaurante());
+        context.setVariable("pedido","Identificador pedido: #" + pedido.getId());
+        context.setVariable("correoCliente", "Mail del cliente: " + correo);
+        context.setVariable("fecha", "Fecha del reclamo: " + LocalDateTime.now().format((DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"))));
+        context.setVariable("contenido",jsonReclamo.get("comentario").getAsString());
+        String htmlContent = templateEngine.process("reclamo", context);
+        emailService.enviarMail(pedido.getRestaurante().getCorreo(),"Reclamo : " + jsonReclamo.get("razon").getAsString(),htmlContent,cc);
+        return reclamo;
+    }
+
+    public void verificarJsonReclamo (JsonObject jsonReclamo) throws PedidoIdException, ReclamoRazonException, ReclamoComentarioException {
+        if (!jsonReclamo.get("pedidoId").getAsString().matches("[0-9]*") || jsonReclamo.get("pedidoId").getAsString().isBlank()){
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        if (jsonReclamo.get("razon").getAsString().isBlank()){
+            throw new ReclamoRazonException("La razon del reclamo no puede ser vacia");
+        }
+        if (jsonReclamo.get("comentario").getAsString().isBlank()){
+            throw new ReclamoComentarioException("El comentario del reclamo no puede ser vacio");
+        }
+    }
+
 }

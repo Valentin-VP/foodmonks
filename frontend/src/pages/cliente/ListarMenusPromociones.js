@@ -78,6 +78,15 @@ function MyProvider({ children }) {
     values.categoria = sessionStorage.getItem("values-categoria");
     values.precioInicial = sessionStorage.getItem("values-precioInicial");
     values.precioFinal = sessionStorage.getItem("values-precioFinal");
+    if (values.categoria === null) {
+      values.categoria = "";
+    }
+    if (values.precioInicial === null) {
+      values.precioInicial = "";
+    }
+    if (values.precioFinal === null) {
+      values.precioFinal = "";
+    }
     fetch();
   }, []);
 
@@ -175,16 +184,14 @@ function ListadoMenusPromociones() {
                 <ItemCard
                   img={item.imagen}
                   title={item.nombre}
-                  desc={item.multiplicador}
+                  desc={item.multiplicadorPromocion}
                   price={item.price}
                   item={item}
                 />
               </div>
             );
           })}
-
           {loading && more && <Loading />}
-
           {!loading && more && <div ref={setElement} id="scroll"></div>}
         </div>
       </Layout>
@@ -192,6 +199,7 @@ function ListadoMenusPromociones() {
   );
 }
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
   return (
     <MyProvider>
