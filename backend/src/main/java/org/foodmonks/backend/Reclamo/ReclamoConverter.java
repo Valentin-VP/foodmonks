@@ -26,6 +26,7 @@ public class ReclamoConverter {
         jsonReclamo.addProperty("comentario",reclamo.getComentario());
         jsonReclamo.addProperty("fecha",reclamo.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         jsonReclamo.addProperty("idPedido",reclamo.getPedido().getId());
+        jsonReclamo.addProperty("estadoPedido", reclamo.getPedido().getEstado().name());
         return jsonReclamo;
     }
 
