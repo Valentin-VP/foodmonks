@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Modal, { ModalProvider } from "styled-react-modal";
 import { fetchPedidoFromReclamo } from "../../services/Requests";
-import { Noti } from "../../components/Notification";
+import { Noti, NotiError } from "../../components/Notification";
 import { Button } from "react-bootstrap";
+import { realizarDevolucion } from "../../services/Requests";
 
 const StyledModal = Modal.styled`
   * {
@@ -57,7 +58,9 @@ function ListarReclamos({ reclamos }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAceptar, setIsAceptar] = useState(false);
   const [isRechazar, setIsRechazar] = useState(false);
-  const [comentario, setComentario] = useState();
+  const [comentario, setComentario] = useState({
+    motivoDevolucion: "",
+  });
 
   const toggleModal = (e) => {
     setIsOpen(!isOpen);
@@ -89,16 +92,32 @@ function ListarReclamos({ reclamos }) {
 
   const handleChangeRechazar = (e) => {
     e.persist();
-    setComentario(e.target.value);
+    setComentario((comentario) => ({
+      ...comentario,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const aceptarReclamo = () => {
-    console.log("aceptar");
+    realizarDevolucion(pedido.id, true, comentario)
+      .then((response) => {
+        console.log(response);
+        Noti("El reclamo fue aceptado con éxito");
+      })
+      .catch((error) => {
+        NotiError(error.response.data);
+      });
   };
 
   const rechazarReclamo = () => {
-    console.log("rechazar");
-    console.log(comentario);
+    realizarDevolucion(pedido.id, false, comentario)
+      .then((response) => {
+        console.log(response);
+        Noti("El reclamo fue rechazado con éxito");
+      })
+      .catch((error) => {
+        NotiError(error.response.data);
+      });
   };
 
   return (
@@ -140,6 +159,20 @@ function ListarReclamos({ reclamos }) {
                             <button
                               className="btn btn-sm btn-secondary"
                               type="button"
+                              disabled={(e) => {
+                                obtenerPedido(reclamo.idPedido);
+                                if (pedido.estado === "DEVUELTO") {
+                                  NotiError("El pedido fue devuelto");
+                                  return true;
+                                } else if (
+                                  pedido.estado === "RECLAMORECHAZADO"
+                                ) {
+                                  NotiError("El pedido Rechazado");
+                                  return true;
+                                } else {
+                                  return false;
+                                }
+                              }}
                               onClick={(e) => {
                                 obtenerPedido(reclamo.idPedido);
                                 toggleModalAceptar();
@@ -155,6 +188,20 @@ function ListarReclamos({ reclamos }) {
                             <button
                               className="btn btn-sm btn-secondary"
                               type="button"
+                              disabled={(e) => {
+                                obtenerPedido(reclamo.idPedido);
+                                if (pedido.estado === "DEVUELTO") {
+                                  NotiError("El pedido fue devuelto");
+                                  return true;
+                                } else if (
+                                  pedido.estado === "RECLAMORECHAZADO"
+                                ) {
+                                  NotiError("El pedido Rechazado");
+                                  return true;
+                                } else {
+                                  return false;
+                                }
+                              }}
                               onClick={(e) => {
                                 obtenerPedido(reclamo.idPedido);
                                 toggleModalRechazar();
@@ -226,7 +273,12 @@ function ListarReclamos({ reclamos }) {
             <div className="cuerpo">
               <br />
               <span> ¿Cual es la razon de el rechazo? </span>
-              <textarea id="inputRechazar" onChange={handleChangeRechazar} />
+              <textarea
+                id="inputRechazar"
+                name="motivo"
+                onChange={handleChangeRechazar}
+                required
+              />
             </div>
             <div className="abajo">
               <Button variant="danger" onClick={rechazarReclamo}>

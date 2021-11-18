@@ -224,12 +224,4 @@ public class PedidoService {
         return pedidoConverter.jsonPedido(obtenerPedido(id));
     }
 
-    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
-        Pedido pedido = pedidoRepository.findPedidoById(id);
-        if (pedido == null) {
-            throw new PedidoNoExisteException("No existe pedido con id " + id);
-        }
-        return pedido;
-    }
-
 }

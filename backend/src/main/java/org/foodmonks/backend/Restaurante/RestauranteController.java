@@ -469,13 +469,9 @@ public class RestauranteController {
             @RequestParam(required = false, name = "cliente") String correoCliente,
             @RequestParam(required = false, name = "razon") String razon
     ) {
-        String newtoken = "";
         JsonArray jsonArray = new JsonArray();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correoRestaurante = tokenHelp.getUsernameFromToken(newtoken);
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, correoCliente, razon);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
