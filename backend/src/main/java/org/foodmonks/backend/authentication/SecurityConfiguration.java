@@ -65,6 +65,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/admin/listarUsuarios").hasRole("ADMIN")
                         .antMatchers("/api/v1/cliente/realizarPedido").hasRole("CLIENTE")
                         .antMatchers("/api/v1/cliente/calificarRestaurante").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/modificarCalificacionRestaurante").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/eliminarCalificacionRestaurante").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/restaurante/calificarCliente").hasRole("RESTAURANTE")
+                        .antMatchers("/api/v1/restaurante/modificarCalificacionCliente").hasRole("RESTAURANTE")
+                        .antMatchers("/api/v1/restaurante/eliminarCalificacionCliente").hasRole("RESTAURANTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
                         UsernamePasswordAuthenticationFilter.class);
