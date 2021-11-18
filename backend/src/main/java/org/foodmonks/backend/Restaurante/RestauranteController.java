@@ -19,6 +19,7 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
@@ -48,14 +49,17 @@ public class RestauranteController {
     private final MenuService menuService;
     private final RestauranteHelper restauranteHelper;
     private final DireccionService direccionService;
+    private final PedidoService pedidoService;
 
     @Autowired
     RestauranteController(RestauranteService restauranteService, MenuService menuService,
-                          RestauranteHelper restauranteHelper, DireccionService direccionService) {
+                          DireccionService direccionService,
+                          PedidoService pedidoService, RestauranteHelper restauranteHelper) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
         this.restauranteHelper = restauranteHelper;
         this.direccionService = direccionService;
+        this.pedidoService = pedidoService;
     }
 
     @Operation(summary = "Crea un nuevo Restaurante",
@@ -413,7 +417,7 @@ public class RestauranteController {
     }
 
   
-@Operation(summary = "Cambia el estado del pedido",
+    @Operation(summary = "Cambia el estado del pedido",
             description = "Cambia el estado del pedido al estado necesario.",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "pedido" })
@@ -455,6 +459,49 @@ public class RestauranteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok("Se cambió el estado del pedido.");
+    }
+
+    //listar buscar reclamos hechos por clientes
+    @GetMapping(path = "/listarReclamos")
+    public ResponseEntity<?> listarReclamos(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false, name = "orden") boolean orden,
+            @RequestParam(required = false, name = "cliente") String correoCliente,
+            @RequestParam(required = false, name = "razon") String razon
+    ) {
+        String newtoken = "";
+        JsonArray jsonArray = new JsonArray();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correoRestaurante = tokenHelp.getUsernameFromToken(newtoken);
+            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, correoCliente, razon);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Obtiene detalles de un Pedido",
+            description = "Obtiene un Pedido con su información",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "pedido"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping("/obtenerPedido")
+    public ResponseEntity<?> obtenerPedido(
+            @RequestParam(name = "id") String idPedido){
+        JsonObject pedidoResponse;
+        try{
+            Long id = Long.valueOf(idPedido);
+            pedidoResponse = pedidoService.buscarPedidoById(id);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(pedidoResponse, HttpStatus.OK);
     }
 
     @PostMapping("/realizarDevolucion")

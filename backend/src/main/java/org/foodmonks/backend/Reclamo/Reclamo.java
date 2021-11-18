@@ -1,13 +1,10 @@
 package org.foodmonks.backend.Reclamo;
 
-import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 import javax.persistence.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.foodmonks.backend.Pedido.Pedido;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.persistencia.ReclamoID;
 
 @Getter
@@ -17,12 +14,11 @@ import org.foodmonks.backend.persistencia.ReclamoID;
 public class Reclamo {
 	
 	@Id
-	//@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 	private String razon;
 	private String comentario;
-	private LocalDate  fecha;
+	private LocalDateTime fecha;
 	@Id
 	@OneToOne
 	@JoinColumn(
@@ -30,18 +26,17 @@ public class Reclamo {
 			updatable=false
 	)
 	private Pedido pedido;
-/*	@ManyToOne
-	private Restaurante restaurante;*/
 
 	public Reclamo() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Reclamo(String razon, String comentario, LocalDate fecha) {
+	public Reclamo(String razon, String comentario, LocalDateTime fecha, Pedido pedido) {
 		super();
 		this.razon = razon;
 		this.comentario = comentario;
 		this.fecha = fecha;
+		this.pedido = pedido;
 	}
 
 }

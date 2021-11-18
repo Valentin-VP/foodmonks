@@ -17,6 +17,8 @@ import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Reclamo.Reclamo;
+import org.foodmonks.backend.Reclamo.ReclamoConverter;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -28,11 +30,6 @@ import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.foodmonks.backend.paypal.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -45,6 +42,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -57,29 +55,30 @@ public class RestauranteService {
     private final MenuService menuService;
     private final RestauranteConverter restauranteConverter;
     private final PedidoService pedidoService;
+    private final ReclamoConverter reclamoConverter;
     private final TemplateEngine templateEngine;
     private final EmailService emailService;
     private final PayPalService payPalService;
 
     @Autowired
-
     public RestauranteService(
         RestauranteRepository restauranteRepository,
         PasswordEncoder passwordEncoder,
         UsuarioRepository usuarioRepository,
-        MenuService menuService,
-        RestauranteConverter restauranteConverter,
+        MenuService menuService, 
+        RestauranteConverter restauranteConverter, 
         PedidoService pedidoService,
+        ReclamoConverter reclamoConverter,
         TemplateEngine templateEngine,
         EmailService emailService,
-        PayPalService payPalService
-        ) {
-            this.restauranteRepository = restauranteRepository;
-            this.passwordEncoder = passwordEncoder;
+        PayPalService payPalService) {
+            this.restauranteRepository = restauranteRepository; 
+            this.passwordEncoder = passwordEncoder; 
             this.usuarioRepository = usuarioRepository; 
             this.menuService = menuService; 
             this.restauranteConverter = restauranteConverter;
             this.pedidoService = pedidoService;
+            this.reclamoConverter = reclamoConverter;
             this.templateEngine = templateEngine;
             this.emailService = emailService;
             this.payPalService = payPalService;
@@ -163,24 +162,38 @@ public class RestauranteService {
   
   
     public List<JsonObject> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu, boolean ordenCalificacion){
-        if (!nombreRestaurante.isEmpty()){
-            return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));
-        }
+
         if (ordenCalificacion) {
-            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
-        }
-        List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
-        if (!categoriaMenu.isEmpty()) {
-            List<Restaurante> result = new ArrayList<>();
-            CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
-            for (Restaurante restaurante : restaurantes){
-                if (menuService.existeCategoriaMenu(restaurante,categoria)){
-                    result.add(restaurante);
-                }
+            if (!nombreRestaurante.isBlank()){
+                return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,EstadoRestaurante.ABIERTO));
             }
-            return restauranteConverter.listaRestaurantes(result);
+            if (!categoriaMenu.isBlank()) {
+                List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
+                CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
+                return obtenerRestauranteMenuConCategoria(restaurantes,categoria);
+            }
+            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
+        } else {
+            if (!nombreRestaurante.isBlank()){
+                return restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,EstadoRestaurante.ABIERTO));
+            }
+            if (!categoriaMenu.isBlank()) {
+                List<Restaurante> restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+                CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
+                return obtenerRestauranteMenuConCategoria(restaurantes,categoria);
+            }
+            return  restauranteConverter.listaRestaurantes(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
         }
-        return restauranteConverter.listaRestaurantes(restaurantes);
+    }
+
+    public List<JsonObject> obtenerRestauranteMenuConCategoria(List<Restaurante> restaurantes, CategoriaMenu categoriaMenu){
+        List<Restaurante> result = new ArrayList<>();
+        for (Restaurante restaurante : restaurantes) {
+            if (menuService.existeCategoriaMenu(restaurante, categoriaMenu)) {
+                result.add(restaurante);
+            }
+        }
+        return restauranteConverter.listaRestaurantes(result);
     }
 
     //Si el estado es "CONFIRMADO" se agregan el tiempo a fechaHoraEntrega (a partir de fechaHoraProcesado)
@@ -192,7 +205,7 @@ public class RestauranteService {
         if (!pedidoService.existePedidoRestaurante(idPedido,restaurante)){
             throw new RestauranteNoEncontradoException("No existe el pedido con id " + idPedido + " para el Restaurante " + correo);
         }
-        Pedido pedido = pedidoService.buscarPedidoId(idPedido);
+        Pedido pedido = pedidoService.obtenerPedido(idPedido);
 
         if (estado.equals("CONFIRMADO")){
             pedidoService.cambiarFechasEntregaProcesado(idPedido, minutos);
@@ -285,6 +298,51 @@ public class RestauranteService {
             sizeFinal = 5;
         }
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
+    }
+
+    public void agregarReclamoRestaurante(Restaurante restaurante, Reclamo reclamo){
+        List<Reclamo> reclamos = restaurante.getReclamos();
+        reclamos.add(reclamo);
+        restauranteRepository.save(restaurante);
+    }
+
+    public JsonArray listarReclamos(String correoRestaurante, boolean orden, String correoCliente, String razon) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = obtenerRestaurante(correoRestaurante);
+        List<Reclamo> reclamos;
+        if (!correoCliente.isBlank()){
+            reclamos = obtenerReclamoCliente(restaurante,correoCliente);
+        }
+        if (!razon.isBlank()){
+            reclamos = obtenerReclamoRazon(restaurante,razon);
+        } else {
+            reclamos = restaurante.getReclamos();
+        }
+        if (orden) {
+            reclamos.sort(Comparator.comparing(Reclamo::getFecha).reversed());
+        }
+        return reclamoConverter.arrayJsonReclamo(reclamos);
+    }
+
+    public List<Reclamo> obtenerReclamoCliente (Restaurante restaurante, String correoCliente){
+        List<Reclamo> reclamos = new ArrayList<>();
+        for (Reclamo reclamo : restaurante.getReclamos()){
+            if (reclamo.getPedido() != null && reclamo.getPedido().getCliente() != null && !reclamo.getPedido().getCliente().getCorreo().isBlank()){
+                if (reclamo.getPedido().getCliente().getCorreo().contains(correoCliente)){
+                    reclamos.add(reclamo);
+                }
+            }
+        }
+        return reclamos;
+    }
+
+    public List<Reclamo> obtenerReclamoRazon (Restaurante restaurante, String razon){
+        List<Reclamo> reclamos = new ArrayList<>();
+        for (Reclamo reclamo : restaurante.getReclamos()){
+            if (!reclamo.getRazon().isBlank() && reclamo.getRazon().contains(razon)){
+                reclamos.add(reclamo);
+            }
+        }
+        return reclamos;
     }
 
     public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String motivoDevolucion, Boolean estadoDevolucion) throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException, EmailNoEnviadoException, IOException, PedidoDevolucionException, PedidoDistintoRestauranteException {

@@ -31,6 +31,10 @@ const Styles = styled.div`
     margin-left: 25px;
   }
 
+  .navbar-light .navbar-toggler-icon {
+    background-image: url("https://icons.veryicon.com/png/o/food--drinks/food-series-1/hamburger-46.png");
+  }
+
   .navbar-toggler {
     margin-right: 20px;
   }

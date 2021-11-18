@@ -150,7 +150,7 @@ function RegistroCliente() {
                 setTimeout(() => { window.location.replace("/"); }, 2000); //para esperar 5 segundos y redireccionar
               }
             }).catch((error) =>{
-                setAlerta("Error en el alta");
+                setAlerta(error.response.data);
                 setTipo("danger");        
             });
           } else {

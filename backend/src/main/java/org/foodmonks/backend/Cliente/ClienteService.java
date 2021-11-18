@@ -11,12 +11,26 @@ import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
+import org.foodmonks.backend.Menu.MenuConverter;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
+import org.foodmonks.backend.Usuario.UsuarioRepository;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.EmailService.EmailService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Pedido.PedidoConverter;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
+import org.foodmonks.backend.Reclamo.ReclamoService;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
@@ -40,6 +54,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.foodmonks.backend.Menu.MenuRepository;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.TemplateEngine;
+
 @Service
 @Slf4j
 public class ClienteService {
@@ -53,18 +71,31 @@ public class ClienteService {
     private final RestauranteService restauranteService;
     private final MenuCompraService menuCompraService;
     private final MenuService menuService;
+    private final MenuConverter menuConverter;
+    private final MenuRepository menuRepository;
+    private final PedidoConverter pedidoConverter;
+    private final EmailService emailService;
+    private final ReclamoService reclamoService;
+    private final TemplateEngine templateEngine;
 
     @Autowired
     public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, 
                           UsuarioService usuarioService, DireccionService direccionService, 
                           ClienteConverter clienteConverter, PedidoService pedidoService, 
                           RestauranteService restauranteService, MenuCompraService menuCompraService, 
-                          MenuService menuService) {
+                          MenuService menuService,MenuConverter menuConverter,
+                          MenuRepository menuRepository, PedidoConverter pedidoConverter,
+                          EmailService emailService, ReclamoService reclamoService,
+                          TemplateEngine templateEngine) {
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
         this.restauranteService = restauranteService; this.menuCompraService = menuCompraService; 
-        this.menuService = menuService;
+        this.menuService = menuService; this.menuConverter = menuConverter; 
+        this.menuRepository = menuRepository;
+        this.pedidoConverter = pedidoConverter;
+        this.emailService = emailService; this.reclamoService = reclamoService;
+        this.templateEngine = templateEngine;
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
@@ -248,7 +279,7 @@ public class ClienteService {
         }
         return pedidoService.listaPedidosRealizados(cliente, estado, nombreMenu, nombreRestaurante, pago, orden, fechaFinal, totalFinal, pageFinal, sizeFinal);
     }
-  
+
     public JsonObject obtenerJsonCliente(String correo) throws ClienteNoEncontradoException {
         Cliente cliente = obtenerCliente(correo);
         return clienteConverter.jsonCliente(cliente);
@@ -266,13 +297,59 @@ public class ClienteService {
     public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal) throws RestauranteNoEncontradoException {
 
         Restaurante restaurante = restauranteService.obtenerRestaurante(correo);
-        List<JsonObject> menus = menuService.obtenerListaMenu(restaurante);
 
-        if(!categoria.isEmpty()){
+        if (restaurante == null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + restaurante);
+        }
+
+        List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
+        List<Menu> resultado = new ArrayList<>();
+
+        if(!categoria.isBlank() && precioInicial == null && precioFinal == null){
             return menuService.listMenuRestauranteCategoria(restaurante,CategoriaMenu.valueOf(categoria));
         }
 
-        return menus;
+        if(!categoria.isBlank() && precioInicial != null && precioFinal != null){
+
+                CategoriaMenu categoriaMenu = CategoriaMenu.valueOf(categoria);
+
+            if (menuService.existeCategoriaMenu(restaurante,categoriaMenu)) {
+
+                for (Menu menu : menus) {
+                    if (menu.getMultiplicadorPromocion() != 0) {
+                        float precioPromo =  (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
+
+                        if(precioInicial <= precioPromo && precioFinal >= precioPromo){
+                            resultado.add(menu);
+                        }
+                    }else{
+                        if(precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()){
+                            resultado.add(menu);
+                        }
+                    }
+                }
+                return menuConverter.listaJsonMenu(resultado);
+            }
+        }
+        if(categoria.isBlank() && precioInicial != null && precioFinal != null){
+
+            for (Menu menu : menus) {
+                if (menu.getMultiplicadorPromocion() != 0) {
+                    float precioPromo =  (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
+
+                    if(precioInicial <= precioPromo && precioFinal >= precioPromo){
+                        resultado.add(menu);
+                    }
+                }else{
+                    if(precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()){
+                        resultado.add(menu);
+                    }
+                }
+            }
+            return menuConverter.listaJsonMenu(resultado);
+        }
+
+        return menuConverter.listaJsonMenu(menus);
     }
 
     public JsonObject crearPedido(String correo, JsonObject jsonRequestPedido) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, ClienteNoExisteDireccionException, MenuNoEncontradoException, MenuIdException, PedidoTotalException {
@@ -322,4 +399,42 @@ public class ClienteService {
             throw new PedidoTotalException("El total no esta en formato de numero real");
         }
     }
+
+    public JsonObject agregarReclamo(String correo, JsonObject jsonReclamo) throws PedidoNoExisteException, EmailNoEnviadoException,
+            PedidoIdException, ReclamoComentarioException, ReclamoRazonException, ReclamoNoFinalizadoException, ReclamoExisteException, ClienteNoEncontradoException, ClientePedidoNoCoincideException, PedidoSinRestauranteException {
+        verificarJsonReclamo(jsonReclamo);
+        Cliente cliente = obtenerCliente(correo);
+        Pedido pedido = pedidoService.obtenerPedido(jsonReclamo.get("pedidoId").getAsLong());
+        if (pedido.getCliente() == null) {
+            throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
+        }
+        if (!cliente.getCorreo().equals(pedido.getCliente().getCorreo())){
+            throw new ClientePedidoNoCoincideException("El cliente con correo " + cliente.getCorreo() + " no realizo el pedido a reclamar");
+        }
+        JsonObject reclamo = reclamoService.crearReclamo(jsonReclamo.get("razon").getAsString(),jsonReclamo.get("comentario").getAsString(), LocalDateTime.now(),pedido);
+        String[] cc = new String[1];
+        cc[0] = correo;
+        Context context = new Context();
+        context.setVariable("user", pedido.getRestaurante().getNombreRestaurante());
+        context.setVariable("pedido","Identificador pedido: #" + pedido.getId());
+        context.setVariable("correoCliente", "Mail del cliente: " + correo);
+        context.setVariable("fecha", "Fecha del reclamo: " + LocalDateTime.now().format((DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"))));
+        context.setVariable("contenido",jsonReclamo.get("comentario").getAsString());
+        String htmlContent = templateEngine.process("reclamo", context);
+        emailService.enviarMail(pedido.getRestaurante().getCorreo(),"Reclamo : " + jsonReclamo.get("razon").getAsString(),htmlContent,cc);
+        return reclamo;
+    }
+
+    public void verificarJsonReclamo (JsonObject jsonReclamo) throws PedidoIdException, ReclamoRazonException, ReclamoComentarioException {
+        if (!jsonReclamo.get("pedidoId").getAsString().matches("[0-9]*") || jsonReclamo.get("pedidoId").getAsString().isBlank()){
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        if (jsonReclamo.get("razon").getAsString().isBlank()){
+            throw new ReclamoRazonException("La razon del reclamo no puede ser vacia");
+        }
+        if (jsonReclamo.get("comentario").getAsString().isBlank()){
+            throw new ReclamoComentarioException("El comentario del reclamo no puede ser vacio");
+        }
+    }
+
 }

@@ -41,10 +41,14 @@ public class ClienteConverter {
         jsonCliente.addProperty("correo", cliente.getCorreo());
         jsonCliente.addProperty("nombre", cliente.getNombre());
         jsonCliente.addProperty("apellido", cliente.getApellido());
-        jsonCliente.addProperty("fechaRegistro", cliente.getFechaRegistro().toString());
+        if (cliente.getFechaRegistro() != null) {
+            jsonCliente.addProperty("fechaRegistro", cliente.getFechaRegistro().toString());
+        } else {
+            jsonCliente.addProperty("fechaRegistro","");
+        }
         jsonCliente.addProperty("calificacion", cliente.getCalificacion());
         jsonCliente.addProperty("estado", cliente.getEstado().toString());
-        jsonCliente.addProperty("mobileToken", cliente.getMobileToken());
+       // jsonCliente.addProperty("mobileToken", cliente.getMobileToken());
         JsonArray jsonDirecciones = new JsonArray();
         for (Direccion direccion : cliente.getDirecciones())  {
             jsonDirecciones.add(direccionConverter.jsonDireccion(direccion));

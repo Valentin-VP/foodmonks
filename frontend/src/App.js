@@ -19,11 +19,13 @@ toast.configure(); //esto esta para poder enviar las notificaciones
 function App() {
   const [tipoUser, setTipoUser] = useState(null);
   if (getToken() !== null) {
-    fetchUserData().then((response) => {
-      setTipoUser(response.data.roles[0].role);
-    }).catch((error)=>{
-      clearState();
-    })
+    fetchUserData()
+      .then((response) => {
+        setTipoUser(response.data.roles[0].role);
+      })
+      .catch((error) => {
+        clearState();
+      });
   } else if (tipoUser == null) {
     setTipoUser("NO_ROLE");
   }

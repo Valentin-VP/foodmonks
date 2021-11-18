@@ -16,7 +16,7 @@ import java.util.List;
 
 @Configuration
 public class PedidoConfig {
-    @Bean
+/*    @Bean
     CommandLineRunner commandLineRunnerPedido(PedidoRepository pedidoRepository, RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder) {
         return args ->{
 
@@ -28,13 +28,13 @@ public class PedidoConfig {
                     passwordEncoder.encode("restaurante123"), ahora, calificacion, "NombreRestaurante", 123456, dir, EstadoRestaurante.ABIERTO, 23487123, "DescripcionRestaurante", "CuentaDePaypal", null);
             restauranteRepository.saveAll(List.of(restaurante));
 
-            Pedido pedido = new Pedido(EstadoPedido.CONFIRMADO,Float.valueOf("200"), MedioPago.EFECTIVO);
-            pedido.setRestaurante(restaurante);
+            //Pedido pedido = new Pedido(EstadoPedido.CONFIRMADO,Float.valueOf("200"), MedioPago.EFECTIVO);
+            //pedido.setRestaurante(restaurante);
             //pedido.setDireccion(dir);
 
-            pedidoRepository.save(pedido);
+            //pedidoRepository.save(pedido);
             // ejemplo dar de alta pedido
 
         };
-    }
+    }*/
 }
