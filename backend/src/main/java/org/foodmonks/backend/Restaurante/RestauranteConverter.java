@@ -40,7 +40,8 @@ public class RestauranteConverter {
         jsonRestaurante.addProperty("nombre", restaurante.getNombre());
         jsonRestaurante.addProperty("apellido", restaurante.getApellido());
         jsonRestaurante.addProperty("fechaRegistro", restaurante.getFechaRegistro().toString());
-        jsonRestaurante.addProperty("calificacion", restaurante.getCalificacion());
+        jsonRestaurante.addProperty("calificacion", restaurante.getCantidadCalificaciones() >= 10 ? restaurante.getCalificacion() : 5f);
+        jsonRestaurante.addProperty("cantidadCalificaciones", restaurante.getCantidadCalificaciones());
         jsonRestaurante.addProperty("nombreRestaurante", restaurante.getNombreRestaurante());
         jsonRestaurante.addProperty("rut", restaurante.getRut());
         jsonRestaurante.addProperty("estado",restaurante.getEstado().toString());

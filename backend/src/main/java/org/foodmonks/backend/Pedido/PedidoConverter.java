@@ -34,14 +34,8 @@ public class PedidoConverter {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
         jsonPedido.addProperty("estado", pedido.getEstado().name());
-        if (pedido.getCalificacionCliente() != null){
-            jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente().getPuntaje());
-            jsonPedido.addProperty("comentarioCliente", pedido.getCalificacionCliente().getComentario());
-        }
-        if (pedido.getCalificacionRestaurante() != null){
-            jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante().getPuntaje());
-            jsonPedido.addProperty("comentarioRestaurante", pedido.getCalificacionRestaurante().getComentario());
-        }
+        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? true : false);
+        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? true : false);
         if (pedido.getFechaHoraProcesado() != null) {
             jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }else{
@@ -80,11 +74,8 @@ public class PedidoConverter {
                 (pedido.getEstado() == EstadoPedido.FINALIZADO ? "Finalizado" :
                         (pedido.getEstado() == EstadoPedido.PENDIENTE ? "Pendiente" :
                                 (pedido.getEstado() == EstadoPedido.CONFIRMADO ? "Confirmado" : "Rechazado"))));
-        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "");
-        jsonPedido.addProperty("calificacionRestauranteComentario", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getComentario() : "");
-        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getPuntaje().toString() : "");
-        jsonPedido.addProperty("calificacionClienteComentario", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getComentario() : "");
-
+        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? true : false);
+        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? true : false);
         if(pedido.getFechaHoraEntrega() != null) {
             jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }else{

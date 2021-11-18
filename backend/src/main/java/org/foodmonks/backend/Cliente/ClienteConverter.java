@@ -42,7 +42,8 @@ public class ClienteConverter {
         jsonCliente.addProperty("nombre", cliente.getNombre());
         jsonCliente.addProperty("apellido", cliente.getApellido());
         jsonCliente.addProperty("fechaRegistro", cliente.getFechaRegistro().toString());
-        jsonCliente.addProperty("calificacion", cliente.getCalificacion());
+        jsonCliente.addProperty("calificacion", cliente.getCantidadCalificaciones() >= 10 ? cliente.getCalificacion() : 5f);
+        jsonCliente.addProperty("cantidadCalificaciones", cliente.getCantidadCalificaciones());
         jsonCliente.addProperty("estado", cliente.getEstado().toString());
         jsonCliente.addProperty("mobileToken", cliente.getMobileToken());
         JsonArray jsonDirecciones = new JsonArray();
