@@ -3,6 +3,7 @@ package org.foodmonks.backend.Pedido;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.CriterioQuery;
 import org.foodmonks.backend.datatypes.EstadoPedido;
@@ -222,6 +223,11 @@ public class PedidoService {
 
     public JsonObject buscarPedidoById(Long id) throws PedidoNoExisteException {
         return pedidoConverter.jsonPedido(obtenerPedido(id));
+    }
+
+    public void agregarReclamoPedido(Pedido pedido, Reclamo reclamo){
+        pedido.setReclamo(reclamo);
+        pedidoRepository.save(pedido);
     }
 
 }
