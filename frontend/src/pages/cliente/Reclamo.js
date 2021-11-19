@@ -96,9 +96,9 @@ function Reclamo() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    document.getElementById("submit").disabled = true;
     realizarReclamo(mail)
       .then((response) => {
-        document.getElementById("submit").disabled = true;
         console.log("entro al then");
         setSuccess(
           <Alert variant="success">Reclamo realizado con exito!</Alert>
