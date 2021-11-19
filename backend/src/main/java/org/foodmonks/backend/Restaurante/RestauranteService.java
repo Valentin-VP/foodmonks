@@ -25,11 +25,9 @@ import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -224,9 +222,10 @@ public class RestauranteService {
         if (restaurante==null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
-        String[] _total = (total!=null && total.contains(",")) ? total.split(",") : null;
-        String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
-        //String[] _order = (!orden.isEmpty() && orden.contains(",")) ? orden.split(",") : null;
+  //      String[] _total = (total!=null && total.contains(",")) ? total.split(",") : null;
+  //      String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
+
+        String[] _order = (!orden.isEmpty() && orden.contains(",")) ? orden.split(",") : null;
         Float[] totalFinal = new Float[2];
         LocalDateTime[] fechaFinal = new LocalDateTime[2];
 
@@ -358,13 +357,14 @@ public class RestauranteService {
         ]
     }*/
 
-    public JsonObject obtenerBalance(
-            String correoRestaurante,
-            String medioPago,
-            String fecha,
-            String estadoPedido
-            // otros atributos
-    ){
+    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fecha,String estadoPedido) throws RestauranteNoEncontradoException {
+
+        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+
+        if (restaurante==null) {
+            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correoRestaurante);
+        }
+
         JsonObject balance = new JsonObject();
         JsonArray meses = new JsonArray();
         JsonArray totales = new JsonArray();
@@ -420,10 +420,18 @@ public class RestauranteService {
                 fechaFinal = null;
             }
         }
+
         // Diferencia entre mes de fecha inicio y mes de fecha final
-        int cantidadMeses = 12;
+       //  int cantidadMeses = 12;
+       //  ver si funciona cantidadMeses
+        int cantidadMeses = (int) ChronoUnit.MONTHS.between(LocalDate.parse(fechaFinal[0].toString()),LocalDate.parse(fechaFinal[1].toString()));
+
         for(int i =0; i < cantidadMeses; i++){
             String mes = null;
+
+        //    fechaFinal[0].getMonth();
+        //    fechaFinal[1].getMonth();
+
             // Obtener Mes a partir de cada LocalDateTime
             String anio = null;
             // Obtener Año a partir de cada LocalDateTime
@@ -440,6 +448,7 @@ public class RestauranteService {
             // Obtener arreglo de la consulta al Repsoitory
             // Sumar total y aumentar cantidad
             // Al final de cada indicador, suma/resta al subtotal
+
             float totalIndicador = 0;
             int cantidadIndicador = 0;
             jsonIndicador.addProperty("ventas efectivo", cantidadIndicador);
