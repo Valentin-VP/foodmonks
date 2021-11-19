@@ -24,7 +24,7 @@ import {
   clearState,
   eliminarCuentaClientePropia,
 } from "../../services/Requests";
-import { MdOutlineModeEditOutline, CgClose } from "react-icons/all";
+import { MdOutlineModeEditOutline, CgClose, BiHistory } from "react-icons/all";
 import Modal, { ModalProvider } from "styled-react-modal";
 
 const StyledModal = Modal.styled`
@@ -163,6 +163,24 @@ const Styles = styled.div`
 
   .eliminar {
     text-align: right;
+  }
+
+  .hButton{
+    paddin: 5rem;
+    color: white;
+    background-color: #e87121;
+    border: none;
+    border-radius: 5px;
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
+      background-color: #e87121;
+    }
+    &:hover {
+      background-color: #da6416;
+    }
+    $:active {
+      background-color: #e87121;
+    }
   }
 `;
 
@@ -439,6 +457,20 @@ function PerfilCliente() {
             </div>
             <div className="col-md-4 border-right">
               <div className="p-3 pt-5 mt-5">
+                <h3>Historial de pedidos</h3>
+                <p>
+                  En esta sección se encuentra el historial de los pedidos que has hecho
+                </p>
+                <div className="eliminar">
+                  <button
+                    className="btn hButton"
+                    onClick={() => {window.location.replace("/listadoPedidos")}}
+                  >
+                    Historial <BiHistory color="white" size="1.5rem"/>
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 pt-5 mt-5">
                 <h3>Eliminar Cuenta</h3>
                 <p>
                   Si eliminas tu cuenta, aún podrás seguir teniendo acceso a tus
@@ -447,7 +479,7 @@ function PerfilCliente() {
                 </p>
                 <div className="eliminar">
                   <button
-                    className="eliminar btn btn-danger"
+                    className="btn btn-danger"
                     onClick={toggleModal}
                   >
                     Eliminar cuenta

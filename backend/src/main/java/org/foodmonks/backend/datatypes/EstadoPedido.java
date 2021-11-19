@@ -6,5 +6,5 @@ public enum EstadoPedido {
     CONFIRMADO,
     DEVUELTO,
     RECLAMORECHAZADO,
-    FINALIZADO,
+    FINALIZADO
 }

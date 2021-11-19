@@ -166,7 +166,7 @@ function RegistroRestaurante() {
             restaurante.password = Base64.encode(pass1);
             var img = document.getElementById("img").files[0];
             //si se selecciona una imagen
-            const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
+            const uploadTask = storage.ref(`/restaurantes/${img.name}`).put(img);
             uploadTask.on(
               "state_changed",
               (snapshot) => {}, //el snapshot tiene que ir
@@ -178,7 +178,7 @@ function RegistroRestaurante() {
               () => {
                 setAlerta(null);
                 storage
-                  .ref("menus")
+                  .ref("restaurantes")
                   .child(img.name)
                   .getDownloadURL()
                   .then((imgUrl) => {

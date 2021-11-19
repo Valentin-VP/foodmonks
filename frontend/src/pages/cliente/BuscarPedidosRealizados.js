@@ -19,11 +19,10 @@ const Styles = styled.div`
     margin-bottom: 15px;
   }
 
-  button {
+  .oButton {
     color: white;
     background-color: #e87121;
     border: none;
-    border-radius: 10px;
     &:focus {
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
       background-color: #e87121;
@@ -121,20 +120,17 @@ export default function BuscarPedidosRealizados() {
 
   const fetch = (page) => {
     let p = page ? page - 1 : 0;
-    console.log(p);
-    obtenerPedidosRealizados(values, startDate, endDate, p)
-      .then((response) => {
-        if (response.status === 200) {
-          //console.log(response.data);
-          setData(response.data);
-        } else {
-          Noti(response.data);
-        }
-      })
-      .catch((error) => {
-        Noti(error.response.data);
-      });
-  };
+    obtenerPedidosRealizados(values, startDate, endDate, p).then((response)=>{
+      if (response.status===200){
+        //console.log(response.data);
+        setData(response.data);
+      }else{
+        Noti(response.data);
+      }
+    }).catch((error)=>{
+      Noti(error.response.data);
+    })
+  }
 
   const onPageChange = (page) => {
     fetch(page);
@@ -162,7 +158,6 @@ export default function BuscarPedidosRealizados() {
       if (i.id === id && i.menus) i.visibleMenu = !i.visibleMenu;
       return i;
     });
-    console.log(items);
     setData({ ...data, pedidos: items });
   };
 
@@ -173,9 +168,8 @@ export default function BuscarPedidosRealizados() {
       if (i.id === id && i.reclamo) i.visibleReclamo = !i.visibleReclamo;
       return i;
     });
-    console.log(items);
-    setData({ ...data, pedidos: items });
-  };
+    setData({...data, pedidos: items});
+  }  
 
   const [page, setPage] = useState(1);
 
@@ -308,7 +302,7 @@ export default function BuscarPedidosRealizados() {
                 </div>
               </div>
 
-              <button className="w-100 btn btn-md btn-primary" type="submit">
+              <button className="w-100 btn btn-md btn-primary oButton" type="submit">
                 Buscar
               </button>
             </form>

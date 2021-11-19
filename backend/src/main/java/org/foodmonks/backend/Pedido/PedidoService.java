@@ -5,9 +5,7 @@ import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
-import org.foodmonks.backend.datatypes.CriterioQuery;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.MedioPago;
+import org.foodmonks.backend.datatypes.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -227,6 +225,26 @@ public class PedidoService {
 
     public void agregarReclamoPedido(Pedido pedido, Reclamo reclamo){
         pedido.setReclamo(reclamo);
+        pedidoRepository.save(pedido);
+    }
+
+    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
+        Pedido pedido = pedidoRepository.findPedidoById(id);
+        if (pedido == null) {
+            throw new PedidoNoExisteException("No existe pedido con id " + id);
+        }
+        return pedido;
+    }
+
+    public void modificarCalificacionRestaurantePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
+        Pedido pedido = obtenerPedido(idPedido);
+        pedido.setCalificacionRestaurante(calificacion);
+        pedidoRepository.save(pedido);
+    }
+
+    public void modificarCalificacionClientePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
+        Pedido pedido = obtenerPedido(idPedido);
+        pedido.setCalificacionCliente(calificacion);
         pedidoRepository.save(pedido);
     }
 
