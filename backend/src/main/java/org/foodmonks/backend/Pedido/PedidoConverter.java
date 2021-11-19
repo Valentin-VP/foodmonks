@@ -34,8 +34,8 @@ public class PedidoConverter {
         JsonObject jsonPedido= new JsonObject();
         jsonPedido.addProperty("id", pedido.getId());
         jsonPedido.addProperty("estado", pedido.getEstado().name());
-        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? true : false);
-        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? true : false);
+        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "false");
+        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getPuntaje().toString() : "false");
         if (pedido.getFechaHoraProcesado() != null) {
             jsonPedido.addProperty("fechaHoraProcesado", pedido.getFechaHoraProcesado().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }else{
@@ -74,8 +74,8 @@ public class PedidoConverter {
                 (pedido.getEstado() == EstadoPedido.FINALIZADO ? "Finalizado" :
                         (pedido.getEstado() == EstadoPedido.PENDIENTE ? "Pendiente" :
                                 (pedido.getEstado() == EstadoPedido.CONFIRMADO ? "Confirmado" : "Rechazado"))));
-        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? true : false);
-        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? true : false);
+        jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "false");
+        jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getPuntaje().toString() : "false");
         if(pedido.getFechaHoraEntrega() != null) {
             jsonPedido.addProperty("fechaHoraEntrega", pedido.getFechaHoraEntrega().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }else{
