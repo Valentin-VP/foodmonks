@@ -397,30 +397,32 @@ public class RestauranteService {
         if (_fecha != null && _fecha[0] != null && _fecha[1] != null){
             fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
             fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
-        } else {
-            fechaFinal[0] = LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),1,0,0,0);
-            fechaFinal[1] = LocalDateTime.now();
         }
         // Diferencia entre mes de fecha inicio y mes de fecha final
        //  int cantidadMeses = 12;
        //  ver si funciona cantidadMeses
         List<Pedido> listaPedidos;
-        if (estado != null && pago !=null && fechaFinal != null) {
+        if (estado != null && pago !=null && fechaFinal[0] != null && fechaFinal[1] != null) {
             listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPagoFechaHoraProcesado(restaurante,estado,pago,fechaFinal[0],fechaFinal[1]);
         } else if (estado !=null && pago != null){
             listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPago(restaurante,estado,pago);
-        } else if (estado != null && fechaFinal != null){
+        } else if (estado != null && fechaFinal[0] != null && fechaFinal[1] != null){
             listaPedidos = pedidoService.pedidosRestauranteEstadoFechaHoraProcesado(restaurante,estado,fechaFinal[0],fechaFinal[1]);
-        } else if (pago != null && fechaFinal != null){
+        } else if (pago != null && fechaFinal[0] != null && fechaFinal[1] != null){
             listaPedidos = pedidoService.pedidosRestauranteMedioPagoFechaHoraProcesado(restaurante,pago,fechaFinal[0],fechaFinal[1]);
         } else if (estado != null) {
             listaPedidos = pedidoService.pedidosRestauranteEstado(restaurante,estado);
         } else if (pago != null){
             listaPedidos = pedidoService.pedidosRestauranteMedioPago(restaurante,pago);
-        } else if (fechaFinal != null){
+        } else if (fechaFinal[0] != null && fechaFinal[1] != null){
             listaPedidos = pedidoService.pedidosRestauranteFechaHoraProcesado(restaurante,fechaFinal[0],fechaFinal[1]);
         } else {
             listaPedidos = pedidoService.pedidosRestaurante(restaurante);
+        }
+
+        if (fechaFinal[0] == null || fechaFinal[1] == null){
+            fechaFinal[0] = LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),1,0,0,0);
+            fechaFinal[1] = LocalDateTime.now();
         }
 
         List <Pedido> aux;
