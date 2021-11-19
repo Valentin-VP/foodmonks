@@ -222,8 +222,8 @@ public class RestauranteService {
         if (restaurante==null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
-  //      String[] _total = (total!=null && total.contains(",")) ? total.split(",") : null;
-  //      String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
+        String[] _total = (total!=null && total.contains(",")) ? total.split(",") : null;
+        String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
 
         String[] _order = (!orden.isEmpty() && orden.contains(",")) ? orden.split(",") : null;
         Float[] totalFinal = new Float[2];
@@ -359,11 +359,7 @@ public class RestauranteService {
 
     public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fecha,String estadoPedido) throws RestauranteNoEncontradoException {
 
-        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
-
-        if (restaurante==null) {
-            throw new RestauranteNoEncontradoException("No existe el Restaurante " + correoRestaurante);
-        }
+        Restaurante restaurante = obtenerRestaurante(correoRestaurante);
 
         JsonObject balance = new JsonObject();
         JsonArray meses = new JsonArray();
@@ -381,7 +377,7 @@ public class RestauranteService {
 
         // Estado Pedido
         EstadoPedido estado = null;
-        if (estadoPedido!= null && !estadoPedido.equals("")) {
+        if (estadoPedido!= null && !estadoPedido.isBlank()) {
             try {
                 estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
             }catch(IllegalArgumentException e){
@@ -391,7 +387,7 @@ public class RestauranteService {
 
         // Medio Pago
         MedioPago pago = null;
-        if (medioPago!= null && !medioPago.equals("")) {
+        if (medioPago!= null && !medioPago.isBlank()) {
             try{
                 pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
             }catch(IllegalArgumentException e){
@@ -424,14 +420,52 @@ public class RestauranteService {
         // Diferencia entre mes de fecha inicio y mes de fecha final
        //  int cantidadMeses = 12;
        //  ver si funciona cantidadMeses
+        List<Pedido> listaPedidos;
+        if (estado != null && pago !=null && fechaFinal != null) {
+            listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPagoFechaHoraProcesado(restaurante,estado,pago,fechaFinal[0],fechaFinal[1]);
+        } else if (estado !=null && pago != null){
+            listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPago(restaurante,estado,pago);
+        } else if (estado != null && fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteEstadoFechaHoraProcesado(restaurante,estado,fechaFinal[0],fechaFinal[1]);
+        } else if (pago != null && fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteMedioPagoFechaHoraProcesado(restaurante,pago,fechaFinal[0],fechaFinal[1]);
+        } else if (estado != null) {
+            listaPedidos = pedidoService.pedidosRestauranteEstado(restaurante,estado);
+        } else if (pago != null){
+            listaPedidos = pedidoService.pedidosRestauranteMedioPago(restaurante,pago);
+        } else if (fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteFechaHoraProcesado(restaurante,fechaFinal[0],fechaFinal[1]);
+        } else {
+            listaPedidos = pedidoService.pedidosRestaurante(restaurante);
+        }
+
+        List <Pedido> aux;
         int cantidadMeses = (int) ChronoUnit.MONTHS.between(LocalDate.parse(fechaFinal[0].toString()),LocalDate.parse(fechaFinal[1].toString()));
-
-        for(int i =0; i < cantidadMeses; i++){
+        cantidadMeses = cantidadMeses + fechaFinal[0].getMonthValue();
+        for(int i =fechaFinal[0].getMonthValue(); i < cantidadMeses; i++){
             String mes = null;
-
+            aux = listaPedidos;
         //    fechaFinal[0].getMonth();
         //    fechaFinal[1].getMonth();
-
+            for (Pedido pedido : aux){
+                if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))){
+                    if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)){
+                        totalVentasEfectivo += pedido.getTotal();
+                        cantidadVentasEfectivo ++;
+                    } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
+                        totalVentasPayPal += pedido.getTotal();
+                        cantidadVentasPayPal ++;
+                    }
+                } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
+                    if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)){
+                        totalDevolucionesEfectivo += pedido.getTotal();
+                        cantidadDevolucionesEfectivo ++;
+                    } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
+                        totalDevolucionesPayPal += pedido.getTotal();
+                        cantidadDevolucionesPayPal ++;
+                    }
+                }
+            }
             // Obtener Mes a partir de cada LocalDateTime
             String anio = null;
             // Obtener Año a partir de cada LocalDateTime
@@ -465,6 +499,12 @@ public class RestauranteService {
             meses.add(jsonMes);
         }
 
+
+
+
+
+
+
         // Cargo totales
 
         JsonObject ventasEfectivoTotal = new JsonObject();
@@ -472,16 +512,16 @@ public class RestauranteService {
         ventasEfectivoTotal.addProperty("cantidad", cantidadVentasEfectivo);
 
         JsonObject ventasPayPalTotal = new JsonObject();
-        ventasPayPalTotal.addProperty("ventasPayPal", 0);
-        ventasPayPalTotal.addProperty("cantidad", 0);
+        ventasPayPalTotal.addProperty("ventasPayPal", totalVentasPayPal);
+        ventasPayPalTotal.addProperty("cantidad", cantidadVentasPayPal);
 
         JsonObject devolucionesEfectivoTotal = new JsonObject();
-        devolucionesEfectivoTotal.addProperty("devolucionesEfectivo", 0);
-        devolucionesEfectivoTotal.addProperty("cantidad", 0);
+        devolucionesEfectivoTotal.addProperty("devolucionesEfectivo", totalDevolucionesEfectivo);
+        devolucionesEfectivoTotal.addProperty("cantidad", cantidadDevolucionesEfectivo);
 
         JsonObject devolucionesPayPalTotal = new JsonObject();
-        devolucionesPayPalTotal.addProperty("devolucionesPayPal", 0);
-        devolucionesPayPalTotal.addProperty("cantidad", 0);
+        devolucionesPayPalTotal.addProperty("devolucionesPayPal", totalDevolucionesPayPal);
+        devolucionesPayPalTotal.addProperty("cantidad", cantidadDevolucionesPayPal);
 
         // Termina todo, retorno balance
         totales.add(ventasEfectivoTotal);
@@ -491,6 +531,6 @@ public class RestauranteService {
         balance.add("meses", meses);
         balance.add("totales", totales);
         return balance;
-
     }
+
 }
