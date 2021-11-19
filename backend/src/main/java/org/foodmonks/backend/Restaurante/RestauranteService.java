@@ -112,7 +112,7 @@ public class RestauranteService {
         if (jsonMenus.size() < 3){
             throw new RestauranteFaltaMenuException("Debe ingresar al menos 3 menus");
         }
-        Restaurante restaurante = new Restaurante(nombre,apellido,correo, passwordEncoder.encode(password),now,calificacion,nombreRestaurante,Integer.valueOf(rut),direccion,pendiente,Integer.valueOf(telefono),descripcion,cuentaPaypal,url);
+        Restaurante restaurante = new Restaurante(nombre,apellido,correo, passwordEncoder.encode(password),now,calificacion,nombreRestaurante,Long.valueOf(rut),direccion,pendiente,Integer.valueOf(telefono),descripcion,cuentaPaypal,url);
         restauranteRepository.save(restaurante);
         for (JsonObject menu: jsonMenus){
             menuService.altaMenu(menu,restaurante.getCorreo());
