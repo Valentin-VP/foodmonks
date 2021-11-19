@@ -309,10 +309,11 @@ public class RestauranteService {
     public JsonArray listarReclamos(String correoRestaurante, boolean orden, String correoCliente, String razon) throws RestauranteNoEncontradoException {
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
         List<Reclamo> reclamos;
-        if (!correoCliente.isBlank()){
+        if (!correoCliente.isBlank() && !correoCliente.isBlank()) {
+            reclamos = obtenerReclamoClienteRazon(restaurante,correoCliente,razon);
+        } else if (!correoCliente.isBlank()){
             reclamos = obtenerReclamoCliente(restaurante,correoCliente);
-        }
-        if (!razon.isBlank()){
+        } else if (!razon.isBlank()){
             reclamos = obtenerReclamoRazon(restaurante,razon);
         } else {
             reclamos = restaurante.getReclamos();
@@ -321,6 +322,18 @@ public class RestauranteService {
             reclamos.sort(Comparator.comparing(Reclamo::getFecha).reversed());
         }
         return reclamoConverter.arrayJsonReclamo(reclamos);
+    }
+
+    public List<Reclamo> obtenerReclamoClienteRazon (Restaurante restaurante, String correoCliente, String razon){
+        List<Reclamo> reclamos = new ArrayList<>();
+        for (Reclamo reclamo : restaurante.getReclamos()){
+            if (reclamo.getPedido() != null && reclamo.getPedido().getCliente() != null && !reclamo.getPedido().getCliente().getCorreo().isBlank()){
+                if (reclamo.getPedido().getCliente().getCorreo().contains(correoCliente) && !reclamo.getRazon().isBlank() && reclamo.getRazon().contains(razon)){
+                    reclamos.add(reclamo);
+                }
+            }
+        }
+        return  reclamos;
     }
 
     public List<Reclamo> obtenerReclamoCliente (Restaurante restaurante, String correoCliente){
