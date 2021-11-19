@@ -17,7 +17,7 @@ const Styles = styled.div`
   .form-floating {
     margin-bottom: 15px;
   }
-  button {
+  .obutton {
     color: white;
     background-color: #e87121;
     border: none;
@@ -160,9 +160,9 @@ export default function BuscarHistoricoPedidos() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
-              <div class="row align-items-center">
+              <div className="row align-items-center">
 
-                  <div class="col-lg">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <input 
                               name="minTotal"
@@ -218,7 +218,7 @@ export default function BuscarHistoricoPedidos() {
                           <label htmlFor="ordenamiento">Ordenamiento</label>
                       </div>
                   </div>
-                  <div class="col-lg">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <select 
                               name="estadoPedido"
@@ -246,7 +246,7 @@ export default function BuscarHistoricoPedidos() {
                   </div>
               </div>
 
-              <button className="w-100 btn btn-md btn-primary" type="submit">
+              <button className="w-100 btn btn-md obutton" type="submit">
                 Buscar
               </button>
             </form>
@@ -255,8 +255,8 @@ export default function BuscarHistoricoPedidos() {
               </div>
 
               <div className="form-floating">
-                <div class="row align-items-center">
-                  <div class="col-md">
+                <div className="row align-items-center">
+                  <div className="col-md">
                     {<ListadoHistoricoPedidos datos={data} cantidadPages={data.totalPages} onPageChange={onPageChange} onVisible={onVisible}/>}
                       {(data.pedidos && data.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
                         <Pagination
