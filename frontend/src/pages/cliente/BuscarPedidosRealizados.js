@@ -19,11 +19,10 @@ const Styles = styled.div`
     margin-bottom: 15px;
   }
 
-  button {
+  .oButton {
     color: white;
     background-color: #e87121;
     border: none;
-    border-radius: 10px;
     &:focus {
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
       background-color: #e87121;
@@ -113,7 +112,6 @@ export default function BuscarPedidosRealizados() {
 
   const fetch = (page) => {
     let p = page ? page - 1 : 0;
-    console.log(p);
     obtenerPedidosRealizados(values, startDate, endDate, p).then((response)=>{
       if (response.status===200){
         //console.log(response.data);
@@ -152,7 +150,6 @@ export default function BuscarPedidosRealizados() {
         i.visibleMenu = !i.visibleMenu;
       return i
     });
-    console.log(items);
     setData({...data, pedidos: items});
   }
 
@@ -164,7 +161,6 @@ export default function BuscarPedidosRealizados() {
         i.visibleReclamo = !i.visibleReclamo;
       return i
     });
-    console.log(items);
     setData({...data, pedidos: items});
   }  
 
@@ -181,9 +177,9 @@ export default function BuscarPedidosRealizados() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
-              <div class="row align-items-center">
+              <div className="row align-items-center">
 
-                  <div class="col-lg">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <input 
                               name="minTotal"
@@ -239,7 +235,7 @@ export default function BuscarPedidosRealizados() {
                           <label htmlFor="ordenamiento">Ordenamiento</label>
                       </div>
                   </div>
-                  <div class="col-lg">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <input 
                               name="nombreRestaurante"
@@ -263,7 +259,7 @@ export default function BuscarPedidosRealizados() {
                           <label htmlFor="nombreMenu">Menú</label>
                       </div>
                   </div>
-                  <div class="col-lg">
+                  <div className="col-lg">
                       <div className="form-floating">
                           <select 
                               name="estadoPedido"
@@ -291,7 +287,7 @@ export default function BuscarPedidosRealizados() {
                   </div>
               </div>
 
-              <button className="w-100 btn btn-md btn-primary" type="submit">
+              <button className="w-100 btn btn-md btn-primary oButton" type="submit">
                 Buscar
               </button>
             </form>
@@ -300,8 +296,8 @@ export default function BuscarPedidosRealizados() {
               </div>
 
               <div className="form-floating">
-                <div class="row align-items-center">
-                  <div class="col-md">
+                <div className="row align-items-center">
+                  <div className="col-md">
                     {<ListadoPedidosRealizados datos={data} onVisibleMenu={onVisibleMenu} onVisibleReclamo={onVisibleReclamo}/>}
                     {(data.pedidos && data.pedidos.length > 0) ? <Col style={{display:'flex'}} className="justify-content-center">
                         <Pagination
