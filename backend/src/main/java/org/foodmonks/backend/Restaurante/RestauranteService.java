@@ -420,8 +420,8 @@ public class RestauranteService {
         return response;
     }
 
-    public JsonArray pedidosRegistrados(int anio){
-        JsonArray result = new JsonArray();
+    public JsonObject pedidosRegistrados(int anio){
+        JsonObject result = new JsonObject();
         List<Restaurante> restaurantes = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
         for (int i=1; i <= 12 ; i++) {
             LocalDateTime fechaIni = LocalDateTime.of(LocalDate.of(anio, i, 1),LocalTime.MIDNIGHT);
@@ -431,13 +431,14 @@ public class RestauranteService {
             } else {
                 fechaFin = LocalDateTime.of(LocalDate.of(anio, i + 1, 1).minusDays(1),LocalTime.MAX);
             }
-            JsonObject pedidosRegistrados = new JsonObject();
-            pedidosRegistrados.addProperty("mes",fechaIni.getMonth().toString());
+            JsonArray mes = new JsonArray();
             for (Restaurante restaurante : restaurantes){
-                pedidosRegistrados.addProperty("restaurante",restaurante.getNombreRestaurante());
-                pedidosRegistrados.addProperty("pedidosRegistrados", pedidoService.cantPedidosRestaurante(restaurante,fechaIni,fechaFin));
+                JsonObject pedidosRestaurante = new JsonObject();
+                pedidosRestaurante.addProperty("restaurante",restaurante.getNombreRestaurante());
+                pedidosRestaurante.addProperty("pedidosRegistrados", pedidoService.cantPedidosRestaurante(restaurante,fechaIni,fechaFin));
+                mes.add(pedidosRestaurante);
             }
-            result.add(pedidosRegistrados);
+            result.add(fechaIni.getMonth().toString(), mes);
         }
         return result;
     }
