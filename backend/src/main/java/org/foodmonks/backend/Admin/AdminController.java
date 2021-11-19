@@ -244,4 +244,27 @@ public class AdminController {
         return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
     }
 
+    @Operation(summary = "Listar/buscar Restaurantes con cierto estado",
+            description = "Lista de los restaurantes que tienen el estado recibido",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin", "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticas")
+    public ResponseEntity<?> obtenerEstadisticas(
+            @RequestParam(required = false, name = "ventasRestaurante") String ventasRestaurante,
+            @RequestParam(required = false, name = "usuariosActivos") boolean usuariosActivos,
+            @RequestParam(required = false, name = "registroUsuarios") boolean registroUsuarios,
+            @RequestParam(required = false, name = "pedidosRegistrados") boolean pedidosRegistrados) {
+        JsonObject estadisticas = new JsonObject();
+        try {
+            //estadisticas = adminService.obtenerEstadisticas(ventasRestaurante, usuariosActivos, registroUsuarios, pedidosRegistrados);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticas, HttpStatus.OK);
+    }
+
 }
