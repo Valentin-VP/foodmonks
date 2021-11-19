@@ -2,6 +2,7 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.tomcat.jni.Local;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
@@ -365,58 +366,41 @@ public class RestauranteService {
         JsonArray meses = new JsonArray();
         JsonArray totales = new JsonArray();
 
+
         float totalVentasEfectivo = 0;
-        int cantidadVentasEfectivo = 0;
-        float totalVentasPayPal = 0;
-        int cantidadVentasPayPal = 0;
+        int totalCantidadVentasEfectivo = 0;
+        float totalVentasPaypal = 0;
+        int totalCantidadVentasPayPal = 0;
         float totalDevolucionesEfectivo = 0;
-        int cantidadDevolucionesEfectivo = 0;
+        int totalCantidadDevolucionesEfectivo = 0;
         float totalDevolucionesPayPal = 0;
-        int cantidadDevolucionesPayPal = 0;
+        int totalCantidadDevolucionesPayPal = 0;
+        String mes = "";
+        int anio = 0;
         // Preparo
 
         // Estado Pedido
         EstadoPedido estado = null;
         if (estadoPedido!= null && !estadoPedido.isBlank()) {
-            try {
-                estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
-            }catch(IllegalArgumentException e){
-                estado = null;
-            }
+           estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
         }
 
         // Medio Pago
         MedioPago pago = null;
         if (medioPago!= null && !medioPago.isBlank()) {
-            try{
-                pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
-            }catch(IllegalArgumentException e){
-                pago = null;
-            }
+            pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
         }
 
         // Fecha
         LocalDateTime[] fechaFinal = new LocalDateTime[2];
         String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
         if (_fecha != null && _fecha[0] != null && _fecha[1] != null){
-            try{
-                fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
-                fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
-            }catch(DateTimeException e){
-                fechaFinal = null;
-            }
+            fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+            fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+        } else {
+            fechaFinal[0] = LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),1,0,0,0);
+            fechaFinal[1] = LocalDateTime.now();
         }
-        if (_fecha != null && _fecha[0] != null && _fecha[1] != null) {
-            try {
-                if (fechaFinal != null) {
-                    fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
-                    fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
-                }
-            } catch (DateTimeException e) {
-                fechaFinal = null;
-            }
-        }
-
         // Diferencia entre mes de fecha inicio y mes de fecha final
        //  int cantidadMeses = 12;
        //  ver si funciona cantidadMeses
@@ -440,35 +424,65 @@ public class RestauranteService {
         }
 
         List <Pedido> aux;
-        int cantidadMeses = (int) ChronoUnit.MONTHS.between(LocalDate.parse(fechaFinal[0].toString()),LocalDate.parse(fechaFinal[1].toString()));
-        cantidadMeses = cantidadMeses + fechaFinal[0].getMonthValue();
-        for(int i =fechaFinal[0].getMonthValue(); i < cantidadMeses; i++){
-            String mes = null;
+/*        int cantidadMeses = (int) ChronoUnit.MONTHS.between(LocalDate.parse(fechaFinal[0].toString()),LocalDate.parse(fechaFinal[1].toString()));
+        cantidadMeses = cantidadMeses + fechaFinal[0].getMonthValue();*/
+
+        for(int i =fechaFinal[0].getMonthValue(); i < fechaFinal[1].getMonthValue(); i++){
+
+            float subTotal = 0;
             aux = listaPedidos;
-        //    fechaFinal[0].getMonth();
-        //    fechaFinal[1].getMonth();
+            float ventasEfectivo = 0;
+            int cantidadVentasEfectivo = 0;
+            float ventasPaypal = 0;
+            int cantidadVentasPayPal = 0;
+            float devolucionesEfectivo = 0;
+            int cantidadDevolucionesEfectivo = 0;
+            float devolucionesPayPal = 0;
+            int cantidadDevolucionesPayPal = 0;
+
+
             for (Pedido pedido : aux){
-                if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))){
-                    if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)){
-                        totalVentasEfectivo += pedido.getTotal();
-                        cantidadVentasEfectivo ++;
-                    } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
-                        totalVentasPayPal += pedido.getTotal();
-                        cantidadVentasPayPal ++;
+                if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))) {
+                    LocalDateTime fechapedido = pedido.getFechaHoraProcesado();
+                    if ((fechapedido.isEqual(fechaFinal[0]) || fechapedido.isAfter(fechaFinal[0])) && fechapedido.getMonthValue() == i && 
+                            ( fechapedido.isBefore(fechaFinal[1]) || fechapedido.isEqual(fechaFinal[1]))) {
+                        if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
+                            ventasEfectivo += pedido.getTotal();
+                            cantidadVentasEfectivo++;
+                            subTotal += pedido.getTotal();
+                        } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
+                            ventasPaypal += pedido.getTotal();
+                            cantidadVentasPayPal++;
+                            subTotal += pedido.getTotal();
+                        }
+                        mes = pedido.getFechaHoraProcesado().getMonth().toString();
+                        anio = pedido.getFechaHoraProcesado().getYear();
                     }
                 } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
-                    if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)){
-                        totalDevolucionesEfectivo += pedido.getTotal();
-                        cantidadDevolucionesEfectivo ++;
-                    } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
-                        totalDevolucionesPayPal += pedido.getTotal();
-                        cantidadDevolucionesPayPal ++;
+                    if (pedido.getFechaHoraProcesado().isAfter(fechaFinal[0]) && pedido.getFechaHoraProcesado().getMonthValue() == i &&
+                            pedido.getFechaHoraProcesado().isBefore(fechaFinal[1])) {
+                        if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
+                            devolucionesEfectivo += pedido.getTotal();
+                            cantidadDevolucionesEfectivo++;
+                            subTotal -= pedido.getTotal();
+                        } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
+                            devolucionesPayPal += pedido.getTotal();
+                            cantidadDevolucionesPayPal++;
+                            subTotal -= pedido.getTotal();
+                        }
                     }
                 }
             }
-            // Obtener Mes a partir de cada LocalDateTime
-            String anio = null;
-            // Obtener Año a partir de cada LocalDateTime
+
+            totalVentasEfectivo += ventasEfectivo;
+            totalCantidadVentasEfectivo += cantidadVentasEfectivo;
+            totalVentasPaypal += ventasPaypal;
+            totalCantidadVentasPayPal += cantidadVentasPayPal;
+            totalDevolucionesEfectivo += devolucionesEfectivo;
+            totalCantidadDevolucionesEfectivo += devolucionesEfectivo;
+            totalDevolucionesPayPal += devolucionesPayPal;
+            totalCantidadDevolucionesPayPal += cantidadDevolucionesPayPal;
+
             JsonObject jsonMes = new JsonObject();
             jsonMes.addProperty("mes", mes);
             jsonMes.addProperty("anio", anio);
@@ -476,52 +490,46 @@ public class RestauranteService {
 
             // Cargar los 4 json de indicadores
             JsonObject jsonIndicador = new JsonObject();
-            float subtotal = 0;
+
             // Para cada indicador
             // Definir logica de iteracion o hacer manual las 0 --> 4 veces
             // Obtener arreglo de la consulta al Repsoitory
             // Sumar total y aumentar cantidad
             // Al final de cada indicador, suma/resta al subtotal
 
-            float totalIndicador = 0;
-            int cantidadIndicador = 0;
-            jsonIndicador.addProperty("ventas efectivo", cantidadIndicador);
-            jsonIndicador.addProperty("cantidad", cantidadIndicador);
+            jsonIndicador.addProperty("ventas efectivo", ventasEfectivo);
+            jsonIndicador.addProperty("cantidad ", cantidadVentasEfectivo);
+            jsonIndicador.addProperty("ventas paypal", ventasPaypal);
+            jsonIndicador.addProperty("cantidad", cantidadVentasPayPal);
+            jsonIndicador.addProperty("devoluciones efectivo", devolucionesEfectivo);
+            jsonIndicador.addProperty("cantidad ", cantidadDevolucionesEfectivo);
+            jsonIndicador.addProperty("devoluciones paypall", devolucionesPayPal);
+            jsonIndicador.addProperty("cantidad", cantidadDevolucionesPayPal);
 
-            // Al final de cada indicador, sumar a el total correspondiente al total que sea
-            totalVentasEfectivo += totalIndicador;
-            cantidadVentasEfectivo += cantidadIndicador;
-            // Termina iteracion de indicadores
             jsonMes.add("indicadores", indicadores);
-            jsonMes.addProperty("subtotal", subtotal);
+            jsonMes.addProperty("subtotal", subTotal);
 
             // Termina iteracion de todo lo relacionado a un mes
             meses.add(jsonMes);
         }
 
-
-
-
-
-
-
         // Cargo totales
 
         JsonObject ventasEfectivoTotal = new JsonObject();
         ventasEfectivoTotal.addProperty("ventasEfectivo", totalVentasEfectivo);
-        ventasEfectivoTotal.addProperty("cantidad", cantidadVentasEfectivo);
+        ventasEfectivoTotal.addProperty("cantidad", totalCantidadVentasEfectivo);
 
         JsonObject ventasPayPalTotal = new JsonObject();
-        ventasPayPalTotal.addProperty("ventasPayPal", totalVentasPayPal);
-        ventasPayPalTotal.addProperty("cantidad", cantidadVentasPayPal);
+        ventasPayPalTotal.addProperty("ventasPayPal", totalVentasPaypal);
+        ventasPayPalTotal.addProperty("cantidad", totalCantidadVentasPayPal);
 
         JsonObject devolucionesEfectivoTotal = new JsonObject();
         devolucionesEfectivoTotal.addProperty("devolucionesEfectivo", totalDevolucionesEfectivo);
-        devolucionesEfectivoTotal.addProperty("cantidad", cantidadDevolucionesEfectivo);
+        devolucionesEfectivoTotal.addProperty("cantidad", totalCantidadDevolucionesEfectivo);
 
         JsonObject devolucionesPayPalTotal = new JsonObject();
-        devolucionesPayPalTotal.addProperty("devolucionesPayPal", totalDevolucionesPayPal);
-        devolucionesPayPalTotal.addProperty("cantidad", cantidadDevolucionesPayPal);
+        devolucionesPayPalTotal.addProperty("devolucionesPayPal", totalCantidadDevolucionesPayPal);
+        devolucionesPayPalTotal.addProperty("cantidad", totalCantidadDevolucionesPayPal);
 
         // Termina todo, retorno balance
         totales.add(ventasEfectivoTotal);
