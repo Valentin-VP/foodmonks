@@ -230,4 +230,8 @@ public class PedidoService {
         pedidoRepository.save(pedido);
     }
 
+    public Long cantPedidosRestaurante(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
+        return pedidoRepository.countPedidosByRestauranteAAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
+    }
+
 }

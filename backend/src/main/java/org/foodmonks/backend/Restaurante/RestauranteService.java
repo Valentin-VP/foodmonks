@@ -419,4 +419,27 @@ public class RestauranteService {
         }
         return response;
     }
+
+    public JsonArray pedidosRegistrados(int anio){
+        JsonArray result = new JsonArray();
+        List<Restaurante> restaurantes = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
+        for (int i=1; i <= 12 ; i++) {
+            LocalDateTime fechaIni = LocalDateTime.of(LocalDate.of(anio, i, 1),LocalTime.MIDNIGHT);
+            LocalDateTime fechaFin;
+            if (i == 12) {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio + 1, 1, 1).minusDays(1),LocalTime.MAX);
+            } else {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio, i + 1, 1).minusDays(1),LocalTime.MAX);
+            }
+            JsonObject pedidosRegistrados = new JsonObject();
+            pedidosRegistrados.addProperty("mes",fechaIni.getMonth().toString());
+            for (Restaurante restaurante : restaurantes){
+                pedidosRegistrados.addProperty("restaurante",restaurante.getNombreRestaurante());
+                pedidosRegistrados.addProperty("pedidosRegistrados", pedidoService.cantPedidosRestaurante(restaurante,fechaIni,fechaFin));
+            }
+            result.add(pedidosRegistrados);
+        }
+        return result;
+    }
+
 }

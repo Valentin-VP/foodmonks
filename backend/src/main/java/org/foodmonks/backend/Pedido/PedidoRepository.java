@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -22,5 +24,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long>, JpaSpecif
     Page<Pedido> findAll(Specification<Pedido> spec, Pageable pageable);
     List<Pedido> findPedidosByRestauranteAndEstadoAndMedioPago(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago);
     Boolean existsPedidoById(Long id);
+    Long countPedidosByRestauranteAAndFechaHoraProcesadoBetween(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin);
 
 }

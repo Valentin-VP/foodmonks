@@ -1,5 +1,7 @@
 package org.foodmonks.backend.Usuario;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteRepository;
@@ -21,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEncontradoException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -261,6 +265,25 @@ public class UsuarioService {
 
 	public Usuario ObtenerUsuario (String correo) {
 		return usuarioRepository.findByCorreo(correo);
+	}
+
+	public JsonArray cantRegistrados(int anio){
+		JsonArray result = new JsonArray();
+		for (int i=1; i <= 12 ; i++){
+			LocalDate fechaIni = LocalDate.of(anio , i,1);
+			LocalDate fechaFin;
+			if (i==12){
+				fechaFin= LocalDate.of(anio+1,1,1).minusDays(1);
+			} else {
+				fechaFin = LocalDate.of(anio ,i+1,1).minusDays(1);
+			}
+			JsonObject registrados = new JsonObject();
+			registrados.addProperty("mes", fechaIni.getMonth().toString());
+			registrados.addProperty("clientes", clienteRepository.countClientesByFechaRegistroBetween(fechaIni,fechaFin));
+			registrados.addProperty("restaurantes", restauranteRepository.countRestaurantesByFechaRegistroBetween(fechaIni,fechaFin));
+			result.add(registrados);
+		}
+		return result;
 	}
 
 }
