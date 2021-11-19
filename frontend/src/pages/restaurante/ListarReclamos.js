@@ -104,7 +104,9 @@ function ListarReclamos({ reclamos }) {
       .then((response) => {
         console.log(response);
         Noti("El reclamo fue aceptado con éxito");
-        window.location.reload();
+        setTimeout(() => {
+          window.location.replace("/menu");
+        }, 3000);
       })
       .catch((error) => {
         NotiError(error.response.data);
@@ -119,7 +121,9 @@ function ListarReclamos({ reclamos }) {
         .then((response) => {
           console.log(response);
           Noti("El reclamo fue rechazado con éxito");
-          window.location.reload();
+          setTimeout(() => {
+            window.location.replace("/menu");
+          }, 3000);
         })
         .catch((error) => {
           NotiError(error.response.data);

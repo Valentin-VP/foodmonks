@@ -101,7 +101,7 @@ function Reclamo() {
         document.getElementById("submit").disabled = true;
         console.log("entro al then");
         setSuccess(
-          <Alert variant="success">Promocion creada con exito!</Alert>
+          <Alert variant="success">Reclamo realizado con exito!</Alert>
         );
         console.log(response);
         sessionStorage.removeItem("pedidoId");

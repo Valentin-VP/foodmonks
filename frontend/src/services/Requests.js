@@ -298,6 +298,7 @@ export const eliminarCuentaClientePropia = () => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCuenta`,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
