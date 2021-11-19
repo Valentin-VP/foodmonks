@@ -132,9 +132,12 @@ export default function ListadoPedidosRealizados({
   onVisibleMenu,
   onVisibleReclamo,
 }) {
+
   const onReclamar = (item) => {
-    // Mandar datos a pagina de reclamos (e ir a dicha pagina)
+    sessionStorage.setItem("pedidoId", item);
+    window.location.replace("/reclamo");
   };
+
   const [tipoAccion, setAccion] = useState();
   const [error, setError] = useState(null);
   const [pedido, setPedido] = useState();
@@ -268,6 +271,9 @@ export default function ListadoPedidosRealizados({
                                     <button
                                       className="clickeable"
                                       type="button"
+                                      disabled={
+                                        item.estadoPedido !== "Finalizado"
+                                      }
                                       onClick={(e) => onReclamar(item.id)}
                                     >
                                       Reclamar
@@ -411,5 +417,6 @@ export default function ListadoPedidosRealizados({
         </StyledModal>
       </ModalProvider>
     </Styles>
-  );
+
+    );
 }

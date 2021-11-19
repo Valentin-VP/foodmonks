@@ -3,6 +3,7 @@ package org.foodmonks.backend.Pedido;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
+import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
-
+import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import java.util.List;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 
 @Service
 public class PedidoService {
@@ -75,6 +77,7 @@ public class PedidoService {
 //            )).collect(Collectors.toList());
 //            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
+        querys.add(new CriterioQuery("correo", "p:ru", restaurante.getCorreo(), false));
         for(CriterioQuery c : querys){
             builder.with(c);
         }
@@ -106,6 +109,7 @@ public class PedidoService {
         PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
         List<CriterioQuery> querys = new ArrayList<>();
 
+        querys.add(new CriterioQuery("cliente", ":", cliente,false));
         if (estadoPedido != null) {
             querys.add(new CriterioQuery("estado",":",estadoPedido, false));
 //            result = pedidoRepository.findAll(estadoSpec);
@@ -178,11 +182,6 @@ public class PedidoService {
     public boolean existePedidoRestaurante (Long idPedido, Restaurante restaurante) {
         return pedidoRepository.existsPedidoByIdAndRestaurante(idPedido,restaurante); }
 
-    public Pedido buscarPedidoId (Long idPedido) {
-        Pedido pedido = pedidoRepository.findPedidoById(idPedido);
-        return pedido;
-    }
-
     public void cambiarEstadoPedido(Long idPedido, EstadoPedido estadoPedido){
         Pedido pedido = pedidoRepository.findPedidoById(idPedido);
         pedido.setEstado(estadoPedido);
@@ -210,6 +209,23 @@ public class PedidoService {
         pedido.setMenusCompra(menus);
         pedidoRepository.save(pedido);
         return pedidoConverter.jsonPedido(pedido);
+    }
+    
+    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
+        Pedido pedido = pedidoRepository.findPedidoById(id);
+        if (pedido == null) {
+            throw new PedidoNoExisteException("No existe pedido con id " + id);
+        }
+        return pedido;
+    }
+
+    public JsonObject buscarPedidoById(Long id) throws PedidoNoExisteException {
+        return pedidoConverter.jsonPedido(obtenerPedido(id));
+    }
+
+    public void agregarReclamoPedido(Pedido pedido, Reclamo reclamo){
+        pedido.setReclamo(reclamo);
+        pedidoRepository.save(pedido);
     }
 
     public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {

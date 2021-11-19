@@ -1,8 +1,9 @@
-import { React, Fragment, useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import styled from "styled-components";
-import { fetchRestaurantesBusqueda } from "../../services/Requests";
-import ListadoRestaurantesAbiertos from "./ListadoRestaurantesAbiertos";
+import { fetchReclamos } from "../../services/Requests";
 import { Noti } from "../../components/Notification";
+import ListarReclamos from "./ListarReclamos";
+import { Loading } from "../../components/Loading";
 
 const Styles = styled.div`
   .form {
@@ -46,51 +47,34 @@ const Styles = styled.div`
   }
 `;
 
-export default function BuscarRestaurantesAbiertos() {
-  const [data, setData] = useState([]);
-  //const [isLoading, setIsLoading] = useState(false);
-  //const [loaded, setLoaded] = useState(false);
-  //const [error, setError] = useState(false);
+function BuscarReclamos() {
+  const [reclamos, setReclamos] = useState([]);
+  const [isLoading, setLoading] = useState(true);
   const [values, setValues] = useState({
-    categoria: "",
-    nombre: "",
-    calificacion: false,
+    razon: "",
+    cliente: "",
+    ordenar: false,
   });
 
   useEffect(() => {
     fetch();
+    setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  let categoria = [
-    { nombre: "(Cualquiera)", value: "" },
-    { nombre: "Pizzas", value: "PIZZAS" },
-    { nombre: "Hamburguesas", value: "HAMBURGUESAS" },
-    { nombre: "Bebidas", value: "BEBIDAS" },
-    { nombre: "Combos", value: "COMBOS" },
-    { nombre: "Minutas", value: "MINUTAS" },
-    { nombre: "Postres", value: "POSTRES" },
-    { nombre: "Pastas", value: "PASTAS" },
-    { nombre: "Comida Arabe", value: "COMIDAARABE" },
-    { nombre: "Sushi", value: "SUSHI" },
-    { nombre: "Otros", value: "OTROS" },
-  ];
-
   const fetch = () => {
-    //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
-    //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
-    fetchRestaurantesBusqueda(values)
+    fetchReclamos(values)
       .then((response) => {
         if (response.status === 200) {
-          setData(response.data);
+          console.log(response.data);
+          setReclamos(response.data);
         } else {
           Noti(response.data);
         }
       })
       .catch((error) => {
-        Noti(error.response);
+        Noti(error.message);
       });
-    //setData([...data, {nombre: "restaurante", calificacion : "4.0"}]);
   };
 
   const handleChange = (e) => {
@@ -104,16 +88,12 @@ export default function BuscarRestaurantesAbiertos() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // dependiendo de la respuesta del servidor para el request de buscar, muestro una "tabla" con
-    // los datos de los restaurantes abiertos
     fetch();
-    //setLoaded(!loaded);
   };
 
-  //   useEffect(() => {
-  //     fetch();
-  //  }, [])
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <Styles>
@@ -121,34 +101,32 @@ export default function BuscarRestaurantesAbiertos() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
+              <h1 className="text-center h5 mb-3 fw-normal">
+                Búsqueda de Reclamos
+              </h1>
               <div className="row align-items-center">
                 <div className="col-lg">
                   <div className="form-floating">
                     <input
-                      name="nombre"
+                      name="cliente"
                       className="form-control"
                       onChange={handleChange}
-                      id="nombre"
-                      value={values.nombre}
+                      id="cliente"
+                      value={values.cliente}
                     ></input>
-                    <label htmlFor="nombre">Nombre</label>
+                    <label htmlFor="correo">Email del Cliente</label>
                   </div>
                 </div>
                 <div className="col-lg">
                   <div className="form-floating">
-                    <select
-                      name="categoria"
-                      className="form-select"
+                    <input
+                      name="razon"
+                      className="form-control"
                       onChange={handleChange}
-                      id="categoria"
-                    >
-                      {categoria.map((item) => (
-                        <option key={item.nombre} value={item.value}>
-                          {item.nombre}
-                        </option>
-                      ))}
-                    </select>
-                    <label htmlFor="categoria">Categoría</label>
+                      id="razon"
+                      value={values.razon}
+                    ></input>
+                    <label htmlFor="razon">Razon del Reclamo</label>
                   </div>
                 </div>
                 <div className="col-lg">
@@ -156,14 +134,14 @@ export default function BuscarRestaurantesAbiertos() {
                     <div className="checkbox">
                       <label>
                         <input
-                          name="calificacion"
+                          name="ordenar"
                           className="form-check-input"
                           type="checkbox"
-                          checked={values.calificacion}
+                          checked={values.ordenar}
                           onChange={handleChange}
-                          id="calificacion"
+                          id="ordenar"
                         />{" "}
-                        Ordenar por Calificación
+                        Ordenar por Fecha
                       </label>
                     </div>
                   </div>
@@ -174,14 +152,15 @@ export default function BuscarRestaurantesAbiertos() {
                 Buscar
               </button>
             </form>
-            <div className="form-floating">
-              {/*Espacio para alguna otra cosa?¿?*/}
-            </div>
 
             <div className="form-floating">
               <div className="row align-items-center">
                 <div className="col-md">
-                  {<ListadoRestaurantesAbiertos data={data} />}
+                  {reclamos !== null ? (
+                    <ListarReclamos reclamos={reclamos} />
+                  ) : (
+                    <p> No hay reclamos </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -191,3 +170,5 @@ export default function BuscarRestaurantesAbiertos() {
     </Styles>
   );
 }
+
+export default BuscarReclamos;

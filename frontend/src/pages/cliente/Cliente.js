@@ -11,6 +11,7 @@ import ModificarDireccion from "./ModificarDireccion";
 import { CartProvider } from "react-use-cart";
 import styled from "styled-components";
 import BuscarPedidosRealizados from "./BuscarPedidosRealizados";
+import Reclamo from "./Reclamo";
 
 const Styles = styled.div`
   #page-container {
@@ -45,6 +46,7 @@ function Cliente() {
                 />
                 <Route exact path="/grafica" component={Grafico} />
                 <Route path="/listadoPedidos" component={BuscarPedidosRealizados} />
+                <Route exact path="/reclamo" component={Reclamo} />
                 {/* <Route path="no-match" component={NoMatch} /> */}
               </Fragment>
             </Switch>

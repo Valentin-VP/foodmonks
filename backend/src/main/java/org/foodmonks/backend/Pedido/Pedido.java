@@ -14,7 +14,6 @@ import org.foodmonks.backend.datatypes.DtCalificacion;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.MedioPago;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ public class Pedido  {
     private Restaurante restaurante;
     @OneToMany//(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private List<MenuCompra> menusCompra = new ArrayList<>();
-    @OneToOne //(mappedBy="pedido", cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+    @OneToOne (cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
     private Reclamo reclamo;
 
     public Pedido(EstadoPedido estado, LocalDateTime fechaHoraProcesado, Float total,

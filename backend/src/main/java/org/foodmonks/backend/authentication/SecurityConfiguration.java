@@ -62,6 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/admin").hasRole("ADMIN")
                         .antMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .antMatchers("/api/v1/paypal/order/**").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/agregarReclamo").hasRole("CLIENTE")
                         .antMatchers("/api/v1/admin/listarUsuarios").hasRole("ADMIN")
                         .antMatchers("/api/v1/cliente/realizarPedido").hasRole("CLIENTE")
                         .antMatchers("/api/v1/cliente/calificarRestaurante").hasRole("CLIENTE")
@@ -70,6 +71,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/restaurante/calificarCliente").hasRole("RESTAURANTE")
                         .antMatchers("/api/v1/restaurante/modificarCalificacionCliente").hasRole("RESTAURANTE")
                         .antMatchers("/api/v1/restaurante/eliminarCalificacionCliente").hasRole("RESTAURANTE")
+                        .antMatchers("/api/v1/restaurante/realizarDevolucion").hasRole("RESTAURANTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
                         UsernamePasswordAuthenticationFilter.class);

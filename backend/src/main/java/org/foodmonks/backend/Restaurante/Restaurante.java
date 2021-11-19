@@ -26,7 +26,7 @@ public class Restaurante extends Usuario {
     private Float calificacion;
     private Integer cantidadCalificaciones;
     private String nombreRestaurante;
-    private Integer rut;
+    private Long rut;
     @OneToOne(cascade=CascadeType.ALL)
     private Direccion direccion;
     @Enumerated(value = EnumType.STRING)
@@ -49,7 +49,7 @@ public class Restaurante extends Usuario {
         super();
     }
 
-    public Restaurante(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, Integer cantidadCalificaciones, String nombreRestaurante, Integer rut, Direccion direccion, EstadoRestaurante estado, Integer telefono, String descripcion, String cuentaPaypal, String imagen) {
+    public Restaurante(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, Integer cantidadCalificaciones, String nombreRestaurante, Long rut, Direccion direccion, EstadoRestaurante estado, Integer telefono, String descripcion, String cuentaPaypal, String imagen) {
         super(nombre, apellido, correo, contrasenia, fechaRegistro);
         this.calificacion = calificacion;
         this.cantidadCalificaciones = cantidadCalificaciones;
@@ -105,6 +105,7 @@ public class Restaurante extends Usuario {
     @Override
     public boolean isEnabled() {
         EstadoRestaurante estado = getEstado();
-        return !(estado == EstadoRestaurante.BLOQUEADO || estado == EstadoRestaurante.ELIMINADO || estado == EstadoRestaurante.RECHAZADO);
+        return !(estado == EstadoRestaurante.BLOQUEADO || estado == EstadoRestaurante.ELIMINADO
+                || estado == EstadoRestaurante.RECHAZADO || estado == EstadoRestaurante.PENDIENTE);
     }
 }
