@@ -298,6 +298,7 @@ export const eliminarCuentaClientePropia = () => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCuenta`,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -719,10 +720,31 @@ export const fetchPedidoFromReclamo = (pedidoId) => {
 };
 
 export const realizarReclamo = (reclamo) => {
-  return axios({
+  const response = axios({
     method: "POST",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/agregarReclamo`,
     data: reclamo,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+  response.then((res) => {
+    checkTokens(
+      res.config.headers.Authorization,
+      res.config.headers.RefreshAuthentication
+    );
+  });
+  return response;
+};
+
+export const realizarDevolucion = (pedido, estado, motivo) => {
+  var id = "";
+  id = pedido;
+  return axios({
+    method: "POST",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/realizarDevolucion?idPedido=${id}&estadoDevolucion=${estado}`,
+    data: motivo,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),

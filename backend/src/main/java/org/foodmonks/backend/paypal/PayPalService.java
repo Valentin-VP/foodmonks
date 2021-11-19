@@ -1,13 +1,18 @@
 package org.foodmonks.backend.paypal;
 
+import com.google.gson.Gson;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
+import com.paypal.payments.CapturesRefundRequest;
+import com.paypal.payments.RefundRequest;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -17,10 +22,8 @@ import java.util.NoSuchElementException;
 public class PayPalService implements PaymentService{
 
     private final String APPROVE_LINK_REL = "approve";
-    private final String DEVOLUTION_LINK_REL = "";
 
     private final PayPalHttpClient payPalHttpClient;
-    private PayPalEnvironment getPayPalEnvironment;
 
     @Autowired
     public PayPalService (PayPalEnvironment getPayPalEnvironment){
@@ -73,6 +76,48 @@ public class PayPalService implements PaymentService{
         final OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(orderId);
         final HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
         log.info("Order Capture Status: {}",httpResponse.result().status());
+    }
+
+    // DEVOLUCION
+
+    public String getOrder(String orderId) throws IOException {
+        OrdersGetRequest request = new OrdersGetRequest(orderId);
+        //3. Call PayPal to get the transaction
+        HttpResponse<Order> response = payPalHttpClient.execute(request);
+        return response.result().purchaseUnits().get(0).payments().captures().get(0).id();
+    }
+
+    public String refundOrder(String captureId) throws IOException {
+        CapturesRefundRequest request = new CapturesRefundRequest(captureId);
+        request.prefer("return=representation");
+        request.requestBody(buildRequestBody());
+        // #3. Call PayPal to refund an capture
+        HttpResponse<com.paypal.payments.Refund> response = payPalHttpClient.execute(request);
+        System.out.println("Status Code: " + response.statusCode());
+        System.out.println("Status: " + response.result().status());
+        System.out.println("Refund Id: " + response.result().id());
+        System.out.println("Links: ");
+        for (com.paypal.payments.LinkDescription link : response.result().links()) {
+            System.out.println("\t" + link.rel() + ": " + link.href() + "\tCall Type: " + link.method());
+        }
+        System.out.println("Full response body:");
+        System.out.println(new Gson().fromJson(response.result().toString(), String.class));
+        return response.result().status();
+    }
+
+    // Creating a body for partial refund request.
+    // For full refund, pass the empty body.
+    //
+    // @return OrderRequest request with empty body
+
+    public RefundRequest buildRequestBody() {
+        RefundRequest refundRequest = new RefundRequest();
+/*        com.paypal.payments.Money money = new com.paypal.payments.Money();
+        money.currencyCode("USD");
+        money.value("20.00");*/
+       // refundRequest.amount(money);
+
+        return refundRequest;
     }
 
 }

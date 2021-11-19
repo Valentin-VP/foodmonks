@@ -100,6 +100,7 @@ export default function ListadoPedidosRealizados({
                   <tbody>
                     {datos && datos.pedidos
                       ? datos.pedidos.map((item) => {
+                          console.log(item);
                           return (
                             <>
                               <Col>
@@ -145,6 +146,9 @@ export default function ListadoPedidosRealizados({
                                       <button
                                         className="btn btn-sm btn-secondary"
                                         type="button"
+                                        disabled={
+                                          item.estadoPedido !== "Finalizado"
+                                        }
                                         onClick={(e) => onReclamar(item.id)}
                                       >
                                         Reclamar

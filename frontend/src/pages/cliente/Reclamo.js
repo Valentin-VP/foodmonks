@@ -96,12 +96,12 @@ function Reclamo() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    document.getElementById("submit").disabled = true;
     realizarReclamo(mail)
       .then((response) => {
-        document.getElementById("submit").disabled = true;
         console.log("entro al then");
         setSuccess(
-          <Alert variant="success">Promocion creada con exito!</Alert>
+          <Alert variant="success">Reclamo realizado con exito!</Alert>
         );
         console.log(response);
         sessionStorage.removeItem("pedidoId");
@@ -111,9 +111,7 @@ function Reclamo() {
       })
       .catch((error) => {
         console.log(error.response.data);
-        setSuccess(
-          <Alert variant="danger">{error.response.data.detailMessage}</Alert>
-        );
+        setSuccess(<Alert variant="danger">{error.response.data}</Alert>);
       });
   };
 

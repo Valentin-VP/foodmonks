@@ -114,7 +114,7 @@ const ItemCard = (props) => {
               props.price * (props.item.multiplicadorPromocion / 100)}
           </h5>
           {props.desc === 0 ? (
-            <p ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ />
+            <p>ㅤㅤㅤㅤㅤ</p>
           ) : (
             <p id="desc" className="card-text">
               {props.desc} %

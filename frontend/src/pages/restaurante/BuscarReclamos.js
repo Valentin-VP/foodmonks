@@ -81,7 +81,8 @@ function BuscarReclamos() {
     e.persist();
     setValues((values) => ({
       ...values,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
   };
 
@@ -107,10 +108,10 @@ function BuscarReclamos() {
                 <div className="col-lg">
                   <div className="form-floating">
                     <input
-                      name="correo"
+                      name="cliente"
                       className="form-control"
                       onChange={handleChange}
-                      id="correo"
+                      id="cliente"
                       value={values.cliente}
                     ></input>
                     <label htmlFor="correo">Email del Cliente</label>

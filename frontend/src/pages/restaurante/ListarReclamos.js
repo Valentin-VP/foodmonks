@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Modal, { ModalProvider } from "styled-react-modal";
 import { fetchPedidoFromReclamo } from "../../services/Requests";
-import { Noti } from "../../components/Notification";
+import { Noti, NotiError } from "../../components/Notification";
 import { Button } from "react-bootstrap";
+import { realizarDevolucion } from "../../services/Requests";
 
 const StyledModal = Modal.styled`
   * {
@@ -57,7 +58,9 @@ function ListarReclamos({ reclamos }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAceptar, setIsAceptar] = useState(false);
   const [isRechazar, setIsRechazar] = useState(false);
-  const [comentario, setComentario] = useState();
+  const [comentario, setComentario] = useState({
+    motivoDevolucion: "",
+  });
 
   const toggleModal = (e) => {
     setIsOpen(!isOpen);
@@ -89,16 +92,43 @@ function ListarReclamos({ reclamos }) {
 
   const handleChangeRechazar = (e) => {
     e.persist();
-    setComentario(e.target.value);
+    console.log(e.target.value);
+    setComentario((comentario) => ({
+      ...comentario,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const aceptarReclamo = () => {
-    console.log("aceptar");
+    realizarDevolucion(pedido.id, true, comentario)
+      .then((response) => {
+        console.log(response);
+        Noti("El reclamo fue aceptado con éxito");
+        setTimeout(() => {
+          window.location.replace("/menu");
+        }, 3000);
+      })
+      .catch((error) => {
+        NotiError(error.response.data);
+      });
   };
 
   const rechazarReclamo = () => {
-    console.log("rechazar");
-    console.log(comentario);
+    if (comentario.motivoDevolucion === "") {
+      NotiError("debe haber un comentario");
+    } else {
+      realizarDevolucion(pedido.id, false, comentario)
+        .then((response) => {
+          console.log(response);
+          Noti("El reclamo fue rechazado con éxito");
+          setTimeout(() => {
+            window.location.replace("/menu");
+          }, 3000);
+        })
+        .catch((error) => {
+          NotiError(error.response.data);
+        });
+    }
   };
 
   return (
@@ -113,6 +143,8 @@ function ListarReclamos({ reclamos }) {
                     <>
                       <br />
                       <tr key={reclamo.id}>
+                        <td>ESTADO: {reclamo.estadoPedido}</td>
+                        <th scope="col" />
                         <td>PEDIDO: {reclamo.idPedido}</td>
                         <th scope="col" />
                         <td>RAZON: {reclamo.razon}</td>
@@ -140,6 +172,10 @@ function ListarReclamos({ reclamos }) {
                             <button
                               className="btn btn-sm btn-secondary"
                               type="button"
+                              disabled={
+                                reclamo.estadoPedido === "DEVUELTO" ||
+                                reclamo.estadoPedido === "RECLAMORECHAZADO"
+                              }
                               onClick={(e) => {
                                 obtenerPedido(reclamo.idPedido);
                                 toggleModalAceptar();
@@ -155,6 +191,10 @@ function ListarReclamos({ reclamos }) {
                             <button
                               className="btn btn-sm btn-secondary"
                               type="button"
+                              disabled={
+                                reclamo.estadoPedido === "DEVUELTO" ||
+                                reclamo.estadoPedido === "RECLAMORECHAZADO"
+                              }
                               onClick={(e) => {
                                 obtenerPedido(reclamo.idPedido);
                                 toggleModalRechazar();
@@ -187,6 +227,7 @@ function ListarReclamos({ reclamos }) {
                 <p>Medio de Pago: {pedido.medioPago}</p>
                 <p>Restaurante: {pedido.nombreRestaurante}</p>
                 <p>Cliente: {pedido.nombreApellidoCliente}</p>
+                <p>Estado: {pedido.estado}</p>
               </div>
               <div className="abajo">
                 <Button variant="secondary" onClick={toggleModal}>
@@ -226,7 +267,11 @@ function ListarReclamos({ reclamos }) {
             <div className="cuerpo">
               <br />
               <span> ¿Cual es la razon de el rechazo? </span>
-              <textarea id="inputRechazar" onChange={handleChangeRechazar} />
+              <textarea
+                id="inputRechazar"
+                name="motivoDevolucion"
+                onChange={handleChangeRechazar}
+              />
             </div>
             <div className="abajo">
               <Button variant="danger" onClick={rechazarReclamo}>

@@ -2,11 +2,11 @@ package org.foodmonks.backend.Cliente;
 
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Direccion.DireccionRepository;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import lombok.extern.slf4j.Slf4j;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
@@ -59,6 +59,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.TemplateEngine;
 
 @Service
+@Slf4j
 public class ClienteService {
 
     private final PasswordEncoder passwordEncoder;
@@ -86,7 +87,6 @@ public class ClienteService {
                           MenuRepository menuRepository, PedidoConverter pedidoConverter,
                           EmailService emailService, ReclamoService reclamoService,
                           TemplateEngine templateEngine) {
-
         this.clienteRepository = clienteRepository; this.passwordEncoder = passwordEncoder; 
         this.usuarioService = usuarioService; this.direccionService = direccionService; 
         this.clienteConverter = clienteConverter; this.pedidoService = pedidoService;  
@@ -369,7 +369,9 @@ public class ClienteService {
         Restaurante restaurante = restauranteService.obtenerRestaurante(jsonRequestPedido.get("restaurante").getAsString());
         DtOrdenPaypal ordenPaypal = new DtOrdenPaypal();
         if (MedioPago.valueOf(jsonRequestPedido.get("medioPago").getAsString()).equals(MedioPago.PAYPAL)){
-            if (!jsonRequestPedido.get("ordenId").getAsString().isEmpty() && !jsonRequestPedido.get("linkAprobacion").getAsString().isEmpty()){
+            System.out.println("orderID: " + jsonRequestPedido.get("ordenId").getAsString());
+            if (!jsonRequestPedido.get("ordenId").getAsString().isBlank()){
+                log.debug("################## ORDER ID ################\n" + jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setOrdenId(jsonRequestPedido.get("ordenId").getAsString());
                 ordenPaypal.setLinkAprobacion(jsonRequestPedido.get("linkAprobacion").getAsString());
             }
