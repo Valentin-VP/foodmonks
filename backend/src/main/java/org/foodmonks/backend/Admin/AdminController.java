@@ -257,10 +257,11 @@ public class AdminController {
             @RequestParam(required = false, name = "ventasRestaurante") String ventasRestaurante,
             @RequestParam(required = false, name = "usuariosActivos") boolean usuariosActivos,
             @RequestParam(required = false, name = "registroUsuarios") boolean registroUsuarios,
-            @RequestParam(required = false, name = "pedidosRegistrados") boolean pedidosRegistrados) {
+            @RequestParam(required = false, name = "pedidosRegistrados") boolean pedidosRegistrados,
+            @RequestParam(required = false, name = "anioPedidos") int anioPedidos) {
         JsonObject estadisticas = new JsonObject();
         try {
-            //estadisticas = adminService.obtenerEstadisticas(ventasRestaurante, usuariosActivos, registroUsuarios, pedidosRegistrados);
+            //estadisticas = adminService.obtenerEstadisticas(ventasRestaurante, usuariosActivos, registroUsuarios, pedidosRegistrados, anioPedidos);
         } catch(JsonIOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
