@@ -156,9 +156,11 @@ export default function ListadoPedidosRealizados({
   const crearCalificacion = (item, accion) => {
     setPedido(item);
     setAccion(accion);
-    // if(!item.calificacionRestaurante){
-    //   //aca iria el antiguo valor de la calificacion
-    // }
+    if(item.calificacionRestaurante === "false"){
+      setRating(0);
+    }else{
+      setRating(item.calificacionRestaurante);
+    }
     toggleModal();
   };
 
@@ -178,7 +180,7 @@ export default function ListadoPedidosRealizados({
     if (tipoAccion === "CALIFICAR") {
       calificarRestaurante(data)
         .then(() => {
-          window.location.replace("listarPedidos");
+          window.location.replace("listadoPedidos");
         })
         .catch((error) => {
           NotiError(error.response.data);
@@ -186,7 +188,7 @@ export default function ListadoPedidosRealizados({
     } else {
       modificarCalificacionRestaurante(data)
         .then(() => {
-          window.location.replace("listarPedidos");
+          window.location.replace("listadoPedidos");
         })
         .catch((error) => {
           NotiError(error.response.data);
@@ -196,10 +198,12 @@ export default function ListadoPedidosRealizados({
 
   const eliminarCalificacion = (item) => {
     console.log(item);
-    eliminarCalificacionRestaurante(item.id).catch((error) => {
+    eliminarCalificacionRestaurante(item.id).then(() => {
+      window.location.replace("listadoPedidos");
+    }).catch((error) => {
       NotiError(error.response.data);
     });
-    // window.location.replace("listarPedidos");
+    
   };
 
   return (
@@ -271,7 +275,7 @@ export default function ListadoPedidosRealizados({
                                   )}
                                 </td>
                                 <td>
-                                  {item.calificacionRestaurante == false ? (
+                                  {item.calificacionRestaurante === "false" ? (
                                     <button
                                       type="button"
                                       className="clickeable"
