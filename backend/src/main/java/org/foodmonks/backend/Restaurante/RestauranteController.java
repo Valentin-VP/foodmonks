@@ -243,6 +243,7 @@ public class RestauranteController {
     public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @PathVariable Long menuId, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)))
     @RequestBody String updatedMenu) {
         try {
+
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
             // Transformar json string en JsonObject
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
