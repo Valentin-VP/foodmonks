@@ -53,6 +53,19 @@ const Styles = styled.div`
   #fecha{
     height: 58px;
   }
+  .MuiPaginationItem-page.Mui-selected {
+    background-color: #e87121;
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
+      background-color: #f87121;
+    }
+    &:hover {
+      background-color: #da6416;
+    }
+    &:active {
+      background-color: #d87121;
+    }
+  }
 `;
 
 export default function BuscarRegistrados() {
