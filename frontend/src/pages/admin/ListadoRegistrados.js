@@ -84,7 +84,7 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
         <div className="table-responsive justify-content-center" id="list">
           <table className="table table-hover">
             <tbody>
-              {data.map((item) => {
+              {data && data.usuarios && data.usuarios.map((item) => {
                   return (
                     <>
                       <tr key={item.correo}>
@@ -99,10 +99,10 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
                         {item.rol==="CLIENTE"  ? <td colSpan="1"></td> : (item.rol==="ADMIN" ? <td colSpan="4"></td> : null)}
                         {item.rol!=="ADMIN" && <td>Calificación: {item.calificacion}</td>}
                         {item.rol!=="ADMIN" && <td>Estado: {item.estado}</td>}
-                        {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="ELIMINADO"} type="button" onClick={e=>(updateState(item))}>
+                        {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="ELIMINADO" || item.estado==="PENDIENTE" || item.estado==="RECHAZADO"} type="button" onClick={e=>(updateState(item))}>
                           {item.estado==="BLOQUEADO" ? "Desbloquear" : "Bloquear"}
                         </button>}</td>}
-                        {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-danger" disabled={item.estado !== "BLOQUEADO" || item.estado==="ELIMINADO"} type="button" onClick={e=>(updateStateEliminar(item))}>
+                        {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-danger" disabled={item.estado !== "BLOQUEADO" || item.estado==="ELIMINADO" || item.estado==="PENDIENTE" || item.estado==="RECHAZADO"} type="button" onClick={e=>(updateStateEliminar(item))}>
                           Eliminar
                         </button>}</td>}
                         {item.rol==="ADMIN" && <td><button className="btn btn-sm btn-danger" type="button" onClick={e=>(updateStateEliminar(item))}>

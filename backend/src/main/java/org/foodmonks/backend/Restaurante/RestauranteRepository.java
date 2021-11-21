@@ -14,5 +14,5 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, String
     List<Restaurante> findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(String nombreRestaurante, EstadoRestaurante estadoRestaurante);
     List<Restaurante> findRestaurantesByEstado(EstadoRestaurante estadoRestaurante);
     List<Restaurante> findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante estadoRestaurante);
-    List<Restaurante> findAllByRolesOrderByCalificacion(String role);
+    List<Restaurante> findAllByRolesOrderByCalificacionDesc(String role);
 }
