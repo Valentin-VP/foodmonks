@@ -359,7 +359,7 @@ public class RestauranteService {
         ]
     }*/
 
-    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fechaIni, String fechaFin,String estadoPedido) throws RestauranteNoEncontradoException, PedidoFechaProcesadoException {
+    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fechaIni, String fechaFin,String estadoPedido) throws Exception {
 
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
 
@@ -403,6 +403,15 @@ public class RestauranteService {
         if (fechaFin != null && !fechaFin.isBlank()){
             fechaFinal = LocalDateTime.parse(fechaFin);
         }
+
+        if (fechaInicial != null && fechaFinal != null) {
+            if ((fechaInicial.getYear() > fechaFinal.getYear()) ||
+                    (fechaInicial.getYear() == fechaFinal.getYear() && (fechaInicial.getMonthValue() > fechaFinal.getMonthValue())) ||
+                    (fechaInicial.getYear() == fechaFinal.getYear() && (fechaInicial.getMonthValue() == fechaFinal.getMonthValue()) && (fechaInicial.getDayOfMonth() > fechaFinal.getDayOfMonth()))){
+                throw new Exception("Rango de fechas invalido");
+            }
+        }
+
         // Diferencia entre mes de fecha inicio y mes de fecha final
        //  int cantidadMeses = 12;
        //  ver si funciona cantidadMeses
@@ -433,8 +442,16 @@ public class RestauranteService {
         List <Pedido> aux;
 /*        int cantidadMeses = (int) ChronoUnit.MONTHS.between(LocalDate.parse(fechaFinal[0].toString()),LocalDate.parse(fechaFinal[1].toString()));
         cantidadMeses = cantidadMeses + fechaFinal[0].getMonthValue();*/
+        int mesfinal;
+        if (fechaFinal.getYear() - fechaInicial.getYear() > 0){
+            mesfinal = (fechaFinal.getMonthValue() - fechaInicial.getMonthValue()) + ((fechaFinal.getYear() - fechaInicial.getYear()) * 12);
+        } else {
+            mesfinal = fechaFinal.getMonthValue();
+        }
 
-        for(int i =fechaInicial.getMonthValue(); i <= fechaFinal.getMonthValue(); i++){
+        anio = fechaInicial.getYear();
+
+        for(int i =fechaInicial.getMonthValue(); i <= mesfinal; i++){
 
             float subTotal = 0;
             aux = listaPedidos;
@@ -447,6 +464,7 @@ public class RestauranteService {
             float devolucionesPayPal = 0;
             int cantidadDevolucionesPayPal = 0;
 
+            mes = obtenerMes(i % 12);
 
             for (Pedido pedido : aux){
                 LocalDateTime fechapedido = pedido.getFechaHoraProcesado();
@@ -465,7 +483,6 @@ public class RestauranteService {
                             cantidadVentasPayPal++;
                             subTotal += pedido.getTotal();
                         }
-                        mes = pedido.getFechaHoraProcesado().getMonth().toString();
                         anio = pedido.getFechaHoraProcesado().getYear();
                     }
                 } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
@@ -524,6 +541,10 @@ public class RestauranteService {
 
             // Termina iteracion de todo lo relacionado a un mes
             meses.add(jsonMes);
+
+            if (i == 12) {
+                anio ++;
+            }
         }
 
         // Cargo totales
@@ -552,6 +573,49 @@ public class RestauranteService {
         balance.add("meses", meses);
         balance.add("totales", totales);
         return balance;
+    }
+
+    public String obtenerMes (int mes){
+        String result;
+        switch (mes) {
+            case 1:
+                result = "Enero";
+                break;
+            case 2:
+                result = "Febrero";
+                break;
+            case 3:
+                result = "Marzo";
+                break;
+            case 4:
+                result = "Abril";
+                break;
+            case 5:
+                result = "Mayo";
+                break;
+            case 6:
+                result = "Junio";
+                break;
+            case 7:
+                result = "Julio";
+                break;
+            case 8:
+                result = "Agosto";
+                break;
+            case 9:
+                result = "Septiembre";
+                break;
+            case 10:
+                result = "Octubre";
+                break;
+            case 11:
+                result = "Noviembre";
+                break;
+            default:
+                result = "Diciembre";
+                break;
+        }
+        return result;
     }
 
 }
