@@ -578,8 +578,7 @@ public class RestauranteController {
                 newtoken = token.substring(7);
             }
             String correoRestaurante = tokenHelp.getUsernameFromToken(newtoken);
-            String fecha = fechaInicio +","+ fechaFin;
-            jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago, fecha, estadoPedido);
+            jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, estadoPedido);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

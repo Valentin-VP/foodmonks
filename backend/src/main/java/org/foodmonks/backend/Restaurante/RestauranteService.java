@@ -9,6 +9,7 @@ import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoFechaProcesadoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
@@ -358,7 +359,7 @@ public class RestauranteService {
         ]
     }*/
 
-    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fecha,String estadoPedido) throws RestauranteNoEncontradoException {
+    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fechaIni, String fechaFin,String estadoPedido) throws RestauranteNoEncontradoException, PedidoFechaProcesadoException {
 
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
 
@@ -392,44 +393,48 @@ public class RestauranteService {
         }
 
         // Fecha
-        LocalDateTime[] fechaFinal = new LocalDateTime[2];
-        String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
-        if (_fecha != null && _fecha[0] != null && _fecha[1] != null){
-            fechaFinal[0] = LocalDateTime.of(LocalDate.parse(_fecha[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
-            fechaFinal[1] = LocalDateTime.of(LocalDate.parse(_fecha[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalTime.MIDNIGHT);
+        LocalDateTime fechaInicial = null;
+        LocalDateTime fechaFinal = null;
+
+        if (fechaIni != null && !fechaIni.isBlank()){
+            fechaInicial = LocalDateTime.parse(fechaIni);
+        }
+
+        if (fechaFin != null && !fechaFin.isBlank()){
+            fechaFinal = LocalDateTime.parse(fechaFin);
         }
         // Diferencia entre mes de fecha inicio y mes de fecha final
        //  int cantidadMeses = 12;
        //  ver si funciona cantidadMeses
         List<Pedido> listaPedidos;
-        if (estado != null && pago !=null && fechaFinal[0] != null && fechaFinal[1] != null) {
-            listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPagoFechaHoraProcesado(restaurante,estado,pago,fechaFinal[0],fechaFinal[1]);
+        if (estado != null && pago !=null && fechaInicial != null && fechaFinal != null) {
+            listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPagoFechaHoraProcesado(restaurante,estado,pago,fechaInicial,fechaFinal);
         } else if (estado !=null && pago != null){
             listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPago(restaurante,estado,pago);
-        } else if (estado != null && fechaFinal[0] != null && fechaFinal[1] != null){
-            listaPedidos = pedidoService.pedidosRestauranteEstadoFechaHoraProcesado(restaurante,estado,fechaFinal[0],fechaFinal[1]);
-        } else if (pago != null && fechaFinal[0] != null && fechaFinal[1] != null){
-            listaPedidos = pedidoService.pedidosRestauranteMedioPagoFechaHoraProcesado(restaurante,pago,fechaFinal[0],fechaFinal[1]);
+        } else if (estado != null && fechaInicial != null && fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteEstadoFechaHoraProcesado(restaurante,estado,fechaInicial,fechaFinal);
+        } else if (pago != null && fechaInicial != null && fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteMedioPagoFechaHoraProcesado(restaurante,pago,fechaInicial,fechaFinal);
         } else if (estado != null) {
             listaPedidos = pedidoService.pedidosRestauranteEstado(restaurante,estado);
         } else if (pago != null){
             listaPedidos = pedidoService.pedidosRestauranteMedioPago(restaurante,pago);
-        } else if (fechaFinal[0] != null && fechaFinal[1] != null){
-            listaPedidos = pedidoService.pedidosRestauranteFechaHoraProcesado(restaurante,fechaFinal[0],fechaFinal[1]);
+        } else if (fechaInicial != null && fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteFechaHoraProcesado(restaurante,fechaInicial,fechaFinal);
         } else {
             listaPedidos = pedidoService.pedidosRestaurante(restaurante);
         }
 
-        if (fechaFinal[0] == null || fechaFinal[1] == null){
-            fechaFinal[0] = LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),1,0,0,0);
-            fechaFinal[1] = LocalDateTime.now();
+        if (fechaInicial == null || fechaFinal == null){
+            fechaInicial = LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),1,0,0,0);
+            fechaFinal = LocalDateTime.now();
         }
 
         List <Pedido> aux;
 /*        int cantidadMeses = (int) ChronoUnit.MONTHS.between(LocalDate.parse(fechaFinal[0].toString()),LocalDate.parse(fechaFinal[1].toString()));
         cantidadMeses = cantidadMeses + fechaFinal[0].getMonthValue();*/
 
-        for(int i =fechaFinal[0].getMonthValue(); i < fechaFinal[1].getMonthValue(); i++){
+        for(int i =fechaInicial.getMonthValue(); i <= fechaFinal.getMonthValue(); i++){
 
             float subTotal = 0;
             aux = listaPedidos;
@@ -444,10 +449,13 @@ public class RestauranteService {
 
 
             for (Pedido pedido : aux){
+                LocalDateTime fechapedido = pedido.getFechaHoraProcesado();
+                if (fechapedido == null) {
+                    throw new PedidoFechaProcesadoException("Existe un pedido sin fecha de procesado en estado Finalizado-Devuelto-ReclamoRechazado");
+                }
                 if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))) {
-                    LocalDateTime fechapedido = pedido.getFechaHoraProcesado();
-                    if ((fechapedido.isEqual(fechaFinal[0]) || fechapedido.isAfter(fechaFinal[0])) && fechapedido.getMonthValue() == i && 
-                            ( fechapedido.isBefore(fechaFinal[1]) || fechapedido.isEqual(fechaFinal[1]))) {
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == i &&
+                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             ventasEfectivo += pedido.getTotal();
                             cantidadVentasEfectivo++;
@@ -461,8 +469,8 @@ public class RestauranteService {
                         anio = pedido.getFechaHoraProcesado().getYear();
                     }
                 } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
-                    if (pedido.getFechaHoraProcesado().isAfter(fechaFinal[0]) && pedido.getFechaHoraProcesado().getMonthValue() == i &&
-                            pedido.getFechaHoraProcesado().isBefore(fechaFinal[1])) {
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == i &&
+                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             devolucionesEfectivo += pedido.getTotal();
                             cantidadDevolucionesEfectivo++;
@@ -481,7 +489,7 @@ public class RestauranteService {
             totalVentasPaypal += ventasPaypal;
             totalCantidadVentasPayPal += cantidadVentasPayPal;
             totalDevolucionesEfectivo += devolucionesEfectivo;
-            totalCantidadDevolucionesEfectivo += devolucionesEfectivo;
+            totalCantidadDevolucionesEfectivo += cantidadDevolucionesEfectivo;
             totalDevolucionesPayPal += devolucionesPayPal;
             totalCantidadDevolucionesPayPal += cantidadDevolucionesPayPal;
 
@@ -491,23 +499,26 @@ public class RestauranteService {
             JsonArray indicadores = new JsonArray();
 
             // Cargar los 4 json de indicadores
-            JsonObject jsonIndicador = new JsonObject();
+            JsonObject jsonIndicadorVE = new JsonObject();
+            jsonIndicadorVE.addProperty("ventas efectivo", ventasEfectivo);
+            jsonIndicadorVE.addProperty("cantidad", cantidadVentasEfectivo);
 
-            // Para cada indicador
-            // Definir logica de iteracion o hacer manual las 0 --> 4 veces
-            // Obtener arreglo de la consulta al Repsoitory
-            // Sumar total y aumentar cantidad
-            // Al final de cada indicador, suma/resta al subtotal
+            JsonObject jsonIndicadorVPP = new JsonObject();
+            jsonIndicadorVPP.addProperty("ventas paypal", ventasPaypal);
+            jsonIndicadorVPP.addProperty("cantidad", cantidadVentasPayPal);
 
-            jsonIndicador.addProperty("ventas efectivo", ventasEfectivo);
-            jsonIndicador.addProperty("cantidad ", cantidadVentasEfectivo);
-            jsonIndicador.addProperty("ventas paypal", ventasPaypal);
-            jsonIndicador.addProperty("cantidad", cantidadVentasPayPal);
-            jsonIndicador.addProperty("devoluciones efectivo", devolucionesEfectivo);
-            jsonIndicador.addProperty("cantidad ", cantidadDevolucionesEfectivo);
-            jsonIndicador.addProperty("devoluciones paypall", devolucionesPayPal);
-            jsonIndicador.addProperty("cantidad", cantidadDevolucionesPayPal);
+            JsonObject jsonIndicadorDE = new JsonObject();
+            jsonIndicadorDE.addProperty("devoluciones efectivo", devolucionesEfectivo);
+            jsonIndicadorDE.addProperty("cantidad", cantidadDevolucionesEfectivo);
 
+            JsonObject jsonIndicadorDPP = new JsonObject();
+            jsonIndicadorDPP.addProperty("devoluciones paypal", devolucionesPayPal);
+            jsonIndicadorDPP.addProperty("cantidad", cantidadDevolucionesPayPal);
+
+            indicadores.add(jsonIndicadorVE);
+            indicadores.add(jsonIndicadorVPP);
+            indicadores.add(jsonIndicadorDE);
+            indicadores.add(jsonIndicadorDPP);
             jsonMes.add("indicadores", indicadores);
             jsonMes.addProperty("subtotal", subTotal);
 
@@ -530,7 +541,7 @@ public class RestauranteService {
         devolucionesEfectivoTotal.addProperty("cantidad", totalCantidadDevolucionesEfectivo);
 
         JsonObject devolucionesPayPalTotal = new JsonObject();
-        devolucionesPayPalTotal.addProperty("devolucionesPayPal", totalCantidadDevolucionesPayPal);
+        devolucionesPayPalTotal.addProperty("devolucionesPayPal", totalDevolucionesPayPal);
         devolucionesPayPalTotal.addProperty("cantidad", totalCantidadDevolucionesPayPal);
 
         // Termina todo, retorno balance
