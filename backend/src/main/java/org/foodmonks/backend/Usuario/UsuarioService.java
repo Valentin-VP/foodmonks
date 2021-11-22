@@ -180,7 +180,7 @@ public class UsuarioService {
 				
 					if (usuario instanceof Restaurante) {
 						Restaurante restaurante = (Restaurante) usuario;
-						if (restaurante.getEstado()== EstadoRestaurante.BLOQUEADO || restaurante.getEstado()== EstadoRestaurante.ELIMINADO) {
+						if (!(restaurante.getEstado()== EstadoRestaurante.ABIERTO || restaurante.getEstado()== EstadoRestaurante.CERRADO)) {
 							throw new UsuarioNoBloqueadoException("Usuario "+correo+" no pudo ser bloqueado" );
 						}else {
 							 restaurante.setEstado(EstadoRestaurante.BLOQUEADO);
@@ -189,7 +189,7 @@ public class UsuarioService {
 						}
 					} else if (usuario instanceof Cliente) {
 						Cliente cliente = (Cliente) usuario;
-						if (cliente.getEstado()== EstadoCliente.BLOQUEADO || cliente.getEstado()== EstadoCliente.ELIMINADO) {
+						if (cliente.getEstado()!= EstadoCliente.ACTIVO) {
 							throw new UsuarioNoBloqueadoException("Usuario "+correo+" no pudo ser bloqueado" );
 						}else {
 						     cliente.setEstado(EstadoCliente.BLOQUEADO);

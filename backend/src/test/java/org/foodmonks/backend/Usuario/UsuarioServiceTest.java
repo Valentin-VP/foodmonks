@@ -5,14 +5,20 @@ import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteRepository;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoBloqueadoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoDesbloqueadoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEliminadoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEncontradoException;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -25,10 +31,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
@@ -576,4 +583,313 @@ class UsuarioServiceTest {
         result = usuarioService.listarUsuarios("","restaurante","","","",true,"");
         assertThat(result).isEqualTo(expectedJsonObject);
     }
+
+    @Test
+    void bloquearUsuario_Cliente() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+
+        usuarioService.bloquearUsuario("dummy");
+        ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
+        verify(usuarioRepository).save(clienteArgumentCaptor.capture());
+
+        assertThat(clienteArgumentCaptor.getValue().getEstado()).isEqualTo(EstadoCliente.BLOQUEADO);
+    }
+
+    @Test
+    void bloquearUsuario_Cliente_EstadoIncorrecto() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+
+        assertThatThrownBy(()->usuarioService.bloquearUsuario("dummy"))
+                .isInstanceOf(UsuarioNoBloqueadoException.class)
+                .hasMessageContaining("Usuario dummy no pudo ser bloqueado");
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void bloquearUsuario_Restaurante() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+
+        usuarioService.bloquearUsuario("dummy");
+        ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
+        verify(usuarioRepository).save(restauranteArgumentCaptor.capture());
+
+        assertThat(restauranteArgumentCaptor.getValue().getEstado()).isEqualTo(EstadoRestaurante.BLOQUEADO);
+    }
+
+    @Test
+    void bloquearUsuario_Restaurante_EstadoIncorrecto() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ELIMINADO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+
+        assertThatThrownBy(()->usuarioService.bloquearUsuario("dummy"))
+                .isInstanceOf(UsuarioNoBloqueadoException.class)
+                .hasMessageContaining("Usuario dummy no pudo ser bloqueado");
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void bloquearUsuario_Inexistente() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+
+        assertThatThrownBy(()->usuarioService.bloquearUsuario("dummy"))
+                .isInstanceOf(UsuarioNoEncontradoException.class)
+                .hasMessageContaining("Usuario dummy no encontrado");
+        verify(usuarioRepository, never()).save(any());
+        verify(emailService, never()).enviarMail(anyString(), anyString(), anyString(), any());
+    }
+
+    @Test
+    void desbloquearUsuario_Cliente() throws UsuarioNoDesbloqueadoException, UsuarioNoEncontradoException, EmailNoEnviadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+
+        usuarioService.desbloquearUsuario("dummy");
+        ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
+        verify(usuarioRepository).save(clienteArgumentCaptor.capture());
+
+        assertThat(clienteArgumentCaptor.getValue().getEstado()).isEqualTo(EstadoCliente.ACTIVO);
+    }
+
+    @Test
+    void desbloquearUsuario_Cliente_EstadoIncorrecto() {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ELIMINADO, null, null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+
+        assertThatThrownBy(()->usuarioService.desbloquearUsuario("dummy"))
+                .isInstanceOf(UsuarioNoDesbloqueadoException.class)
+                .hasMessageContaining("Usuario dummy debe estar bloqueado");
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void desbloquearUsuario_Restaurante() throws UsuarioNoDesbloqueadoException, UsuarioNoEncontradoException, EmailNoEnviadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.BLOQUEADO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+
+        usuarioService.desbloquearUsuario("dummy");
+        ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
+        verify(usuarioRepository).save(restauranteArgumentCaptor.capture());
+
+        assertThat(restauranteArgumentCaptor.getValue().getEstado()).isEqualTo(EstadoRestaurante.CERRADO);
+    }
+
+    @Test
+    void desbloquearUsuario_Restaurante_EstadoIncorrecto() {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.PENDIENTE, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+
+        assertThatThrownBy(()->usuarioService.desbloquearUsuario("dummy"))
+                .isInstanceOf(UsuarioNoDesbloqueadoException.class)
+                .hasMessageContaining("Usuario dummy debe estar bloqueado");
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void desbloquearUsuario_Inexistente() throws EmailNoEnviadoException {
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+
+        assertThatThrownBy(()->usuarioService.desbloquearUsuario("dummy"))
+                .isInstanceOf(UsuarioNoEncontradoException.class)
+                .hasMessageContaining("Usuario dummy no encontrado");
+        verify(usuarioRepository, never()).save(any());
+        verify(emailService, never()).enviarMail(anyString(), anyString(), anyString(), any());
+    }
+
+    @Test
+    void eliminarUsuario_Cliente() throws UsuarioNoEncontradoException, UsuarioNoEliminadoException, EmailNoEnviadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+
+        usuarioService.eliminarUsuario("dummy");
+        ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
+        verify(usuarioRepository).save(clienteArgumentCaptor.capture());
+
+        assertThat(clienteArgumentCaptor.getValue().getEstado()).isEqualTo(EstadoCliente.ELIMINADO);
+    }
+
+    @Test
+    void eliminarUsuario_Cliente_EstadoIncorrecto() {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+
+        assertThatThrownBy(()->usuarioService.eliminarUsuario("dummy"))
+                .isInstanceOf(UsuarioNoEliminadoException.class)
+                .hasMessageContaining("Usuario dummy debe estar bloqueado");
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void eliminarUsuario_Restaurante() throws UsuarioNoDesbloqueadoException, UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.BLOQUEADO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+
+        usuarioService.eliminarUsuario("dummy");
+        ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
+        verify(usuarioRepository).save(restauranteArgumentCaptor.capture());
+
+        assertThat(restauranteArgumentCaptor.getValue().getEstado()).isEqualTo(EstadoRestaurante.ELIMINADO);
+    }
+
+    @Test
+    void eliminarUsuario_Restaurante_EstadoIncorrecto() {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.CERRADO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+
+        assertThatThrownBy(()->usuarioService.eliminarUsuario("dummy"))
+                .isInstanceOf(UsuarioNoEliminadoException.class)
+                .hasMessageContaining("Usuario dummy debe estar bloqueado");
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void eliminarUsuario_Admin() throws UsuarioNoDesbloqueadoException, UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Admin admin1 =  new Admin("nombreDelAdmin",
+                "apellidoDelAdmin",
+                "admin1@gmail.com",
+                passwordEncoder.encode("a"),
+                LocalDate.of(2010, 01, 01));
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(admin1);
+
+        usuarioService.eliminarUsuario("dummy");
+        ArgumentCaptor<Admin> adminArgumentCaptor = ArgumentCaptor.forClass(Admin.class);
+        verify(usuarioRepository).delete(adminArgumentCaptor.capture());
+
+        assertThat(adminArgumentCaptor.getValue().getCorreo()).isEqualTo("admin1@gmail.com");
+    }
+
+    @Test
+    void eliminarUsuario_Inexistente() throws EmailNoEnviadoException {
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+
+        assertThatThrownBy(()->usuarioService.eliminarUsuario("dummy"))
+                .isInstanceOf(UsuarioNoEncontradoException.class)
+                .hasMessageContaining("Usuario dummy no encontrado");
+        verify(usuarioRepository, never()).save(any());
+        verify(emailService, never()).enviarMail(anyString(), anyString(), anyString(), any());
+    }
+
+    @Test
+    void cambiarPassword() throws UsuarioNoEncontradoException {
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
+        Admin admin1 =  new Admin("nombreDelAdmin",
+                "apellidoDelAdmin",
+                "admin1@gmail.com",
+                passwordEncoder.encode("a"),
+                LocalDate.of(2010, 01, 01));
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(admin1);
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("b");
+
+        usuarioService.cambiarPassword("dummy", "dummy");
+
+        ArgumentCaptor<Admin> adminArgumentCaptor = ArgumentCaptor.forClass(Admin.class);
+        verify(usuarioRepository).save(adminArgumentCaptor.capture());
+
+        assertThat(adminArgumentCaptor.getValue().getContrasenia()).isEqualTo("b");
+    }
+
+    @Test
+    void cambiarPassword_Inexistente() throws UsuarioNoEncontradoException {
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+
+        assertThatThrownBy(()->usuarioService.cambiarPassword("dummy", "dummy"))
+                .isInstanceOf(UsuarioNoEncontradoException.class)
+                .hasMessageContaining("No existe el Usuario dummy");
+        verify(passwordEncoder, never()).encode(any(CharSequence.class));
+        verify(usuarioRepository, never()).save(any());
+    }
+
 }
