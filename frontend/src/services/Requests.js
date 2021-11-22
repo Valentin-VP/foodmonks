@@ -282,14 +282,29 @@ export const actualizarEstadoPedidoPendientes = (estado, id, minutos) => {
 };
 
 export const altaAdmin = (datos) => {
-  return axios({
+  const response =  axios({
     method: "POST",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/altaAdmin`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
+  response
+    .then((res) => {
+      checkTokens(
+        res.config.headers.Authorization,
+        res.config.headers.RefreshAuthentication
+      );
+    })
+    .catch((error) => {
+      checkTokens(
+        error.config.headers.Authorization,
+        error.config.headers.RefreshAuthentication
+      );
+    });
+  return response;
 };
 
 export const eliminarCuentaClientePropia = () => {
