@@ -45,12 +45,18 @@ public class PedidoService {
         List<CriterioQuery> querys = new ArrayList<>();
 
         if (estadoPedido != null) {
-            querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            if (estadoPedido.equals(EstadoPedido.FINALIZADO)){
+                querys.add(new CriterioQuery("estado",":",EstadoPedido.RECLAMORECHAZADO, true));
+                querys.add(new CriterioQuery("estado",":",estadoPedido, true));
+            }else{
+                querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            }
 //            result = pedidoRepository.findAll(estadoSpec);
             //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
         }else{
             querys.add(new CriterioQuery("estado",":",EstadoPedido.DEVUELTO, true));
             querys.add(new CriterioQuery("estado",":",EstadoPedido.FINALIZADO, true));
+            querys.add(new CriterioQuery("estado",":",EstadoPedido.RECLAMORECHAZADO, true));
 //            result = pedidoRepository.findAll(estadoSpecF.and(estadoSpecD));
             //result = pedidos.stream().filter(p -> (p.getEstado().equals(EstadoPedido.DEVUELTO) || p.getEstado().equals(EstadoPedido.FINALIZADO))).collect(Collectors.toList());
         }
@@ -109,9 +115,13 @@ public class PedidoService {
         PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
         List<CriterioQuery> querys = new ArrayList<>();
 
-        querys.add(new CriterioQuery("cliente", ":", cliente,false));
         if (estadoPedido != null) {
-            querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            if (estadoPedido.equals(EstadoPedido.FINALIZADO)){
+                querys.add(new CriterioQuery("estado",":",estadoPedido, true));
+                querys.add(new CriterioQuery("estado",":",EstadoPedido.RECLAMORECHAZADO, true));
+            }else{
+                querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            }
 //            result = pedidoRepository.findAll(estadoSpec);
             //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
         }
@@ -146,6 +156,7 @@ public class PedidoService {
 //            )).collect(Collectors.toList());
 //            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
+        querys.add(new CriterioQuery("cliente", ":", cliente,false));
         for(CriterioQuery c : querys){
             builder.with(c);
         }
