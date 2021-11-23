@@ -66,7 +66,7 @@ export default function VerBalance() {
   const [loaded, setLoaded] = useState(false);
   //const [error, setError] = useState(false);
   const [values, setValues] = useState({
-    estadoPedido: "",
+    categoria: "",
     medioPago: "",
   });
 
@@ -78,10 +78,18 @@ export default function VerBalance() {
     setEndDate(end);
   };
 
-  let estadoPedido = [
-    { nombre: "(Devuelto y Finalizado)", value: "" },
-    { nombre: "Devuelto", value: "DEVUELTO" },
-    { nombre: "Finalizado", value: "FINALIZADO"},
+  let categoria = [
+    { nombre: "(Cualquiera)", value: "" },
+    { nombre: "Pizzas", value: "PIZZAS" },
+    { nombre: "Hamburguesas", value: "HAMBURGUESAS" },
+    { nombre: "Bebidas", value: "BEBIDAS" },
+    { nombre: "Combos", value: "COMBOS" },
+    { nombre: "Minutas", value: "MINUTAS" },
+    { nombre: "Postres", value: "POSTRES" },
+    { nombre: "Pastas", value: "PASTAS" },
+    { nombre: "Comida Arabe", value: "COMIDAARABE" },
+    { nombre: "Sushi", value: "SUSHI" },
+    { nombre: "Otros", value: "OTROS" },
   ];
 
   let medioPago = [
@@ -143,15 +151,15 @@ export default function VerBalance() {
                   <div class="col-lg">
                       <div className="form-floating">
                           <select 
-                              name="estadoPedido"
+                              name="categoria"
                               className="form-select"
                               onChange={handleChange}
-                              id="estadoPedido">
-                              {estadoPedido.map((item)=>(
+                              id="categoria">
+                              {categoria.map((item)=>(
                                 <option key={item.nombre} value={item.value}>{item.nombre}</option>
                               ))}
                           </select>
-                          <label htmlFor="estadoPedido">Estado</label>
+                          <label htmlFor="categoria">Categoría Menú</label>
                       </div>
                   </div>
                   <div class="col-lg">

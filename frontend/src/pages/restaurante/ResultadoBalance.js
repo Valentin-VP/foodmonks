@@ -70,7 +70,7 @@ const Styles = styled.div`
 `;
 
 export default function ResultadoBalance({ datos }) {
-  console.log(datos);
+  //console.log(datos);
   return (
     <>
       <Styles>
@@ -83,54 +83,54 @@ export default function ResultadoBalance({ datos }) {
                     {datos.meses
                       ? datos.meses.map((item, index) => {
                           return (
-                            <>
+                            
                               <Col>
                                 <tr key={index}>
-                                  <th>{item.mes} {item.año}</th>
+                                  <th>{item.mes} {item.anio}</th>
                                   <th>Egresos</th>
                                   <th>Ingresos</th>
                                   <th>Cantidad</th>
                                 </tr>
-                                {item.indicadores.map((valor) => {
-                                    if (valor.ventasEfectivo) {return(
-                                        <tr key={valor.ventasEfectivo}>
-                                            <td id="itemId">Ventas Efectivo</td>
-                                            <td></td>
-                                            <td>{valor.ventasEfectivo}</td>
-                                            <td>{valor.cantidad}</td>
-                                        </tr>
-                                    )} else if (valor.ventasPaypal) {return(
-                                        <tr key={valor.ventasPaypal}>
-                                            <td id="itemId">Ventas PayPal</td>
-                                            <td></td>
-                                            <td>{valor.ventasPaypal}</td>
-                                            <td>{valor.cantidad}</td>
-                                        </tr>
-                                    )} else if (valor.devolucionesEfectivo) {return(
-                                        <tr key={valor.devolucionesEfectivo}>
-                                            <td id="itemId">Devoluciones Efectivo</td>
-                                            <td>{valor.devolucionesEfectivo}</td>
-                                            <td></td>
-                                            <td>{valor.cantidad}</td>
-                                        </tr>
-                                    )} else if (valor.devolucionesPaypal) {return(
-                                        <tr key={valor.devolucionesPaypal}>
-                                            <td id="itemId">Devoluciones Paypal</td>
-                                            <td>{valor.devolucionesPaypal}</td>
-                                            <td></td>
-                                            <td>{valor.cantidad}</td>
-                                        </tr>
-                                    )} else return null;
-                                    }
-                                )}
-                                <tr key={item.subtotal}>
+                                
+                                    
+                                <tr>
+                                    <td id="itemId">Ventas Efectivo</td>
+                                    <td></td>
+                                    <td>{item.indicadores[0].ventasEfectivo}</td>
+                                    <td>{item.indicadores[0].cantidad}</td>
+                                </tr>
+                            
+                                <tr>
+                                    <td id="itemId">Ventas PayPal</td>
+                                    <td></td>
+                                    <td>{item.indicadores[1].ventasPaypal}</td>
+                                    <td>{item.indicadores[1].cantidad}</td>
+                                </tr>
+                            
+                                <tr>
+                                    <td id="itemId">Devoluciones Efectivo</td>
+                                    <td>{item.indicadores[2].devolucionesEfectivo}</td>
+                                    <td></td>
+                                    <td>{item.indicadores[2].cantidad}</td>
+                                </tr>
+                            
+                                <tr>
+                                    <td id="itemId">Devoluciones Paypal</td>
+                                    <td>{item.indicadores[3].devolucionesPaypal}</td>
+                                    <td></td>
+                                    <td>{item.indicadores[3].cantidad}</td>
+                                </tr>
+                                    
+                                  
+                                
+                                <tr>
                                     <td id="itemId">Subtotal</td>
                                     <td></td>
                                     <td>{item.subtotal}</td>
                                     <td></td>
                                 </tr>
                               </Col>
-                            </>  
+                             
                           )}
                         )
                       : null}
@@ -138,44 +138,36 @@ export default function ResultadoBalance({ datos }) {
                     {datos.totales ?
                     <Col>
                         <br/>
-                        <tr key={2}>
+                        <tr>
                             <th>Totales</th>
                             <th>Egresos</th>
                             <th>Ingresos</th>
                             <th>Cantidad</th>
                         </tr>
-                        {datos.totales.map((valor) => {
-                            if (valor.ventasEfectivo) {return(
-                                <tr key={valor.ventasEfectivo}>
-                                    <td id="itemId">Ventas Efectivo</td>
-                                    <td></td>
-                                    <td>{valor.ventasEfectivo}</td>
-                                    <td>{valor.cantidad}</td>
-                                </tr>
-                            )} else if (valor.ventasPaypal) {return(
-                                <tr key={valor.ventasPaypal}>
-                                    <td id="itemId">Ventas PayPal</td>
-                                    <td></td>
-                                    <td>{valor.ventasPaypal}</td>
-                                    <td>{valor.cantidad}</td>
-                                </tr>
-                            )} else if (valor.devolucionesEfectivo) {return(
-                                <tr key={valor.devolucionesEfectivo}>
-                                    <td id="itemId">Devoluciones Efectivo</td>
-                                    <td>{valor.devolucionesEfectivo}</td>
-                                    <td></td>
-                                    <td>{valor.cantidad}</td>
-                                </tr>
-                            )} else if (valor.devolucionesPaypal) {return(
-                                <tr key={valor.devolucionesPaypal}>
-                                    <td id="itemId">Devoluciones Paypal</td>
-                                    <td>{valor.devolucionesPaypal}</td>
-                                    <td></td>
-                                    <td>{valor.cantidad}</td>
-                                </tr>
-                            )} else return null;
-                            }
-                        )}
+                        <tr>
+                            <td id="itemId">Ventas Efectivo</td>
+                            <td></td>
+                            <td>{datos.totales[0].ventasEfectivo}</td>
+                            <td>{datos.totales[0].cantidad}</td>
+                        </tr>
+                        <tr>
+                            <td id="itemId">Ventas PayPal</td>
+                            <td></td>
+                            <td>{datos.totales[1].ventasPayPal}</td>
+                            <td>{datos.totales[1].cantidad}</td>
+                        </tr>
+                        <tr>
+                            <td id="itemId">Devoluciones Efectivo</td>
+                            <td>{datos.totales[2].devolucionesEfectivo}</td>
+                            <td></td>
+                            <td>{datos.totales[2].cantidad}</td>
+                        </tr>
+                        <tr>
+                            <td id="itemId">Devoluciones Paypal</td>
+                            <td>{datos.totales[3].devolucionesPayPal}</td>
+                            <td></td>
+                            <td>{datos.totales[3].cantidad}</td>
+                        </tr>
                     </Col> : null}
                   
               </div>

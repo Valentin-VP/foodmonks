@@ -393,7 +393,7 @@ export const obtenerBalance = (datos, fechaIni, fechaFin) => {
 
   const response = axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/obtenerBalance?estadoPedido=${datos.estadoPedido}&medioPago=${datos.medioPago}&fechaIni=${fIni}&fechaFin=${fFin}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/obtenerBalance?categoria=${datos.categoria}&medioPago=${datos.medioPago}&fechaIni=${fIni}&fechaFin=${fFin}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
