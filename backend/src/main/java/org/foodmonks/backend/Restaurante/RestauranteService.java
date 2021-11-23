@@ -2,14 +2,15 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.apache.tomcat.jni.Local;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoFechaProcesadoException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoMedioPagoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
@@ -29,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -359,14 +359,13 @@ public class RestauranteService {
         ]
     }*/
 
-    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fechaIni, String fechaFin,String estadoPedido) throws Exception {
+    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fechaIni, String fechaFin,String categoriaMenu) throws Exception {
 
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
 
         JsonObject balance = new JsonObject();
         JsonArray meses = new JsonArray();
         JsonArray totales = new JsonArray();
-
 
         float totalVentasEfectivo = 0;
         int totalCantidadVentasEfectivo = 0;
@@ -377,17 +376,17 @@ public class RestauranteService {
         float totalDevolucionesPayPal = 0;
         int totalCantidadDevolucionesPayPal = 0;
         String mes = "";
-        int anio = 0;
         // Preparo
 
-        // Estado Pedido
-        EstadoPedido estado = null;
-        if (estadoPedido!= null && !estadoPedido.isBlank()) {
-           estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
+        // Categoria Menu
+        CategoriaMenu categoria = null;
+        if (categoriaMenu!= null && !categoriaMenu.isBlank()) {
+            categoria = CategoriaMenu.valueOf(categoriaMenu.trim().toUpperCase(Locale.ROOT));
         }
 
         // Medio Pago
         MedioPago pago = null;
+
         if (medioPago!= null && !medioPago.isBlank()) {
             pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
         }
@@ -416,16 +415,8 @@ public class RestauranteService {
        //  int cantidadMeses = 12;
        //  ver si funciona cantidadMeses
         List<Pedido> listaPedidos;
-        if (estado != null && pago !=null && fechaInicial != null && fechaFinal != null) {
-            listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPagoFechaHoraProcesado(restaurante,estado,pago,fechaInicial,fechaFinal);
-        } else if (estado !=null && pago != null){
-            listaPedidos = pedidoService.pedidosRestauranteEstadoMedioPago(restaurante,estado,pago);
-        } else if (estado != null && fechaInicial != null && fechaFinal != null){
-            listaPedidos = pedidoService.pedidosRestauranteEstadoFechaHoraProcesado(restaurante,estado,fechaInicial,fechaFinal);
-        } else if (pago != null && fechaInicial != null && fechaFinal != null){
+        if (pago != null && fechaInicial != null && fechaFinal != null){
             listaPedidos = pedidoService.pedidosRestauranteMedioPagoFechaHoraProcesado(restaurante,pago,fechaInicial,fechaFinal);
-        } else if (estado != null) {
-            listaPedidos = pedidoService.pedidosRestauranteEstado(restaurante,estado);
         } else if (pago != null){
             listaPedidos = pedidoService.pedidosRestauranteMedioPago(restaurante,pago);
         } else if (fechaInicial != null && fechaFinal != null){
@@ -439,17 +430,28 @@ public class RestauranteService {
             fechaFinal = LocalDateTime.now();
         }
 
-        List <Pedido> aux;
-/*        int cantidadMeses = (int) ChronoUnit.MONTHS.between(LocalDate.parse(fechaFinal[0].toString()),LocalDate.parse(fechaFinal[1].toString()));
-        cantidadMeses = cantidadMeses + fechaFinal[0].getMonthValue();*/
+        List<Pedido> aux;
+        List<Pedido> pedidosCategoria = new ArrayList<>();
+
+        if (categoria != null) {
+            for (Pedido pedido : listaPedidos) {
+                for (MenuCompra menuCompra : pedido.getMenusCompra()){
+                    if (menuCompra.getCategoria().equals(categoria)){
+                        pedidosCategoria.add(pedido);
+                    }
+                }
+            }
+            listaPedidos = pedidosCategoria;
+        }
+
         int mesfinal;
         if (fechaFinal.getYear() - fechaInicial.getYear() > 0){
-            mesfinal = (fechaFinal.getMonthValue() - fechaInicial.getMonthValue()) + ((fechaFinal.getYear() - fechaInicial.getYear()) * 12);
+            mesfinal = fechaFinal.getMonthValue() + ((fechaFinal.getYear() - fechaInicial.getYear()) * 12);
         } else {
             mesfinal = fechaFinal.getMonthValue();
         }
 
-        anio = fechaInicial.getYear();
+        int anio = fechaInicial.getYear();
 
         for(int i =fechaInicial.getMonthValue(); i <= mesfinal; i++){
 
@@ -472,7 +474,7 @@ public class RestauranteService {
                     throw new PedidoFechaProcesadoException("Existe un pedido sin fecha de procesado en estado Finalizado-Devuelto-ReclamoRechazado");
                 }
                 if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))) {
-                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == i &&
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == (i % 12) &&
                             ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             ventasEfectivo += pedido.getTotal();
@@ -486,7 +488,7 @@ public class RestauranteService {
                         anio = pedido.getFechaHoraProcesado().getYear();
                     }
                 } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
-                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == i &&
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == (i % 12) &&
                             ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             devolucionesEfectivo += pedido.getTotal();
@@ -542,7 +544,7 @@ public class RestauranteService {
             // Termina iteracion de todo lo relacionado a un mes
             meses.add(jsonMes);
 
-            if (i == 12) {
+            if ((i % 12) == 0) {
                 anio ++;
             }
         }

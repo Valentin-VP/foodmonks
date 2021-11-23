@@ -227,10 +227,6 @@ public class PedidoService {
         return pedidoRepository.findPedidosByRestaurante(restaurante);
     }
 
-    public List<Pedido> pedidosRestauranteEstado(Restaurante restaurante, EstadoPedido estadoPedido) {
-        return pedidoRepository.findPedidosByRestauranteAndEstado(restaurante,estadoPedido);
-    }
-
     public List<Pedido> pedidosRestauranteMedioPago(Restaurante restaurante, MedioPago medioPago) {
         return pedidoRepository.findPedidosByRestauranteAndMedioPago(restaurante,medioPago);
     }
@@ -239,20 +235,8 @@ public class PedidoService {
         return pedidoRepository.findPedidosByRestauranteAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
     }
 
-    public List<Pedido> pedidosRestauranteEstadoMedioPago(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago) {
-        return pedidoRepository.findPedidosByRestauranteAndEstadoAndMedioPago(restaurante,estadoPedido,medioPago);
-    }
-
     public List<Pedido> pedidosRestauranteMedioPagoFechaHoraProcesado(Restaurante restaurante, MedioPago medioPago, LocalDateTime fechaIni, LocalDateTime fechaFin) {
         return pedidoRepository.findPedidosByRestauranteAndMedioPagoAndFechaHoraProcesadoBetween(restaurante,medioPago,fechaIni,fechaFin);
-    }
-
-    public List<Pedido> pedidosRestauranteEstadoFechaHoraProcesado(Restaurante restaurante, EstadoPedido estadoPedido, LocalDateTime fechaIni, LocalDateTime fechaFin) {
-        return pedidoRepository.findPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(restaurante,estadoPedido,fechaIni,fechaFin);
-    }
-
-    public List<Pedido> pedidosRestauranteEstadoMedioPagoFechaHoraProcesado(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago, LocalDateTime fechaIni, LocalDateTime fechaFin){
-        return pedidoRepository.findPedidosByRestauranteAndEstadoAndMedioPagoAndFechaHoraProcesadoBetween(restaurante,estadoPedido,medioPago,fechaIni,fechaFin);
     }
 
 }

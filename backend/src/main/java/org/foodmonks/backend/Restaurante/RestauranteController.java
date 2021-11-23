@@ -566,7 +566,7 @@ public class RestauranteController {
     @GetMapping(path = "/obtenerBalance")
     public ResponseEntity<?> obtenerBalance(
             @RequestHeader("Authorization") String token,
-            @RequestParam(required = false, name = "estado") String estadoPedido,
+            @RequestParam(required = false, name = "categoriaMenu") String categoriaMenu,
             @RequestParam(required = false, name = "medioPago") String medioPago,
             @RequestParam(required = false, name = "fechaIni") String fechaInicio,
             @RequestParam(required = false, name = "fechaFin") String fechaFin) {
@@ -578,7 +578,7 @@ public class RestauranteController {
                 newtoken = token.substring(7);
             }
             String correoRestaurante = tokenHelp.getUsernameFromToken(newtoken);
-            jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, estadoPedido);
+            jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, categoriaMenu);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
