@@ -321,5 +321,24 @@ public class AdminController {
         return new ResponseEntity<>(estadisticasRegistros, HttpStatus.OK);
     }
 
+    @Operation(summary = "lista de todos los restaurantes del sistema",
+            description = "devuelve un listado de todos los restaurantes registrados",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "obtenerRestaurantes")
+    public ResponseEntity<?> obtenerRestaurantes() {
+        JsonArray restaurantes = new JsonArray();
+        try {
+            restaurantes = restauranteService.listarRestaurante();
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(restaurantes, HttpStatus.OK);
+    }
+
 
 }

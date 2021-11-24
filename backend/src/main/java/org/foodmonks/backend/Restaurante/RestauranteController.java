@@ -122,7 +122,7 @@ public class RestauranteController {
     @GetMapping//LISTAR RESTAURANTES
     //@GetMapping("/rutaEspecifica")
     public List<Restaurante> listarRestaurante(){
-        return restauranteService.listarRestaurante();
+        return null;
     }
 
     @Operation(summary = "Buscar Restaurante", security = @SecurityRequirement(name = "bearerAuth"))

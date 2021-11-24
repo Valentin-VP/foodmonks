@@ -84,8 +84,8 @@ public class RestauranteService {
             this.payPalService = payPalService;
     }
 
-    public List<Restaurante> listarRestaurante(){
-        return restauranteRepository.findAll();
+    public JsonArray listarRestaurante(){
+        return null;
     }
 
     public Restaurante buscarRestaurante(String correo) {
