@@ -91,3 +91,5 @@ docker/.env
 docker/.env_java
 docker/.env_react
 docker/*.tar
+docker/.env_java_aws_dev
+docker/.env_java_local_dev

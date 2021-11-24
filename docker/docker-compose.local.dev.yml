@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  backend:
+    container_name: food-monks-backend
+    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-backend:${BACKEND_DOCKER_IMAGE_TAG}
+    build: 
+      context: ../backend
+      # dockerfile: ../../docker/backend/Dockerfile
+    ports:
+      - "9001:9001"
+    env_file:
+      - .env_java_local_dev
+    restart: always
+    networks:
+      - postgres-net
+
+  frontend:
+    container_name: food-monks-frontend
+    build:
+      context: ../frontend
+      # dockerfile: ../../docker/frontend/Dockerfile
+      args:
+        - REACT_APP_BACKEND_URL_BASE=${REACT_APP_BACKEND_URL_BASE}
+        - REACT_APP_API_KEY=${REACT_APP_API_KEY}
+        - REACT_APP_AUTH_DOMAIN=${REACT_APP_AUTH_DOMAIN}
+        - REACT_APP_PROYECT_ID=${REACT_APP_PROYECT_ID}
+        - REACT_APP_STORAGE_BUCKET=${REACT_APP_STORAGE_BUCKET}
+        - REACT_APP_MESSAGING_SENDER_ID=${REACT_APP_MESSAGING_SENDER_ID}
+        - REACT_APP_APP_ID=${REACT_APP_APP_ID}
+        - REACT_APP_GENERIC_MENU=${REACT_APP_GENERIC_MENU}
+        - REACT_APP_GOOGLE_MAPS_API_KEY=${REACT_APP_GOOGLE_MAPS_API_KEY}
+        - REACT_APP_PAYPAL_CLIENT_ID=${REACT_APP_PAYPAL_CLIENT_ID}
+    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-frontend:${FRONTEND_DOCKER_IMAGE_TAG}
+    ports:
+      - "8080:80"
+    env_file:
+      - .env_react
+    restart: always
+    networks:
+      - postgres-net
+
+networks:
+  postgres-net:
+    external: true
