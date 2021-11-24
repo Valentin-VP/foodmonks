@@ -34,7 +34,7 @@ services:
     ports:
       - "8080:80"
     env_file:
-      - .env_react
+      - .env_react_aws_dev
     restart: always
     networks:
       - foodmonks-net
