@@ -5,7 +5,6 @@ export const renovarTokens = () => {
     method: "GET",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/refresh`,
     headers: {
-      Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
@@ -39,13 +38,59 @@ export const getRefreshToken = () => {
   return localStorage.getItem("refreshToken");
 };
 
-const setTokens = (auth, refreshAuth) => {
+const instance = axios.create({
+  baseURL: "http://localhost:8080/api/v1",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+instance.interceptors.response.use(
+  (res) => {
+    return res;
+  },
+  async (err) => {
+    const originalConfig = err.config;
+
+    if (err.response) {
+      // Access Token was expired
+      if (err.response.status === 401 && !originalConfig._retry) {
+        originalConfig._retry = true;
+
+        try {
+          const rs = await renovarTokens();
+          console.log(rs.data); //para ver que hay dentro del rs.data
+          const { accessToken } = rs.data;
+          //agregar el seteo del refreshToken
+          window.localStorage.setItem("accessToken", accessToken);
+          instance.defaults.headers.common["x-access-token"] = accessToken;
+
+          return instance(originalConfig);
+        } catch (_error) {
+          if (_error.response && _error.response.data) {
+            return Promise.reject(_error.response.data);
+          }
+
+          return Promise.reject(_error);
+        }
+      }
+
+      if (err.response.status === 403 && err.response.data) {
+        return Promise.reject(err.response.data);
+      }
+    }
+
+    return Promise.reject(err);
+  }
+);
+
+/* const setTokens = (auth, refreshAuth) => {
   console.log("cambiando tokens");
   const newAuth = auth.substring(7);
   const newRefreshAuth = refreshAuth.substring(7);
   localStorage.setItem("token", newAuth);
   localStorage.setItem("refreshToken", newRefreshAuth);
-};
+}; */
 
 export const userLogin = (authRequest) => {
   return axios({
@@ -64,7 +109,7 @@ export const fetchUserData = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response
+  /*   response
     .then((res) => {
       console.log(res);
     })
@@ -96,7 +141,7 @@ export const fetchUserData = () => {
           }
         });
       }
-    });
+    }); */
   return response;
 };
 
