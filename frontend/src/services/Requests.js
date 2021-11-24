@@ -1,11 +1,22 @@
 import axios from "axios";
 
+export const renovarTokens = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/refresh`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
 //esta funcion es para cerrar sesion
 export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("react-use-cart");
-  window.location.replace("/");
+  //window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -28,15 +39,12 @@ export const getRefreshToken = () => {
   return localStorage.getItem("refreshToken");
 };
 
-export const checkTokens = (auth, refreshAuth) => {
+const setTokens = (auth, refreshAuth) => {
+  console.log("cambiando tokens");
   const newAuth = auth.substring(7);
   const newRefreshAuth = refreshAuth.substring(7);
-  if (getToken() != null && getRefreshToken() != null) {
-    if (newAuth !== getToken() || newRefreshAuth !== getRefreshToken()) {
-      localStorage.setItem("token", auth);
-      localStorage.setItem("refreshToken", refreshAuth);
-    }
-  }
+  localStorage.setItem("token", newAuth);
+  localStorage.setItem("refreshToken", newRefreshAuth);
 };
 
 export const userLogin = (authRequest) => {
@@ -56,12 +64,39 @@ export const fetchUserData = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((error) => {
+      console.log(error.response.data);
+      if (error.response.data.status === 401) {
+        renovarTokens().then((resp) => {
+          if (resp.status === 200) {
+            console.log(resp.config);
+            setTokens(
+              resp.config.headers.Authorization,
+              resp.config.headers.RefreshAuthentication
+            );
+            const newReturn = axios({
+              method: "GET",
+              url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/userinfo`,
+              headers: {
+                Authorization: "Bearer " + getToken(),
+                RefreshAuthentication: "Bearer " + getRefreshToken(),
+              },
+            });
+            newReturn.catch((error) => {
+              if (error.response.data.status === 401)
+                console.log("errorrrrrrr!!");
+            });
+            return newReturn;
+          } else {
+            clearState();
+          }
+        });
+      }
+    });
   return response;
 };
 
@@ -89,12 +124,7 @@ export const eliminarMenu = (menuId) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -108,12 +138,7 @@ export const modMenu = (menuInfo, id) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -126,12 +151,7 @@ export const fetchMenus = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -144,12 +164,7 @@ export const fetchPromos = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -164,12 +179,7 @@ export const fetchMenusPromos = (datos) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -183,12 +193,7 @@ export const getMenuInfo = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -202,12 +207,7 @@ export const altaMenu = (menu) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -220,12 +220,7 @@ export const cambiarEstado = (estado) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -239,19 +234,7 @@ export const actualizarEstadoPedido = (estado, id) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response
-    .then((res) => {
-      checkTokens(
-        res.config.headers.Authorization,
-        res.config.headers.RefreshAuthentication
-      );
-    })
-    .catch((error) => {
-      checkTokens(
-        error.config.headers.Authorization,
-        error.config.headers.RefreshAuthentication
-      );
-    });
+  response.then((res) => {}).catch((error) => {});
   return response;
 };
 
@@ -265,19 +248,7 @@ export const actualizarEstadoPedidoPendientes = (estado, id, minutos) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response
-    .then((res) => {
-      checkTokens(
-        res.config.headers.Authorization,
-        res.config.headers.RefreshAuthentication
-      );
-    })
-    .catch((err) => {
-      checkTokens(
-        err.config.headers.Authorization,
-        err.config.headers.RefreshAuthentication
-      );
-    });
+  response.then((res) => {}).catch((err) => {});
   return response;
 };
 
@@ -312,19 +283,7 @@ export const obtenerPedidosSinFinalizarEfectivo = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response
-    .then((res) => {
-      checkTokens(
-        res.config.headers.Authorization,
-        res.config.headers.RefreshAuthentication
-      );
-    })
-    .catch((error) => {
-      checkTokens(
-        error.config.headers.Authorization,
-        error.config.headers.RefreshAuthentication
-      );
-    });
+  response.then((res) => {}).catch((error) => {});
   return response;
 };
 
@@ -337,19 +296,7 @@ export const obtenerPedidosSinConfirmar = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response
-    .then((res) => {
-      checkTokens(
-        res.config.headers.Authorization,
-        res.config.headers.RefreshAuthentication
-      );
-    })
-    .catch((err) => {
-      checkTokens(
-        err.config.headers.Authorization,
-        err.config.headers.RefreshAuthentication
-      );
-    });
+  response.then((res) => {}).catch((err) => {});
   return response;
 };
 
@@ -371,19 +318,7 @@ export const obtenerPedidosHistorico = (datos, fechaIni, fechaFin, page) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response
-    .then((res) => {
-      checkTokens(
-        res.config.headers.Authorization,
-        res.config.headers.RefreshAuthentication
-      );
-    })
-    .catch((err) => {
-      checkTokens(
-        err.config.headers.Authorization,
-        err.config.headers.RefreshAuthentication
-      );
-    });
+  response.then((res) => {}).catch((err) => {});
   return response;
 };
 
@@ -497,17 +432,9 @@ export const paypalEnviarCART = (datos) => {
     },
   });
   response
-    .then((res) => {
-      checkTokens(
-        res.config.headers.Authorization,
-        res.config.headers.RefreshAuthentication
-      );
-    })
+    .then((res) => {})
     .catch((error) => {
-      checkTokens(
-        error.config.headers.Authorization,
-        error.config.headers.RefreshAuthentication
-      );
+      console.log(error.response.data);
     });
   return response;
 };
@@ -522,12 +449,11 @@ export const agregarDireccion = (direccion) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response
+    .then((res) => {})
+    .catch((error) => {
+      console.log(error.response.data);
+    });
   return response;
 };
 
@@ -541,12 +467,7 @@ export const modificarDireccion = (direccion, id) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -559,12 +480,7 @@ export const eliminarDireccion = (id) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -577,12 +493,7 @@ export const editNombre = (nombre, apellido) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -596,12 +507,7 @@ export const fetchRestaurantesBusqueda = (datos) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -623,19 +529,7 @@ export const obtenerPedidosRealizados = (datos, fechaIni, fechaFin, page) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response
-    .then((res) => {
-      checkTokens(
-        res.config.headers.Authorization,
-        res.config.headers.RefreshAuthentication
-      );
-    })
-    .catch((err) => {
-      checkTokens(
-        err.config.headers.Authorization,
-        err.config.headers.RefreshAuthentication
-      );
-    });
+  response.then((res) => {}).catch((err) => {});
   return response;
 };
 
@@ -699,12 +593,7 @@ export const getMenusFromRestaurante = (restaurante) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
@@ -726,7 +615,7 @@ export const calificarRestaurante = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -738,7 +627,7 @@ export const modificarCalificacionRestaurante = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -749,7 +638,7 @@ export const eliminarCalificacionRestaurante = (idPedido) => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCalificacionRestaurante?idPedido=${idPedido}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -761,7 +650,7 @@ export const calificarCliente = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -773,7 +662,7 @@ export const modificarCalificacionCliente = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -784,7 +673,7 @@ export const eliminarCalificacionCliente = (idPedido) => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/eliminarCalificacionCliente?idPedido=${idPedido}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -798,12 +687,7 @@ export const realizarReclamo = (reclamo) => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  response.then((res) => {
-    checkTokens(
-      res.config.headers.Authorization,
-      res.config.headers.RefreshAuthentication
-    );
-  });
+  response.then((res) => {});
   return response;
 };
 
