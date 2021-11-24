@@ -423,6 +423,7 @@ public class RestauranteService {
     public JsonObject pedidosRegistrados(int anio){
         JsonObject result = new JsonObject();
         List<Restaurante> restaurantes = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
+        JsonArray mes = new JsonArray();
         for (int i=1; i <= 12 ; i++) {
             LocalDateTime fechaIni = LocalDateTime.of(LocalDate.of(anio, i, 1),LocalTime.MIDNIGHT);
             LocalDateTime fechaFin;
@@ -431,16 +432,65 @@ public class RestauranteService {
             } else {
                 fechaFin = LocalDateTime.of(LocalDate.of(anio, i + 1, 1).minusDays(1),LocalTime.MAX);
             }
-            JsonArray mes = new JsonArray();
+            int cantidadRegistrados = 0;
             for (Restaurante restaurante : restaurantes){
-                JsonObject pedidosRestaurante = new JsonObject();
-                pedidosRestaurante.addProperty("restaurante",restaurante.getNombreRestaurante());
-                pedidosRestaurante.addProperty("pedidosRegistrados", pedidoService.cantPedidosRestaurante(restaurante,fechaIni,fechaFin));
-                mes.add(pedidosRestaurante);
+                cantidadRegistrados += pedidoService.cantPedidosRestaurante(restaurante,fechaIni,fechaFin);
             }
-            result.add(fechaIni.getMonth().toString(), mes);
+            JsonObject pedidosRestaurante = new JsonObject();
+            pedidosRestaurante.addProperty("mes", obtenerMes(i));
+            pedidosRestaurante.addProperty("cantidad",cantidadRegistrados);
+            mes.add(pedidosRestaurante);
+        }
+        result.add("registrados",result);
+        return result;
+    }
+
+    public String obtenerMes (int mes){
+        String result;
+        switch (mes) {
+            case 1:
+                result = "Enero";
+                break;
+            case 2:
+                result = "Febrero";
+                break;
+            case 3:
+                result = "Marzo";
+                break;
+            case 4:
+                result = "Abril";
+                break;
+            case 5:
+                result = "Mayo";
+                break;
+            case 6:
+                result = "Junio";
+                break;
+            case 7:
+                result = "Julio";
+                break;
+            case 8:
+                result = "Agosto";
+                break;
+            case 9:
+                result = "Septiembre";
+                break;
+            case 10:
+                result = "Octubre";
+                break;
+            case 11:
+                result = "Noviembre";
+                break;
+            default:
+                result = "Diciembre";
+                break;
         }
         return result;
+    }
+
+    public Long restaurantesActivos(){
+        return restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.ABIERTO) +
+                restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.CERRADO);
     }
 
 }

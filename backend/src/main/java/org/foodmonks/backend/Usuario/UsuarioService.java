@@ -5,9 +5,11 @@ import com.google.gson.JsonObject;
 import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteRepository;
+import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoBloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoDesbloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEliminadoException;
@@ -36,14 +38,18 @@ public class UsuarioService {
   	private final PasswordEncoder passwordEncoder;
 	private final ClienteRepository clienteRepository;
 	private final RestauranteRepository restauranteRepository;
+	private final RestauranteService restauranteService;
+	private final ClienteService clienteService;
 	
 	@Autowired
 	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine,
 						  EmailService emailService, PasswordEncoder passwordEncoder,
-						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository) {
+						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository,
+						  RestauranteService restauranteService, ClienteService clienteService) {
 		this.usuarioRepository = usuarioRepository; this.templateEngine = templateEngine;
 		this.emailService = emailService; this.passwordEncoder = passwordEncoder;
 		this.clienteRepository = clienteRepository; this.restauranteRepository = restauranteRepository;
+		this.restauranteService = restauranteService; this.clienteService = clienteService;
 	}
   
   public void cambiarPassword(String correo, String password) throws UsuarioNoEncontradoException {
@@ -267,7 +273,7 @@ public class UsuarioService {
 		return usuarioRepository.findByCorreo(correo);
 	}
 
-	public JsonArray cantRegistrados(int anio){
+	public JsonArray usuariosRegistrados(int anio){
 		JsonArray result = new JsonArray();
 		for (int i=1; i <= 12 ; i++){
 			LocalDate fechaIni = LocalDate.of(anio , i,1);
@@ -278,12 +284,19 @@ public class UsuarioService {
 				fechaFin = LocalDate.of(anio ,i+1,1).minusDays(1);
 			}
 			JsonObject registrados = new JsonObject();
-			registrados.addProperty("mes", fechaIni.getMonth().toString());
+			registrados.addProperty("mes", restauranteService.obtenerMes(i));
 			registrados.addProperty("clientes", clienteRepository.countClientesByFechaRegistroBetween(fechaIni,fechaFin));
 			registrados.addProperty("restaurantes", restauranteRepository.countRestaurantesByFechaRegistroBetween(fechaIni,fechaFin));
 			result.add(registrados);
 		}
 		return result;
+	}
+
+	public JsonObject usuariosActivos() {
+		JsonObject usuariosActivos = new JsonObject();
+		usuariosActivos.addProperty("clientes", clienteService.clientesActivos());
+		usuariosActivos.addProperty("restaurantes", restauranteService.restaurantesActivos());
+		return usuariosActivos;
 	}
 
 }
