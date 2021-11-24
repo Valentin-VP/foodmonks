@@ -244,28 +244,82 @@ public class AdminController {
         return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
     }
 
-    @Operation(summary = "Listar/buscar Restaurantes con cierto estado",
-            description = "Lista de los restaurantes que tienen el estado recibido",
+    @Operation(summary = "consulta informacion para la estadistica de los pedidos de un restaurante",
+            description = "devuelve la informacion de los pedidos de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin", "restaurante" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
-    @GetMapping(path = "/obtenerEstadisticas")
-    public ResponseEntity<?> obtenerEstadisticas(
-            @RequestParam(required = false, name = "ventasRestaurante") String ventasRestaurante,
-            @RequestParam(required = false, name = "usuariosActivos") boolean usuariosActivos,
-            @RequestParam(required = false, name = "registroUsuarios") boolean registroUsuarios,
-            @RequestParam(required = false, name = "pedidosRegistrados") boolean pedidosRegistrados,
-            @RequestParam(required = false, name = "anioPedidos") int anioPedidos) {
-        JsonObject estadisticas = new JsonObject();
+    @GetMapping(path = "/obtenerEstadisticasPedidos")
+    public ResponseEntity<?> obtenerEstadisticasPedidos(@RequestParam(name = "anioPedidos") int anioPedidos) {
+        JsonObject estadisticasPedidos = new JsonObject();
         try {
-            //estadisticas = adminService.obtenerEstadisticas(ventasRestaurante, usuariosActivos, registroUsuarios, pedidosRegistrados, anioPedidos);
+            estadisticasPedidos = restauranteService.pedidosRegistrados(anioPedidos);
         } catch(JsonIOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(estadisticas, HttpStatus.OK);
+        return new ResponseEntity<>(estadisticasPedidos, HttpStatus.OK);
     }
+
+    @Operation(summary = "consulta informacion para la estadistica de ventas de un restaurante",
+            description = "devuelve la informacion de las ventas de un restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticasVentas")
+    public ResponseEntity<?> obtenerEstadisticasVentas(@RequestParam(name = "ventasRestaurante") String ventasRestaurante) {
+        JsonObject estadisticasVentas = new JsonObject();
+        try {
+            //estadisticasVentas = restauranteService.ventasRestaurantes(ventasRestaurante);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticasVentas, HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "consulta informacion para la estadistica de los usuarios activos en el sistema",
+            description = "devuelve la informacion de los usuarios activos en el sistema",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticasUsuarios")
+    public ResponseEntity<?> obtenerEstadisticasUsuarios() {
+        JsonObject estadisticasUsuarios = new JsonObject();
+        try {
+            estadisticasUsuarios = usuarioService.usuariosActivos();
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticasUsuarios, HttpStatus.OK);
+    }
+
+    @Operation(summary = "consulta informacion para la estadistica de los registros de usuarios en el sistema",
+            description = "devuelve la informacion de los registros de usuarios en el sistema",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin", "restaurante", "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticasRegistros")
+    public ResponseEntity<?> obtenerEstadisticasRegistros(@RequestParam(name = "anioPedidos") int anioRegistros) {
+        JsonArray estadisticasRegistros = new JsonArray();
+        try {
+            estadisticasRegistros = usuarioService.usuariosRegistrados(anioRegistros);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticasRegistros, HttpStatus.OK);
+    }
+
 
 }
