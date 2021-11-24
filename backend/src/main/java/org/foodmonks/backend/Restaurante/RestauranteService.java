@@ -519,19 +519,19 @@ public class RestauranteService {
 
             // Cargar los 4 json de indicadores
             JsonObject jsonIndicadorVE = new JsonObject();
-            jsonIndicadorVE.addProperty("ventas efectivo", ventasEfectivo);
+            jsonIndicadorVE.addProperty("ventasEfectivo", ventasEfectivo);
             jsonIndicadorVE.addProperty("cantidad", cantidadVentasEfectivo);
 
             JsonObject jsonIndicadorVPP = new JsonObject();
-            jsonIndicadorVPP.addProperty("ventas paypal", ventasPaypal);
+            jsonIndicadorVPP.addProperty("ventasPaypal", ventasPaypal);
             jsonIndicadorVPP.addProperty("cantidad", cantidadVentasPayPal);
 
             JsonObject jsonIndicadorDE = new JsonObject();
-            jsonIndicadorDE.addProperty("devoluciones efectivo", devolucionesEfectivo);
+            jsonIndicadorDE.addProperty("devolucionesEfectivo", devolucionesEfectivo);
             jsonIndicadorDE.addProperty("cantidad", cantidadDevolucionesEfectivo);
 
             JsonObject jsonIndicadorDPP = new JsonObject();
-            jsonIndicadorDPP.addProperty("devoluciones paypal", devolucionesPayPal);
+            jsonIndicadorDPP.addProperty("devolucionesPaypal", devolucionesPayPal);
             jsonIndicadorDPP.addProperty("cantidad", cantidadDevolucionesPayPal);
 
             indicadores.add(jsonIndicadorVE);
