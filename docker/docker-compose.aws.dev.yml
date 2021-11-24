@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  backend:
+  food-monks-backend:
     container_name: food-monks-backend
     image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-backend:${BACKEND_DOCKER_IMAGE_TAG}
     build: 
@@ -14,7 +14,7 @@ services:
     networks:
       - foodmonks-net
 
-  frontend:
+  food-monks-frontend:
     container_name: food-monks-frontend
     build:
       context: ../frontend
