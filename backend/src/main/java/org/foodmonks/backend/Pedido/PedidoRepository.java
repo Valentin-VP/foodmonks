@@ -25,6 +25,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long>, JpaSpecif
     List<Pedido> findPedidosByRestauranteAndEstadoAndMedioPago(Restaurante restaurante, EstadoPedido estadoPedido, MedioPago medioPago);
     Boolean existsPedidoById(Long id);
     Long countPedidosByRestauranteAndFechaHoraProcesadoBetween(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin);
-    Long countPedidosByRestauranteAndEstadoAndFechaHoraEntregaBetween(Restaurante restaurante, EstadoPedido estadoPedido, LocalDateTime fechaIni, LocalDateTime fachaFin);
+    Long countPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(Restaurante restaurante, EstadoPedido estadoPedido, LocalDateTime fechaIni, LocalDateTime fachaFin);
 
 }

@@ -234,8 +234,8 @@ public class PedidoService {
     }
 
     public Long cantVentasRestauranteAnio(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
-        return pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraEntregaBetween(restaurante,EstadoPedido.FINALIZADO,fechaIni,fechaFin) +
-                pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraEntregaBetween(restaurante,EstadoPedido.RECLAMORECHAZADO,fechaIni,fechaFin);
+        return pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(restaurante,EstadoPedido.FINALIZADO,fechaIni,fechaFin) +
+                pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(restaurante,EstadoPedido.RECLAMORECHAZADO,fechaIni,fechaFin);
     }
 
 }
