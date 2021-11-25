@@ -84,7 +84,10 @@ public class RestauranteService {
     }
 
     public JsonArray listarRestaurante(){
-        return null;
+        List<Restaurante> result = new ArrayList<>();
+        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
+        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.CERRADO));
+        return restauranteConverter.arrayJsonRestaurantes(result);
     }
 
     public Restaurante buscarRestaurante(String correo) {
