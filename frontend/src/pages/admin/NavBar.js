@@ -79,15 +79,15 @@ export const NavigationBar = () => (
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
-            <Nav.Item>
-              <Nav.Link onClick={Noti}>Notificacion</Nav.Link>
-            </Nav.Item>
             <NavDropdown align="end" title="Administrador" menuVariant="color">
               <NavDropdown.Item href="/buscarUsuarios">
                 Buscar Usuario
               </NavDropdown.Item>
               <NavDropdown.Item href="/altaAdmin">
                 Dar alta Admin
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/estadisticas">
+                Estadisticas
               </NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>

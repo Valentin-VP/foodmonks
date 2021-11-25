@@ -751,3 +751,57 @@ export const realizarDevolucion = (pedido, estado, motivo) => {
     },
   });
 };
+
+export const estadisticasUsuariosTotales = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasUsuarios`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const estadisticasUsuariosRegistrados = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasRegistros?anioPedidos=${new Date().getFullYear()}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const estadisticasPedidosRegistrados = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${new Date().getFullYear()}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+export const estadisticasVentasRestaurante = (restaurante) => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${new Date().getFullYear()}`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
+
+export const obtenerRestaurantes = () => {
+  return axios({
+    method: "GET",
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerRestaurantes`,
+    headers: {
+      Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
+    },
+  });
+};
