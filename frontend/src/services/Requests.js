@@ -2,10 +2,10 @@ import axios from "axios";
 
 //esta funcion es para cerrar sesion
 export const clearState = () => {
-   localStorage.removeItem("token");
-   localStorage.removeItem("refreshToken");
-   localStorage.removeItem("react-use-cart");
-   window.location.replace("/");
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("react-use-cart");
+  window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -282,7 +282,7 @@ export const actualizarEstadoPedidoPendientes = (estado, id, minutos) => {
 };
 
 export const altaAdmin = (datos) => {
-  const response =  axios({
+  const response = axios({
     method: "POST",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/altaAdmin`,
     data: datos,
@@ -770,7 +770,7 @@ export const calificarRestaurante = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -782,7 +782,7 @@ export const modificarCalificacionRestaurante = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -793,7 +793,7 @@ export const eliminarCalificacionRestaurante = (idPedido) => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCalificacionRestaurante?idPedido=${idPedido}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -805,7 +805,7 @@ export const calificarCliente = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -817,7 +817,7 @@ export const modificarCalificacionCliente = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -828,7 +828,7 @@ export const eliminarCalificacionCliente = (idPedido) => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/eliminarCalificacionCliente?idPedido=${idPedido}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
