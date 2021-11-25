@@ -448,8 +448,4 @@ public class ClienteService {
         }
     }
 
-    public Long clientesActivos(){
-        return clienteRepository.countClientesByEstado(EstadoCliente.ACTIVO);
-    }
-
 }

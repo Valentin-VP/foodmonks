@@ -3,7 +3,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -202,7 +201,7 @@ public class AdminController {
     public ResponseEntity<?> listarRestaurantesPorEstado(
             @RequestParam(required = false, name = "estadoRestaurante") String estadoRestaurante
     ) {
-        JsonArray jsonArray = new JsonArray();
+        JsonArray jsonArray;
         try {
             jsonArray = adminService.listarRestaurantesPorEstado(estadoRestaurante);
         } catch(JsonIOException e) {
@@ -225,7 +224,7 @@ public class AdminController {
             @RequestParam(name = "estadoRestaurante") String estadoRestaurante,
             @RequestBody String comentariosCambioEstado
     ) {
-        JsonObject jsonResponse = new JsonObject();
+        JsonObject jsonResponse;
         try{
             estadoRestaurante = estadoRestaurante.toUpperCase();
             jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
@@ -254,7 +253,7 @@ public class AdminController {
     })
     @GetMapping(path = "/obtenerEstadisticasPedidos")
     public ResponseEntity<?> obtenerEstadisticasPedidos(@RequestParam(name = "anioPedidos") int anioPedidos) {
-        JsonObject estadisticasPedidos = new JsonObject();
+        JsonObject estadisticasPedidos;
         try {
             estadisticasPedidos = restauranteService.pedidosRegistrados(anioPedidos);
         } catch(JsonIOException e) {
@@ -274,7 +273,7 @@ public class AdminController {
     @GetMapping(path = "/obtenerEstadisticasVentas")
     public ResponseEntity<?> obtenerEstadisticasVentas(@RequestParam(name = "correoRestaurante") String correoRestaurante,
                                                        @RequestParam(name = "anioVentas") int anioVentas) {
-        JsonObject estadisticasVentas = new JsonObject();
+        JsonObject estadisticasVentas;
         try {
             estadisticasVentas = restauranteService.ventasRestaurantes(correoRestaurante,anioVentas);
         } catch(JsonIOException | RestauranteNoEncontradoException e) {
@@ -294,7 +293,7 @@ public class AdminController {
     })
     @GetMapping(path = "/obtenerEstadisticasUsuarios")
     public ResponseEntity<?> obtenerEstadisticasUsuarios() {
-        JsonObject estadisticasUsuarios = new JsonObject();
+        JsonObject estadisticasUsuarios;
         try {
             estadisticasUsuarios = usuarioService.usuariosActivos();
         } catch(JsonIOException e) {
@@ -313,7 +312,7 @@ public class AdminController {
     })
     @GetMapping(path = "/obtenerEstadisticasRegistros")
     public ResponseEntity<?> obtenerEstadisticasRegistros(@RequestParam(name = "anioPedidos") int anioRegistros) {
-        JsonArray estadisticasRegistros = new JsonArray();
+        JsonArray estadisticasRegistros;
         try {
             estadisticasRegistros = usuarioService.usuariosRegistrados(anioRegistros);
         } catch(JsonIOException e) {
@@ -332,7 +331,7 @@ public class AdminController {
     })
     @GetMapping(path = "obtenerRestaurantes")
     public ResponseEntity<?> obtenerRestaurantes() {
-        JsonArray restaurantes = new JsonArray();
+        JsonArray restaurantes;
         try {
             restaurantes = restauranteService.listarRestaurante();
         } catch(JsonIOException e) {
@@ -340,6 +339,5 @@ public class AdminController {
         }
         return new ResponseEntity<>(restaurantes, HttpStatus.OK);
     }
-
 
 }
