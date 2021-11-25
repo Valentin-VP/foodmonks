@@ -1,10 +1,13 @@
 import axios from "axios";
 
+const instance = axios.create();
+
 export const renovarTokens = () => {
   return axios({
     method: "GET",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/refresh`,
     headers: {
+      Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
@@ -38,31 +41,25 @@ export const getRefreshToken = () => {
   return localStorage.getItem("refreshToken");
 };
 
-const instance = axios.create({
-  baseURL: "http://localhost:8080/api/v1",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
 instance.interceptors.response.use(
-  (res) => {
-    return res;
+  (response) => {
+    console.log("entra al then");
+    return response;
   },
-  async (err) => {
-    const originalConfig = err.config;
+  async (error) => {
+    console.log("entra al catch");
+    const originalConfig = error.config;
 
-    if (err.response) {
+    if (error.response) {
       // Access Token was expired
-      if (err.response.status === 401 && !originalConfig._retry) {
+      console.log("access token expired");
+      if (error.response.data.status === 401 && !originalConfig._retry) {
         originalConfig._retry = true;
-
         try {
           const rs = await renovarTokens();
-          console.log(rs.data); //para ver que hay dentro del rs.data
           const { accessToken } = rs.data;
           //agregar el seteo del refreshToken
-          window.localStorage.setItem("accessToken", accessToken);
+          window.localStorage.setItem("token", accessToken); //deberiamos usar setTokens()
           instance.defaults.headers.common["x-access-token"] = accessToken;
 
           return instance(originalConfig);
@@ -75,22 +72,22 @@ instance.interceptors.response.use(
         }
       }
 
-      if (err.response.status === 403 && err.response.data) {
-        return Promise.reject(err.response.data);
+      if (error.response.data.status === 403 && error.response.data) {
+        return Promise.reject(error.response.data);
       }
     }
 
-    return Promise.reject(err);
+    return Promise.reject(error);
   }
 );
 
-/* const setTokens = (auth, refreshAuth) => {
+const setTokens = (auth, refreshAuth) => {
   console.log("cambiando tokens");
   const newAuth = auth.substring(7);
   const newRefreshAuth = refreshAuth.substring(7);
   localStorage.setItem("token", newAuth);
   localStorage.setItem("refreshToken", newRefreshAuth);
-}; */
+};
 
 export const userLogin = (authRequest) => {
   return axios({
@@ -109,21 +106,21 @@ export const fetchUserData = () => {
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
-  /*   response
+  /* response
     .then((res) => {
       console.log(res);
     })
     .catch((error) => {
-      console.log(error.response.data);
       if (error.response.data.status === 401) {
         renovarTokens().then((resp) => {
           if (resp.status === 200) {
-            console.log(resp.config);
+            console.log(getRefreshToken());
             setTokens(
               resp.config.headers.Authorization,
               resp.config.headers.RefreshAuthentication
             );
-            const newReturn = axios({
+            console.log(getRefreshToken());
+            return axios({
               method: "GET",
               url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/userinfo`,
               headers: {
@@ -131,11 +128,6 @@ export const fetchUserData = () => {
                 RefreshAuthentication: "Bearer " + getRefreshToken(),
               },
             });
-            newReturn.catch((error) => {
-              if (error.response.data.status === 401)
-                console.log("errorrrrrrr!!");
-            });
-            return newReturn;
           } else {
             clearState();
           }
