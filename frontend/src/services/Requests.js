@@ -2,10 +2,10 @@ import axios from "axios";
 
 //esta funcion es para cerrar sesion
 export const clearState = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("react-use-cart");
-  window.location.replace("/");
+   localStorage.removeItem("token");
+   localStorage.removeItem("refreshToken");
+   localStorage.removeItem("react-use-cart");
+   window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -282,14 +282,29 @@ export const actualizarEstadoPedidoPendientes = (estado, id, minutos) => {
 };
 
 export const altaAdmin = (datos) => {
-  return axios({
+  const response =  axios({
     method: "POST",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/altaAdmin`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
+  response
+    .then((res) => {
+      checkTokens(
+        res.config.headers.Authorization,
+        res.config.headers.RefreshAuthentication
+      );
+    })
+    .catch((error) => {
+      checkTokens(
+        error.config.headers.Authorization,
+        error.config.headers.RefreshAuthentication
+      );
+    });
+  return response;
 };
 
 export const eliminarCuentaClientePropia = () => {
@@ -410,18 +425,32 @@ export const eliminarUsuario = (correoUsuario) => {
   });
 };
 
-export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
+export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin, p) => {
   const fIni = fechaIni ? fechaIni.toISOString().slice(0, 10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
   const fFin = fechaFin ? fechaFin.toISOString().slice(0, 10) : fIni;
-  return axios({
+  const response = axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}&page=${p}`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
+  response
+    .then((res) => {
+      checkTokens(
+        res.config.headers.Authorization,
+        res.config.headers.RefreshAuthentication
+      );
+    })
+    .catch((err) => {
+      checkTokens(
+        err.config.headers.Authorization,
+        err.config.headers.RefreshAuthentication
+      );
+    });
+  return response;
 };
 
 export const fetchRestauranteInfo = () => {
@@ -437,14 +466,29 @@ export const fetchRestauranteInfo = () => {
 
 export const actualizarEstadoUsuario = (estado, id) => {
   console.log(estado);
-  return axios({
+  const response = axios({
     method: "PUT",
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstado/${id}`,
     data: { estado: estado },
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
+  response
+    .then((res) => {
+      checkTokens(
+        res.config.headers.Authorization,
+        res.config.headers.RefreshAuthentication
+      );
+    })
+    .catch((err) => {
+      checkTokens(
+        err.config.headers.Authorization,
+        err.config.headers.RefreshAuthentication
+      );
+    });
+  return response;
 };
 /*export const setEstadoUsuarioEliminado = (correo) => {
   return axios({
