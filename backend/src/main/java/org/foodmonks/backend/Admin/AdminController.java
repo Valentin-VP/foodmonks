@@ -272,11 +272,12 @@ public class AdminController {
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasVentas")
-    public ResponseEntity<?> obtenerEstadisticasVentas(@RequestParam(name = "ventasRestaurante") String ventasRestaurante) {
+    public ResponseEntity<?> obtenerEstadisticasVentas(@RequestParam(name = "correoRestaurante") String correoRestaurante,
+                                                       @RequestParam(name = "anioVentas") int anioVentas) {
         JsonObject estadisticasVentas = new JsonObject();
         try {
-            //estadisticasVentas = restauranteService.ventasRestaurantes(ventasRestaurante);
-        } catch(JsonIOException e) {
+            estadisticasVentas = restauranteService.ventasRestaurantes(correoRestaurante,anioVentas);
+        } catch(JsonIOException | RestauranteNoEncontradoException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(estadisticasVentas, HttpStatus.OK);

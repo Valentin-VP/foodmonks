@@ -6,7 +6,6 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
-import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
@@ -491,6 +490,29 @@ public class RestauranteService {
     public Long restaurantesActivos(){
         return restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.ABIERTO) +
                 restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.CERRADO);
+    }
+
+    public JsonObject ventasRestaurantes(String correo, int anio) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = obtenerRestaurante(correo);
+        LocalDateTime fechaIni, fechaFin;
+        JsonObject ventasRestaurante = new JsonObject();
+        JsonArray meses = new JsonArray();
+        JsonObject mes = new JsonObject();
+        for (int i=1; i<=12; i++){
+            fechaIni = LocalDateTime.of(LocalDate.of(anio,i,1),LocalTime.MIDNIGHT);
+            if (i == 12){
+                fechaFin = LocalDateTime.of(LocalDate.of(anio+1,1,1).minusDays(1),LocalTime.MAX);
+            } else {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio,i+1,1).minusDays(1),LocalTime.MAX);
+            }
+            mes.addProperty("mes",obtenerMes(i));
+            mes.addProperty("cantidad",pedidoService.cantVentasRestauranteAnio(restaurante,fechaIni,fechaFin));
+            meses.add(mes);
+        }
+        ventasRestaurante.addProperty("restaurante",restaurante.getNombreRestaurante());
+        ventasRestaurante.addProperty("anio",anio);
+        ventasRestaurante.add("ventas", meses);
+        return ventasRestaurante;
     }
 
 }

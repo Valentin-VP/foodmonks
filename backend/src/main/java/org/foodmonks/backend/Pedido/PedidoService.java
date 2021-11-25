@@ -22,7 +22,6 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import java.util.List;
-import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 
 @Service
 public class PedidoService {
@@ -231,7 +230,12 @@ public class PedidoService {
     }
 
     public Long cantPedidosRestaurante(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
-        return pedidoRepository.countPedidosByRestauranteAAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
+        return pedidoRepository.countPedidosByRestauranteAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
+    }
+
+    public Long cantVentasRestauranteAnio(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
+        return pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraEntregaBetween(restaurante,EstadoPedido.FINALIZADO,fechaIni,fechaFin) +
+                pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraEntregaBetween(restaurante,EstadoPedido.RECLAMORECHAZADO,fechaIni,fechaFin);
     }
 
 }
