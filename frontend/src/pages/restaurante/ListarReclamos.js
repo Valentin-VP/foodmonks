@@ -61,6 +61,7 @@ function ListarReclamos({ reclamos }) {
   const [comentario, setComentario] = useState({
     motivoDevolucion: "",
   });
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const toggleModal = (e) => {
     setIsOpen(!isOpen);
@@ -100,6 +101,7 @@ function ListarReclamos({ reclamos }) {
   };
 
   const aceptarReclamo = () => {
+    setIsProcessing(true);
     realizarDevolucion(pedido.id, true, comentario)
       .then((response) => {
         console.log(response);
@@ -114,6 +116,7 @@ function ListarReclamos({ reclamos }) {
   };
 
   const rechazarReclamo = () => {
+    setIsProcessing(true);
     if (comentario.motivoDevolucion === "") {
       NotiError("debe haber un comentario");
     } else {
@@ -249,10 +252,10 @@ function ListarReclamos({ reclamos }) {
               </span>
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={aceptarReclamo}>
+              <Button variant="danger" disabled={isProcessing} onClick={aceptarReclamo}>
                 Aceptar
               </Button>
-              <Button variant="secondary" onClick={toggleModalAceptar}>
+              <Button variant="secondary" disabled={isProcessing} onClick={toggleModalAceptar}>
                 Cancelar
               </Button>
             </div>
@@ -274,10 +277,10 @@ function ListarReclamos({ reclamos }) {
               />
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={rechazarReclamo}>
+              <Button variant="danger" disabled={isProcessing} onClick={rechazarReclamo}>
                 Rechazar
               </Button>
-              <Button variant="secondary" onClick={toggleModalRechazar}>
+              <Button variant="secondary" disabled={isProcessing} onClick={toggleModalRechazar}>
                 Cancelar
               </Button>
             </div>

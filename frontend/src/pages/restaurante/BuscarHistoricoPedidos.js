@@ -174,7 +174,7 @@ export default function BuscarHistoricoPedidos() {
                               max="100000"
                               value={values.minTotal}>
                           </input>
-                          <label htmlFor="minTotal">Total [</label>
+                          <label htmlFor="minTotal">Total Inicial</label>
                       </div>
                       <div className="form-floating">
                           <input 
@@ -187,7 +187,7 @@ export default function BuscarHistoricoPedidos() {
                               max="100000"
                               value={values.maxTotal}>
                           </input>
-                          <label htmlFor="maxTotal">Total ]</label>
+                          <label htmlFor="maxTotal">Total Final</label>
                       </div>
                   </div>
                   <div className="col-lg">

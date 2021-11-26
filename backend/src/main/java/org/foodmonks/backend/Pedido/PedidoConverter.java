@@ -105,7 +105,8 @@ public class PedidoConverter {
         jsonPedido.addProperty("estadoPedido", pedido.getEstado() == EstadoPedido.DEVUELTO ? "Devuelto" :
                 (pedido.getEstado() == EstadoPedido.FINALIZADO ? "Finalizado" :
                         (pedido.getEstado() == EstadoPedido.PENDIENTE ? "Pendiente" :
-                                (pedido.getEstado() == EstadoPedido.CONFIRMADO ? "Confirmado" : "Rechazado"))));
+                                (pedido.getEstado() == EstadoPedido.CONFIRMADO ? "Confirmado" :
+                                        (pedido.getEstado() == EstadoPedido.RECLAMORECHAZADO ? "Finalizado" : "Rechazado")))));
         jsonPedido.addProperty("calificacionRestaurante", pedido.getCalificacionRestaurante() != null ? pedido.getCalificacionRestaurante().getPuntaje().toString() : "false");
         jsonPedido.addProperty("calificacionCliente", pedido.getCalificacionCliente() != null ? pedido.getCalificacionCliente().getPuntaje().toString() : "false");
         if(pedido.getFechaHoraEntrega() != null) {

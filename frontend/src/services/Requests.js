@@ -70,10 +70,10 @@ export const renovarTokens = () => {
 
 //esta funcion es para cerrar sesion
 export const clearState = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("react-use-cart");
-  window.location.replace("/");
+   localStorage.removeItem("token");
+   localStorage.removeItem("refreshToken");
+   localStorage.removeItem("react-use-cart");
+   window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -212,11 +212,11 @@ export const eliminarUsuario = (correoUsuario) => {
   return instance.delete(`api/v1/restaurante/eliminarMenu/${correoUsuario}`);
 };
 
-export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
+export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin, p) => {
   const fIni = fechaIni ? fechaIni.toISOString().slice(0, 10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
   const fFin = fechaFin ? fechaFin.toISOString().slice(0, 10) : fIni;
   return instance.get(
-    `api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
+    `api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}&page=${p}`,
     datos
   );
 };
