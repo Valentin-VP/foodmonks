@@ -52,7 +52,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 System.out.println("token expired!!");
             }
         }
-
+        response.addHeader("Access-Control-Expose-Headers", "Authorization,RefreshAuthentication");
         filterChain.doFilter(request, response);
 
     }

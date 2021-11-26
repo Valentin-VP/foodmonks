@@ -1,16 +1,70 @@
 import axios from "axios";
 
-const instance = axios.create();
+// Crear base de Axios "instance"
+const instance = axios.create({
+  baseURL: `${process.env.REACT_APP_BACKEND_URL_BASE}`,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Agregar Token de Acceso y Refresh Token a todos los requests de Axios
+instance.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (token) {
+      config.headers["Authorization"] = "Bearer " + token;
+      const refreshToken = getRefreshToken();
+      if (refreshToken) {
+        config.headers["RefreshAuthentication"] = "Bearer " + refreshToken;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+instance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalConfig = error.config;
+
+    if (error.response) {
+      if (error.response.data.status === 401 && !originalConfig._retry) {
+        originalConfig._retry = true;
+        try {
+          const rs = await renovarTokens();
+          const token = rs.headers.authorization;
+          const refreshToken = rs.headers.refreshauthentication;
+          //agregar el seteo del refreshToken
+          setTokens(token, refreshToken);
+          instance.defaults.headers.common["Authorization"] = getToken();
+          instance.defaults.headers.common["RefreshAuthentication"] = getRefreshToken();
+          return instance(originalConfig);
+        } catch (_error) {
+          if (_error.response && _error.response.data) {
+            return Promise.reject(_error.response.data);
+          }
+
+          return Promise.reject(_error);
+        }
+      }
+
+      if (error.response.data.status === 403 && error.response.data) {
+        return Promise.reject(error.response.data);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export const renovarTokens = () => {
-  return axios({
-    method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/refresh`,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
+  return instance.get("api/v1/auth/refresh");
 };
 
 //esta funcion es para cerrar sesion
@@ -18,7 +72,7 @@ export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("react-use-cart");
-  //window.location.replace("/");
+  window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -41,100 +95,19 @@ export const getRefreshToken = () => {
   return localStorage.getItem("refreshToken");
 };
 
-instance.interceptors.response.use(
-  (response) => {
-    console.log("entra al then");
-    return response;
-  },
-  async (error) => {
-    console.log("entra al catch");
-    const originalConfig = error.config;
-
-    if (error.response) {
-      // Access Token was expired
-      console.log("access token expired");
-      if (error.response.data.status === 401 && !originalConfig._retry) {
-        originalConfig._retry = true;
-        try {
-          const rs = await renovarTokens();
-          const { accessToken } = rs.data;
-          //agregar el seteo del refreshToken
-          window.localStorage.setItem("token", accessToken); //deberiamos usar setTokens()
-          instance.defaults.headers.common["x-access-token"] = accessToken;
-
-          return instance(originalConfig);
-        } catch (_error) {
-          if (_error.response && _error.response.data) {
-            return Promise.reject(_error.response.data);
-          }
-
-          return Promise.reject(_error);
-        }
-      }
-
-      if (error.response.data.status === 403 && error.response.data) {
-        return Promise.reject(error.response.data);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
-
 const setTokens = (auth, refreshAuth) => {
-  console.log("cambiando tokens");
-  const newAuth = auth.substring(7);
-  const newRefreshAuth = refreshAuth.substring(7);
-  localStorage.setItem("token", newAuth);
-  localStorage.setItem("refreshToken", newRefreshAuth);
+  // const newAuth = auth.substring(7);
+  // const newRefreshAuth = refreshAuth.substring(7);
+  localStorage.setItem("token", auth);
+  localStorage.setItem("refreshToken", refreshAuth);
 };
 
 export const userLogin = (authRequest) => {
-  return axios({
-    method: "POST",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/login`,
-    data: authRequest,
-  });
+  return instance.post("api/v1/auth/login", authRequest);
 };
 
 export const fetchUserData = () => {
-  const response = axios({
-    method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/userinfo`,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
-  /* response
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((error) => {
-      if (error.response.data.status === 401) {
-        renovarTokens().then((resp) => {
-          if (resp.status === 200) {
-            console.log(getRefreshToken());
-            setTokens(
-              resp.config.headers.Authorization,
-              resp.config.headers.RefreshAuthentication
-            );
-            console.log(getRefreshToken());
-            return axios({
-              method: "GET",
-              url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/auth/userinfo`,
-              headers: {
-                Authorization: "Bearer " + getToken(),
-                RefreshAuthentication: "Bearer " + getRefreshToken(),
-              },
-            });
-          } else {
-            clearState();
-          }
-        });
-      }
-    }); */
-  return response;
+  return instance.get("api/v1/auth/userinfo");
 };
 
 export const registrarCliente = (cliente) => {
@@ -535,17 +508,18 @@ export const editNombre = (nombre, apellido) => {
 };
 
 export const fetchRestaurantesBusqueda = (datos) => {
-  const response = axios({
-    method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarAbiertos?nombre=${datos.nombre}&categoria=${datos.categoria}&orden=${datos.calificacion}`,
-    data: datos,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
-  response.then((res) => {});
-  return response;
+  return instance.get(`api/v1/cliente/listarAbiertos?nombre=${datos.nombre}&categoria=${datos.categoria}&orden=${datos.calificacion}`, datos);
+  // const response = axios({
+  //   method: "GET",
+  //   url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarAbiertos?nombre=${datos.nombre}&categoria=${datos.categoria}&orden=${datos.calificacion}`,
+  //   data: datos,
+  //   headers: {
+  //     Authorization: "Bearer " + getToken(),
+  //     RefreshAuthentication: "Bearer " + getRefreshToken(),
+  //   },
+  // });
+  // response.then((res) => {});
+  // return response;
 };
 
 export const obtenerPedidosRealizados = (datos, fechaIni, fechaFin, page) => {
