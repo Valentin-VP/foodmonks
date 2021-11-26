@@ -130,34 +130,41 @@ function RegistroCliente() {
       .then((results) => {
         getLatLng(results[0]).then(({ lat, lng }) => {
           registro.direccion.calle = results[0].address_components[1].long_name;
-          registro.direccion.numero = results[0].address_components[0].long_name;
+          registro.direccion.numero =
+            results[0].address_components[0].long_name;
           registro.nombre = document.getElementById("nombre").value;
           registro.apellido = document.getElementById("apellido").value;
-          registro.correo = document.getElementById("correo").value;
+          const correoCliente = document.getElementById("correo").value;
           registro.direccion.esquina = document.getElementById("esquina").value;
-          registro.direccion.detalles = document.getElementById("detalles").value;
+          registro.direccion.detalles =
+            document.getElementById("detalles").value;
           registro.direccion.latitud = lat;
           registro.direccion.longitud = lng;
           var pass1 = document.getElementById("password1").value;
           var pass2 = document.getElementById("password2").value;
           if (pass1 === pass2) {
             registro.password = Base64.encode(pass1);
+            registro.correo = Base64.encode(correoCliente);
             console.log(registro);
-            registrarCliente(registro).then((response) => {
-              if (response.status === 201) {
-                setAlerta("Registro hecho con exito");
-                setTipo("success");
-                setTimeout(() => { window.location.replace("/"); }, 2000); //para esperar 5 segundos y redireccionar
-              }
-            }).catch((error) =>{
+            registrarCliente(registro)
+              .then((response) => {
+                if (response.status === 201) {
+                  setAlerta("Registro hecho con exito");
+                  setTipo("success");
+                  setTimeout(() => {
+                    window.location.replace("/");
+                  }, 2000); //para esperar 5 segundos y redireccionar
+                }
+              })
+              .catch((error) => {
                 setAlerta(error.response.data);
-                setTipo("danger");        
-            });
+                setTipo("danger");
+              });
           } else {
             setAlerta("Las contraseñas no coinciden");
             setTipo("danger");
           }
-          });
+        });
         console.log(registro.direccion);
       })
       .catch((error) => {

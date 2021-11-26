@@ -55,7 +55,7 @@ public class AdminController {
     @Operation(summary = "Crea un nuevo Administrador",
             description = "Alta de un nuevo Administrador",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "administrador" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Administrador creado con éxito"),
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
@@ -77,31 +77,10 @@ public class AdminController {
         }
     }
 
-    @GetMapping
-    //@GetMapping("/rutaEspecifica")
-    public List<Admin> listarAdmin(){
-        return adminService.listarAdmin();
-    }
-
-    @GetMapping("/buscar")
-    public void buscarAdmin(@RequestParam String correo) {
-        adminService.buscarAdmin(new String(Base64.getDecoder().decode(correo)));
-    }
-
-    @DeleteMapping
-    public void eliminarAdmin(@RequestParam Long id) {
-        //adminService.eliminarAdmin(id);
-    }
-
-    @PutMapping
-    public void modificarAdmin(@RequestBody Admin admin) {
-        adminService.modificarAdmin(admin);
-    }
-
     @Operation(summary = "Listar los Usuarios",
             description = "Lista de los Usuarios de el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuario" })
+            tags = { "usuarios" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Usuario.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -154,7 +133,7 @@ public class AdminController {
     @Operation(summary = "Cambiar estado de un Usuario",
             description = "Cambia el estado de un Usuario",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuario" })
+            tags = { "usuarios" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -194,7 +173,7 @@ public class AdminController {
     @Operation(summary = "Listar/buscar Restaurantes con cierto estado",
             description = "Lista de los restaurantes que tienen el estado recibido",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -215,7 +194,7 @@ public class AdminController {
     @Operation(summary = "Modificar estado de un Restaurante",
             description = "Modifica el estado de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")

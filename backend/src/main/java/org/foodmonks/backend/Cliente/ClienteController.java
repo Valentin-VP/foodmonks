@@ -96,17 +96,6 @@ public class ClienteController {
         }
     }
 
-    @GetMapping//LISTAR CLIENTE
-    //@GetMapping("/rutaEspecifica")
-    public List<Cliente> listarCliente(){
-        return clienteService.listarCliente();
-    }
-
-    @GetMapping("/buscar")
-    public void buscarCliente(@RequestParam String correo) {
-        clienteService.buscarCliente(correo);
-    }
-
     @Operation(summary = "Elimina cuenta propia de Cliente",
             description = "Baja logica de Cliente, se cierra sesion al finalizar",
             security = @SecurityRequirement(name = "bearerAuth"),
@@ -115,7 +104,6 @@ public class ClienteController {
             @ApiResponse(responseCode = "200", description = "Operación exitosa. Se ha dado de baja."),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
-    @PreAuthorize("hasRole('ROLE_CLIENTE')")
     @DeleteMapping(path = "eliminarCuenta")//ELIMINAR CLIENTE
     public ResponseEntity<?> eliminarCuentaPropiaCliente(
             @RequestHeader("Authorization") String token) {
@@ -131,6 +119,7 @@ public class ClienteController {
 
     @Operation(summary = "Modificar informacion del cliente",
             description = "Se modifica nombre y apellido del cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Informacion modificada"),
@@ -154,6 +143,7 @@ public class ClienteController {
 
     @Operation(summary = "Agregar una Direccion",
             description = "Agrega una nueva Direccion al Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Direccion agregada"),
@@ -204,6 +194,7 @@ public class ClienteController {
 
     @Operation(summary = "Modificar una Direccion",
             description = "Se modifica una direccion del Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion modificada"),
@@ -256,7 +247,7 @@ public class ClienteController {
     @Operation(summary = "Listar Pedidos Realizados",
             description = "Lista de los pedidos realizados del Cliente",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedidos" })
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -288,7 +279,7 @@ public class ClienteController {
     @Operation(summary = "Listar los Menús y Promociones ofrecidos por un Restaurante",
             description = "Lista de los Menús y Promociones que ofrece un Restaurante, aplicando búsqueda opcional por filtros",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedido", "cliente", "menú", "promoción" })
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -319,7 +310,8 @@ public class ClienteController {
 
     @Operation(summary = "Realizar un nuevo Pedido a un Restaurante",
             description = "Realizar un nuevo Pedido a un Restaurante",
-            tags = { "cliente", "pedido" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pedido creado"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -341,7 +333,8 @@ public class ClienteController {
 
     @Operation(summary = "Agregar un Reclamo",
             description = "Agrega un nuevo Reclamo a un Pedido del Cliente",
-            tags = { "cliente", "reclamo" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Reclamo agregado"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -367,7 +360,8 @@ public class ClienteController {
 
     @Operation(summary = "Calificar a un Restaurante",
             description = "Agrega una Calificación a un Restaurante a través de un Pedido",
-            tags = { "cliente", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Calificacion creada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -388,7 +382,8 @@ public class ClienteController {
 
     @Operation(summary = "Modificar una Calificacion realizada a un Restaurante",
             description = "Modifica (reemplaza) una Calificación realizada a un Restaurante a través de un Pedido",
-            tags = { "cliente", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calificacion modificada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -409,7 +404,8 @@ public class ClienteController {
 
     @Operation(summary = "Elimina una Calificacion realizada a un Restaurante",
             description = "Elimina una Calificación realizada a un Restaurante a través de un Pedido",
-            tags = { "cliente", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calificacion eliminada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
