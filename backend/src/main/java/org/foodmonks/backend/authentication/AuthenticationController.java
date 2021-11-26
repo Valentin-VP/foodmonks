@@ -170,7 +170,7 @@ public class AuthenticationController {
         try {
             // generar resetToken
             JsonObject jsonReset = new Gson().fromJson(data, JsonObject.class);
-            String correo = jsonReset.get("email").getAsString();
+            String correo = new String(Base64.getDecoder().decode(jsonReset.get("email").getAsString()));
             String resetToken = usuarioService.generarTokenResetPassword();
             String nombre = null;
             // Chequear si el usuario existe y esta habilitado
@@ -218,7 +218,7 @@ public class AuthenticationController {
             @RequestBody String resetRequest) {
         try{
             JsonObject jsonReset = new Gson().fromJson(resetRequest, JsonObject.class);
-            String correo = jsonReset.get("correo").getAsString();
+            String correo = new String(Base64.getDecoder().decode(jsonReset.get("correo").getAsString()));
             String resetToken = jsonReset.get("token").getAsString();
             String password = new String(Base64.getDecoder().decode(jsonReset.get("password").getAsString()));
             String nombre = null;
@@ -273,7 +273,7 @@ public class AuthenticationController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
             @RequestBody String tokenResetRequest) {
         JsonObject jsonReset = new Gson().fromJson(tokenResetRequest, JsonObject.class);
-        TokenReset tokenReset = new TokenReset(jsonReset.get("email").getAsString(), jsonReset.get("token").getAsString());
+        TokenReset tokenReset = new TokenReset(new String(Base64.getDecoder().decode(jsonReset.get("email").getAsString())), jsonReset.get("token").getAsString());
         if (awsService.comprobarResetToken(tokenReset)){
             return ResponseEntity.ok("Token válido");
         } else {

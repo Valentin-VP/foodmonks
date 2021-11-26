@@ -80,7 +80,7 @@ public class ClienteController {
             clienteService.crearCliente(
                     jsonCliente.get("nombre").getAsString(),
                     jsonCliente.get("apellido").getAsString(),
-                    jsonCliente.get("correo").getAsString(),
+                    new String (Base64.getDecoder().decode(jsonCliente.get("correo").getAsString())),
                     new String (Base64.getDecoder().decode(jsonCliente.get("password").getAsString())),
                     LocalDate.now(),
                     5.0f,
@@ -104,7 +104,7 @@ public class ClienteController {
 
     @GetMapping("/buscar")
     public void buscarCliente(@RequestParam String correo) {
-        clienteService.buscarCliente(correo);
+        clienteService.buscarCliente(new String(Base64.getDecoder().decode(correo)));
     }
 
     @Operation(summary = "Elimina cuenta propia de Cliente",
@@ -330,7 +330,7 @@ public class ClienteController {
         JsonArray jsonArray = new JsonArray();
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
-            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(new String(Base64.getDecoder().decode(restauranteCorreo)), categoria, precioInicial, precioFinal);
 
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);

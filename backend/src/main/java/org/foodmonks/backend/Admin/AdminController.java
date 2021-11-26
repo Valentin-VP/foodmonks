@@ -66,7 +66,7 @@ public class AdminController {
         try{
             JsonObject jsonAdmin = new Gson().fromJson(admin, JsonObject.class);
             adminService.crearAdmin(
-                    jsonAdmin.get("email").getAsString(),
+                    new String (Base64.getDecoder().decode(jsonAdmin.get("email").getAsString())),
                     jsonAdmin.get("nombre").getAsString(),
                     jsonAdmin.get("apellido").getAsString(),
                     new String (Base64.getDecoder().decode(jsonAdmin.get("password").getAsString()))
@@ -85,11 +85,11 @@ public class AdminController {
 
     @GetMapping("/buscar")
     public void buscarAdmin(@RequestParam String correo) {
-        adminService.buscarAdmin(correo);
+        adminService.buscarAdmin(new String(Base64.getDecoder().decode(correo)));
     }
 
     @DeleteMapping
-    public void elimiarAdmin(@RequestParam Long id) {
+    public void eliminarAdmin(@RequestParam Long id) {
         //adminService.eliminarAdmin(id);
     }
 
@@ -113,7 +113,7 @@ public class AdminController {
         List<Usuario> listaUsuarios;
         JsonArray jsonArray = new JsonArray();
         try {
-            listaUsuarios = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden);
+            listaUsuarios = usuarioService.listarUsuarios(new String(Base64.getDecoder().decode(correo)), tipoUser, fechaInicio, fechaFin, estado, orden);
 
             for (Usuario listaUsuario : listaUsuarios) {
                 JsonObject usuario = new JsonObject();
@@ -165,26 +165,27 @@ public class AdminController {
         JsonObject JsonEstado;
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 
+        String correoDecrypted = new String(Base64.getDecoder().decode(correo));
         String state = JsonEstado.get("estado").getAsString();
         System.out.println("estado: " + state);
         switch (JsonEstado.get("estado").getAsString()) {
             case "BLOQUEAR":
-                usuarioService.bloquearUsuario(correo);
+                usuarioService.bloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "ELIMINAR":
                 if ( token != null && token.startsWith("Bearer ")) {
                     String newToken = token.substring(7);
-                    if (tokenHelp.getUsernameFromToken(newToken).equals(correo)){
+                    if (tokenHelp.getUsernameFromToken(newToken).equals(correoDecrypted)){
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede eliminar este usuario.");
                     }
                 }
-                usuarioService.eliminarUsuario(correo);
+                usuarioService.eliminarUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "DESBLOQUEAR":
-                usuarioService.desbloquearUsuario(correo);
+                usuarioService.desbloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "RECHAZAR":
-                restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+                restauranteService.modificarEstado(correoDecrypted, EstadoRestaurante.valueOf(estado));
                 return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -227,14 +228,15 @@ public class AdminController {
     ) {
         JsonObject jsonResponse = new JsonObject();
         try{
+            String correoDecrypted = new String(Base64.getDecoder().decode(correoRestaurante));
             estadoRestaurante = estadoRestaurante.toUpperCase();
-            jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
+            jsonResponse = adminService.cambiarEstadoRestaurante(correoDecrypted, estadoRestaurante);
             JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
             String comentarios = body.get("comentarios").getAsString();
             String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
             // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
             // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentarios} '
-            adminService.enviarCorreo(correoRestaurante, resultadoCambioEstado, comentarios);
+            adminService.enviarCorreo(correoDecrypted, resultadoCambioEstado, comentarios);
             // correoRestaurante: Destinatario del Correo
             // resultadoCambioEstado: Contiene 'APROBADO' o 'RECHAZADO
             // comentariosCambioEstado: Empty si es una aprobación, de lo contrario contiene el motivo del rechazo
