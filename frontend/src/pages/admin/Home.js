@@ -102,13 +102,16 @@ export default function Home() {
   }, []);
 
   const onUpdate = (estado) => {
-    if(document.getElementById("mensaje").value === ""){
-        return null;
+    if (document.getElementById("mensaje").value === "") {
+      return null;
     }
     const data = {
-        comentariosCambioEstado: document.getElementById("mensaje").value
-    }
+      comentariosCambioEstado: document.getElementById("mensaje").value,
+    };
     cambiarEstadoRestaurante(restauranteSeleccionado.correo, estado, data)
+      .then((response) => {
+        window.location.reload();
+      })
       .catch((error) => {
         NotiError(error.response.data.detailMessage);
       });
@@ -205,10 +208,18 @@ export default function Home() {
                 <label htmlFor="floatingInput">Mensaje</label>
               </div>
               <div className="abajo">
-                <Button variant="success" type="submit" onClick={() => onUpdate("CERRADO")}>
+                <Button
+                  variant="success"
+                  type="submit"
+                  onClick={() => onUpdate("CERRADO")}
+                >
                   Aceptar Registro
                 </Button>
-                <Button variant="danger" type="submit" onClick={() => onUpdate("RECHAZADO")}>
+                <Button
+                  variant="danger"
+                  type="submit"
+                  onClick={() => onUpdate("RECHAZADO")}
+                >
                   Rechazar Registro
                 </Button>
               </div>

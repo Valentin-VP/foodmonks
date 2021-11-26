@@ -230,7 +230,7 @@ public class AdminController {
             estadoRestaurante = estadoRestaurante.toUpperCase();
             jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
             JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
-            String comentarios = body.get("comentarios").getAsString();
+            String comentarios = body.get("comentariosCambioEstado").getAsString();
             String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
             // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
             // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentarios} '
