@@ -70,10 +70,10 @@ export const renovarTokens = () => {
 
 //esta funcion es para cerrar sesion
 export const clearState = () => {
-   localStorage.removeItem("token");
-   localStorage.removeItem("refreshToken");
-   localStorage.removeItem("react-use-cart");
-   window.location.replace("/");
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("react-use-cart");
+  window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -356,7 +356,7 @@ export const calificarCliente = (data) => {
 };
 
 export const modificarCalificacionCliente = (data) => {
-  return instance.post("api/v1/restaurante/modificarCalificacionCliente", data);
+  return instance.put("api/v1/restaurante/modificarCalificacionCliente", data);
 };
 
 export const eliminarCalificacionCliente = (idPedido) => {

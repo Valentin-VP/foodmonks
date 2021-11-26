@@ -31,6 +31,10 @@ const Styles = styled.div`
 `;
 
 function Home() {
+  sessionStorage.setItem("reclamos-razon", "");
+  sessionStorage.setItem("reclamos-cliente", "");
+  sessionStorage.setItem("reclamos-ordenar", false);
+
   const [abierto, setAbierto] = useState(false); //true: ABIERTO, false: CERRADO
 
   useEffect(() => {
