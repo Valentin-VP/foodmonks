@@ -46,15 +46,15 @@ import java.util.List;
 @Slf4j
 public class ClienteController {
 
-    private final TokenHelper tokenHelp;
+    private final ClienteHelper clienteHelp;
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
     private final PedidoService pedidoService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService, PedidoService pedidoService) {
+    ClienteController(ClienteService clienteService, ClienteHelper clienteHelp, RestauranteService restauranteService, PedidoService pedidoService) {
         this.clienteService = clienteService;
-        this.tokenHelp = tokenHelp;
+        this.clienteHelp = clienteHelp;
         this.restauranteService = restauranteService;
         this.pedidoService = pedidoService;
     }
@@ -104,7 +104,7 @@ public class ClienteController {
 
     @GetMapping("/buscar")
     public void buscarCliente(@RequestParam String correo) {
-        clienteService.buscarCliente(new String(Base64.getDecoder().decode(correo)));
+        clienteService.buscarCliente(correo);
     }
 
     @Operation(summary = "Elimina cuenta propia de Cliente",
@@ -120,11 +120,7 @@ public class ClienteController {
     public ResponseEntity<?> eliminarCuentaPropiaCliente(
             @RequestHeader("Authorization") String token) {
         try {
-            String newToken = null;
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
             log.debug("Cliente eliminado, enviando a cerrar sesion");
             return ResponseEntity.status(HttpStatus.OK).build();
@@ -145,11 +141,7 @@ public class ClienteController {
                                               @RequestParam(name = "nombre") String nombre,
                                               @RequestParam(name = "apellido") String apellido) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             clienteService.modificarCliente(correo, nombre, apellido);
 
@@ -176,11 +168,7 @@ public class ClienteController {
                                                               schema = @Schema(implementation = Direccion.class)))
                                               @RequestBody String direccion) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
 
@@ -204,11 +192,7 @@ public class ClienteController {
     public ResponseEntity<?> eliminarDireccion(@RequestHeader("Authorization") String token,
                                                @RequestParam(name = "id") String id) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             clienteService.eliminarDireccionCliente(correo, Long.valueOf(id));
 
@@ -229,16 +213,12 @@ public class ClienteController {
     public ResponseEntity<?> modificarDireccion(@RequestHeader("Authorization") String token,
                                                 @RequestParam(name = "id") String id,
                                                 @Parameter(description = "Datos del nuevo Cliente", required = true)
-                                                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                                            content = @Content(mediaType = "application/json",
-                                                                    schema = @Schema(implementation = Direccion.class)))
+                                                @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                        content = @Content(mediaType = "application/json",
+                                                                schema = @Schema(implementation = Direccion.class)))
                                                 @RequestBody String direccion) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
 
@@ -260,7 +240,6 @@ public class ClienteController {
     @GetMapping(path = "/listarAbiertos")
     public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
                                                         @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
-        //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
         JsonArray jsonArray = new JsonArray();
         try {
             List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
@@ -286,22 +265,17 @@ public class ClienteController {
     public ResponseEntity<?> listarPedidosRealizados(@RequestHeader("Authorization") String token,
                                                      @RequestParam(required = false, name = "estadoPedido") String estadoPedido,
                                                      @RequestParam(required = false, name = "nombreMenu") String nombreMenu,
-                                                    @RequestParam(required = false, name = "nombreRestaurante") String nombreRestaurante,
-                                                    @RequestParam(required = false, name = "medioPago") String medioPago,
-                                                    @RequestParam(required = false, name = "orden") String orden,
-                                                    @RequestParam(required = false, name = "fecha") String fecha,
-                                                    @RequestParam(required = false, name = "total") String total,
-                                                    @RequestParam(defaultValue = "0",required = false, name = "page") String page,
-                                                    @RequestParam(defaultValue = "1000", required = false, name = "size") String size) {
-        String newtoken = "";
-        String correo = "";
+                                                     @RequestParam(required = false, name = "nombreRestaurante") String nombreRestaurante,
+                                                     @RequestParam(required = false, name = "medioPago") String medioPago,
+                                                     @RequestParam(required = false, name = "orden") String orden,
+                                                     @RequestParam(required = false, name = "fecha") String fecha,
+                                                     @RequestParam(required = false, name = "total") String total,
+                                                     @RequestParam(defaultValue = "0",required = false, name = "page") String page,
+                                                     @RequestParam(defaultValue = "1000", required = false, name = "size") String size) {
         List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
         JsonObject jsonObject = new JsonObject();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu, nombreRestaurante, medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
@@ -325,12 +299,12 @@ public class ClienteController {
             @RequestParam(required = false, name = "categoria") String categoria,
             @RequestParam(required = false, name = "precioInicial") Float precioInicial,
             @RequestParam(required = false, name = "precioFinal") Float precioFinal
-            ) {
+    ) {
 
         JsonArray jsonArray = new JsonArray();
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
-            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(new String(Base64.getDecoder().decode(restauranteCorreo)), categoria, precioInicial, precioFinal);
+            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
 
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);
@@ -341,8 +315,8 @@ public class ClienteController {
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
-  
-  
+
+
     @Operation(summary = "Realizar un nuevo Pedido a un Restaurante",
             description = "Realizar un nuevo Pedido a un Restaurante",
             tags = { "cliente", "pedido" })
@@ -355,17 +329,12 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestBody String pedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(strToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             // Obtener detalles del pedido
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
             return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
-        }catch (Exception e){            
+        }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -384,12 +353,7 @@ public class ClienteController {
                     content = @Content(mediaType = "application/json"))
             @RequestBody String reclamo) {
         try {
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(strToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             JsonObject jsonReclamo = new Gson().fromJson(reclamo, JsonObject.class);
             JsonObject jsonResponse = clienteService.agregarReclamo(correo, jsonReclamo);
             return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
@@ -413,12 +377,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestBody String pedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correoCliente = tokenHelp.getUsernameFromToken(strToken);
+            String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             restauranteService.calificarRestaurante(correoCliente, jsonRequestPedido);
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -439,12 +398,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestBody String pedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correoCliente = tokenHelp.getUsernameFromToken(strToken);
+            String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             restauranteService.modificarCalificacionRestaurante(correoCliente, jsonRequestPedido);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -465,12 +419,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestParam (name= "idPedido") String idPedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correoCliente = tokenHelp.getUsernameFromToken(strToken);
+            String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
             restauranteService.eliminarCalificacionRestaurante(correoCliente, idPedido);
             return new ResponseEntity<>(HttpStatus.OK);
         }catch (Exception e){

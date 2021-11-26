@@ -161,7 +161,6 @@ public class RestauranteController {
             @Parameter(description = "Crea un nuevo Menu en el Restaurante", required = true)
             @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)))
             @RequestBody String infoMenu) {
-        String newToken = "";
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
