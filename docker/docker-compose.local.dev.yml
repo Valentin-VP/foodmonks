@@ -30,6 +30,7 @@ services:
         - REACT_APP_GENERIC_MENU=${REACT_APP_GENERIC_MENU}
         - REACT_APP_GOOGLE_MAPS_API_KEY=${REACT_APP_GOOGLE_MAPS_API_KEY}
         - REACT_APP_PAYPAL_CLIENT_ID=${REACT_APP_PAYPAL_CLIENT_ID}
+        - NGINX_CONF=${NGINX_CONF}
     image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-frontend:${FRONTEND_DOCKER_IMAGE_TAG}
     ports:
       - "8080:80"
