@@ -12,7 +12,10 @@ const Styles = styled.div`
   img {
     object-fit: cover;
     border-radius: 3px 3px 0px 0px;
-    height: 12rem;
+    height: 15rem;
+    position: relative;
+    top: 0;
+    left: 0;
   }
 
   .btn-primary {

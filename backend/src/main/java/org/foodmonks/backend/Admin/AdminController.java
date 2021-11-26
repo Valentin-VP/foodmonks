@@ -108,46 +108,17 @@ public class AdminController {
     @GetMapping(path = "/listarUsuarios")
     public ResponseEntity<?> listarUsuarios(@RequestParam(required = false, name = "correo") String correo, @RequestParam(required = false, name = "tipoUser") String tipoUser,
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
-                                            @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden) {
-        List<Usuario> listaUsuarios;
-        JsonArray jsonArray = new JsonArray();
+                                            @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden,
+                                            @RequestParam(defaultValue = "0",required = false, name = "page") String page) {
+        JsonObject jsonObject = new JsonObject();
         try {
-            listaUsuarios = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden);
+            jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
 
-            for (Usuario listaUsuario : listaUsuarios) {
-                JsonObject usuario = new JsonObject();
-                usuario.addProperty("correo", listaUsuario.getCorreo());
-                usuario.addProperty("fechaRegistro", listaUsuario.getFechaRegistro().toString());
-                if (listaUsuario instanceof Cliente) {//si es cliente
-                    Cliente cliente = clienteService.buscarCliente(listaUsuario.getCorreo());//lo consigo como cliente
-                    usuario.addProperty("rol", "CLIENTE");
-                    usuario.addProperty("estado", cliente.getEstado().toString());
-                    usuario.addProperty("nombre", cliente.getNombre());
-                    usuario.addProperty("apellido", cliente.getApellido());
-                    usuario.addProperty("calificacion", cliente.getCalificacion().toString());
-                    jsonArray.add(usuario);
-                } else if(listaUsuario instanceof Restaurante){//si es restaurante
-                    Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
-                    usuario.addProperty("rol", "RESTAURANTE");
-                    usuario.addProperty("estado", restaurante.getEstado().toString());
-                    usuario.addProperty("RUT", restaurante.getRut().toString());
-                    usuario.addProperty("descripcion", restaurante.getDescripcion());
-                    usuario.addProperty("nombre", restaurante.getNombreRestaurante());
-                    usuario.addProperty("telefono", restaurante.getTelefono());
-                    usuario.addProperty("calificacion", restaurante.getCalificacion().toString());
-                    jsonArray.add(usuario);
-                } else if(listaUsuario instanceof Admin) {
-                    Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());
-                    usuario.addProperty("nombre", admin.getNombre());
-                    usuario.addProperty("rol", "ADMIN");
-                    usuario.addProperty("apellido", admin.getApellido());
-                    jsonArray.add(usuario);
-                }
-            }
+
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
     }
 
     @Operation(summary = "Cambiar estado de un Usuario",
@@ -229,7 +200,7 @@ public class AdminController {
             estadoRestaurante = estadoRestaurante.toUpperCase();
             jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
             JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
-            String comentarios = body.get("comentarios").getAsString();
+            String comentarios = body.get("comentariosCambioEstado").getAsString();
             String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
             // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
             // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentarios} '

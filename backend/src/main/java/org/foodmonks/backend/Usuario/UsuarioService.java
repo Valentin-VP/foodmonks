@@ -33,20 +33,21 @@ public class UsuarioService {
 	private final UsuarioRepository usuarioRepository;
 	private final TemplateEngine templateEngine;
 	private final EmailService emailService;
-  	private final PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 	private final ClienteRepository clienteRepository;
 	private final RestauranteRepository restauranteRepository;
 	private final RestauranteService restauranteService;
+	private final UsuarioConverter usuarioConverter;
 	
 	@Autowired
 	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine,
 						  EmailService emailService, PasswordEncoder passwordEncoder,
-						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository,
-						  RestauranteService restauranteService) {
+						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository, 
+              UsuarioConverter usuarioConverter, RestauranteService restauranteService) {
 		this.usuarioRepository = usuarioRepository; this.templateEngine = templateEngine;
 		this.emailService = emailService; this.passwordEncoder = passwordEncoder;
 		this.clienteRepository = clienteRepository; this.restauranteRepository = restauranteRepository;
-		this.restauranteService = restauranteService;
+		this.usuarioConverter = usuarioConverter; this.restauranteService = restauranteService;
 	}
   
   public void cambiarPassword(String correo, String password) throws UsuarioNoEncontradoException {
@@ -62,7 +63,7 @@ public class UsuarioService {
         return UUID.randomUUID().toString();
     }
 
-	public List<Usuario> listarUsuarios(String correo, String tipoUser, String fechaInicio, String fechaFin, String estado, boolean orden) {
+	public JsonObject listarUsuarios(String correo, String tipoUser, String fechaInicio, String fechaFin, String estado, boolean orden, String page) {
 		List<Usuario> listaUsuarios = usuarioRepository.findAll();
 
 		//filtros:
@@ -71,8 +72,8 @@ public class UsuarioService {
 			if(tipoUser.equals("cliente")) {
 				List<Cliente> auxListOrdenCliente = clienteRepository.findAllByRolesOrderByCalificacionDesc("ROLE_CLIENTE");
 				listaUsuarios = new ArrayList<>(auxListOrdenCliente);
-			} else {
-				List<Restaurante> auxListOrdenRestaurante = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
+			} else if (tipoUser.equals("restaurante")){
+				List<Restaurante> auxListOrdenRestaurante = restauranteRepository.findAllByRolesOrderByCalificacionDesc("ROLE_RESTAURANTE");
 				listaUsuarios = new ArrayList<>(auxListOrdenRestaurante);
 			}
 		}
@@ -153,7 +154,28 @@ public class UsuarioService {
 			}
 			listaUsuarios = auxList;
 		}
-		return listaUsuarios;
+		int pageFinal;
+		try{
+			pageFinal = Integer.parseInt(page);
+		}catch(NumberFormatException e){
+			pageFinal = 0;
+		}
+
+
+		int comienzo = pageFinal * 5;
+		int total = listaUsuarios.size();
+		System.out.println((double) listaUsuarios.size() / 5 + " - " +Math.ceil((double) listaUsuarios.size() / 5));
+		int cantPaginas = (int) Math.ceil((double)listaUsuarios.size() / 5);
+		int hasta = (total > comienzo + 5) ? comienzo + 5 : total;
+		List<Usuario> listaUsuariosFinal = new ArrayList<>();
+		for (int i = comienzo; i < hasta; i++){
+			listaUsuariosFinal.add(listaUsuarios.get(i));
+		}
+		JsonObject jsonObject = usuarioConverter.listaJsonUsuarioPaged(listaUsuariosFinal);
+		jsonObject.addProperty("currentPage", pageFinal);
+		jsonObject.addProperty("totalItems", total);
+		jsonObject.addProperty("totalPages", cantPaginas);
+		return jsonObject;
 	}
 	
 	public void bloquearUsuario (String correo) throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
@@ -162,7 +184,7 @@ public class UsuarioService {
 				
 					if (usuario instanceof Restaurante) {
 						Restaurante restaurante = (Restaurante) usuario;
-						if (restaurante.getEstado()== EstadoRestaurante.BLOQUEADO || restaurante.getEstado()== EstadoRestaurante.ELIMINADO) {
+						if (!(restaurante.getEstado()== EstadoRestaurante.ABIERTO || restaurante.getEstado()== EstadoRestaurante.CERRADO)) {
 							throw new UsuarioNoBloqueadoException("Usuario "+correo+" no pudo ser bloqueado" );
 						}else {
 							 restaurante.setEstado(EstadoRestaurante.BLOQUEADO);
@@ -171,7 +193,7 @@ public class UsuarioService {
 						}
 					} else if (usuario instanceof Cliente) {
 						Cliente cliente = (Cliente) usuario;
-						if (cliente.getEstado()== EstadoCliente.BLOQUEADO || cliente.getEstado()== EstadoCliente.ELIMINADO) {
+						if (cliente.getEstado()!= EstadoCliente.ACTIVO) {
 							throw new UsuarioNoBloqueadoException("Usuario "+correo+" no pudo ser bloqueado" );
 						}else {
 						     cliente.setEstado(EstadoCliente.BLOQUEADO);

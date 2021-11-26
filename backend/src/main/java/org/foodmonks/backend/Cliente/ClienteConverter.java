@@ -41,12 +41,13 @@ public class ClienteConverter {
         jsonCliente.addProperty("correo", cliente.getCorreo());
         jsonCliente.addProperty("nombre", cliente.getNombre());
         jsonCliente.addProperty("apellido", cliente.getApellido());
+        jsonCliente.addProperty("calificacion", cliente.getCantidadCalificaciones() >= 10 ? Math.round(cliente.getCalificacion()*10)/10f : 5f);
+        jsonCliente.addProperty("cantidadCalificaciones", cliente.getCantidadCalificaciones());
         if (cliente.getFechaRegistro() != null) {
             jsonCliente.addProperty("fechaRegistro", cliente.getFechaRegistro().toString());
         } else {
             jsonCliente.addProperty("fechaRegistro","");
         }
-        jsonCliente.addProperty("calificacion", cliente.getCalificacion());
         jsonCliente.addProperty("estado", cliente.getEstado().toString());
        // jsonCliente.addProperty("mobileToken", cliente.getMobileToken());
         JsonArray jsonDirecciones = new JsonArray();

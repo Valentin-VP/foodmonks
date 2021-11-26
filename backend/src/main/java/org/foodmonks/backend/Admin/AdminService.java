@@ -80,7 +80,7 @@ public class AdminService {
     }
 
     public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) throws RestauranteNoEncontradoException {
-
+        System.out.println(estadoRestaurante);
         Restaurante restauranteAux = restauranteRepository.findByCorreo(correoRestaurante);
 
         if (restauranteAux == null) {

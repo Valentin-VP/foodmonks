@@ -2,6 +2,7 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
@@ -50,15 +51,17 @@ public class RestauranteController {
     private final RestauranteHelper restauranteHelper;
     private final DireccionService direccionService;
     private final PedidoService pedidoService;
+    private final ClienteService clienteService;
 
     @Autowired
     RestauranteController(RestauranteService restauranteService, MenuService menuService,
-                          DireccionService direccionService,
+                          DireccionService direccionService, ClienteService clienteService,
                           PedidoService pedidoService, RestauranteHelper restauranteHelper) {
         this.menuService = menuService;
         this.restauranteService = restauranteService;
         this.restauranteHelper = restauranteHelper;
         this.direccionService = direccionService;
+        this.clienteService = clienteService;
         this.pedidoService = pedidoService;
     }
 
@@ -461,6 +464,71 @@ public class RestauranteController {
         return ResponseEntity.ok("Se cambió el estado del pedido.");
     }
 
+    @Operation(summary = "Calificar a un Cliente",
+            description = "Agrega una Calificación a un Cliente a través de un Pedido",
+            tags = { "restaurante", "pedido", "calificacion" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Calificacion creada"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
+    @PostMapping(path = "/calificarCliente")
+    public ResponseEntity<?> calificarCliente(
+            @RequestHeader("Authorization") String token,
+            @RequestBody String pedido){
+        try{
+            // Obtener correo del restaurante
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
+            JsonObject jsonRequest = new Gson().fromJson(pedido, JsonObject.class);
+            clienteService.calificarCliente(correoRestaurante, jsonRequest);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Operation(summary = "Modificar una Calificacion realizada a un Cliente",
+            description = "Modifica (reemplaza) una Calificación realizada a un Cliente a través de un Pedido",
+            tags = { "restaurante", "pedido", "calificacion" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Calificacion modificada"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
+    @PutMapping(path = "/modificarCalificacionCliente")
+    public ResponseEntity<?> modificarCalificacionCliente(
+            @RequestHeader("Authorization") String token,
+            @RequestBody String pedido){
+        try{
+            // Obtener correo del restaurante
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
+            JsonObject jsonRequest = new Gson().fromJson(pedido, JsonObject.class);
+            clienteService.modificarCalificacionCliente(correoRestaurante, jsonRequest);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Operation(summary = "Elimina una Calificacion realizada a un Cliente",
+            description = "Elimina una Calificación realizada a un Cliente a través de un Pedido",
+            tags = { "restaurante", "pedido", "calificacion" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Calificacion eliminada"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
+    @DeleteMapping(path = "/eliminarCalificacionCliente")
+    public ResponseEntity<?> eliminarCalificacionCliente(
+            @RequestHeader("Authorization") String token,
+            @RequestParam (name= "idPedido") String idPedido){
+        try{
+            // Obtener correo del restaurante
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
+            clienteService.eliminarCalificacionCliente(correoRestaurante, idPedido);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    
     //listar buscar reclamos hechos por clientes
     @GetMapping(path = "/listarReclamos")
     public ResponseEntity<?> listarReclamos(

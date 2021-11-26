@@ -18,5 +18,5 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, String
     List<Restaurante> findAllByRolesOrderByCalificacion(String role);
     Long countRestaurantesByFechaRegistroBetween(LocalDate fechaIni, LocalDate fechaFin);
     Long countRestaurantesByEstado(EstadoRestaurante estadoRestaurante);
-
+    List<Restaurante> findAllByRolesOrderByCalificacionDesc(String role);
 }

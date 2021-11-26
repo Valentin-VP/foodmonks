@@ -131,7 +131,7 @@ function AltaPromocion() {
         menuRetorno.nombre = state.nombre;
         menuRetorno.categoria = state.categoria;
         menuRetorno.descripcion = state.descripcion;
-        menuRetorno.multiplicador = state.descuento;
+        menuRetorno.multiplicador = document.getElementById("descuento").value;
         menuRetorno.price = state.price;
         menuRetorno.imagen = state.imgUrl;
 
