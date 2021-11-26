@@ -88,7 +88,7 @@ export default function Home() {
         NotiError(error.response.data);
       });
   };
-  //termina para el modale ---------------------------------------------------------------------------------------
+  //termina para el modal ---------------------------------------------------------------------------------------
 
   useEffect(() => {
     listarRestaurantesPorEstado("PENDIENTE")

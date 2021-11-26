@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Layout } from "../../components/Layout";
-import RestauranteCard from "../../components/RestauranteCard";
-import { fetchRestaurantesBusqueda } from "../../services/Requests";
-import { Noti } from "../../components/Notification";
+import RestauranteCardEstadistica from "./RestauranteCardEstadisticas";
+import { obtenerRestaurantes } from "../../services/Requests";
+import { Noti, NotiError } from "../../components/Notification";
 import { Loading } from "../../components/Loading";
 
 const Styles = styled.div`
@@ -25,10 +25,6 @@ const Styles = styled.div`
       display: block;
       margin-bottom: 20px;
     }
-  }
-  #scroll {
-    background: "transparent";
-    height: 6rem;
   }
 `;
 
@@ -84,8 +80,9 @@ function MyProvider({ children }) {
   }, []);
 
   const fetch = () => {
-    fetchRestaurantesBusqueda(values)
+    obtenerRestaurantes()
       .then((response) => {
+        console.log(response.data);
         if (response.status === 200) {
           setDatos(response.data);
           isLoading(false);
@@ -94,7 +91,7 @@ function MyProvider({ children }) {
         }
       })
       .catch((error) => {
-        Noti(error.response);
+        NotiError(error.response);
       });
   };
 
@@ -165,10 +162,8 @@ function ListadoRestaurantesAbiertos() {
     );
   }
   return (
-    <>
       <Styles>
         <Layout>
-          <h1>asdasd</h1>
           <div className="table-responsive justify-content-center" id="list">
             <table className="table table-hover m-0">
               <tbody>
@@ -188,7 +183,7 @@ function ListadoRestaurantesAbiertos() {
                 {data.map((item, index) => {
                   return (
                     <div className="column" key={index}>
-                      <RestauranteCard
+                      <RestauranteCardEstadistica
                         correo={item.correo}
                         imagen={item.imagen}
                         nombre={item.nombreRestaurante}
@@ -206,7 +201,6 @@ function ListadoRestaurantesAbiertos() {
           </div>
         </Layout>
       </Styles>
-    </>
   );
 }
 
