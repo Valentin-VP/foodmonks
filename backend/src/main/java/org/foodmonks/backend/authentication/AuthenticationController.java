@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.SneakyThrows;
 import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Cliente.ClienteService;
@@ -23,6 +24,7 @@ import org.foodmonks.backend.dynamodb.TokenReset;
 import org.foodmonks.backend.dynamodb.TokenResetDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -108,6 +110,32 @@ public class AuthenticationController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(path = "/auth/refresh")
+    public ResponseEntity<?> refreshTokens (@RequestHeader("RefreshAuthentication") String refreshToken) {
+        String parsedToken = null;
+        if ( refreshToken != null && refreshToken.startsWith("Bearer ")) {
+            parsedToken = refreshToken.substring(7);
+        }
+        String correo = tokenHelper.getUsernameFromToken(parsedToken);
+        UserDetails userDetails = customService.loadUserByUsername(correo);
+        try {
+            String jwtToken = tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
+            String jwtRefreshToken = tokenHelper.generateRefreshToken(userDetails.getUsername(), userDetails.getAuthorities());
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("Authorization",
+                    jwtToken);
+            responseHeaders.set("RefreshAuthentication",
+                    jwtRefreshToken);
+            System.out.println("seteando nuevos tokens");
+            System.out.println("Refresh: " + jwtRefreshToken);
+            System.out.println("Auth: " + jwtToken);
+            return ResponseEntity.ok()
+                    .headers(responseHeaders).build();
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
