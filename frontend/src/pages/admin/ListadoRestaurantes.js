@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Layout } from "../../components/Layout";
 import RestauranteCardEstadistica from "./RestauranteCardEstadisticas";
-import { fetchRestaurantesBusqueda, obtenerRestaurantes } from "../../services/Requests";
+import { obtenerRestaurantes } from "../../services/Requests";
 import { Noti, NotiError } from "../../components/Notification";
 import { Loading } from "../../components/Loading";
 

@@ -9,7 +9,7 @@ import {
 } from "../../services/Requests";
 import { NotiError } from "../../components/Notification";
 import { Loading } from "../../components/Loading";
-import BuscarRestaurantes from "./BuscarRestaurantes";
+import ListadoRestaurantes from "./ListadoRestaurantes";
 
 const Styles = styled.div`
   .titulo {
@@ -211,7 +211,8 @@ export default function Estadisticas() {
               />
             </div>
           </div>
-          <BuscarRestaurantes />
+          <h3 className="gTitle text-center mt-5">Restaurantes registrados</h3>
+          <ListadoRestaurantes />
         </Layout>
     </Styles>
   );
