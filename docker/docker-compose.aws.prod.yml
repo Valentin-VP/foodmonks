@@ -2,14 +2,14 @@ version: '3.9'
 services:
   food-monks-backend:
     container_name: food-monks-backend
-    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-backend:${BACKEND_DOCKER_IMAGE_TAG}
+    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-prod-backend:${BACKEND_DOCKER_IMAGE_TAG}
     build: 
       context: ../backend
       # dockerfile: ../../docker/backend/Dockerfile
     ports:
       - "9001:9001"
     env_file:
-      - .env_java_aws_dev
+      - .env_java_aws_prod
     restart: always
     networks:
       - foodmonks-net
@@ -31,11 +31,11 @@ services:
         - REACT_APP_GOOGLE_MAPS_API_KEY=${REACT_APP_GOOGLE_MAPS_API_KEY}
         - REACT_APP_PAYPAL_CLIENT_ID=${REACT_APP_PAYPAL_CLIENT_ID}
         - NGINX_CONF=${NGINX_CONF}
-    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-dev-frontend:${FRONTEND_DOCKER_IMAGE_TAG}
+    image: 711621010839.dkr.ecr.us-east-2.amazonaws.com/foodmonks-prod-frontend:${FRONTEND_DOCKER_IMAGE_TAG}
     ports:
-      - "8080:80"
+      - "80:80"
     env_file:
-      - .env_react_aws_dev
+      - .env_react_aws_prod
     restart: always
     networks:
       - foodmonks-net

@@ -72,7 +72,9 @@ npm run build \
 # ENV REACT_APP_GOOGLE_MAPS_API_KEY=$REACT_APP_GOOGLE_MAPS_API_KEY
 # ENV REACT_APP_PAYPAL_CLIENT_ID=$REACT_APP_PAYPAL_CLIENT_ID
 FROM nginx:1.12-alpine as prod
+ARG NGINX_CONF
+ENV NGINX_CONF=${NGINX_CONF}
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY ${NGINX_CONF} /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
