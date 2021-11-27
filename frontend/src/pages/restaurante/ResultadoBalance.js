@@ -125,8 +125,8 @@ export default function ResultadoBalance({ datos }) {
                                 
                                 <tr>
                                     <td id="itemId">Subtotal</td>
-                                    <td></td>
-                                    <td>{item.subtotal}</td>
+                                    <td>{item.subtotal < 0 ? item.subtotal : null}</td>
+                                    <td>{item.subtotal >= 0 ? item.subtotal : null}</td>
                                     <td></td>
                                 </tr>
                               </Col>
@@ -167,6 +167,12 @@ export default function ResultadoBalance({ datos }) {
                             <td>{datos.totales[3].devolucionesPayPal}</td>
                             <td></td>
                             <td>{datos.totales[3].cantidad}</td>
+                        </tr>
+                        <tr>
+                            <td id="itemId">Total</td>
+                            <td>{datos.totales[4].total < 0 ? datos.totales[4].total : null}</td>
+                            <td>{datos.totales[4].total >= 0 ? datos.totales[4].total : null}</td>
+                            <td>+{datos.totales[4].cantidadVentas}  |  -{datos.totales[4].cantidadDevoluciones}</td>
                         </tr>
                     </Col> : null}
                   

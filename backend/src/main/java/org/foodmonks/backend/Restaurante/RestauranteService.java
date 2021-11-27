@@ -400,7 +400,7 @@ public class RestauranteService {
         }
 
         if (fechaFin != null && !fechaFin.isBlank()){
-            fechaFinal = LocalDateTime.of(LocalDate.parse(fechaFin),LocalTime.MIDNIGHT);
+            fechaFinal = LocalDateTime.of(LocalDate.parse(fechaFin).plusDays(1),LocalTime.MIDNIGHT); // plusDays(1) para que sea inclusivo
         }
 
         if (fechaInicial != null && fechaFinal != null) {
@@ -569,11 +569,17 @@ public class RestauranteService {
         devolucionesPayPalTotal.addProperty("devolucionesPayPal", totalDevolucionesPayPal);
         devolucionesPayPalTotal.addProperty("cantidad", totalCantidadDevolucionesPayPal);
 
+        JsonObject total = new JsonObject(); // Para agregar los totales finales al front
+        total.addProperty("total", totalVentasEfectivo + totalVentasPaypal - totalDevolucionesEfectivo - totalDevolucionesPayPal);
+        total.addProperty("cantidadVentas", totalCantidadVentasEfectivo + totalCantidadVentasPayPal);
+        total.addProperty("cantidadDevoluciones", totalCantidadDevolucionesEfectivo + totalCantidadDevolucionesPayPal);
+
         // Termina todo, retorno balance
         totales.add(ventasEfectivoTotal);
         totales.add(ventasPayPalTotal);
         totales.add(devolucionesEfectivoTotal);
         totales.add(devolucionesPayPalTotal);
+        totales.add(total); // Para agregar los totales finales al front
         balance.add("meses", meses);
         balance.add("totales", totales);
         return balance;
