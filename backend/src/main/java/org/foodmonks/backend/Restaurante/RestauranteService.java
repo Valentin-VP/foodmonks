@@ -396,11 +396,11 @@ public class RestauranteService {
         LocalDateTime fechaFinal = null;
 
         if (fechaIni != null && !fechaIni.isBlank()){
-            fechaInicial = LocalDateTime.parse(fechaIni);
+            fechaInicial = LocalDateTime.of(LocalDate.parse(fechaIni),LocalTime.MIDNIGHT);
         }
 
         if (fechaFin != null && !fechaFin.isBlank()){
-            fechaFinal = LocalDateTime.parse(fechaFin);
+            fechaFinal = LocalDateTime.of(LocalDate.parse(fechaFin),LocalTime.MIDNIGHT);
         }
 
         if (fechaInicial != null && fechaFinal != null) {
@@ -437,7 +437,9 @@ public class RestauranteService {
             for (Pedido pedido : listaPedidos) {
                 for (MenuCompra menuCompra : pedido.getMenusCompra()){
                     if (menuCompra.getCategoria().equals(categoria)){
-                        pedidosCategoria.add(pedido);
+                        if (!pedidosCategoria.contains(pedido)){
+                            pedidosCategoria.add(pedido);
+                        }
                     }
                 }
             }
