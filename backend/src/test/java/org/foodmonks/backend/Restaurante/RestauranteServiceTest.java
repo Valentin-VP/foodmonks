@@ -1,14 +1,17 @@
 package org.foodmonks.backend.Restaurante;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionConverter;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.*;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Reclamo.ReclamoConverter;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
@@ -20,12 +23,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.TemplateEngine;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -51,7 +57,7 @@ class RestauranteServiceTest {
     RestauranteConverter restauranteConverter;
     @Mock
     PedidoService pedidoService;
-    @Mock
+    @Spy
     ReclamoConverter reclamoConverter;
     @Mock
     TemplateEngine templateEngine;
@@ -402,5 +408,151 @@ class RestauranteServiceTest {
         assertThatThrownBy(()->restauranteService.eliminarCalificacionRestaurante("cliente1@gmail.com", "1"))
                 .isInstanceOf(PedidoCalificacionRestauranteException.class)
                 .hasMessageContaining("El pedido con id 1 no tiene calificacion Restaurante");
+    }
+
+    @Test
+    void listarReclamos() throws RestauranteNoEncontradoException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.2F, 5, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Pedido pedido1 = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2020,1,1,0,0,0),
+                500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
+        pedido1.setCliente(cliente1);
+        pedido1.setRestaurante(restaurante1);
+        Reclamo reclamo1 = new Reclamo("razon1","comentario1",LocalDateTime.of(2020,1,1,0,0,0), pedido1);
+        pedido1.setReclamo(reclamo1);
+        Pedido pedido2 = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2020,1,1,0,0,0),
+                500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
+        pedido2.setCliente(cliente1);
+        pedido2.setRestaurante(restaurante1);
+        Reclamo reclamo2 = new Reclamo("razon2","comentario2",LocalDateTime.of(2020,2,1,0,0,0), pedido2);
+        pedido2.setReclamo(reclamo2);
+        cliente1.setPedidos(List.of(pedido1, pedido2));
+        restaurante1.setPedidos(List.of(pedido1, pedido2));
+
+        ArrayList<Reclamo> reclamoArrayList = new ArrayList<>();
+        reclamoArrayList.addAll(List.of(reclamo1, reclamo2));
+        restaurante1.setReclamos(reclamoArrayList);
+
+
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        JsonArray expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of(reclamo1, reclamo2));
+
+        JsonArray result = restauranteService.listarReclamos("dummy", false, "", "");
+
+        assertThat(result).isEqualTo(expectedReclamos);
+        // -------------------------------------------------------
+        expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of(reclamo2, reclamo1));
+        result = restauranteService.listarReclamos("dummy", true, "", "");
+        assertThat(result).isEqualTo(expectedReclamos);
+        // -------------------------------------------------------
+        expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of());
+        result = restauranteService.listarReclamos("dummy", false, "fail", "razon1");
+        assertThat(result).isEqualTo(expectedReclamos);
+        result = restauranteService.listarReclamos("dummy", false, "cliente", "fail");
+        assertThat(result).isEqualTo(expectedReclamos);
+        expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of(reclamo1));
+        result = restauranteService.listarReclamos("dummy", false, "cliente", "razon1");
+        assertThat(result).isEqualTo(expectedReclamos);
+        // -------------------------------------------------------
+        expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of(reclamo2, reclamo1));
+        result = restauranteService.listarReclamos("dummy", false, "cliente1@gmail.com", "");
+        assertThat(result).isEqualTo(expectedReclamos);
+        expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of());
+        result = restauranteService.listarReclamos("dummy", false, "fail", "");
+        assertThat(result).isEqualTo(expectedReclamos);
+        // -------------------------------------------------------
+        expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of(reclamo2));
+        result = restauranteService.listarReclamos("dummy", false, "", "razon2");
+        assertThat(result).isEqualTo(expectedReclamos);
+        expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of());
+        result = restauranteService.listarReclamos("dummy", false, "", "fail");
+        assertThat(result).isEqualTo(expectedReclamos);
+
+    }
+
+    @Test
+    void realizarDevolucion() throws PedidoNoExisteException, PedidoIdException, PedidoDevolucionException, PedidoDistintoRestauranteException, IOException, RestauranteNoEncontradoException, EmailNoEnviadoException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.2F, 5, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante2@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.2F, 5, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Pedido pedido1 = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2020,1,1,0,0,0),
+                500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
+        pedido1.setCliente(cliente1);
+        pedido1.setRestaurante(restaurante1);
+        cliente1.setPedidos(List.of(pedido1));
+        restaurante1.setPedidos(List.of(pedido1));
+        Reclamo reclamo1 = new Reclamo("razon1","comentario1",LocalDateTime.of(2020,1,1,0,0,0), pedido1);
+        pedido1.setReclamo(reclamo1);
+        restaurante1.setReclamos(List.of(reclamo1));
+
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(pedidoService.obtenerPedido(anyLong())).thenReturn(pedido1);
+        when(payPalService.refundOrder(anyString())).thenReturn("dummy");
+        when(payPalService.getOrder(anyString())).thenReturn("dummy");
+        JsonObject expectedResponse = new JsonObject();
+        expectedResponse.addProperty("Mensaje","Devolucion");
+        expectedResponse.addProperty("status", "Mail de rechazo enviado");
+
+        JsonObject result = restauranteService.realizarDevolucion("dummy", "1","dummy",false);
+
+        assertThat(result).isEqualTo(expectedResponse);
+        // -------------------------------------------------------
+        pedido1.setMedioPago(MedioPago.PAYPAL);
+        pedido1.setOrdenPaypal(new DtOrdenPaypal("","",""));
+        result = restauranteService.realizarDevolucion("dummy", "1","dummy",false);
+
+        assertThat(result).isEqualTo(expectedResponse);
+        // -------------------------------------------------------
+        expectedResponse.addProperty("status", "dummy");
+        result = restauranteService.realizarDevolucion("dummy", "1","dummy",true);
+
+        assertThat(result).isEqualTo(expectedResponse);
+        // -------------------------------------------------------
+        pedido1.setMedioPago(MedioPago.EFECTIVO);
+        expectedResponse.addProperty("status", "completado");
+        result = restauranteService.realizarDevolucion("dummy", "1","dummy",true);
+
+        assertThat(result).isEqualTo(expectedResponse);
+        // -------------------------------------------------------
+        assertThatThrownBy(()->restauranteService.realizarDevolucion("dummy", "1.0","dummy",false))
+                .isInstanceOf(PedidoIdException.class)
+                .hasMessageContaining("El id del pedido no es un numero entero");
+        // -------------------------------------------------------
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante2);
+        assertThatThrownBy(()->restauranteService.realizarDevolucion("restaurante2@gmail.com", "1","dummy",false))
+                .isInstanceOf(PedidoDistintoRestauranteException.class)
+                .hasMessageContaining("El pedido id 1 no pertenece al restaurante restaurante2@gmail.com");
+        // -------------------------------------------------------
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        pedido1.setEstado(EstadoPedido.DEVUELTO);
+        assertThatThrownBy(()->restauranteService.realizarDevolucion("dummy", "1","dummy",false))
+                .isInstanceOf(PedidoDevolucionException.class)
+                .hasMessageContaining("El pedido no esta FINALIZADO, no se puede aplicar una devolucion");
+
     }
 }
