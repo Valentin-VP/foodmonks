@@ -9,6 +9,7 @@ import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
+import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoBloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoDesbloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEliminadoException;
@@ -55,12 +56,14 @@ class UsuarioServiceTest {
     ClienteRepository clienteRepository;
     @Mock
     RestauranteRepository restauranteRepository;
+    @Mock
+    RestauranteService restauranteService;
     @Spy
     UsuarioConverter usuarioConverter;
 
     @BeforeEach
     void setUp() {
-        usuarioService = new UsuarioService(usuarioRepository, templateEngine, emailService, passwordEncoder, clienteRepository, restauranteRepository, usuarioConverter);
+        usuarioService = new UsuarioService(usuarioRepository, templateEngine, emailService, passwordEncoder, clienteRepository, restauranteRepository, usuarioConverter, restauranteService);
     }
 
     @Test
