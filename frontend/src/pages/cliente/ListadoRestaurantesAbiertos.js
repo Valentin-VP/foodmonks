@@ -168,7 +168,6 @@ function ListadoRestaurantesAbiertos() {
     <>
       <Styles>
         <Layout>
-          <h1>asdasd</h1>
           <div className="table-responsive justify-content-center" id="list">
             <table className="table table-hover m-0">
               <tbody>

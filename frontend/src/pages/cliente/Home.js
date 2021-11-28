@@ -54,11 +54,8 @@ export default function Home() {
   return (
     <Styles>
       <React.Fragment>
-        <Portada />
+        <BuscarRestaurantesAbiertos />
         <Layout>
-          <h2>Restaurantes</h2>
-          <BuscarRestaurantesAbiertos />
-
           <div className="top">
             <a href="/grafica">Top Restaurantes</a>
           </div>

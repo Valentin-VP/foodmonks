@@ -13,11 +13,12 @@ import { Rating } from "react-simple-star-rating";
 const StyledModal = Modal.styled`
   border-radius: 5px;
   padding: 1.5%;
-  width: 25%;
+  width: 30%;
   align-items: center;
   justify-content: center;
   background-color: white;
   overflow-y:inherit !important;
+  min-width: 300px;
 
   .cuerpo{
     text-align: center;
@@ -164,6 +165,7 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
   const crearCalificacion = (item, accion) => {
     setPedido(item);
     setAccion(accion);
+    console.log(item);
     if (item.calificacionCliente === "false") {
       setRating(0);
     } else {
