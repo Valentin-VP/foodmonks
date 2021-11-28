@@ -1,7 +1,7 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
-import io.jsonwebtoken.ExpiredJwtException;
+import dev.paseto.jpaseto.ExpiredPasetoException;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
@@ -225,7 +225,7 @@ public class RestauranteController {
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch(ExpiredJwtException a) {
+        } catch(ExpiredPasetoException a) {
             return new ResponseEntity<>(a.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
