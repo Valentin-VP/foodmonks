@@ -178,6 +178,25 @@ function ListadoMenusPromociones() {
     <Styles>
       <Layout>
         <h2> Productos </h2>
+        <br />
+        {sessionStorage.getItem("values-categoria") ? (
+          <h3>
+            {" "}
+            resultados de la busqueda por categoria:{" "}
+            {sessionStorage.getItem("values-categoria")}{" "}
+          </h3>
+        ) : (
+          <h3> resultados de la busqueda</h3>
+        )}
+        {sessionStorage.getItem("values-precioInicial") ? (
+          <h3>
+            {" "}
+            resultados de la busqueda por precio entre: $
+            {sessionStorage.getItem("values-precioInicial")} y $
+            {sessionStorage.getItem("values-precioFinal")}
+          </h3>
+        ) : null}
+        <br />
         <div className="row justify-content-left">
           {data.map((item, index) => {
             return (
