@@ -21,6 +21,14 @@ function App() {
   if (getToken() !== null) {
     fetchUserData()
       .then((response) => {
+        if (response.data.roles[0].role === "ROLE_RESTAURANTE") {
+          sessionStorage.setItem(
+            "nombreUsuario",
+            response.data.nombreRestaurante
+          );
+        } else {
+          sessionStorage.setItem("nombreUsuario", response.data.nombre);
+        }
         setTipoUser(response.data.roles[0].role);
       })
       .catch((error) => {

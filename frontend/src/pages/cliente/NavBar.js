@@ -85,7 +85,7 @@ export const NavigationBar = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="items">
-              <NavDropdown align="end" title="Cliente" menuVariant="color">
+              <NavDropdown align="end" title={sessionStorage.getItem("nombreUsuario")} menuVariant="color">
                 <NavDropdown.Item href="/perfil">
                   Perfil <CgProfile color="black" />
                 </NavDropdown.Item>

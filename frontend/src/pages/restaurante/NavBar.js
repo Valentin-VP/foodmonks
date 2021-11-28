@@ -3,6 +3,7 @@ import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import styled from "styled-components";
 import foodlogo from "../../assets/foodLogo.png"; // Tell webpack this JS file uses this image
 import { clearState } from "../../services/Requests";
+import { FiLogOut } from "react-icons/fi";
 
 console.log(foodlogo);
 
@@ -77,23 +78,21 @@ export const NavigationBar = () => (
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
-            <Nav.Item>
-              <Nav.Link href="/promocion">Promociones</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link href="/menu">Menús</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link href="/listadoPedidosEfectivo">
-                Cobrar Pedidos Efectivo
-              </Nav.Link>
-            </Nav.Item>
-            <NavDropdown align="end" title="Restaurante" menuVariant="color">
+            <NavDropdown
+              align="end"
+              title={sessionStorage.getItem("nombreUsuario")}
+              menuVariant="color"
+            >
               <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
               <NavDropdown.Item href="/reclamos">Reclamos</NavDropdown.Item>
+              <NavDropdown.Item href="/promocion">Promociones</NavDropdown.Item>
+              <NavDropdown.Item href="/menu">Menús</NavDropdown.Item>
+              <NavDropdown.Item href="/listadoPedidosEfectivo">
+                Cobrar Pedidos Efectivo
+              </NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
-                Cerrar Sesion
+                Cerrar Sesion <FiLogOut color="black" />
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>
