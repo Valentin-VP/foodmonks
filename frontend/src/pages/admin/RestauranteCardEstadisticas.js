@@ -98,13 +98,6 @@ const RestauranteCard = (props) => {
             <h5 className="card-title">{props.nombre}</h5>
             <h5 className="card-subtitle">Teléfono: {props.telefono}</h5>
             <p className="card-text">{props.calificacion}⭐</p>
-            {/* <Button
-              href="/listarProductos"
-              className="btn-primary margin-auto"
-              onClick={() => onClick()}
-            >
-              Acceder
-            </Button> */}
           </div>
         </div>
 

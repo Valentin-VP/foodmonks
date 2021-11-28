@@ -165,7 +165,7 @@ const Styles = styled.div`
     text-align: right;
   }
 
-  .hButton{
+  .hButton {
     paddin: 5rem;
     color: white;
     background-color: #e87121;
@@ -265,11 +265,9 @@ function PerfilCliente() {
         dir.longitud = lng;
         agregarDireccion(dir)
           .then((response) => {
-            console.log(response);
             window.location.reload();
           })
           .catch((error) => {
-            console.log(dir);
             NotiError("Error al ingresar la dirección");
           });
       });
@@ -334,7 +332,11 @@ function PerfilCliente() {
                 </span>
                 <span className="mail">{perfil.correo}</span>
                 <br />
-                <span>{perfil.calificacion}⭐</span>
+                 {perfil.cantidadCalificaciones < 10 ? (
+                   <span>-⭐</span>
+                ) : (
+                  <span>{perfil.calificacion}⭐</span>
+                )}
                 <br />
                 <span className="direccion">Direcciones</span>
                 {perfil.direcciones.map((direccion, index) => {
@@ -459,14 +461,17 @@ function PerfilCliente() {
               <div className="p-3 pt-5 mt-5">
                 <h3>Historial de pedidos</h3>
                 <p>
-                  En esta sección se encuentra el historial de los pedidos que has hecho
+                  En esta sección se encuentra el historial de los pedidos que
+                  has hecho
                 </p>
                 <div className="eliminar">
                   <button
                     className="btn hButton"
-                    onClick={() => {window.location.replace("/listadoPedidos")}}
+                    onClick={() => {
+                      window.location.replace("/listadoPedidos");
+                    }}
                   >
-                    Historial <BiHistory color="white" size="1.5rem"/>
+                    Historial <BiHistory color="white" size="1.5rem" />
                   </button>
                 </div>
               </div>
@@ -478,10 +483,7 @@ function PerfilCliente() {
                   seguiran guardados.
                 </p>
                 <div className="eliminar">
-                  <button
-                    className="btn btn-danger"
-                    onClick={toggleModal}
-                  >
+                  <button className="btn btn-danger" onClick={toggleModal}>
                     Eliminar cuenta
                   </button>
                 </div>

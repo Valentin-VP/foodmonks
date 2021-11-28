@@ -40,7 +40,7 @@ function Cliente() {
                 />
                 <Route
                   exact
-                  path="/listarProductos"
+                  path="/perfilRestaurante"
                   component={BuscarMenusPromociones}
                 />
                 <Route
