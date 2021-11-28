@@ -99,7 +99,7 @@ public class RestauranteController {
             restauranteService.createSolicitudAltaRestaurante(
                     jsonRestaurante.get("nombre").getAsString(),
                     jsonRestaurante.get("apellido").getAsString(),
-                    jsonRestaurante.get("correo").getAsString(),
+                    new String(Base64.getDecoder().decode(jsonRestaurante.get("correo").getAsString())),
                     new String(Base64.getDecoder().decode(jsonRestaurante.get("password").getAsString())),
                     LocalDate.now(),
                     5.0f,
@@ -159,7 +159,6 @@ public class RestauranteController {
     })
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
-        String newtoken = "";
         List<JsonObject> listaMenu;
         JsonArray jsonArray = new JsonArray();
         try {
@@ -524,7 +523,7 @@ public class RestauranteController {
         JsonArray jsonArray = new JsonArray();
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
-            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, correoCliente, razon);
+            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, new String(Base64.getDecoder().decode(correoCliente)), razon);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

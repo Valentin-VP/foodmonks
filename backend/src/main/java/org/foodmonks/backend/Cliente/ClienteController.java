@@ -295,7 +295,7 @@ public class ClienteController {
         JsonArray jsonArray = new JsonArray();
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
-            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(new String(Base64.getDecoder().decode(restauranteCorreo)), categoria, precioInicial, precioFinal);
 
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);
