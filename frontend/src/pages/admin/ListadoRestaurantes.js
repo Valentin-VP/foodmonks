@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Layout } from "../../components/Layout";
-import ItemCard from "../../components/itemCard";
-import { fetchMenusPromos } from "../../services/Requests";
-import { Noti } from "../../components/Notification";
+import RestauranteCardEstadistica from "./RestauranteCardEstadisticas";
+import { obtenerRestaurantes } from "../../services/Requests";
+import { Noti, NotiError } from "../../components/Notification";
 import { Loading } from "../../components/Loading";
 
 const Styles = styled.div`
+  h1 {
+    text-align: center;
+  }
+  table {
+    background-color: white;
+  }
   .column {
     float: left;
-    width: 18.75rem;
+    width: 300px;
     padding: 0 10px;
     margin-bottom: 5%;
   }
-
   @media screen and (max-width: 700px) {
     .column {
       width: 100%;
@@ -21,29 +26,12 @@ const Styles = styled.div`
       margin-bottom: 20px;
     }
   }
-
-  #scroll {
-    background: "transparent";
-    height: 6rem;
-  }
 `;
 
 const perPage = 8;
 const types = {
   start: "START",
   loaded: "LOADED",
-};
-
-const ordenarProductos = (prods) => {
-  var productos = [];
-  productos = prods;
-  productos.map((producto, index) => {
-    if (producto.multiplicadorPromocion !== 0) {
-      productos.splice(index, 1);
-      productos.unshift(producto);
-    }
-  });
-  return productos;
 };
 
 const reducer = (state, action) => {
@@ -70,40 +58,40 @@ function MyProvider({ children }) {
   const [cargando, isLoading] = useState(true);
   const values = {
     categoria: "",
-    precioInicial: "",
-    precioFinal: "",
+    nombre: "",
+    calificacion: false,
   };
 
   useEffect(() => {
-    values.categoria = sessionStorage.getItem("values-categoria");
-    values.precioInicial = sessionStorage.getItem("values-precioInicial");
-    values.precioFinal = sessionStorage.getItem("values-precioFinal");
+    values.categoria = sessionStorage.getItem("restaurantes-categoria");
+    values.nombre = sessionStorage.getItem("restaurantes-nombre");
+    values.calificacion = sessionStorage.getItem("restaurantes-calificacion");
     if (values.categoria === null) {
       values.categoria = "";
     }
-    if (values.precioInicial === null) {
-      values.precioInicial = "";
+    if (values.nombre === null) {
+      values.nombre = "";
     }
-    if (values.precioFinal === null) {
-      values.precioFinal = "";
+    if (values.calificacion === null) {
+      values.calificacion = false;
     }
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetch = () => {
-    fetchMenusPromos(values)
+    obtenerRestaurantes()
       .then((response) => {
+        console.log(response.data);
         if (response.status === 200) {
-          console.log(response.data);
-          setDatos(ordenarProductos(response.data));
+          setDatos(response.data);
           isLoading(false);
         } else {
           Noti(response.data);
         }
       })
       .catch((error) => {
-        Noti(error.response.data);
+        NotiError(error.response);
       });
   };
 
@@ -131,7 +119,7 @@ function MyProvider({ children }) {
   );
 }
 
-function ListadoMenusPromociones() {
+function ListadoRestaurantesAbiertos() {
   const { data, loading, more, load, cargando } = React.useContext(MyContext);
   const loader = React.useRef(load);
   const observer = React.useRef(
@@ -173,30 +161,46 @@ function ListadoMenusPromociones() {
       </div>
     );
   }
-
   return (
-    <Styles>
-      <Layout>
-        <h2> Productos </h2>
-        <div className="row justify-content-left">
-          {data.map((item, index) => {
-            return (
-              <div className="column" key={index}>
-                <ItemCard
-                  img={item.imagen}
-                  title={item.nombre}
-                  desc={item.multiplicadorPromocion}
-                  price={item.price}
-                  item={item}
-                />
-              </div>
-            );
-          })}
-          {loading && more && <Loading />}
-          {!loading && more && <div ref={setElement} id="scroll"></div>}
-        </div>
-      </Layout>
-    </Styles>
+      <Styles>
+        <Layout>
+          <div className="table-responsive justify-content-center" id="list">
+            <table className="table table-hover m-0">
+              <tbody>
+                {/* <tr>
+                      <td>
+                        <img
+                          src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/restaurant-logo-design-template-b281aeadaa832c28badd72c1f6c5caad_screen.jpg?ts=1595421543"
+                          alt="restimg"
+                          width="150"
+                          hight="150"
+                        />
+                      </td>
+                      <td>Restaurante</td>
+                      <td>Teléfono: 1234785967</td>
+                      <td>Calificación: 5.0</td>
+                    </tr> */}
+                {data.map((item, index) => {
+                  return (
+                    <div className="column" key={index}>
+                      <RestauranteCardEstadistica
+                        correo={item.correo}
+                        imagen={item.imagen}
+                        nombre={item.nombreRestaurante}
+                        telefono={item.telefono}
+                        calificacion={item.calificacion}
+                        item={item}
+                      />
+                    </div>
+                  );
+                })}
+              </tbody>
+            </table>
+            {loading && more && <Loading />}
+            {!loading && more && <div ref={setElement} id="scroll"></div>}
+          </div>
+        </Layout>
+      </Styles>
   );
 }
 
@@ -204,7 +208,7 @@ function ListadoMenusPromociones() {
 export default () => {
   return (
     <MyProvider>
-      <ListadoMenusPromociones />
+      <ListadoRestaurantesAbiertos />
     </MyProvider>
   );
 };

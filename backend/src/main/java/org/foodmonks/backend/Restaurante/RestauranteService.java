@@ -7,7 +7,6 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
-import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
@@ -75,8 +74,11 @@ public class RestauranteService {
         this.payPalService = payPalService;
     }
 
-    public List<Restaurante> listarRestaurante() {
-        return restauranteRepository.findAll();
+    public JsonArray listarRestaurante(){
+        List<Restaurante> result = new ArrayList<>();
+        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
+        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.CERRADO));
+        return restauranteConverter.arrayJsonRestaurantes(result);
     }
 
     public Restaurante buscarRestaurante(String correo) {
@@ -549,5 +551,103 @@ public class RestauranteService {
         }
         return response;
     }
-    
+
+    public JsonObject pedidosRegistrados(int anio){
+        JsonObject result = new JsonObject();
+        List<Restaurante> restaurantes = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
+        JsonArray mes = new JsonArray();
+        for (int i=1; i <= 12 ; i++) {
+            LocalDateTime fechaIni = LocalDateTime.of(LocalDate.of(anio, i, 1),LocalTime.MIDNIGHT);
+            LocalDateTime fechaFin;
+            if (i == 12) {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio + 1, 1, 1).minusDays(1),LocalTime.MAX);
+            } else {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio, i + 1, 1).minusDays(1),LocalTime.MAX);
+            }
+            int cantidadRegistrados = 0;
+            for (Restaurante restaurante : restaurantes){
+                cantidadRegistrados += pedidoService.cantPedidosRestaurante(restaurante,fechaIni,fechaFin);
+            }
+            JsonObject pedidosRestaurante = new JsonObject();
+            pedidosRestaurante.addProperty("mes", obtenerMes(i));
+            pedidosRestaurante.addProperty("cantidad",cantidadRegistrados);
+            mes.add(pedidosRestaurante);
+        }
+        result.add("pedidosRegistrados",mes);
+        return result;
+    }
+
+    public String obtenerMes (int mes){
+        String result;
+        switch (mes) {
+            case 1:
+                result = "Enero";
+                break;
+            case 2:
+                result = "Febrero";
+                break;
+            case 3:
+                result = "Marzo";
+                break;
+            case 4:
+                result = "Abril";
+                break;
+            case 5:
+                result = "Mayo";
+                break;
+            case 6:
+                result = "Junio";
+                break;
+            case 7:
+                result = "Julio";
+                break;
+            case 8:
+                result = "Agosto";
+                break;
+            case 9:
+                result = "Septiembre";
+                break;
+            case 10:
+                result = "Octubre";
+                break;
+            case 11:
+                result = "Noviembre";
+                break;
+            default:
+                result = "Diciembre";
+                break;
+        }
+        return result;
+    }
+
+    public Long restaurantesActivos(){
+        return restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.ABIERTO) +
+                restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.CERRADO);
+    }
+
+    public JsonObject ventasRestaurantes(String correo, int anio) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = obtenerRestaurante(correo);
+        JsonObject ventasRestaurante = new JsonObject();
+        JsonArray meses = new JsonArray();
+        for (int i=1; i<=12; i++){
+            LocalDateTime fechaIni = LocalDateTime.of(LocalDate.of(anio, i, 1),LocalTime.MIDNIGHT);
+            LocalDateTime fechaFin;
+            if (i == 12) {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio + 1, 1, 1).minusDays(1),LocalTime.MAX);
+            } else {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio, i + 1, 1).minusDays(1),LocalTime.MAX);
+            }
+            JsonObject mes = new JsonObject();
+            Long cantidad = pedidoService.cantVentasRestauranteAnio(restaurante,fechaIni,fechaFin);
+            mes.addProperty("mes",obtenerMes(i));
+            mes.addProperty("cantidad", cantidad);
+            meses.add(mes);
+        }
+        ventasRestaurante.addProperty("restaurante",restaurante.getNombreRestaurante());
+        ventasRestaurante.addProperty("anio",anio);
+        ventasRestaurante.add("ventas", meses);
+        return ventasRestaurante;
+    }
+
 }
+

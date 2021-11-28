@@ -20,7 +20,6 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import java.util.List;
-import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 
 @Service
 public class PedidoService {
@@ -231,14 +230,15 @@ public class PedidoService {
         pedidoRepository.save(pedido);
     }
 
-    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
-        Pedido pedido = pedidoRepository.findPedidoById(id);
-        if (pedido == null) {
-            throw new PedidoNoExisteException("No existe pedido con id " + id);
-        }
-        return pedido;
+    public Long cantPedidosRestaurante(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
+        return pedidoRepository.countPedidosByRestauranteAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
     }
 
+    public Long cantVentasRestauranteAnio(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
+        return pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(restaurante,EstadoPedido.FINALIZADO,fechaIni,fechaFin) +
+                pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(restaurante,EstadoPedido.RECLAMORECHAZADO,fechaIni,fechaFin);  
+    }
+  
     public void modificarCalificacionRestaurantePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
         Pedido pedido = obtenerPedido(idPedido);
         pedido.setCalificacionRestaurante(calificacion);
@@ -251,4 +251,11 @@ public class PedidoService {
         pedidoRepository.save(pedido);
     }
 
+    public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
+        Pedido pedido = pedidoRepository.findPedidoById(id);
+        if (pedido == null) {
+            throw new PedidoNoExisteException("No existe pedido con id " + id);
+        }
+        return pedido;
+    }
 }

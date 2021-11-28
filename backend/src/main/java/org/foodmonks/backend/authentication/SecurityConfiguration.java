@@ -53,7 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
                 .authenticationEntryPoint(authenticationEntry).and()
-                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login", "/v3/api-docs.yaml", "/v3/api-docs").permitAll()
+                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login", "/v3/api-docs.yaml", "/v3/api-docs", "/api/v1/auth/refresh").permitAll()
                         .antMatchers("/api/v1/password/recuperacion/*").permitAll()
                         .antMatchers("/api/v1/cliente/altaCliente").permitAll()
                         .antMatchers("/api/v1/restaurante/crearSolicitudAltaRestaurante").permitAll()

@@ -132,7 +132,6 @@ export default function ListadoPedidosRealizados({
   onVisibleMenu,
   onVisibleReclamo,
 }) {
-
   const onReclamar = (item) => {
     sessionStorage.setItem("pedidoId", item);
     window.location.replace("/reclamo");
@@ -159,9 +158,9 @@ export default function ListadoPedidosRealizados({
   const crearCalificacion = (item, accion) => {
     setPedido(item);
     setAccion(accion);
-    if(item.calificacionRestaurante === "false"){
+    if (item.calificacionRestaurante === "false") {
       setRating(0);
-    }else{
+    } else {
       setRating(item.calificacionRestaurante);
     }
     toggleModal();
@@ -201,12 +200,13 @@ export default function ListadoPedidosRealizados({
 
   const eliminarCalificacion = (item) => {
     console.log(item);
-    eliminarCalificacionRestaurante(item.id).then(() => {
-      window.location.replace("listadoPedidos");
-    }).catch((error) => {
-      NotiError(error.response.data);
-    });
-    
+    eliminarCalificacionRestaurante(item.id)
+      .then(() => {
+        window.location.replace("listadoPedidos");
+      })
+      .catch((error) => {
+        NotiError(error.response.data);
+      });
   };
 
   return (
@@ -265,7 +265,7 @@ export default function ListadoPedidosRealizados({
                                       type="button"
                                       onClick={(e) => onVisibleReclamo(item.id)}
                                     >
-                                      Ver Reclamo
+                                      Reclamo
                                     </button>
                                   ) : (
                                     <button
@@ -417,6 +417,5 @@ export default function ListadoPedidosRealizados({
         </StyledModal>
       </ModalProvider>
     </Styles>
-
-    );
+  );
 }

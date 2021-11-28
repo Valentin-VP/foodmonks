@@ -8,6 +8,7 @@ import org.foodmonks.backend.Cliente.ClienteRepository;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoBloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoDesbloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEliminadoException;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEncontradoException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.UUID;
 
 @Service
@@ -31,19 +33,21 @@ public class UsuarioService {
 	private final UsuarioRepository usuarioRepository;
 	private final TemplateEngine templateEngine;
 	private final EmailService emailService;
-  	private final PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 	private final ClienteRepository clienteRepository;
 	private final RestauranteRepository restauranteRepository;
+	private final RestauranteService restauranteService;
 	private final UsuarioConverter usuarioConverter;
 	
 	@Autowired
 	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine,
 						  EmailService emailService, PasswordEncoder passwordEncoder,
-						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository, UsuarioConverter usuarioConverter) {
+						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository, 
+              UsuarioConverter usuarioConverter, RestauranteService restauranteService) {
 		this.usuarioRepository = usuarioRepository; this.templateEngine = templateEngine;
 		this.emailService = emailService; this.passwordEncoder = passwordEncoder;
 		this.clienteRepository = clienteRepository; this.restauranteRepository = restauranteRepository;
-		this.usuarioConverter = usuarioConverter;
+		this.usuarioConverter = usuarioConverter; this.restauranteService = restauranteService;
 	}
   
   public void cambiarPassword(String correo, String password) throws UsuarioNoEncontradoException {
@@ -286,6 +290,32 @@ public class UsuarioService {
 
 	public Usuario ObtenerUsuario (String correo) {
 		return usuarioRepository.findByCorreo(correo);
+	}
+
+	public JsonArray usuariosRegistrados(int anio){
+		JsonArray result = new JsonArray();
+		for (int i=1; i <= 12 ; i++){
+			LocalDate fechaIni = LocalDate.of(anio , i,1);
+			LocalDate fechaFin;
+			if (i==12){
+				fechaFin= LocalDate.of(anio+1,1,1).minusDays(1);
+			} else {
+				fechaFin = LocalDate.of(anio ,i+1,1).minusDays(1);
+			}
+			JsonObject registrados = new JsonObject();
+			registrados.addProperty("mes", restauranteService.obtenerMes(i));
+			registrados.addProperty("clientes", clienteRepository.countClientesByFechaRegistroBetween(fechaIni,fechaFin));
+			registrados.addProperty("restaurantes", restauranteRepository.countRestaurantesByFechaRegistroBetween(fechaIni,fechaFin));
+			result.add(registrados);
+		}
+		return result;
+	}
+
+	public JsonObject usuariosActivos() {
+		JsonObject usuariosActivos = new JsonObject();
+		usuariosActivos.addProperty("clientes", clienteRepository.countClientesByEstado(EstadoCliente.ACTIVO));
+		usuariosActivos.addProperty("restaurantes", restauranteService.restaurantesActivos());
+		return usuariosActivos;
 	}
 
 }

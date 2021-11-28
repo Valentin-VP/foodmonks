@@ -1,8 +1,6 @@
 import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
-import { fetchRestaurantesBusqueda } from "../../services/Requests";
 import ListadoRestaurantesAbiertos from "./ListadoRestaurantesAbiertos";
-import { Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   .form {
@@ -47,20 +45,11 @@ const Styles = styled.div`
 `;
 
 export default function BuscarRestaurantesAbiertos() {
-  const [data, setData] = useState([]);
-  //const [isLoading, setIsLoading] = useState(false);
-  //const [loaded, setLoaded] = useState(false);
-  //const [error, setError] = useState(false);
   const [values, setValues] = useState({
     categoria: "",
     nombre: "",
     calificacion: false,
   });
-
-  useEffect(() => {
-    fetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   let categoria = [
     { nombre: "(Cualquiera)", value: "" },
@@ -76,23 +65,6 @@ export default function BuscarRestaurantesAbiertos() {
     { nombre: "Otros", value: "OTROS" },
   ];
 
-  const fetch = () => {
-    //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
-    //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
-    fetchRestaurantesBusqueda(values)
-      .then((response) => {
-        if (response.status === 200) {
-          setData(response.data);
-        } else {
-          Noti(response.data);
-        }
-      })
-      .catch((error) => {
-        Noti(error.response);
-      });
-    //setData([...data, {nombre: "restaurante", calificacion : "4.0"}]);
-  };
-
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
@@ -104,16 +76,11 @@ export default function BuscarRestaurantesAbiertos() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // dependiendo de la respuesta del servidor para el request de buscar, muestro una "tabla" con
-    // los datos de los restaurantes abiertos
-    fetch();
-    //setLoaded(!loaded);
+    sessionStorage.setItem("restaurantes-categoria", values.categoria);
+    sessionStorage.setItem("restaurantes-nombre", values.nombre);
+    sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
+    window.location.reload();
   };
-
-  //   useEffect(() => {
-  //     fetch();
-  //  }, [])
 
   return (
     <Styles>
@@ -180,9 +147,7 @@ export default function BuscarRestaurantesAbiertos() {
 
             <div className="form-floating">
               <div className="row align-items-center">
-                <div className="col-md">
-                  {<ListadoRestaurantesAbiertos data={data} />}
-                </div>
+                <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
               </div>
             </div>
           </main>

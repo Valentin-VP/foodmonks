@@ -1,6 +1,8 @@
 package org.foodmonks.backend.authentication;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.SneakyThrows;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,39 +34,26 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
 
-        String token=tokenHelper.getRefreshToken(request);
-        boolean renovar = false;
+        String token=tokenHelper.getToken(request);
 
         if(token != null) {
-            String userName = tokenHelper.getUsernameFromToken(token);
-            String authToken=tokenHelper.getToken(request);
+            try {
+                System.out.println(token);
+                String userName = tokenHelper.getUsernameFromToken(token);
+                UserDetails userDetails = customService.loadUserByUsername(userName);
+                if(tokenHelper.validateToken(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetails(request));
 
-            if(authToken != null) {
-                userName=tokenHelper.getUsernameFromToken(authToken);
-                token = authToken;
-            } else {
-                renovar = true;
-            }
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            UserDetails userDetails = customService.loadUserByUsername(userName);
-            if(renovar) {
-                String jwtToken = tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
-                String jwtRefreshToken = tokenHelper.generateRefreshToken(userDetails.getUsername(), userDetails.getAuthorities());
-                response.setHeader("Authorization", jwtToken);
-                response.setHeader("RefreshAuthentication", jwtRefreshToken);
-            }
-            if(tokenHelper.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
+                }
+            } catch(ExpiredJwtException e) {
+                System.out.println("token expired!!");
             }
         }
-
+        response.addHeader("Access-Control-Expose-Headers", "Authorization,RefreshAuthentication");
         filterChain.doFilter(request, response);
-
-
 
     }
 }
