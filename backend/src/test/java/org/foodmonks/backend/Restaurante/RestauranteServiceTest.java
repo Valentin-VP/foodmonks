@@ -3,17 +3,24 @@ package org.foodmonks.backend.Restaurante;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Cliente;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionConverter;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
+import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
+import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
+import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.*;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Reclamo.ReclamoConverter;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteFaltaMenuException;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
+import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.datatypes.*;
 import org.foodmonks.backend.paypal.PayPalService;
@@ -76,6 +83,50 @@ class RestauranteServiceTest {
                 usuarioRepository, menuService, restauranteConverter,
                 pedidoService, reclamoConverter, templateEngine,
                 emailService, payPalService);
+    }
+
+    @Test
+    void createSolicitudAltaRestaurante() throws UsuarioNoRestaurante, UsuarioExisteException, MenuMultiplicadorException, MenuNombreExistente, RestauranteFaltaMenuException, MenuPrecioException, ClienteDireccionException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+
+        ArrayList<JsonObject> jsonMenus = new ArrayList<>();
+        jsonMenus.addAll(List.of(new JsonObject(), new JsonObject(), new JsonObject()));
+
+        restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
+                "1234", dir1, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus);
+
+        ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
+        verify(restauranteRepository).save(restauranteArgumentCaptor.capture());
+        assertThat(restauranteArgumentCaptor.getValue().getDireccion().getNumero()).isEqualTo(dir1.getNumero());
+
+        // ---------------------------------
+
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        assertThatThrownBy(()-> restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
+                "1234", dir1, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus))
+                .isInstanceOf(UsuarioExisteException.class).hasMessageContaining("Ya existe un Usuario registrado con el correo dummy");
+
+        // ---------------------------------
+
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+        assertThatThrownBy(()-> restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
+                "1234", null, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus))
+                .isInstanceOf(ClienteDireccionException.class).hasMessageContaining("Debe ingresar una direccion");
+
+        // ---------------------------------
+
+        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+        jsonMenus.remove(0);
+        assertThatThrownBy(()-> restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
+                "1234", dir1, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus))
+                .isInstanceOf(RestauranteFaltaMenuException.class).hasMessageContaining("Debe ingresar al menos 3 menus");
     }
 
     @Test // COVERAGE (it's useless!);
@@ -554,5 +605,296 @@ class RestauranteServiceTest {
                 .isInstanceOf(PedidoDevolucionException.class)
                 .hasMessageContaining("El pedido no esta FINALIZADO, no se puede aplicar una devolucion");
 
+    }
+
+    @Test
+    void pedidosRegistrados(){
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.2F, 5, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante2@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.2F, 5, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Pedido pedido;
+
+        for (int i = 0; i < 10; i++){
+            pedido = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2022,3,1,0,0,0).minusDays(i * 10),
+                    500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2022,3,1,0,0,0),dir1,null);
+            pedido.setRestaurante(restaurante1);
+            restaurante1.getPedidos().add(pedido);
+        }
+        for (int i = 0; i < 10; i++){
+            pedido = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2022,3,1,0,0,0).minusDays(i * 6),
+                    500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2022,3,1,0,0,0),dir1,null);
+            pedido.setRestaurante(restaurante1);
+            restaurante2.getPedidos().add(pedido);
+        }
+
+        when(restauranteRepository.findAllByRolesOrderByCalificacion(anyString())).thenReturn(List.of(restaurante1, restaurante2));
+        JsonObject expectedResult = new JsonObject();
+        JsonArray meses = new JsonArray();
+        JsonObject pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Enero");
+        pedidosRestaurante.addProperty("cantidad", 7);
+        when(pedidoService.cantPedidosRestaurante(any(Restaurante.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(3L).thenReturn(4L)
+                .thenReturn(3L).thenReturn(5L).thenReturn(1L).thenReturn(1L).thenReturn(0L);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Febrero");
+        pedidosRestaurante.addProperty("cantidad", 8);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Marzo");
+        pedidosRestaurante.addProperty("cantidad", 2);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Abril");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Mayo");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Junio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Julio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Agosto");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Septiembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Octubre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Noviembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Diciembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+
+        expectedResult.add("pedidosRegistrados", meses);
+        JsonObject result = restauranteService.pedidosRegistrados(2022);
+        assertThat(result).isEqualTo(expectedResult);
+
+        // -------------------------------------------------------------------------
+
+        expectedResult = new JsonObject();
+        meses = new JsonArray();
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Enero");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        when(pedidoService.cantPedidosRestaurante(any(Restaurante.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(0L)
+                .thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L)
+                .thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L)
+                .thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(3L).thenReturn(0L);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Febrero");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Marzo");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Abril");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Mayo");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Junio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Julio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Agosto");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Septiembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Octubre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Noviembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Diciembre");
+        pedidosRestaurante.addProperty("cantidad", 3);
+        meses.add(pedidosRestaurante);
+
+        expectedResult.add("pedidosRegistrados", meses);
+        result = restauranteService.pedidosRegistrados(2021);
+        assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @Test
+    void ventasRestaurantes() throws RestauranteNoEncontradoException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.2F, 5, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Pedido pedido;
+
+        for (int i = 0; i < 10; i++){
+            pedido = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2022,3,1,0,0,0).minusDays(i * 10),
+                    500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2022,3,1,0,0,0),dir1,null);
+            pedido.setRestaurante(restaurante1);
+            restaurante1.getPedidos().add(pedido);
+        }
+
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        JsonObject expectedResult = new JsonObject();
+        JsonArray meses = new JsonArray();
+        JsonObject pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Enero");
+        pedidosRestaurante.addProperty("cantidad", 3);
+        when(pedidoService.cantVentasRestauranteAnio(any(Restaurante.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(3L).thenReturn(3L)
+                .thenReturn(1L).thenReturn(0L);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Febrero");
+        pedidosRestaurante.addProperty("cantidad", 3);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Marzo");
+        pedidosRestaurante.addProperty("cantidad", 1);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Abril");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Mayo");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Junio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Julio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Agosto");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Septiembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Octubre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Noviembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Diciembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+
+        expectedResult.addProperty("restaurante",restaurante1.getNombreRestaurante());
+        expectedResult.addProperty("anio",2022);
+        expectedResult.add("ventas", meses);
+        JsonObject result = restauranteService.ventasRestaurantes("dummy", 2022);
+        assertThat(result).isEqualTo(expectedResult);
+
+        // -------------------------------------------------------------------------
+
+        expectedResult = new JsonObject();
+        meses = new JsonArray();
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Enero");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        when(pedidoService.cantVentasRestauranteAnio(any(Restaurante.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(0L)
+                .thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L).thenReturn(0L)
+                .thenReturn(0L).thenReturn(0L).thenReturn(3L);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Febrero");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Marzo");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Abril");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Mayo");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Junio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Julio");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Agosto");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Septiembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Octubre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Noviembre");
+        pedidosRestaurante.addProperty("cantidad", 0);
+        meses.add(pedidosRestaurante);
+        pedidosRestaurante = new JsonObject();
+        pedidosRestaurante.addProperty("mes","Diciembre");
+        pedidosRestaurante.addProperty("cantidad", 3);
+        meses.add(pedidosRestaurante);
+
+        expectedResult.addProperty("restaurante",restaurante1.getNombreRestaurante());
+        expectedResult.addProperty("anio",2021);
+        expectedResult.add("ventas", meses);
+        result = restauranteService.ventasRestaurantes("dummy", 2021);
+        assertThat(result).isEqualTo(expectedResult);
     }
 }
