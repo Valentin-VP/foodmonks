@@ -1,8 +1,7 @@
 package org.foodmonks.backend.authentication;
 
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
+import dev.paseto.jpaseto.ExpiredPasetoException;
 import lombok.SneakyThrows;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +20,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private TokenHelper tokenHelper;
     private UserDetailsService customService;
-    private boolean testing = true;
 
     public AuthenticationFilter(UserDetailsService customService, TokenHelper tokenHelper) {
         this.tokenHelper = tokenHelper;
@@ -40,15 +38,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             try {
                 System.out.println(token);
                 String userName = tokenHelper.getUsernameFromToken(token);
-                UserDetails userDetails = customService.loadUserByUsername(userName);
-                if(tokenHelper.validateToken(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetails(request));
+                if (userName != null){
+                    UserDetails userDetails = customService.loadUserByUsername(userName);
+                    if(tokenHelper.validateToken(token, userDetails)) {
+                        UsernamePasswordAuthenticationToken authentication=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetails(request));
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+                    }
                 }
-            } catch(ExpiredJwtException e) {
+            } catch(ExpiredPasetoException e) {
                 System.out.println("token expired!!");
             }
         }

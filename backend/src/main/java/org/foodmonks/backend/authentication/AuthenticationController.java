@@ -119,7 +119,13 @@ public class AuthenticationController {
         if ( refreshToken != null && refreshToken.startsWith("Bearer ")) {
             parsedToken = refreshToken.substring(7);
         }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh Token inválido");
+        }
         String correo = tokenHelper.getUsernameFromToken(parsedToken);
+        if (correo == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh Token inválido");
+        }
         UserDetails userDetails = customService.loadUserByUsername(correo);
         try {
             String jwtToken = tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
@@ -150,27 +156,12 @@ public class AuthenticationController {
         String correo = tokenHelper.getUsernameFromToken(newToken);
 
         if (adminService.buscarAdmin(correo) != null) {
-/*            InfoAdmin adminInfo = new InfoAdmin();
-            Admin admin = adminService.buscarAdmin(correo);
-            adminInfo.setRoles(admin.getAuthorities().toArray());*/
             return new ResponseEntity<>(adminService.obtenerJsonAdmin(correo), HttpStatus.OK);
 
         } else if (restauranteService.buscarRestaurante(correo) != null) {
-/*            InfoRestaurante restauranteInfo = new InfoRestaurante();
-            Restaurante restaurante = restauranteService.buscarRestaurante(correo);
-            restauranteInfo.setNombre(restaurante.getNombreRestaurante());
-            restauranteInfo.setDescripcion(restaurante.getDescripcion());
-            restauranteInfo.setRoles(restaurante.getAuthorities().toArray());*/
             return new ResponseEntity<>(restauranteService.obtenerJsonRestaurante(correo), HttpStatus.OK);
 
         } else if (clienteService.buscarCliente(correo) != null) {
-            /* InfoCliente clienteInfo = new InfoCliente();
-            Cliente cliente = clienteService.buscarCliente(correo);
-           clienteInfo.setFirstName(cliente.getNombre());
-            clienteInfo.setLastName(cliente.getApellido());
-            clienteInfo.setRoles(cliente.getAuthorities().toArray());
-            clienteInfo.setMail(cliente.getCorreo());
-            clienteInfo.setDirecciones(cliente.getDirecciones());*/
             return new ResponseEntity<>(clienteService.obtenerJsonCliente(correo), HttpStatus.OK);
         } else {
             return new ResponseEntity<>("no se encontro ningun tipo de usuario", HttpStatus.BAD_REQUEST);
