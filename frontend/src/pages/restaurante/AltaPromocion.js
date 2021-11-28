@@ -10,6 +10,7 @@ const Styles = styled.div`
   }
 
   #page-container {
+    padding-top: 50rem;
     background-image: url("https://images.pexels.com/photos/6419720/pexels-photo-6419720.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260");
     filter: blur(6px);
     background-position: center;
@@ -22,8 +23,7 @@ const Styles = styled.div`
     margin-bottom: 20px;
   }
 
-  .form-alta {
-
+  .card {
     position: absolute;
     left: 50%;
     top 45%;
@@ -153,7 +153,7 @@ function AltaPromocion() {
     return (
         <Styles>
             <div id="page-container"></div>
-            <section className="form-alta">
+            <section className="card">
                 <Form onSubmit={onSubmit}>
                 {/*nombre del menu a promocionar*/}
                 <div className="text-center">

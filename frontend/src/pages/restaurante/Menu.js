@@ -69,6 +69,12 @@ const Styles = styled.div`
   td {
     background-color: white;
   }
+
+  th {
+    background-color: white;
+    color: #e87121;
+    font-family: "Poppins", sans-serif;
+  }
 `;
 
 function Menu() {
@@ -111,6 +117,16 @@ function Menu() {
         <div className="row justify-content-center">
           <div className="col-12">
             <table className="table table-light table-hover m-0">
+              <thead>
+                <tr>
+                  <th className scope="col">Imágen</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Precio</th>
+                  <th scope="col">Descripcion</th>
+                  <th scope="col">Categoría</th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
               <tbody>
                 {menus.map((menu, index) => {
                   return (
@@ -126,10 +142,10 @@ function Menu() {
                       <td>{menu.nombre}</td>
                       <td>${menu.price}</td>
                       {menu.multiplicadorPromocion !== 0 ? (
-                        <td>descuento: {menu.multiplicadorPromocion}%</td>
+                        <td>{menu.multiplicadorPromocion}%</td>
                       ) : null}
-                      <td>Descripcion: {menu.descripcion}</td>
-                      <td>Categoria: {menu.categoria}</td>
+                      <td>{menu.descripcion}</td>
+                      <td>{menu.categoria}</td>
                       <td>
                         <div className="row">
                           <Button

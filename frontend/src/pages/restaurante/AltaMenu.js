@@ -12,6 +12,7 @@ const Styles = styled.div`
   }
 
   #page-container {
+    padding-top: 35rem;
     background-image: url("https://images.pexels.com/photos/6419720/pexels-photo-6419720.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260");
     filter: blur(6px);
     background-position: center;
