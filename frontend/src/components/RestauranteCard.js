@@ -51,7 +51,7 @@ const RestauranteCard = (props) => {
         <div className="card-body">
           <h5 className="card-title">{props.nombre}</h5>
           <h5 className="card-subtitle">Teléfono: {props.telefono}</h5>
-          <p className="card-text">{props.calificacion}⭐</p>
+          {props.item.cantidadCalificaciones < 10 ? <p className="card-text">-⭐</p> : <p className="card-text">{props.calificacion}⭐</p>}
         </div>
       </div>
     </Styles>

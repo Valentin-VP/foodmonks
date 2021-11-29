@@ -24,10 +24,16 @@ const Styles = styled.div`
     left: 50%;
     -webkit-transform: translate(-50%);
     transform: translate(-50%);
+    padding-bottom: 5rem;
   }
 
-  .form-signin {
-    width: 500px;
+  @media only screen and (max-width: 768px) {
+    .text-center {
+      max-width: 100%;
+      width: 80%;
+      height: 80%;
+      max-height: 100%;
+    }
   }
 
   .form-floating {
@@ -59,11 +65,9 @@ const Styles = styled.div`
 
   .busqueda {
     height: 55px;
-    width: 500px;
     margin-bottom: 10px;
     .form-control {
       height: 55px;
-      width: 500px;
       border-radius: 5px;
     }
   }

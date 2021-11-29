@@ -29,7 +29,16 @@ const Styles = styled.div`
     position: relative;
     left: 50%;
     transform: translate(-50%);
-    max-width: 28%;
+    max-width: 30%;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .container {
+      max-width: 100%;
+      width: 80%;
+      height: 80%;
+      max-height: 100%;
+    }
   }
 
   .form-floating {
@@ -49,7 +58,7 @@ const Styles = styled.div`
   }
 
   Button {
-    width: 40%;
+    width: 70%;
     color: white;
     background-color: #e87121;
     border: none;
