@@ -477,7 +477,7 @@ public class RestauranteService {
                 }
                 if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))) {
                     if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && (fechapedido.getMonthValue() % 12) == (i % 12) &&
-                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
+                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal)) && (fechapedido.getYear() == anio)) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             ventasEfectivo += pedido.getTotal();
                             cantidadVentasEfectivo++;
@@ -487,11 +487,11 @@ public class RestauranteService {
                             cantidadVentasPayPal++;
                             subTotal += pedido.getTotal();
                         }
-                        anio = pedido.getFechaHoraProcesado().getYear();
+                        //anio = pedido.getFechaHoraProcesado().getYear();
                     }
                 } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
                     if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && (fechapedido.getMonthValue() % 12) == (i % 12) &&
-                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
+                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal)) && (fechapedido.getYear() == anio)) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             devolucionesEfectivo += pedido.getTotal();
                             cantidadDevolucionesEfectivo++;

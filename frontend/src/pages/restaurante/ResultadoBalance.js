@@ -33,6 +33,12 @@ const Styles = styled.div`
       background-color: #fffff5;
     }
   }
+  #perdida {
+    color: red;
+  }
+  #ganancia {
+    color: green;
+  }
   #itemId {
     font-weight: lighter;
     font-size: 18px;
@@ -125,8 +131,8 @@ export default function ResultadoBalance({ datos }) {
                                 
                                 <tr>
                                     <td id="itemId">Subtotal</td>
-                                    <td>{item.subtotal < 0 ? item.subtotal : null}</td>
-                                    <td>{item.subtotal >= 0 ? item.subtotal : null}</td>
+                                    <td id="perdida">{item.subtotal < 0 ? item.subtotal : null}</td>
+                                    <td id="ganancia">{item.subtotal >= 0 ? item.subtotal : null}</td>
                                     <td></td>
                                 </tr>
                               </Col>
@@ -170,8 +176,8 @@ export default function ResultadoBalance({ datos }) {
                         </tr>
                         <tr>
                             <td id="itemId">Total</td>
-                            <td>{datos.totales[4].total < 0 ? datos.totales[4].total : null}</td>
-                            <td>{datos.totales[4].total >= 0 ? datos.totales[4].total : null}</td>
+                            <td id="perdida">{datos.totales[4].total < 0 ? datos.totales[4].total : null}</td>
+                            <td id="ganancia">{datos.totales[4].total >= 0 ? datos.totales[4].total : null}</td>
                             <td>+{datos.totales[4].cantidadVentas}  |  -{datos.totales[4].cantidadDevoluciones}</td>
                         </tr>
                     </Col> : null}
