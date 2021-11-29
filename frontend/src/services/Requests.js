@@ -202,6 +202,13 @@ export const obtenerPedidosHistorico = (datos, fechaIni, fechaFin, page) => {
   );
 };
 
+export const obtenerBalance = (datos, fechaIni, fechaFin) => {
+  const fIni = fechaIni ? fechaIni.toISOString().slice(0, 10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
+  const fFin = fechaFin ? fechaFin.toISOString().slice(0, 10) : fIni;
+  //const fecha = fIni !== "" && fFin !== "" ? fIni + "," + fFin : "";
+  return instance.get(`api/v1/restaurante/obtenerBalance?categoriaMenu=${datos.categoria}&medioPago=${datos.medioPago}&fechaIni=${fIni}&fechaFin=${fFin}`);
+};
+
 //----------------------------------USUARIOS---------------------------------------------------
 
 export const fetchUsuarios = () => {
