@@ -9,6 +9,7 @@ import {
 } from "../../services/Requests";
 import Modal, { ModalProvider } from "styled-react-modal";
 import { Rating } from "react-simple-star-rating";
+import { AiFillDelete } from "react-icons/ai";
 
 const StyledModal = Modal.styled`
   border-radius: 5px;
@@ -117,13 +118,18 @@ const Styles = styled.div`
     }
   }
 
+  .tCal{
+    min-width: 9rem;
+  }
+
   .calificaciones {
     margin-right: 0.2rem;
     margin-left: 0.2rem;
     Button {
+      position: relative;
       padding: 0.1rem;
       padding-right: 0.5rem;
-      padding-left: 0.5rem;
+      padding-left: 0.5rem;s
     }
     .modificar {
       color: white;
@@ -265,38 +271,41 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
                                     }
                                   </td>
                                   {item.calificacionCliente === "false" ? (
-                                    <button
-                                      type="button"
-                                      className="clickeable"
-                                      onClick={() =>
-                                        crearCalificacion(item, "CALIFICAR")
-                                      }
-                                    >
-                                      Calificar
-                                    </button>
+                                    <td>
+                                      <button
+                                        type="button"
+                                        className="clickeable"
+                                        onClick={() =>
+                                          crearCalificacion(item, "CALIFICAR")
+                                        }
+                                      >
+                                        Calificar
+                                      </button>
+                                    </td>
                                   ) : (
-                                    <InputGroup className="calificaciones">
-                                      <Button
-                                        className="modificar"
-                                        variant="secondary"
-                                        type="button"
-                                        onClick={() =>
-                                          crearCalificacion(item, "MODIFICAR")
-                                        }
-                                      >
-                                        Modificar
-                                      </Button>
-                                      <br />
-                                      <Button
-                                        variant="danger"
-                                        type="button"
-                                        onClick={() =>
-                                          eliminarCalificacion(item)
-                                        }
-                                      >
-                                        Eliminar
-                                      </Button>
-                                    </InputGroup>
+                                    <td className="tCal">
+                                      <InputGroup className="calificaciones">
+                                        <Button
+                                          className="modificar"
+                                          variant="secondary"
+                                          type="button"
+                                          onClick={() =>
+                                            crearCalificacion(item, "MODIFICAR")
+                                          }
+                                        >
+                                          Modificar
+                                        </Button>
+                                        <Button
+                                          variant="danger"
+                                          type="button"
+                                          onClick={() =>
+                                            eliminarCalificacion(item)
+                                          }
+                                        >
+                                          <AiFillDelete color="white" />
+                                        </Button>
+                                      </InputGroup>
+                                    </td>
                                   )}
                                 </tr>
                               </Col>
