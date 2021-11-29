@@ -57,6 +57,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/password/recuperacion/*").permitAll()
                         .antMatchers("/api/v1/cliente/altaCliente").permitAll()
                         .antMatchers("/api/v1/restaurante/crearSolicitudAltaRestaurante").permitAll()
+                        .antMatchers("/api/v1/cliente/listarProductosRestaurante").hasAnyRole("ADMIN", "CLIENTE")
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .antMatchers("/api/v1/admin").hasRole("ADMIN")
                         .antMatchers("/api/v1/admin/**").hasRole("ADMIN")

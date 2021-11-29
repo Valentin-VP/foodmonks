@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Base64 } from "js-base64";
 
 //esta funcion es para cerrar sesion
 export const clearState = () => {
@@ -155,10 +156,10 @@ export const fetchPromos = () => {
 
 export const fetchMenusPromos = (datos) => {
   const restauranteId = getRestauranteId();
-  console.log(restauranteId);
+  const correoRestaurante = Base64.encode(restauranteId);
   const response = axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${restauranteId}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${correoRestaurante}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
@@ -288,6 +289,7 @@ export const altaAdmin = (datos) => {
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -413,9 +415,10 @@ export const eliminarUsuario = (correoUsuario) => {
 export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin) => {
   const fIni = fechaIni ? fechaIni.toISOString().slice(0, 10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
   const fFin = fechaFin ? fechaFin.toISOString().slice(0, 10) : fIni;
+  const correo = Base64.encode(datos.correo);
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/listarUsuarios?correo=${correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}`,
     data: datos,
     headers: {
       Authorization: "Bearer " + getToken(),
@@ -476,7 +479,8 @@ export const cambiarPassword = (email, pass, ptoken) => {
   });
 };
 export const checkPwdRecoveryToken = (email, ptoken) => {
-  const datos = { email: email ? email : "", token: ptoken ? ptoken : "" };
+  const correo = Base64.encode(email);
+  const datos = { email: correo ? correo : "", token: ptoken ? ptoken : "" };
   console.log(datos);
   return axios({
     method: "POST",
@@ -667,9 +671,10 @@ export const cambiarEstadoRestaurante = (
   estadoRestaurante,
   mensaje
 ) => {
+  const correoRestaurante = Base64.encode(restaurante);
   return axios({
     method: "PUT",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstadoRestaurante?correoRestaurante=${restaurante}&estadoRestaurante=${estadoRestaurante}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/cambiarEstadoRestaurante?correoRestaurante=${correoRestaurante}&estadoRestaurante=${estadoRestaurante}`,
     data: mensaje,
     headers: {
       Authorization: "Bearer " + getToken(),
@@ -679,9 +684,10 @@ export const cambiarEstadoRestaurante = (
 };
 
 export const fetchReclamos = (values) => {
+  const correoCliente = Base64.encode(values.cliente);
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarReclamos?orden=${values.ordenar}&cliente=${values.cliente}&razon=${values.razon}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/listarReclamos?orden=${values.ordenar}&cliente=${correoCliente}&razon=${values.razon}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
@@ -691,9 +697,10 @@ export const fetchReclamos = (values) => {
 
 export const getMenusFromRestaurante = (restaurante) => {
   var vacia = "";
+  var correoRestaurante = Base64.encode(restaurante);
   const response = axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${restaurante}&categoria=${vacia}&precioInicial=${vacia}&precioFinal=${vacia}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/listarProductosRestaurante?id=${correoRestaurante}&categoria=${vacia}&precioInicial=${vacia}&precioFinal=${vacia}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
@@ -726,7 +733,7 @@ export const calificarRestaurante = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -738,7 +745,7 @@ export const modificarCalificacionRestaurante = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -749,7 +756,7 @@ export const eliminarCalificacionRestaurante = (idPedido) => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/cliente/eliminarCalificacionRestaurante?idPedido=${idPedido}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -761,7 +768,7 @@ export const calificarCliente = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -773,7 +780,7 @@ export const modificarCalificacionCliente = (data) => {
     data: data,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
@@ -784,7 +791,7 @@ export const eliminarCalificacionCliente = (idPedido) => {
     url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/restaurante/eliminarCalificacionCliente?idPedido=${idPedido}`,
     headers: {
       Authorization: "Bearer " + getToken(),
-      'RefreshAuthentication': "Bearer " + getRefreshToken(),
+      RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };

@@ -284,6 +284,7 @@ public class ClienteController {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
+
     @GetMapping(path = "/listarProductosRestaurante")
     public ResponseEntity<?> listarProductosRestaurante(
             @RequestParam(name = "id") String restauranteCorreo,

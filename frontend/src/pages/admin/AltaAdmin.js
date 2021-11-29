@@ -84,6 +84,7 @@ export default function AltaAdmin() {
             </Alert>
           );
           setError(null);
+          window.location.replace("/");
         } else {
           setSuccess(null);
           setError(
@@ -176,9 +177,8 @@ export default function AltaAdmin() {
                     type="email"
                     name="email"
                     id="email"
-                    value={values.email}
                     placeholder="Correo"
-                    onChange={handleChange}
+                    onChange={handleChange64}
                     required={true}
                   />
                   <label htmlFor="floatingInput">Correo</label>

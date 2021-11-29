@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  actualizarEstadoUsuario,
-} from "../../services/Requests";
+import { actualizarEstadoUsuario } from "../../services/Requests";
 import { Noti } from "../../components/Notification";
+import { Base64 } from "js-base64";
 
 const Styles = styled.div`
   h1 {
@@ -26,7 +25,7 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
         ? "BLOQUEAR"
         : null;
     //// actualizarEstadoUsuario(item).then((response)=>{
-    actualizarEstadoUsuario(estado, item.correo)
+    actualizarEstadoUsuario(estado, Base64.encode(item.correo))
       .then((response) => {
         if (response.status === 200) {
           Noti("El estado del usuario ha sido cambiado.");
@@ -34,7 +33,8 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
         } else {
           Noti(response.data);
         }
-      }).catch((error)=>{
+      })
+      .catch((error) => {
         Noti(error.response.data);
       })
       .catch((error) => {
@@ -45,7 +45,7 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
   const updateStateEliminar = (item) => {
     console.log(item);
     //// actualizarEstadoUsuario(item).then((response)=>{
-    actualizarEstadoUsuario("ELIMINAR", item.correo)
+    actualizarEstadoUsuario("ELIMINAR", Base64.encode(item.correo))
       .then((response) => {
         if (response.status === 200) {
           fetchFunc();
@@ -53,7 +53,8 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
         } else {
           Noti(response.data);
         }
-      }).catch((error)=>{
+      })
+      .catch((error) => {
         Noti(error.response.data);
       })
       .catch((error) => {
@@ -85,32 +86,86 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
           <table className="table table-hover">
             <tbody>
               {data.map((item) => {
-                  return (
-                    <>
-                      <tr key={item.correo}>
-                        {item.rol==="RESTAURANTE" ? <td>Restaurante</td> : item.rol==="CLIENTE" ? <td>Cliente</td> : <td>Admin</td>}
-                        <td>Email: {item.correo}</td>
-                        <td>Fecha Registro: {item.fechaRegistro}</td>
-                        <td>Nombre: {item.nombre}</td>
-                        {item.rol==="RESTAURANTE" ? <td>RUT: {item.RUT}</td> : <td>Apellido: {item.apellido}</td>}
-                        {/*item.rol==="RESTAURANTE" && <td>RUT: {item.RUT}</td>*/}
-                        {/*item.rol==="RESTAURANTE" && <td>Dirección: {item.direccion}</td>*/}
-                        {item.rol==="RESTAURANTE" && <td>Teléfono: {item.telefono}</td>}
-                        {item.rol==="CLIENTE"  ? <td colSpan="1"></td> : (item.rol==="ADMIN" ? <td colSpan="4"></td> : null)}
-                        {item.rol!=="ADMIN" && <td>Calificación: {item.calificacion}</td>}
-                        {item.rol!=="ADMIN" && <td>Estado: {item.estado}</td>}
-                        {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-secondary" disabled={item.estado==="ELIMINADO"} type="button" onClick={e=>(updateState(item))}>
-                          {item.estado==="BLOQUEADO" ? "Desbloquear" : "Bloquear"}
-                        </button>}</td>}
-                        {item.rol!=="ADMIN" && <td>{<button className="btn btn-sm btn-danger" disabled={item.estado !== "BLOQUEADO" || item.estado==="ELIMINADO"} type="button" onClick={e=>(updateStateEliminar(item))}>
-                          Eliminar
-                        </button>}</td>}
-                        {item.rol==="ADMIN" && <td><button className="btn btn-sm btn-danger" type="button" onClick={e=>(updateStateEliminar(item))}>
-                          Eliminar
-                        </button></td>}
-                      </tr>
-                    </>
-                )})}
+                return (
+                  <>
+                    <tr key={item.correo}>
+                      {item.rol === "RESTAURANTE" ? (
+                        <td>Restaurante</td>
+                      ) : item.rol === "CLIENTE" ? (
+                        <td>Cliente</td>
+                      ) : (
+                        <td>Admin</td>
+                      )}
+                      <td>Email: {item.correo}</td>
+                      <td>Fecha Registro: {item.fechaRegistro}</td>
+                      <td>Nombre: {item.nombre}</td>
+                      {item.rol === "RESTAURANTE" ? (
+                        <td>RUT: {item.RUT}</td>
+                      ) : (
+                        <td>Apellido: {item.apellido}</td>
+                      )}
+                      {/*item.rol==="RESTAURANTE" && <td>RUT: {item.RUT}</td>*/}
+                      {/*item.rol==="RESTAURANTE" && <td>Dirección: {item.direccion}</td>*/}
+                      {item.rol === "RESTAURANTE" && (
+                        <td>Teléfono: {item.telefono}</td>
+                      )}
+                      {item.rol === "CLIENTE" ? (
+                        <td colSpan="1"></td>
+                      ) : item.rol === "ADMIN" ? (
+                        <td colSpan="4"></td>
+                      ) : null}
+                      {item.rol !== "ADMIN" && (
+                        <td>Calificación: {item.calificacion}</td>
+                      )}
+                      {item.rol !== "ADMIN" && <td>Estado: {item.estado}</td>}
+                      {item.rol !== "ADMIN" && (
+                        <td>
+                          {
+                            <button
+                              className="btn btn-sm btn-secondary"
+                              disabled={item.estado === "ELIMINADO"}
+                              type="button"
+                              onClick={(e) => updateState(item)}
+                            >
+                              {item.estado === "BLOQUEADO"
+                                ? "Desbloquear"
+                                : "Bloquear"}
+                            </button>
+                          }
+                        </td>
+                      )}
+                      {item.rol !== "ADMIN" && (
+                        <td>
+                          {
+                            <button
+                              className="btn btn-sm btn-danger"
+                              disabled={
+                                item.estado !== "BLOQUEADO" ||
+                                item.estado === "ELIMINADO"
+                              }
+                              type="button"
+                              onClick={(e) => updateStateEliminar(item)}
+                            >
+                              Eliminar
+                            </button>
+                          }
+                        </td>
+                      )}
+                      {item.rol === "ADMIN" && (
+                        <td>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            type="button"
+                            onClick={(e) => updateStateEliminar(item)}
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  </>
+                );
+              })}
             </tbody>
           </table>
         </div>

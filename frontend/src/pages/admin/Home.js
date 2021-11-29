@@ -12,6 +12,7 @@ import Modal, { ModalProvider } from "styled-react-modal";
 import { getMenusFromRestaurante } from "../../services/Requests";
 import { Noti, NotiError } from "../../components/Notification";
 import { Input } from "@material-ui/core";
+import { Base64 } from "js-base64";
 
 const StyledModal = Modal.styled`
   border-radius: 5px;
@@ -102,16 +103,19 @@ export default function Home() {
   }, []);
 
   const onUpdate = (estado) => {
-    if(document.getElementById("mensaje").value === ""){
-        return null;
+    if (document.getElementById("mensaje").value === "") {
+      return null;
     }
     const data = {
-        comentariosCambioEstado: document.getElementById("mensaje").value
-    }
-    cambiarEstadoRestaurante(restauranteSeleccionado.correo, estado, data)
-      .catch((error) => {
-        NotiError(error.response.data.detailMessage);
-      });
+      comentariosCambioEstado: document.getElementById("mensaje").value,
+    };
+    cambiarEstadoRestaurante(
+      restauranteSeleccionado.correo,
+      estado,
+      data
+    ).catch((error) => {
+      NotiError(error.response.data.detailMessage);
+    });
   };
 
   if (isLoading) {
@@ -205,10 +209,18 @@ export default function Home() {
                 <label htmlFor="floatingInput">Mensaje</label>
               </div>
               <div className="abajo">
-                <Button variant="success" type="submit" onClick={() => onUpdate("CERRADO")}>
+                <Button
+                  variant="success"
+                  type="submit"
+                  onClick={() => onUpdate("CERRADO")}
+                >
                   Aceptar Registro
                 </Button>
-                <Button variant="danger" type="submit" onClick={() => onUpdate("RECHAZADO")}>
+                <Button
+                  variant="danger"
+                  type="submit"
+                  onClick={() => onUpdate("RECHAZADO")}
+                >
                   Rechazar Registro
                 </Button>
               </div>
