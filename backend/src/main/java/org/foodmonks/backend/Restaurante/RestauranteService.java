@@ -476,7 +476,7 @@ public class RestauranteService {
                     throw new PedidoFechaProcesadoException("Existe un pedido sin fecha de procesado en estado Finalizado-Devuelto-ReclamoRechazado");
                 }
                 if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))) {
-                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == (i % 12) &&
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && (fechapedido.getMonthValue() % 12) == (i % 12) &&
                             ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             ventasEfectivo += pedido.getTotal();
@@ -490,7 +490,7 @@ public class RestauranteService {
                         anio = pedido.getFechaHoraProcesado().getYear();
                     }
                 } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
-                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && fechapedido.getMonthValue() == (i % 12) &&
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && (fechapedido.getMonthValue() % 12) == (i % 12) &&
                             ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal))) {
                         if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                             devolucionesEfectivo += pedido.getTotal();
