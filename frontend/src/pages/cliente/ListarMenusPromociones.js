@@ -181,12 +181,11 @@ function ListadoMenusPromociones() {
         <br />
         {sessionStorage.getItem("values-categoria") ? (
           <h3>
-            {" "}
-            resultados de la busqueda por categoria:{" "}
-            {sessionStorage.getItem("values-categoria")}{" "}
+            resultados de la busqueda por categoria:
+            {sessionStorage.getItem("values-categoria")}
           </h3>
         ) : (
-          <h3> resultados de la busqueda</h3>
+          <h3> resultados de la busqueda </h3>
         )}
         {sessionStorage.getItem("values-precioInicial") ? (
           <h3>

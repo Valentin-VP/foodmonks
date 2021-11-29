@@ -263,7 +263,7 @@ public class ClienteController {
         //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
         JsonArray jsonArray = new JsonArray();
         try {
-            List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
+            List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre.toLowerCase(), categoria, orden);
 
             for (JsonObject restaurante : restaurantesAbiertos) {
                 jsonArray.add(restaurante);
@@ -302,7 +302,7 @@ public class ClienteController {
                 newtoken = token.substring(7);
             }
             correo = tokenHelp.getUsernameFromToken(newtoken);
-            jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu, nombreRestaurante, medioPago, orden, fecha, total, page, size);
+            jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu.toLowerCase(), nombreRestaurante.toLowerCase(), medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
         } catch (ClienteNoEncontradoException e) {
