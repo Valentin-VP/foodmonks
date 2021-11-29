@@ -568,6 +568,36 @@ public class RestauranteController {
         return new ResponseEntity<>(pedidoResponse, HttpStatus.OK);
     }
 
+    @Operation(summary = "Obtiene balance de ventas",
+            description = "Obtiene un Balance de ventas de un restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "vetnas"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerBalance")
+    public ResponseEntity<?> obtenerBalance(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false, name = "categoriaMenu") String categoriaMenu,
+            @RequestParam(required = false, name = "medioPago") String medioPago,
+            @RequestParam(required = false, name = "fechaIni") String fechaInicio,
+            @RequestParam(required = false, name = "fechaFin") String fechaFin) {
+
+        String newtoken = "";
+        JsonObject jsonBalance = new JsonObject();
+        try {
+            if ( token != null && token.startsWith("Bearer ")) {
+                newtoken = token.substring(7);
+            }
+            String correoRestaurante = tokenHelp.getUsernameFromToken(newtoken);
+            jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, categoriaMenu);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonBalance, HttpStatus.OK);
+    }
+  
     @PostMapping("/realizarDevolucion")
     public ResponseEntity<?> realizarDevolucion(
             @RequestHeader("Authorization") String token,
