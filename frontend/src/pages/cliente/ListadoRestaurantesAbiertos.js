@@ -62,7 +62,7 @@ function MyProvider({ children }) {
   const [cargando, isLoading] = useState(true);
   const values = {
     categoria: "",
-    nombre: "".toLowerCase,
+    nombre: "",
     calificacion: false,
   };
 

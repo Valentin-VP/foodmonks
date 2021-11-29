@@ -73,7 +73,7 @@ export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("react-use-cart");
-  window.location.replace("/");
+  //window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -392,7 +392,9 @@ export const estadisticasUsuariosTotales = () => {
 export const estadisticasUsuariosRegistrados = () => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasRegistros?anioPedidos=${new Date().getFullYear()}`,
+    url: `${
+      process.env.REACT_APP_BACKEND_URL_BASE
+    }api/v1/admin/obtenerEstadisticasRegistros?anioPedidos=${new Date().getFullYear()}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
@@ -403,7 +405,9 @@ export const estadisticasUsuariosRegistrados = () => {
 export const estadisticasPedidosRegistrados = () => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${new Date().getFullYear()}`,
+    url: `${
+      process.env.REACT_APP_BACKEND_URL_BASE
+    }api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${new Date().getFullYear()}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
@@ -413,7 +417,9 @@ export const estadisticasPedidosRegistrados = () => {
 export const estadisticasVentasRestaurante = (restaurante) => {
   return axios({
     method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${new Date().getFullYear()}`,
+    url: `${
+      process.env.REACT_APP_BACKEND_URL_BASE
+    }api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${new Date().getFullYear()}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
