@@ -221,10 +221,6 @@ public class PedidoService {
         return pedidoConverter.jsonPedido(pedido);
     }
 
-    public JsonObject buscarPedidoById(Long id) throws PedidoNoExisteException {
-        return pedidoConverter.jsonPedido(obtenerPedido(id));
-    }
-
     public void agregarReclamoPedido(Pedido pedido, Reclamo reclamo){
         pedido.setReclamo(reclamo);
         pedidoRepository.save(pedido);
@@ -258,4 +254,25 @@ public class PedidoService {
         }
         return pedido;
     }
+
+    public JsonObject buscarPedidoById(Long id) throws PedidoNoExisteException {
+        return pedidoConverter.jsonPedido(obtenerPedido(id));
+    }
+
+    public List<Pedido> pedidosRestaurante(Restaurante restaurante){
+        return pedidoRepository.findPedidosByRestaurante(restaurante);
+    }
+
+    public List<Pedido> pedidosRestauranteMedioPago(Restaurante restaurante, MedioPago medioPago) {
+        return pedidoRepository.findPedidosByRestauranteAndMedioPago(restaurante,medioPago);
+    }
+
+    public List<Pedido> pedidosRestauranteFechaHoraProcesado(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin) {
+        return pedidoRepository.findPedidosByRestauranteAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
+    }
+
+    public List<Pedido> pedidosRestauranteMedioPagoFechaHoraProcesado(Restaurante restaurante, MedioPago medioPago, LocalDateTime fechaIni, LocalDateTime fechaFin) {
+        return pedidoRepository.findPedidosByRestauranteAndMedioPagoAndFechaHoraProcesadoBetween(restaurante,medioPago,fechaIni,fechaFin);
+    }
+
 }

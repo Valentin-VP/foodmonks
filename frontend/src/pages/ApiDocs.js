@@ -10,7 +10,7 @@ const Styles = styled.div`
 `;
 
 export default function ApiDocs() {
-  const url = process.env.REACT_APP_BACKEND_URL_BASE + "v3/api-docs";
+  const url = process.env.REACT_APP_BACKEND_URL_BASE + "v3/apidocs";
   return (
     <Styles>
         <rapi-doc
