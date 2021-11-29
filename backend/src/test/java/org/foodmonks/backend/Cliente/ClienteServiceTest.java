@@ -6,6 +6,7 @@ import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
@@ -19,6 +20,10 @@ import org.foodmonks.backend.Pedido.Exceptions.*;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoConverter;
 import org.foodmonks.backend.Pedido.PedidoService;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
+import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
 import org.foodmonks.backend.Reclamo.ReclamoService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Restaurante.Restaurante;
@@ -598,5 +603,71 @@ class ClienteServiceTest {
         assertThatThrownBy(()->clienteService.eliminarCalificacionCliente("restaurante1@gmail.com", "1"))
                 .isInstanceOf(PedidoCalificacionClienteException.class)
                 .hasMessageContaining("El pedido con id 1 no tiene calificacion Cliente");
+    }
+
+    @Test
+    void agregarReclamo() throws RestauranteNoEncontradoException, PedidoNoExisteException, ClientePedidoNoCoincideException, PedidoIdException, ReclamoComentarioException, ReclamoRazonException, ReclamoNoFinalizadoException, ReclamoExisteException, EmailNoEnviadoException, ClienteNoEncontradoException, PedidoSinRestauranteException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                5.0F, 1, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.2f,5,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Cliente cliente2 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente2@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.2f,5,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Pedido pedido1 = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2020,1,1,0,0,0),
+                500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
+        pedido1.setCliente(cliente1);
+        pedido1.setRestaurante(restaurante1);
+
+        when(clienteRepository.findByCorreo(any())).thenReturn(cliente1);
+        when(pedidoService.obtenerPedido(any())).thenReturn(pedido1);
+
+        JsonObject jsonReclamo = new JsonObject();
+        jsonReclamo.addProperty("pedidoId", "1");
+        jsonReclamo.addProperty("razon", "dummy");
+        jsonReclamo.addProperty("comentario", "dummy");
+
+        JsonObject result = clienteService.agregarReclamo("dummy", jsonReclamo);
+        assertThat(result).isEqualTo(null);
+
+        // --------------------------------------
+        pedido1.setCliente(null);
+        assertThatThrownBy(()->clienteService.agregarReclamo("dummy", jsonReclamo))
+                .isInstanceOf(ClientePedidoNoCoincideException.class)
+                .hasMessageContaining("El cliente con correo cliente1@gmail.com no realizo el pedido a reclamar");
+        // --------------------------------------
+        pedido1.setCliente(cliente2);
+        assertThatThrownBy(()->clienteService.agregarReclamo("dummy", jsonReclamo))
+                .isInstanceOf(ClientePedidoNoCoincideException.class)
+                .hasMessageContaining("El cliente con correo cliente1@gmail.com no realizo el pedido a reclamar");
+        // -------------- verificarJsonReclamo ------------------------
+        jsonReclamo.addProperty("pedidoId", "1.0");
+        assertThatThrownBy(()->clienteService.agregarReclamo("dummy", jsonReclamo))
+                .isInstanceOf(PedidoIdException.class)
+                .hasMessageContaining("El id del pedido no es un numero entero");
+        jsonReclamo.addProperty("pedidoId", "");
+        assertThatThrownBy(()->clienteService.agregarReclamo("dummy", jsonReclamo))
+                .isInstanceOf(PedidoIdException.class)
+                .hasMessageContaining("El id del pedido no es un numero entero");
+        jsonReclamo.addProperty("pedidoId", "1");
+        jsonReclamo.addProperty("razon", "   ");
+        assertThatThrownBy(()->clienteService.agregarReclamo("dummy", jsonReclamo))
+                .isInstanceOf(ReclamoRazonException.class)
+                .hasMessageContaining("La razon del reclamo no puede ser vacia");
+        jsonReclamo.addProperty("razon", "dummy");
+        jsonReclamo.addProperty("comentario", "   ");
+        assertThatThrownBy(()->clienteService.agregarReclamo("dummy", jsonReclamo))
+                .isInstanceOf(ReclamoComentarioException.class)
+                .hasMessageContaining("El comentario del reclamo no puede ser vacio");
     }
 }
