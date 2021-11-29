@@ -587,10 +587,7 @@ public class RestauranteController {
         String newtoken = "";
         JsonObject jsonBalance = new JsonObject();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            String correoRestaurante = tokenHelp.getUsernameFromToken(newtoken);
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(newtoken);
             jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, categoriaMenu);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

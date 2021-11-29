@@ -221,10 +221,6 @@ public class PedidoService {
         return pedidoConverter.jsonPedido(pedido);
     }
 
-    public JsonObject buscarPedidoById(Long id) throws PedidoNoExisteException {
-        return pedidoConverter.jsonPedido(obtenerPedido(id));
-    }
-
     public void agregarReclamoPedido(Pedido pedido, Reclamo reclamo){
         pedido.setReclamo(reclamo);
         pedidoRepository.save(pedido);
