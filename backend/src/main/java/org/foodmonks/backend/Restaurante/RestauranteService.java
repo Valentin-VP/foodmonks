@@ -400,7 +400,7 @@ public class RestauranteService {
         }
 
         if (fechaFin != null && !fechaFin.isBlank()){
-            fechaFinal = LocalDateTime.of(LocalDate.parse(fechaFin).plusDays(1),LocalTime.MIDNIGHT); // plusDays(1) para que sea inclusivo
+            fechaFinal = LocalDateTime.of(LocalDate.parse(fechaFin),LocalTime.MAX); // plusDays(1) para que sea inclusivo
         }
 
         if (fechaInicial != null && fechaFinal != null) {
