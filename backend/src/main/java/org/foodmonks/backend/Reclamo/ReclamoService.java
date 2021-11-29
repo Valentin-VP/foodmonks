@@ -3,6 +3,7 @@ package org.foodmonks.backend.Reclamo;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
 import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
 import org.foodmonks.backend.Restaurante.RestauranteService;
@@ -16,10 +17,19 @@ public class ReclamoService {
 
     private final ReclamoConverter reclamoConverter;
     private final RestauranteService restauranteService;
+    private final ReclamoRepository reclamoRepository;
+    private final PedidoService pedidoService;
+
 
     @Autowired
-    public ReclamoService(ReclamoConverter reclamoConverter, RestauranteService restauranteService){
-        this.reclamoConverter = reclamoConverter; this.restauranteService = restauranteService;
+    public ReclamoService(ReclamoConverter reclamoConverter,
+                          RestauranteService restauranteService,
+                          ReclamoRepository reclamoRepository,
+                          PedidoService pedidoService){
+        this.reclamoConverter = reclamoConverter;
+        this.restauranteService = restauranteService;
+        this.reclamoRepository = reclamoRepository;
+        this.pedidoService = pedidoService;
     }
 
     public JsonObject crearReclamo(String razon, String comentario, LocalDateTime fecha, Pedido pedido) throws ReclamoNoFinalizadoException, ReclamoExisteException, PedidoSinRestauranteException {
@@ -33,8 +43,11 @@ public class ReclamoService {
             throw new PedidoSinRestauranteException("No existe un restaurante en este pedido");
         }
         Reclamo reclamo = new Reclamo(razon,comentario,fecha,pedido);
-        restauranteService.agregarReclamoRestaurante(pedido.getRestaurante(), reclamo);
-        return reclamoConverter.jsonReclamo(reclamo);
+        reclamoRepository.save(reclamo);
+        Reclamo reclamoAux = reclamoRepository.findReclamoByPedido(pedido);
+        restauranteService.agregarReclamoRestaurante(pedido.getRestaurante(), reclamoAux);
+        pedidoService.agregarReclamoPedido(pedido,reclamoAux);
+        return reclamoConverter.jsonReclamo(reclamoAux);
     }
 
 }

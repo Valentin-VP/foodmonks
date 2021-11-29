@@ -1,4 +1,4 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
 import { obtenerPedidosRealizados } from "../../services/Requests";
 import { Noti } from "../../components/Notification";
@@ -19,11 +19,10 @@ const Styles = styled.div`
     margin-bottom: 15px;
   }
 
-  button {
+  .oButton {
     color: white;
     background-color: #e87121;
     border: none;
-    border-radius: 10px;
     &:focus {
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
       background-color: #e87121;
@@ -119,9 +118,13 @@ export default function BuscarPedidosRealizados() {
     sessionStorage.removeItem("pedidoId");
   }
 
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const fetch = (page) => {
     let p = page ? page - 1 : 0;
-    console.log(p);
     obtenerPedidosRealizados(values, startDate, endDate, p)
       .then((response) => {
         if (response.status === 200) {
@@ -162,7 +165,6 @@ export default function BuscarPedidosRealizados() {
       if (i.id === id && i.menus) i.visibleMenu = !i.visibleMenu;
       return i;
     });
-    console.log(items);
     setData({ ...data, pedidos: items });
   };
 
@@ -173,7 +175,6 @@ export default function BuscarPedidosRealizados() {
       if (i.id === id && i.reclamo) i.visibleReclamo = !i.visibleReclamo;
       return i;
     });
-    console.log(items);
     setData({ ...data, pedidos: items });
   };
 
@@ -203,7 +204,7 @@ export default function BuscarPedidosRealizados() {
                       max="100000"
                       value={values.minTotal}
                     ></input>
-                    <label htmlFor="minTotal">Total [</label>
+                    <label htmlFor="minTotal">Total Inicial</label>
                   </div>
                   <div className="form-floating">
                     <input
@@ -216,7 +217,7 @@ export default function BuscarPedidosRealizados() {
                       max="100000"
                       value={values.maxTotal}
                     ></input>
-                    <label htmlFor="maxTotal">Total ]</label>
+                    <label htmlFor="maxTotal">Total Final</label>
                   </div>
                 </div>
                 <div className="col-lg">
@@ -308,7 +309,10 @@ export default function BuscarPedidosRealizados() {
                 </div>
               </div>
 
-              <button className="w-100 btn btn-md btn-primary" type="submit">
+              <button
+                className="w-100 btn btn-md btn-primary oButton"
+                type="submit"
+              >
                 Buscar
               </button>
             </form>

@@ -1,11 +1,14 @@
 package org.foodmonks.backend.Usuario;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.foodmonks.backend.Admin.Admin;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteRepository;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Restaurante;
+import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoBloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoDesbloqueadoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEliminadoException;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoEncontradoException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.UUID;
 
 @Service
@@ -29,17 +33,21 @@ public class UsuarioService {
 	private final UsuarioRepository usuarioRepository;
 	private final TemplateEngine templateEngine;
 	private final EmailService emailService;
-  	private final PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 	private final ClienteRepository clienteRepository;
 	private final RestauranteRepository restauranteRepository;
+	private final RestauranteService restauranteService;
+	private final UsuarioConverter usuarioConverter;
 	
 	@Autowired
 	public UsuarioService(UsuarioRepository usuarioRepository, TemplateEngine templateEngine,
 						  EmailService emailService, PasswordEncoder passwordEncoder,
-						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository) {
+						  ClienteRepository clienteRepository, RestauranteRepository restauranteRepository, 
+              UsuarioConverter usuarioConverter, RestauranteService restauranteService) {
 		this.usuarioRepository = usuarioRepository; this.templateEngine = templateEngine;
 		this.emailService = emailService; this.passwordEncoder = passwordEncoder;
 		this.clienteRepository = clienteRepository; this.restauranteRepository = restauranteRepository;
+		this.usuarioConverter = usuarioConverter; this.restauranteService = restauranteService;
 	}
   
   public void cambiarPassword(String correo, String password) throws UsuarioNoEncontradoException {
@@ -55,7 +63,7 @@ public class UsuarioService {
         return UUID.randomUUID().toString();
     }
 
-	public List<Usuario> listarUsuarios(String correo, String tipoUser, String fechaInicio, String fechaFin, String estado, boolean orden) {
+	public JsonObject listarUsuarios(String correo, String tipoUser, String fechaInicio, String fechaFin, String estado, boolean orden, String page) {
 		List<Usuario> listaUsuarios = usuarioRepository.findAll();
 
 		//filtros:
@@ -64,8 +72,8 @@ public class UsuarioService {
 			if(tipoUser.equals("cliente")) {
 				List<Cliente> auxListOrdenCliente = clienteRepository.findAllByRolesOrderByCalificacionDesc("ROLE_CLIENTE");
 				listaUsuarios = new ArrayList<>(auxListOrdenCliente);
-			} else {
-				List<Restaurante> auxListOrdenRestaurante = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
+			} else if (tipoUser.equals("restaurante")){
+				List<Restaurante> auxListOrdenRestaurante = restauranteRepository.findAllByRolesOrderByCalificacionDesc("ROLE_RESTAURANTE");
 				listaUsuarios = new ArrayList<>(auxListOrdenRestaurante);
 			}
 		}
@@ -146,7 +154,28 @@ public class UsuarioService {
 			}
 			listaUsuarios = auxList;
 		}
-		return listaUsuarios;
+		int pageFinal;
+		try{
+			pageFinal = Integer.parseInt(page);
+		}catch(NumberFormatException e){
+			pageFinal = 0;
+		}
+
+
+		int comienzo = pageFinal * 5;
+		int total = listaUsuarios.size();
+		System.out.println((double) listaUsuarios.size() / 5 + " - " +Math.ceil((double) listaUsuarios.size() / 5));
+		int cantPaginas = (int) Math.ceil((double)listaUsuarios.size() / 5);
+		int hasta = (total > comienzo + 5) ? comienzo + 5 : total;
+		List<Usuario> listaUsuariosFinal = new ArrayList<>();
+		for (int i = comienzo; i < hasta; i++){
+			listaUsuariosFinal.add(listaUsuarios.get(i));
+		}
+		JsonObject jsonObject = usuarioConverter.listaJsonUsuarioPaged(listaUsuariosFinal);
+		jsonObject.addProperty("currentPage", pageFinal);
+		jsonObject.addProperty("totalItems", total);
+		jsonObject.addProperty("totalPages", cantPaginas);
+		return jsonObject;
 	}
 	
 	public void bloquearUsuario (String correo) throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
@@ -155,7 +184,7 @@ public class UsuarioService {
 				
 					if (usuario instanceof Restaurante) {
 						Restaurante restaurante = (Restaurante) usuario;
-						if (restaurante.getEstado()== EstadoRestaurante.BLOQUEADO || restaurante.getEstado()== EstadoRestaurante.ELIMINADO) {
+						if (!(restaurante.getEstado()== EstadoRestaurante.ABIERTO || restaurante.getEstado()== EstadoRestaurante.CERRADO)) {
 							throw new UsuarioNoBloqueadoException("Usuario "+correo+" no pudo ser bloqueado" );
 						}else {
 							 restaurante.setEstado(EstadoRestaurante.BLOQUEADO);
@@ -164,7 +193,7 @@ public class UsuarioService {
 						}
 					} else if (usuario instanceof Cliente) {
 						Cliente cliente = (Cliente) usuario;
-						if (cliente.getEstado()== EstadoCliente.BLOQUEADO || cliente.getEstado()== EstadoCliente.ELIMINADO) {
+						if (cliente.getEstado()!= EstadoCliente.ACTIVO) {
 							throw new UsuarioNoBloqueadoException("Usuario "+correo+" no pudo ser bloqueado" );
 						}else {
 						     cliente.setEstado(EstadoCliente.BLOQUEADO);
@@ -261,6 +290,32 @@ public class UsuarioService {
 
 	public Usuario ObtenerUsuario (String correo) {
 		return usuarioRepository.findByCorreo(correo);
+	}
+
+	public JsonArray usuariosRegistrados(int anio){
+		JsonArray result = new JsonArray();
+		for (int i=1; i <= 12 ; i++){
+			LocalDate fechaIni = LocalDate.of(anio , i,1);
+			LocalDate fechaFin;
+			if (i==12){
+				fechaFin= LocalDate.of(anio+1,1,1).minusDays(1);
+			} else {
+				fechaFin = LocalDate.of(anio ,i+1,1).minusDays(1);
+			}
+			JsonObject registrados = new JsonObject();
+			registrados.addProperty("mes", restauranteService.obtenerMes(i));
+			registrados.addProperty("clientes", clienteRepository.countClientesByFechaRegistroBetween(fechaIni,fechaFin));
+			registrados.addProperty("restaurantes", restauranteRepository.countRestaurantesByFechaRegistroBetween(fechaIni,fechaFin));
+			result.add(registrados);
+		}
+		return result;
+	}
+
+	public JsonObject usuariosActivos() {
+		JsonObject usuariosActivos = new JsonObject();
+		usuariosActivos.addProperty("clientes", clienteRepository.countClientesByEstado(EstadoCliente.ACTIVO));
+		usuariosActivos.addProperty("restaurantes", restauranteService.restaurantesActivos());
+		return usuariosActivos;
 	}
 
 }

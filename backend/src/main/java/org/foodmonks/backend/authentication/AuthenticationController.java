@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.SneakyThrows;
 import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Cliente.ClienteService;
@@ -23,6 +24,7 @@ import org.foodmonks.backend.dynamodb.TokenReset;
 import org.foodmonks.backend.dynamodb.TokenResetDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,6 +39,7 @@ import org.thymeleaf.context.Context;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Locale;
 
 
 @RestController
@@ -77,7 +80,10 @@ public class AuthenticationController {
     private TemplateEngine templateEngine;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@Parameter @RequestBody AuthenticationRequest authenticationRequest) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public ResponseEntity<?> login(
+            @Parameter @RequestBody AuthenticationRequest authenticationRequest,
+            @RequestHeader("User-Agent") String agent
+    ) throws InvalidKeySpecException, NoSuchAlgorithmException {
         final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
 
@@ -92,10 +98,50 @@ public class AuthenticationController {
             AuthenticationResponse response = new AuthenticationResponse();
             response.setToken(jwtToken);
             response.setRefreshToken(jwtRefreshToken);
+            if (checkMobile(agent)){
+                try{
+                    clienteService.agregarTokenMobile(authenticationRequest.getEmail(), authenticationRequest.getMobileToken());
+                } catch (NullPointerException | ClienteNoEncontradoException e){
+                    //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+                }
 
+            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(path = "/auth/refresh")
+    public ResponseEntity<?> refreshTokens (@RequestHeader("RefreshAuthentication") String refreshToken) {
+        String parsedToken = null;
+        if ( refreshToken != null && refreshToken.startsWith("Bearer ")) {
+            parsedToken = refreshToken.substring(7);
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh Token inválido");
+        }
+        String correo = tokenHelper.getUsernameFromToken(parsedToken);
+        if (correo == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh Token inválido");
+        }
+        UserDetails userDetails = customService.loadUserByUsername(correo);
+        try {
+            String jwtToken = tokenHelper.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
+            String jwtRefreshToken = tokenHelper.generateRefreshToken(userDetails.getUsername(), userDetails.getAuthorities());
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("Authorization",
+                    jwtToken);
+            responseHeaders.set("RefreshAuthentication",
+                    jwtRefreshToken);
+            System.out.println("seteando nuevos tokens");
+            System.out.println("Refresh: " + jwtRefreshToken);
+            System.out.println("Auth: " + jwtToken);
+            return ResponseEntity.ok()
+                    .headers(responseHeaders).build();
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -110,27 +156,12 @@ public class AuthenticationController {
         String correo = tokenHelper.getUsernameFromToken(newToken);
 
         if (adminService.buscarAdmin(correo) != null) {
-/*            InfoAdmin adminInfo = new InfoAdmin();
-            Admin admin = adminService.buscarAdmin(correo);
-            adminInfo.setRoles(admin.getAuthorities().toArray());*/
             return new ResponseEntity<>(adminService.obtenerJsonAdmin(correo), HttpStatus.OK);
 
         } else if (restauranteService.buscarRestaurante(correo) != null) {
-/*            InfoRestaurante restauranteInfo = new InfoRestaurante();
-            Restaurante restaurante = restauranteService.buscarRestaurante(correo);
-            restauranteInfo.setNombre(restaurante.getNombreRestaurante());
-            restauranteInfo.setDescripcion(restaurante.getDescripcion());
-            restauranteInfo.setRoles(restaurante.getAuthorities().toArray());*/
             return new ResponseEntity<>(restauranteService.obtenerJsonRestaurante(correo), HttpStatus.OK);
 
         } else if (clienteService.buscarCliente(correo) != null) {
-            /* InfoCliente clienteInfo = new InfoCliente();
-            Cliente cliente = clienteService.buscarCliente(correo);
-           clienteInfo.setFirstName(cliente.getNombre());
-            clienteInfo.setLastName(cliente.getApellido());
-            clienteInfo.setRoles(cliente.getAuthorities().toArray());
-            clienteInfo.setMail(cliente.getCorreo());
-            clienteInfo.setDirecciones(cliente.getDirecciones());*/
             return new ResponseEntity<>(clienteService.obtenerJsonCliente(correo), HttpStatus.OK);
         } else {
             return new ResponseEntity<>("no se encontro ningun tipo de usuario", HttpStatus.BAD_REQUEST);
@@ -293,5 +324,9 @@ public class AuthenticationController {
 
     private boolean clienteNoHabilitado(String correo) throws ClienteNoEncontradoException {
         return !(clienteService.clienteEstado(correo) == EstadoCliente.ACTIVO);
+    }
+
+    public boolean checkMobile(String agent){
+        return (agent.toLowerCase(Locale.ROOT).contains("mobile"));
     }
  }

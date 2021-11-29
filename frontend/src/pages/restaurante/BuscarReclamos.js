@@ -48,51 +48,28 @@ const Styles = styled.div`
 `;
 
 function BuscarReclamos() {
-  const [reclamos, setReclamos] = useState([]);
-  const [isLoading, setLoading] = useState(true);
   const [values, setValues] = useState({
     razon: "",
     cliente: "",
     ordenar: false,
   });
 
-  useEffect(() => {
-    fetch();
-    setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetch = () => {
-    fetchReclamos(values)
-      .then((response) => {
-        if (response.status === 200) {
-          console.log(response.data);
-          setReclamos(response.data);
-        } else {
-          Noti(response.data);
-        }
-      })
-      .catch((error) => {
-        Noti(error.message);
-      });
-  };
-
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
       ...values,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch();
+    sessionStorage.setItem("reclamos-razon", values.razon);
+    sessionStorage.setItem("reclamos-cliente", values.cliente);
+    sessionStorage.setItem("reclamos-ordenar", values.ordenar);
+    window.location.reload();
   };
-
-  if (isLoading) {
-    return <Loading />;
-  }
 
   return (
     <Styles>
@@ -107,10 +84,10 @@ function BuscarReclamos() {
                 <div className="col-lg">
                   <div className="form-floating">
                     <input
-                      name="correo"
+                      name="cliente"
                       className="form-control"
                       onChange={handleChange}
-                      id="correo"
+                      id="cliente"
                       value={values.cliente}
                     ></input>
                     <label htmlFor="correo">Email del Cliente</label>
@@ -155,11 +132,7 @@ function BuscarReclamos() {
             <div className="form-floating">
               <div className="row align-items-center">
                 <div className="col-md">
-                  {reclamos !== null ? (
-                    <ListarReclamos reclamos={reclamos} />
-                  ) : (
-                    <p> No hay reclamos </p>
-                  )}
+                  <ListarReclamos />
                 </div>
               </div>
             </div>

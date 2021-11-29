@@ -19,7 +19,7 @@ const Styles = styled.div`
   img {
     object-fit: cover;
     border-radius: 3px 3px 0px 0px;
-    height: 200px;
+    height: 12rem;
     position: relative;
     top: 0;
     left: 0;
@@ -114,7 +114,7 @@ const ItemCard = (props) => {
               props.price * (props.item.multiplicadorPromocion / 100)}
           </h5>
           {props.desc === 0 ? (
-            <p ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ />
+            <p>ㅤㅤㅤㅤㅤ</p>
           ) : (
             <p id="desc" className="card-text">
               {props.desc} %

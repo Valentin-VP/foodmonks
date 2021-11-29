@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class Cliente extends Usuario {
 
     private Float calificacion;
+    private Integer cantidadCalificaciones;
     @ManyToMany(cascade=CascadeType.ALL)
     private List<Direccion> direcciones = new ArrayList<>();
     @Enumerated(value = EnumType.STRING)
@@ -36,9 +37,10 @@ public class Cliente extends Usuario {
     }
 
     //CONSTRUCTOR CON UN LIST DE DIRECCIONS
-    public Cliente(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, List<Direccion> direcciones, EstadoCliente estado, String mobileToken, List<Pedido> pedidos) {
+    public Cliente(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, Integer cantidadCalificaciones, List<Direccion> direcciones, EstadoCliente estado, String mobileToken, List<Pedido> pedidos) {
         super(nombre, apellido, correo, contrasenia, fechaRegistro);
         this.calificacion = calificacion;
+        this.cantidadCalificaciones = cantidadCalificaciones;
         this.direcciones = direcciones;
         this.estado = estado;
         this.mobileToken = mobileToken;

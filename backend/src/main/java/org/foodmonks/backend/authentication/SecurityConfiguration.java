@@ -53,7 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
                 .authenticationEntryPoint(authenticationEntry).and()
-                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login", "/v3/api-docs.yaml", "/v3/api-docs").permitAll()
+                .authorizeRequests((request) -> request.antMatchers("/api/v1/auth/login", "/v3/api-docs.yaml", "/v3/api-docs", "/api/v1/auth/refresh").permitAll()
                         .antMatchers("/api/v1/password/recuperacion/*").permitAll()
                         .antMatchers("/api/v1/cliente/altaCliente").permitAll()
                         .antMatchers("/api/v1/restaurante/crearSolicitudAltaRestaurante").permitAll()
@@ -65,6 +65,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/v1/cliente/agregarReclamo").hasRole("CLIENTE")
                         .antMatchers("/api/v1/admin/listarUsuarios").hasRole("ADMIN")
                         .antMatchers("/api/v1/cliente/realizarPedido").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/calificarRestaurante").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/modificarCalificacionRestaurante").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/cliente/eliminarCalificacionRestaurante").hasRole("CLIENTE")
+                        .antMatchers("/api/v1/restaurante/calificarCliente").hasRole("RESTAURANTE")
+                        .antMatchers("/api/v1/restaurante/modificarCalificacionCliente").hasRole("RESTAURANTE")
+                        .antMatchers("/api/v1/restaurante/eliminarCalificacionCliente").hasRole("RESTAURANTE")
+                        .antMatchers("/api/v1/restaurante/realizarDevolucion").hasRole("RESTAURANTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(new AuthenticationFilter(customService, tokenHelper),
                         UsernamePasswordAuthenticationFilter.class);
