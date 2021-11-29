@@ -1,16 +1,21 @@
 package org.foodmonks.backend.Cliente;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.*;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.EmailService.EmailService;
+import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
+import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuConverter;
 import org.foodmonks.backend.Menu.MenuRepository;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.MenuCompra.MenuCompraService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
 import org.foodmonks.backend.Pedido.PedidoConverter;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.ReclamoService;
@@ -363,5 +368,95 @@ class ClienteServiceTest {
         expectedResult = menuConverter.listaJsonMenu(List.of(menu2));
         result = clienteService.listarMenus("dummy", "", 11.0f, 18.0f);
         assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @Test
+    void crearPedido() throws RestauranteNoEncontradoException, MenuIdException, ClienteNoExisteDireccionException, PedidoTotalException, ClienteNoEncontradoException, MenuNoEncontradoException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Direccion dir2 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.0F, 10, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Menu menu1 = new Menu("dummy",10.0f,"dummy",
+                true,0.0f,"dummy", CategoriaMenu.PIZZAS,restaurante1);
+        menu1.setId(1L);
+        Menu menu2 = new Menu("dummy",20.0f,"dummy",
+                true,25.0f,"dummy", CategoriaMenu.HAMBURGUESAS,null);
+        menu2.setId(2L);
+
+        when(clienteRepository.findByCorreo(any())).thenReturn(cliente1);
+        when(restauranteService.obtenerRestaurante(any())).thenReturn(restaurante1);
+        when(direccionService.obtenerDireccion(any())).thenReturn(dir1);
+        when(menuService.obtenerMenu(any(), any())).thenReturn(menu1);
+        JsonObject jsonRequestPedido = new JsonObject();
+        JsonObject jsonMenu = new JsonObject();
+        JsonArray jsonMenus = new JsonArray();
+        jsonRequestPedido.addProperty("medioPago", "EFECTIVO");
+        jsonRequestPedido.addProperty("direccionId", "1");
+        jsonRequestPedido.addProperty("total", "10.0");
+        jsonRequestPedido.addProperty("restaurante", "dummy");
+        //jsonRequestPedido.addProperty("ordenId", "dummy");
+        //jsonRequestPedido.addProperty("linkAprobacion", "dummy");
+        jsonMenu.addProperty("id", "1");
+        jsonMenu.addProperty("cantidad", "1");
+        jsonMenus.add(jsonMenu);
+        jsonRequestPedido.add("menus", jsonMenus);
+
+        List<MenuCompra> menus = new ArrayList<>();
+        MenuCompra menuCompra = new MenuCompra();
+        menuCompra.setNombre("dummy");
+        menuCompra.setPrice(10.0f);
+        menuCompra.setDescripcion("dummy");
+        menuCompra.setMultiplicadorPromocion(0.0f);
+        menuCompra.setImagen("dummy");
+        menuCompra.setCategoria(CategoriaMenu.PIZZAS);
+        menus.add(menuCompra);
+
+//        JsonObject jsonMenuCompra = new JsonObject();
+//        jsonMenuCompra.addProperty("nombre","dummy");
+//        jsonMenuCompra.addProperty("price",10.0f);
+//        jsonMenuCompra.addProperty("descripcion","dummy");
+//        jsonMenuCompra.addProperty("multiplicador",0.0f);
+//        jsonMenuCompra.addProperty("imagen","dummy");
+//        jsonMenuCompra.addProperty("categoria",CategoriaMenu.PIZZAS.toString());
+        JsonObject result = clienteService.crearPedido("",jsonRequestPedido);
+        assertThat(result).isEqualTo(null);
+        // -----------------------------------------
+        jsonRequestPedido.addProperty("medioPago", "PAYPAL");
+        jsonRequestPedido.addProperty("ordenId", "dummy");
+        jsonRequestPedido.addProperty("linkAprobacion", "dummy");
+        result = clienteService.crearPedido("dummy",jsonRequestPedido);
+        assertThat(result).isEqualTo(null);
+        // -----------------------------------------
+        when(direccionService.obtenerDireccion(any())).thenReturn(null);
+        assertThatThrownBy(()->clienteService.crearPedido("dummy",jsonRequestPedido))
+                .isInstanceOf(ClienteNoExisteDireccionException.class).hasMessageContaining("No existe la direccion ingresada en el sistema");
+        // -----------------------------------------
+        when(direccionService.obtenerDireccion(any())).thenReturn(dir2);
+        assertThatThrownBy(()->clienteService.crearPedido("dummy",jsonRequestPedido))
+                .isInstanceOf(ClienteNoExisteDireccionException.class).hasMessageContaining("La direccion ingresada no existe para el Cliente dummy");
+        // -----------------------------------------
+        when(direccionService.obtenerDireccion(any())).thenReturn(dir1);
+        when(menuService.obtenerMenu(any(), any())).thenReturn(null);
+        assertThatThrownBy(()->clienteService.crearPedido("dummy",jsonRequestPedido))
+                .isInstanceOf(MenuNoEncontradoException.class).hasMessageContaining("El menu no existe para el Restaurante NombreRestaurante");
+        // -----------------------------------------
+        //when(menuService.obtenerMenu(any(), any())).thenReturn(menu1); // no llega
+        jsonMenu.addProperty("id", "1a");
+        jsonMenu.addProperty("cantidad", "1");
+        jsonMenus.add(jsonMenu);
+        jsonRequestPedido.add("menus", jsonMenus);
+        assertThatThrownBy(()->clienteService.crearPedido("dummy",jsonRequestPedido))
+                .isInstanceOf(MenuIdException.class).hasMessageContaining("El formado del menu con id 1a es invalido");
+
+
     }
 }
