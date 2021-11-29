@@ -15,7 +15,8 @@ import org.foodmonks.backend.Menu.MenuRepository;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.MenuCompra.MenuCompraService;
-import org.foodmonks.backend.Pedido.Exceptions.PedidoTotalException;
+import org.foodmonks.backend.Pedido.Exceptions.*;
+import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoConverter;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.ReclamoService;
@@ -25,10 +26,9 @@ import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
-import org.foodmonks.backend.datatypes.CategoriaMenu;
-import org.foodmonks.backend.datatypes.EstadoCliente;
-import org.foodmonks.backend.datatypes.EstadoRestaurante;
+import org.foodmonks.backend.datatypes.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -458,5 +458,145 @@ class ClienteServiceTest {
                 .isInstanceOf(MenuIdException.class).hasMessageContaining("El formado del menu con id 1a es invalido");
 
 
+    }
+
+    @Test
+    void calificarCliente() throws PedidoNoExisteException, PedidoIdException, PedidoClienteException, PedidoEstadoException, PedidoPuntajeException, PedidoCalificacionClienteException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                3.0F, 1, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 3.0f,1,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Pedido pedido1 = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2020,1,1,0,0,0),
+                500.0F, MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
+        pedido1.setCliente(cliente1);
+        pedido1.setRestaurante(restaurante1);
+        when(pedidoService.obtenerPedido(anyLong())).thenReturn(pedido1);
+        JsonObject calificacion = new JsonObject();
+        calificacion.addProperty("puntaje", "4");
+        calificacion.addProperty("comentario", "dummy");
+        calificacion.addProperty("idPedido", "1");
+
+        clienteService.calificarCliente("restaurante1@gmail.com", calificacion);
+
+        ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
+        verify(clienteRepository).save(clienteArgumentCaptor.capture());
+        assertThat(clienteArgumentCaptor.getValue().getCalificacion()).isEqualTo(3.5f);
+        // -------------------------------------------------------
+        assertThatThrownBy(()->clienteService.calificarCliente("fakeEmail", calificacion))
+                .isInstanceOf(PedidoClienteException.class)
+                .hasMessageContaining("El restaurante fakeEmail no es restaurante del pedido id 1");
+        // -------------------------------------------------------
+        pedido1.setEstado(EstadoPedido.CONFIRMADO);
+        assertThatThrownBy(()->clienteService.calificarCliente("restaurante1@gmail.com", calificacion))
+                .isInstanceOf(PedidoEstadoException.class)
+                .hasMessageContaining("El pedido id 1no esta en EstadoPedido para calificar");
+        // -------------------------------------------------------
+        pedido1.setEstado(EstadoPedido.FINALIZADO);
+        pedido1.setCalificacionCliente(new DtCalificacion(5.0f,"dummy"));
+        assertThatThrownBy(()->clienteService.calificarCliente("restaurante1@gmail.com", calificacion))
+                .isInstanceOf(PedidoCalificacionClienteException.class)
+                .hasMessageContaining("El pedido con id 1 ya tiene calificacion Cliente");
+    }
+
+    @Test
+    void modificarCalificacionRestaurante() throws PedidoNoExisteException, PedidoIdException, PedidoClienteException, PedidoPuntajeException, PedidoCalificacionClienteException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                3.0F, 1, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 3.0f,2,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Pedido pedido1 = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2020,1,1,0,0,0),
+                500.0F, MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
+        pedido1.setCliente(cliente1);
+        pedido1.setRestaurante(restaurante1);
+        pedido1.setCalificacionCliente(new DtCalificacion(5.0f,"dummy"));
+        when(pedidoService.obtenerPedido(anyLong())).thenReturn(pedido1);
+        JsonObject calificacion = new JsonObject();
+        calificacion.addProperty("puntaje", "4");
+        calificacion.addProperty("comentario", "dummy");
+        calificacion.addProperty("idPedido", "1");
+
+        clienteService.modificarCalificacionCliente("restaurante1@gmail.com", calificacion);
+
+        ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
+        verify(clienteRepository).save(clienteArgumentCaptor.capture());
+        assertThat(clienteArgumentCaptor.getValue().getCalificacion()).isEqualTo(2.5f);
+        // -------------------------------------------------------
+        assertThatThrownBy(()->clienteService.modificarCalificacionCliente("fakeEmail", calificacion))
+                .isInstanceOf(PedidoClienteException.class)
+                .hasMessageContaining("El restaurante fakeEmail no es restaurante del pedido id 1");
+        // -------------------------------------------------------
+        pedido1.setCalificacionCliente(null);
+        assertThatThrownBy(()->clienteService.modificarCalificacionCliente("restaurante1@gmail.com", calificacion))
+                .isInstanceOf(PedidoCalificacionClienteException.class)
+                .hasMessageContaining("El pedido con id 1 no tiene calificacion Cliente");
+    }
+
+    @Test
+    void eliminarCalificacionRestaurante() throws PedidoNoExisteException, PedidoIdException, PedidoClienteException, PedidoCalificacionClienteException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                5.0F, 1, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.2f,5,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        Pedido pedido1 = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2020,1,1,0,0,0),
+                500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
+        pedido1.setCliente(cliente1);
+        pedido1.setRestaurante(restaurante1);
+        pedido1.setCalificacionCliente(new DtCalificacion(5.0f,"dummy"));
+
+        when(pedidoService.obtenerPedido(anyLong())).thenReturn(pedido1);
+
+        clienteService.eliminarCalificacionCliente("restaurante1@gmail.com", "1");
+
+        ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
+        verify(clienteRepository).save(clienteArgumentCaptor.capture());
+        assertThat(clienteArgumentCaptor.getValue().getCalificacion()).isEqualTo(4.0f);
+        assertThat(clienteArgumentCaptor.getValue().getCantidadCalificaciones()).isEqualTo(4);
+        // -------------------------------------------------------
+        cliente1.setCalificacion(3.0f);
+        cliente1.setCantidadCalificaciones(1);
+        clienteService.eliminarCalificacionCliente("restaurante1@gmail.com", "1");
+        //verify(restauranteRepository, times(2)).save(restauranteArgumentCaptor.capture());
+        assertThat(clienteArgumentCaptor.getValue().getCalificacion()).isEqualTo(5.0f);
+        assertThat(clienteArgumentCaptor.getValue().getCantidadCalificaciones()).isEqualTo(0);
+        // -------------------------------------------------------
+        assertThatThrownBy(()->clienteService.eliminarCalificacionCliente("restaurante1@gmail.com", "    "))
+                .isInstanceOf(PedidoIdException.class)
+                .hasMessageContaining("El id del pedido no es un numero entero");
+        assertThatThrownBy(()->clienteService.eliminarCalificacionCliente("restaurante1@gmail.com", "asd"))
+                .isInstanceOf(PedidoIdException.class)
+                .hasMessageContaining("El id del pedido no es un numero entero");
+        // -------------------------------------------------------
+        assertThatThrownBy(()->clienteService.eliminarCalificacionCliente("fakeEmail", "1"))
+                .isInstanceOf(PedidoClienteException.class)
+                .hasMessageContaining("El restaurante fakeEmail no es restaurante del pedido id 1");
+        // -------------------------------------------------------
+        pedido1.setCalificacionCliente(null);
+        assertThatThrownBy(()->clienteService.eliminarCalificacionCliente("restaurante1@gmail.com", "1"))
+                .isInstanceOf(PedidoCalificacionClienteException.class)
+                .hasMessageContaining("El pedido con id 1 no tiene calificacion Cliente");
     }
 }
