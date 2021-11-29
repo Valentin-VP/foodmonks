@@ -2,6 +2,8 @@ package org.foodmonks.backend.Cliente;
 
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteExisteDireccionException;
+import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
@@ -107,8 +109,35 @@ class ClienteServiceTest {
         assertThatThrownBy(()->clienteService.crearCliente("dummy", "dummy", "dummy", "dummy",
                 LocalDate.now(), 5.0f, new JsonObject(), EstadoCliente.ACTIVO)).isInstanceOf(ClienteDireccionException.class)
                 .hasMessageContaining("Debe ingresar una dirección");
+    }
 
+    @Test
+    void agregarDireccionCliente() throws ClienteExisteDireccionException, DireccionNumeroException, ClienteNoEncontradoException, ClienteDireccionException {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "0.0", "0.0");
+        dir1.setId(1L);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        when(clienteRepository.findByCorreo(anyString())).thenReturn(cliente1);
 
+        JsonObject jsonDireccion = new JsonObject();
+        jsonDireccion.addProperty("numero", "0");
+        jsonDireccion.addProperty("calle", "dummy");
+        jsonDireccion.addProperty("esquina", "dummy");
+        jsonDireccion.addProperty("detalles", "dummy");
+        jsonDireccion.addProperty("latitud", "5.0");
+        jsonDireccion.addProperty("longitud", "5.0");
+
+        JsonObject expectedResult = new JsonObject();
+        expectedResult.addProperty("id", 1L);
+
+        JsonObject result = clienteService.agregarDireccionCliente("dummy", jsonDireccion);
+
+        ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
+        verify(clienteRepository).save(clienteArgumentCaptor.capture());
+        assertThat(clienteArgumentCaptor.getValue().getDirecciones().size()).isEqualTo(1);
 
     }
 }
