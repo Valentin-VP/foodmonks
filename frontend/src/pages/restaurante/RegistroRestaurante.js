@@ -1,6 +1,6 @@
 import { React, Fragment, useState } from "react";
 import styled from "styled-components";
-import { Form, Button, ProgressBar } from "react-bootstrap";
+import { Form, Button, ProgressBar, Alert } from "react-bootstrap";
 import logo from "../../assets/foodMonks-sinfondo.png";
 import arrow from "../../assets/arrow.png";
 import usePlacesAutocomplete, {
@@ -18,6 +18,7 @@ import "@reach/combobox/styles.css";
 import { Alerta } from "../../components/Alerta";
 import { Base64 } from "js-base64";
 import { storage } from "../../Firebase";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 const Styles = styled.div`
   * {
@@ -389,6 +390,10 @@ function RegistroRestaurante() {
                 <img src={arrow} alt="arrow" width="25" />
               </span>
             </Button>
+            <Alert className="mt-3" variant={"warning"}>
+              <AiOutlineInfoCircle color="#543a2a" size="1.2rem" /> Esto es una
+              solicitud de registro
+            </Alert>
           </form>
           <p className="mt-2 mb-3 text-muted">
             ¿Ya tienes cuenta? <a href="/">Inicia sesión</a>
