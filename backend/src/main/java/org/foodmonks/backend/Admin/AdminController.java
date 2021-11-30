@@ -79,7 +79,7 @@ public class AdminController {
     @Operation(summary = "Listar los Usuarios",
             description = "Lista de los Usuarios de el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuarios" })
+            tags = { "usuario" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Usuario.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -91,39 +91,7 @@ public class AdminController {
                                             @RequestParam(defaultValue = "0",required = false, name = "page") String page) {
         JsonObject jsonObject = new JsonObject();
         try {
-            listaUsuarios = usuarioService.listarUsuarios(new String(Base64.getDecoder().decode(correo)), tipoUser, fechaInicio, fechaFin, estado, orden);
-
-            for (Usuario listaUsuario : listaUsuarios) {
-                JsonObject usuario = new JsonObject();
-                usuario.addProperty("correo", listaUsuario.getCorreo());
-                usuario.addProperty("fechaRegistro", listaUsuario.getFechaRegistro().toString());
-                if (listaUsuario instanceof Cliente) {//si es cliente
-                    Cliente cliente = clienteService.buscarCliente(listaUsuario.getCorreo());//lo consigo como cliente
-                    usuario.addProperty("rol", "CLIENTE");
-                    usuario.addProperty("estado", cliente.getEstado().toString());
-                    usuario.addProperty("nombre", cliente.getNombre());
-                    usuario.addProperty("apellido", cliente.getApellido());
-                    usuario.addProperty("calificacion", cliente.getCalificacion().toString());
-                    jsonArray.add(usuario);
-                } else if(listaUsuario instanceof Restaurante){//si es restaurante
-                    Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
-                    usuario.addProperty("rol", "RESTAURANTE");
-                    usuario.addProperty("estado", restaurante.getEstado().toString());
-                    usuario.addProperty("RUT", restaurante.getRut().toString());
-                    usuario.addProperty("descripcion", restaurante.getDescripcion());
-                    usuario.addProperty("nombre", restaurante.getNombreRestaurante());
-                    usuario.addProperty("telefono", restaurante.getTelefono());
-                    usuario.addProperty("calificacion", restaurante.getCalificacion().toString());
-                    jsonArray.add(usuario);
-                } else if(listaUsuario instanceof Admin) {
-                    Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());
-                    usuario.addProperty("nombre", admin.getNombre());
-                    usuario.addProperty("rol", "ADMIN");
-                    usuario.addProperty("apellido", admin.getApellido());
-                    jsonArray.add(usuario);
-                }
-            }
-
+            jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
