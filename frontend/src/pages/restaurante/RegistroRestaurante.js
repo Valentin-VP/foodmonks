@@ -242,7 +242,7 @@ function RegistroRestaurante() {
           <a href="/">
             <img className="" src={logo} alt="" width="200" height="200" />
           </a>
-          <h2 className="mb-3">Registrate</h2>
+          <h2 className="mb-3">Regístrate como empresa</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-floating">
               <input
@@ -272,7 +272,7 @@ function RegistroRestaurante() {
                 placeholder="name@example.com"
                 required
               />
-              <label htmlFor="floatingInput">Correo electronico</label>
+              <label htmlFor="floatingInput">Correo electrónico</label>
             </div>
             <div className="form-floating">
               <input

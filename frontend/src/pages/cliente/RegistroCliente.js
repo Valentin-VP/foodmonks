@@ -186,7 +186,7 @@ function RegistroCliente() {
               <a href="/">
                 <img className="" src={logo} alt="" width="200" height="200" />
               </a>
-              <h2 className="mb-3">Registrate</h2>
+              <h2 className="mb-3">Regístrate como Cliente</h2>
 
               <div className="form-floating">
                 <input
@@ -216,7 +216,7 @@ function RegistroCliente() {
                   placeholder="name@example.com"
                   required
                 />
-                <label htmlFor="floatingInput">Correo electronico</label>
+                <label htmlFor="floatingInput">Correo electrónico</label>
               </div>
               <div className="form-floating">
                 <input
@@ -275,11 +275,11 @@ function RegistroCliente() {
               </button>
             </form>
             <p className="mt-2 mb-3 text-muted">
-              ¿Ya tienes cuenta?<a href="/">Inicia sesión</a>
+              ¿Ya tienes cuenta? <a href="/">Inicia sesión</a>
             </p>
             <p className="mt-2 mb-3 text-muted">
-              ¿Eres una empresa?
-              <a href="/registroRestaurante">Registrate como restaurante</a>
+              ¿Eres un restaurante o empresa?{" "}
+              <a href="/registroRestaurante">Regístrate como restaurante</a>
             </p>
           </main>
         </div>

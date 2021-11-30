@@ -152,10 +152,10 @@ function Login() {
             </button>
             <div id="loginError">{componente}</div>
             <p className="mt-5 mb-3 text-muted">
-              <Link to="/forgotPassword">Olvide mi contraseña</Link>
+              <Link to="/forgotPassword">Olvidé mi contraseña</Link>
             </p>
             <p className="mt-2 mb-3 text-muted">
-              ¿No tienes cuenta?<a href="/register">Registrate</a>
+              ¿No tienes cuenta? <a href="/register">Regístrate</a>
             </p>
           </form>
         </main>
