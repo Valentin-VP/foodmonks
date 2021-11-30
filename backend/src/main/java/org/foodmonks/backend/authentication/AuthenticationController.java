@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -16,6 +18,7 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
+import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
@@ -79,6 +82,13 @@ public class AuthenticationController {
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Operation(summary = "Logueo de un usuario en el sistema",
+            description = "Permite que un usuario ingrese al sistema",
+            tags = { "autenticación" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitud realizada con éxito"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(
             @Parameter @RequestBody AuthenticationRequest authenticationRequest,
@@ -146,8 +156,15 @@ public class AuthenticationController {
     }
 
     @GetMapping("/auth/userinfo")
-    @Operation(summary = "Obtiene información del Usuario", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token/*Authentication user*/) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, AdminNoEncontradoException {
+    @Operation(summary = "Devuelve informacion de un usuairo",
+            description = "Devuelve la informacion del usuario correspondiente al token",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "autenticación" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, AdminNoEncontradoException {
 
         String newToken = "";
         if ( token != null && token.startsWith("Bearer ")) {
@@ -170,7 +187,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Solicitud de cambio de contraseña",
             description = "Genera una solicitud de cambio de contraseña, enviando un enlace por correo para el cambio",
-            tags = { "usuario", "autenticación" })
+            tags = { "autenticación" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitud realizada con éxito"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -189,7 +206,7 @@ public class AuthenticationController {
         try {
             // generar resetToken
             JsonObject jsonReset = new Gson().fromJson(data, JsonObject.class);
-            String correo = jsonReset.get("email").getAsString();
+            String correo = new String(Base64.getDecoder().decode(jsonReset.get("email").getAsString()));
             String resetToken = usuarioService.generarTokenResetPassword();
             String nombre = null;
             // Chequear si el usuario existe y esta habilitado
@@ -225,7 +242,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Realización de cambio de contraseña",
             description = "Realiza el cambio de contraseña de un usuario",
-            tags = { "usuario", "autenticación" })
+            tags = { "autenticación" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Nueva password cambiada con éxito"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -237,7 +254,7 @@ public class AuthenticationController {
             @RequestBody String resetRequest) {
         try{
             JsonObject jsonReset = new Gson().fromJson(resetRequest, JsonObject.class);
-            String correo = jsonReset.get("correo").getAsString();
+            String correo = new String(Base64.getDecoder().decode(jsonReset.get("correo").getAsString()));
             String resetToken = jsonReset.get("token").getAsString();
             String password = new String(Base64.getDecoder().decode(jsonReset.get("password").getAsString()));
             String nombre = null;
@@ -281,7 +298,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Chequeo previo a cambio de contraseña",
             description = "Valida que el token recibido esté asociado al usuario con correo=email",
-            tags = { "usuario", "autenticación" })
+            tags = { "autenticación" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Token válido"),
             @ApiResponse(responseCode = "401", description = "Credenciales no coinciden")
@@ -292,7 +309,7 @@ public class AuthenticationController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
             @RequestBody String tokenResetRequest) {
         JsonObject jsonReset = new Gson().fromJson(tokenResetRequest, JsonObject.class);
-        TokenReset tokenReset = new TokenReset(jsonReset.get("email").getAsString(), jsonReset.get("token").getAsString());
+        TokenReset tokenReset = new TokenReset(new String(Base64.getDecoder().decode(jsonReset.get("email").getAsString())), jsonReset.get("token").getAsString());
         if (awsService.comprobarResetToken(tokenReset)){
             return ResponseEntity.ok("Token válido");
         } else {

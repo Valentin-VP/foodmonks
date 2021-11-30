@@ -12,6 +12,7 @@ import Modal, { ModalProvider } from "styled-react-modal";
 import { getMenusFromRestaurante } from "../../services/Requests";
 import { Noti, NotiError } from "../../components/Notification";
 import { Input } from "@material-ui/core";
+import { Base64 } from "js-base64";
 
 const StyledModal = Modal.styled`
   border-radius: 5px;
@@ -108,6 +109,7 @@ export default function Home() {
     const data = {
       comentariosCambioEstado: document.getElementById("mensaje").value,
     };
+
     cambiarEstadoRestaurante(restauranteSeleccionado.correo, estado, data)
       .then((response) => {
         window.location.reload();

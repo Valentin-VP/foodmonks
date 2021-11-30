@@ -23,6 +23,7 @@ import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
+import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -98,7 +99,7 @@ public class RestauranteController {
             restauranteService.createSolicitudAltaRestaurante(
                     jsonRestaurante.get("nombre").getAsString(),
                     jsonRestaurante.get("apellido").getAsString(),
-                    jsonRestaurante.get("correo").getAsString(),
+                    new String(Base64.getDecoder().decode(jsonRestaurante.get("correo").getAsString())),
                     new String(Base64.getDecoder().decode(jsonRestaurante.get("password").getAsString())),
                     LocalDate.now(),
                     5.0f,
@@ -150,7 +151,7 @@ public class RestauranteController {
     @Operation(summary = "Crea un nuevo Menu",
             description = "Agrega un nuevo Menu al Restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "menu" })
+            tags = { "menus" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -161,7 +162,6 @@ public class RestauranteController {
             @Parameter(description = "Crea un nuevo Menu en el Restaurante", required = true)
             @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)))
             @RequestBody String infoMenu) {
-        String newToken = "";
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
@@ -179,14 +179,13 @@ public class RestauranteController {
     @Operation(summary = "Listar los Menus",
             description = "Lista de los Menus de un restaurantes",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "menu" })
+            tags = { "menus" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/listarMenu")
     public ResponseEntity<?> listMenu(@RequestHeader("Authorization") String token) {
-        String newtoken = "";
         List<JsonObject> listaMenu;
         JsonArray jsonArray = new JsonArray();
         try {
@@ -206,7 +205,7 @@ public class RestauranteController {
     @Operation(summary = "Listar las Promociones",
             description = "Lista de las Promociones de un restaurantes",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "promocion" })
+            tags = { "promociones" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -234,7 +233,7 @@ public class RestauranteController {
     @Operation(summary = "Modificar un Menu",
             description = "Modifica un menu de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "menu" })
+            tags = { "menus" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -243,6 +242,7 @@ public class RestauranteController {
     public ResponseEntity<?> updateMenu(@RequestHeader("Authorization") String token, @PathVariable Long menuId, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Menu.class)))
     @RequestBody String updatedMenu) {
         try {
+
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
             // Transformar json string en JsonObject
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
@@ -261,7 +261,7 @@ public class RestauranteController {
     @Operation(summary = "Eliminar un Menu",
             description = "Eliminar un menu de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "menu" })
+            tags = { "menus" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -280,7 +280,7 @@ public class RestauranteController {
     @Operation(summary = "Obtener un Menu",
               description = "Obtener un Menu de un restaurante",
               security = @SecurityRequirement(name = "bearerAuth"),
-              tags = { "menu" })
+              tags = { "menus" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Menu.class))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error", content = @Content)
@@ -320,7 +320,7 @@ public class RestauranteController {
     @Operation(summary = "Modificar el estado de un Menu",
             description = "Modifica el estado de un menu de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "menu" })
+            tags = { "menus" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -340,7 +340,7 @@ public class RestauranteController {
     @Operation(summary = "Listar los Pedidos Pendientes",
             description = "Lista de los pedidos pendientes de confirmación.",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "menu" })
+            tags = { "pedidos" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -366,7 +366,7 @@ public class RestauranteController {
     @Operation(summary = "Listar los Pedidos en Efectivo sin cobrar",
             description = "Lista de los Pedidos en efectivo con EstadoPedido = COMPLETADO y MedioPago = EFECTIVO.",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedido" })
+            tags = { "pedidos" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -423,7 +423,7 @@ public class RestauranteController {
     @Operation(summary = "Cambia el estado del pedido",
             description = "Cambia el estado del pedido al estado necesario.",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedido" })
+            tags = { "pedidos" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -466,7 +466,8 @@ public class RestauranteController {
 
     @Operation(summary = "Calificar a un Cliente",
             description = "Agrega una Calificación a un Cliente a través de un Pedido",
-            tags = { "restaurante", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Calificacion creada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -488,7 +489,8 @@ public class RestauranteController {
 
     @Operation(summary = "Modificar una Calificacion realizada a un Cliente",
             description = "Modifica (reemplaza) una Calificación realizada a un Cliente a través de un Pedido",
-            tags = { "restaurante", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calificacion modificada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -510,7 +512,8 @@ public class RestauranteController {
 
     @Operation(summary = "Elimina una Calificacion realizada a un Cliente",
             description = "Elimina una Calificación realizada a un Cliente a través de un Pedido",
-            tags = { "restaurante", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calificacion eliminada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -528,8 +531,15 @@ public class RestauranteController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-    
-    //listar buscar reclamos hechos por clientes
+
+    @Operation(summary = "Obtiene el listado de los reclamos",
+            description = "Devuelve los reclamos hechos por un cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "reclamos" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reclamo.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @GetMapping(path = "/listarReclamos")
     public ResponseEntity<?> listarReclamos(
             @RequestHeader("Authorization") String token,
@@ -540,7 +550,7 @@ public class RestauranteController {
         JsonArray jsonArray = new JsonArray();
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
-            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, correoCliente, razon);
+            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, new String(Base64.getDecoder().decode(correoCliente)), razon);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -550,7 +560,7 @@ public class RestauranteController {
     @Operation(summary = "Obtiene detalles de un Pedido",
             description = "Obtiene un Pedido con su información",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedido"})
+            tags = { "pedidos"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -595,6 +605,14 @@ public class RestauranteController {
         return new ResponseEntity<>(jsonBalance, HttpStatus.OK);
     }
   
+   @Operation(summary = "Realizar una devolucion",
+            description = "Se realiza una devolucion de un pedido",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "reclamos" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Calificacion creada"),
+            @ApiResponse(responseCode = "400", description = "Ha courrido un error")
+    })
     @PostMapping("/realizarDevolucion")
     public ResponseEntity<?> realizarDevolucion(
             @RequestHeader("Authorization") String token,

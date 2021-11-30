@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Base64 } from "js-base64";
 
 // Crear base de Axios "instance"
 const instance = axios.create({
@@ -140,9 +141,11 @@ export const fetchPromos = () => {
 
 export const fetchMenusPromos = (datos) => {
   const restauranteId = getRestauranteId();
+  const correoRestaurante = Base64.encode(restauranteId);
   return instance.get(
-    `api/v1/cliente/listarProductosRestaurante?id=${restauranteId}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`
+    `api/v1/cliente/listarProductosRestaurante?id=${correoRestaurante}&categoria=${datos.categoria}&precioInicial=${datos.precioInicial}&precioFinal=${datos.precioFinal}`
   );
+
 };
 
 export const getMenuInfo = () => {
@@ -222,8 +225,9 @@ export const eliminarUsuario = (correoUsuario) => {
 export const fetchUsuariosBusqueda = (datos, fechaIni, fechaFin, p) => {
   const fIni = fechaIni ? fechaIni.toISOString().slice(0, 10) : ""; // Para sacarle la basura del final (resulta en yy-MM-dddd)
   const fFin = fechaFin ? fechaFin.toISOString().slice(0, 10) : fIni;
+  const correo = Base64.encode(datos.correo);
   return instance.get(
-    `api/v1/admin/listarUsuarios?correo=${datos.correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}&page=${p}`,
+    `api/v1/admin/listarUsuarios?correo=${correo}&tipoUser=${datos.tipoUser}&estado=${datos.estado}&orden=${datos.ordenar}&fechaReg=${fIni}&fechafin=${fFin}&page=${p}`,
     datos
   );
 };
@@ -248,7 +252,8 @@ export const cambiarPassword = (email, pass, ptoken) => {
   return instance.post("api/v1/password/recuperacion/cambio", datos);
 };
 export const checkPwdRecoveryToken = (email, ptoken) => {
-  const datos = { email: email ? email : "", token: ptoken ? ptoken : "" };
+  const correo = Base64.encode(email);
+  const datos = { email: correo ? correo : "", token: ptoken ? ptoken : "" };
   return instance.post("api/v1/password/recuperacion/check", datos);
 };
 
@@ -321,22 +326,26 @@ export const cambiarEstadoRestaurante = (
   estadoRestaurante,
   mensaje
 ) => {
+  const correoRestaurante = Base64.encode(restaurante);
   return instance.put(
-    `api/v1/admin/cambiarEstadoRestaurante?correoRestaurante=${restaurante}&estadoRestaurante=${estadoRestaurante}`,
+    `api/v1/admin/cambiarEstadoRestaurante?correoRestaurante=${correoRestaurante}&estadoRestaurante=${estadoRestaurante}`,
     mensaje
   );
 };
 
+
 export const fetchReclamos = (values) => {
+  const correoCliente = Base64.encode(values.cliente);
   return instance.get(
-    `api/v1/restaurante/listarReclamos?orden=${values.ordenar}&cliente=${values.cliente}&razon=${values.razon}`
+    `api/v1/restaurante/listarReclamos?orden=${values.ordenar}&cliente=${correoCliente}&razon=${values.razon}`
   );
 };
 
 export const getMenusFromRestaurante = (restaurante) => {
   var vacia = "";
+  var correoRestaurante = Base64.encode(restaurante);
   return instance.get(
-    `api/v1/cliente/listarProductosRestaurante?id=${restaurante}&categoria=${vacia}&precioInicial=${vacia}&precioFinal=${vacia}`
+    `api/v1/cliente/listarProductosRestaurante?id=${correoRestaurante}&categoria=${vacia}&precioInicial=${vacia}&precioFinal=${vacia}`
   );
 };
 
