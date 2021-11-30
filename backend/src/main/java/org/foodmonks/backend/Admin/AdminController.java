@@ -9,9 +9,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
-import org.foodmonks.backend.Menu.Menu;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -27,7 +28,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.Base64;
 import java.util.List;
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -54,7 +54,7 @@ public class AdminController {
     @Operation(summary = "Crea un nuevo Administrador",
             description = "Alta de un nuevo Administrador",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "administrador" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Administrador creado con éxito"),
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
@@ -65,7 +65,7 @@ public class AdminController {
         try{
             JsonObject jsonAdmin = new Gson().fromJson(admin, JsonObject.class);
             adminService.crearAdmin(
-                    jsonAdmin.get("email").getAsString(),
+                    new String (Base64.getDecoder().decode(jsonAdmin.get("email").getAsString())),
                     jsonAdmin.get("nombre").getAsString(),
                     jsonAdmin.get("apellido").getAsString(),
                     new String (Base64.getDecoder().decode(jsonAdmin.get("password").getAsString()))
@@ -74,27 +74,6 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-    }
-
-    @GetMapping
-    //@GetMapping("/rutaEspecifica")
-    public List<Admin> listarAdmin(){
-        return adminService.listarAdmin();
-    }
-
-    @GetMapping("/buscar")
-    public void buscarAdmin(@RequestParam String correo) {
-        adminService.buscarAdmin(correo);
-    }
-
-    @DeleteMapping
-    public void elimiarAdmin(@RequestParam Long id) {
-        //adminService.eliminarAdmin(id);
-    }
-
-    @PutMapping
-    public void modificarAdmin(@RequestBody Admin admin) {
-        adminService.modificarAdmin(admin);
     }
 
     @Operation(summary = "Listar los Usuarios",
@@ -108,52 +87,21 @@ public class AdminController {
     @GetMapping(path = "/listarUsuarios")
     public ResponseEntity<?> listarUsuarios(@RequestParam(required = false, name = "correo") String correo, @RequestParam(required = false, name = "tipoUser") String tipoUser,
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
-                                            @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden) {
-        List<Usuario> listaUsuarios = new ArrayList<>();
-        JsonArray jsonArray = new JsonArray();
+                                            @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden,
+                                            @RequestParam(defaultValue = "0",required = false, name = "page") String page) {
+        JsonObject jsonObject = new JsonObject();
         try {
-            listaUsuarios = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden);
-
-            for (Usuario listaUsuario : listaUsuarios) {
-                JsonObject usuario = new JsonObject();
-                usuario.addProperty("correo", listaUsuario.getCorreo());
-                usuario.addProperty("fechaRegistro", listaUsuario.getFechaRegistro().toString());
-                if (listaUsuario instanceof Cliente) {//si es cliente
-                    Cliente cliente = clienteService.buscarCliente(listaUsuario.getCorreo());//lo consigo como cliente
-                    usuario.addProperty("rol", "CLIENTE");
-                    usuario.addProperty("estado", cliente.getEstado().toString());
-                    usuario.addProperty("nombre", cliente.getNombre());
-                    usuario.addProperty("apellido", cliente.getApellido());
-                    usuario.addProperty("calificacion", cliente.getCalificacion().toString());
-                    jsonArray.add(usuario);
-                } else if(listaUsuario instanceof Restaurante){//si es restaurante
-                    Restaurante restaurante = restauranteService.buscarRestaurante(listaUsuario.getCorreo());//lo consigo como restaurante
-                    usuario.addProperty("rol", "RESTAURANTE");
-                    usuario.addProperty("estado", restaurante.getEstado().toString());
-                    usuario.addProperty("RUT", restaurante.getRut().toString());
-                    usuario.addProperty("descripcion", restaurante.getDescripcion());
-                    usuario.addProperty("nombre", restaurante.getNombreRestaurante());
-                    usuario.addProperty("telefono", restaurante.getTelefono());
-                    usuario.addProperty("calificacion", restaurante.getCalificacion().toString());
-                    jsonArray.add(usuario);
-                } else if(listaUsuario instanceof Admin) {
-                    Admin admin = adminService.buscarAdmin(listaUsuario.getCorreo());
-                    usuario.addProperty("nombre", admin.getNombre());
-                    usuario.addProperty("rol", "ADMIN");
-                    usuario.addProperty("apellido", admin.getApellido());
-                    jsonArray.add(usuario);
-                }
-            }
+            jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
     }
 
     @Operation(summary = "Cambiar estado de un Usuario",
             description = "Cambia el estado de un Usuario",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuario" })
+            tags = { "usuarios" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -161,32 +109,185 @@ public class AdminController {
     @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{correo}")
     public ResponseEntity<?> cambiarEstadoUsuario(@RequestHeader("Authorization") String token, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))) @RequestBody String estado, @PathVariable String correo) {
-        JsonObject JsonEstado = new JsonObject();
+        JsonObject JsonEstado;
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 
+        String correoDecrypted = new String(Base64.getDecoder().decode(correo));
         String state = JsonEstado.get("estado").getAsString();
         System.out.println("estado: " + state);
         switch (JsonEstado.get("estado").getAsString()) {
             case "BLOQUEAR":
-                usuarioService.bloquearUsuario(correo);
+                usuarioService.bloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "ELIMINAR":
                 if ( token != null && token.startsWith("Bearer ")) {
                     String newToken = token.substring(7);
-                    if (tokenHelp.getUsernameFromToken(newToken).equals(correo)){
+                    if (tokenHelp.getUsernameFromToken(newToken).equals(correoDecrypted)){
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede eliminar este usuario.");
                     }
                 }
-                usuarioService.eliminarUsuario(correo);
+                usuarioService.eliminarUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "DESBLOQUEAR":
-                usuarioService.desbloquearUsuario(correo);
+                usuarioService.desbloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "RECHAZAR":
-                restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+                restauranteService.modificarEstado(correoDecrypted, EstadoRestaurante.valueOf(estado));
                 return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @Operation(summary = "Listar/buscar Restaurantes con cierto estado",
+            description = "Lista de los restaurantes que tienen el estado recibido",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/listarRestaurantesPorEstado")
+    public ResponseEntity<?> listarRestaurantesPorEstado(
+            @RequestParam(required = false, name = "estadoRestaurante") String estadoRestaurante
+    ) {
+        JsonArray jsonArray;
+        try {
+            jsonArray = adminService.listarRestaurantesPorEstado(estadoRestaurante);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonArray, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Modificar estado de un Restaurante",
+            description = "Modifica el estado de un restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @PutMapping("/cambiarEstadoRestaurante")
+    public ResponseEntity<?> cambiarEstadoRestaurante(
+            @RequestParam(name = "correoRestaurante") String correoRestaurante,
+            @RequestParam(name = "estadoRestaurante") String estadoRestaurante,
+            @RequestBody String comentariosCambioEstado
+    ) {
+        JsonObject jsonResponse;
+        try{
+            String correoDecrypted = new String(Base64.getDecoder().decode(correoRestaurante));
+            estadoRestaurante = estadoRestaurante.toUpperCase();
+            jsonResponse = adminService.cambiarEstadoRestaurante(correoDecrypted, estadoRestaurante);
+            JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
+            String comentarios = body.get("comentariosCambioEstado").getAsString();
+            String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
+            // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
+            // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentarios} '
+            adminService.enviarCorreo(correoDecrypted, resultadoCambioEstado, comentarios);
+            // correoRestaurante: Destinatario del Correo
+            // resultadoCambioEstado: Contiene 'APROBADO' o 'RECHAZADO
+            // comentariosCambioEstado: Empty si es una aprobación, de lo contrario contiene el motivo del rechazo
+        } catch(JsonIOException | EmailNoEnviadoException | RestauranteNoEncontradoException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
+    }
+
+    @Operation(summary = "consulta informacion para la estadistica de los pedidos de un restaurante",
+            description = "devuelve la informacion de los pedidos de un restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin", "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticasPedidos")
+    public ResponseEntity<?> obtenerEstadisticasPedidos(@RequestParam(name = "anioPedidos") int anioPedidos) {
+        JsonObject estadisticasPedidos;
+        try {
+            estadisticasPedidos = restauranteService.pedidosRegistrados(anioPedidos);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticasPedidos, HttpStatus.OK);
+    }
+
+    @Operation(summary = "consulta informacion para la estadistica de ventas de un restaurante",
+            description = "devuelve la informacion de las ventas de un restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticasVentas")
+    public ResponseEntity<?> obtenerEstadisticasVentas(@RequestParam(name = "correoRestaurante") String correoRestaurante,
+                                                       @RequestParam(name = "anioVentas") int anioVentas) {
+        JsonObject estadisticasVentas;
+        try {
+            estadisticasVentas = restauranteService.ventasRestaurantes(correoRestaurante,anioVentas);
+        } catch(JsonIOException | RestauranteNoEncontradoException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticasVentas, HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "consulta informacion para la estadistica de los usuarios activos en el sistema",
+            description = "devuelve la informacion de los usuarios activos en el sistema",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticasUsuarios")
+    public ResponseEntity<?> obtenerEstadisticasUsuarios() {
+        JsonObject estadisticasUsuarios;
+        try {
+            estadisticasUsuarios = usuarioService.usuariosActivos();
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticasUsuarios, HttpStatus.OK);
+    }
+
+    @Operation(summary = "consulta informacion para la estadistica de los registros de usuarios en el sistema",
+            description = "devuelve la informacion de los registros de usuarios en el sistema",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "admin", "restaurante", "cliente" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerEstadisticasRegistros")
+    public ResponseEntity<?> obtenerEstadisticasRegistros(@RequestParam(name = "anioPedidos") int anioRegistros) {
+        JsonArray estadisticasRegistros;
+        try {
+            estadisticasRegistros = usuarioService.usuariosRegistrados(anioRegistros);
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(estadisticasRegistros, HttpStatus.OK);
+    }
+
+    @Operation(summary = "lista de todos los restaurantes del sistema",
+            description = "devuelve un listado de todos los restaurantes registrados",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "restaurante" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "obtenerRestaurantes")
+    public ResponseEntity<?> obtenerRestaurantes() {
+        JsonArray restaurantes;
+        try {
+            restaurantes = restauranteService.listarRestaurante();
+        } catch(JsonIOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(restaurantes, HttpStatus.OK);
     }
 
 }

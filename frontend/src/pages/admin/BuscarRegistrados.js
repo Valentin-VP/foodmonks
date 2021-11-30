@@ -1,4 +1,4 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
 import { fetchUsuariosBusqueda } from "../../services/Requests";
 import ListadoRegistrados from "./ListadoRegistrados";
@@ -7,6 +7,8 @@ import { Noti } from "../../components/Notification";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
+import { Col } from "react-bootstrap";
+import Pagination from "@material-ui/lab/Pagination";
 
 const Styles = styled.div`
   .form {
@@ -51,6 +53,19 @@ const Styles = styled.div`
   #fecha{
     height: 58px;
   }
+  .MuiPaginationItem-page.Mui-selected {
+    background-color: #e87121;
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
+      background-color: #f87121;
+    }
+    &:hover {
+      background-color: #da6416;
+    }
+    &:active {
+      background-color: #d87121;
+    }
+  }
 `;
 
 export default function BuscarRegistrados() {
@@ -64,6 +79,11 @@ export default function BuscarRegistrados() {
     correo: "",
     ordenar: false,
   });
+
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -87,10 +107,9 @@ export default function BuscarRegistrados() {
     { estado: "Eliminado", value: "ELIMINADO" },
   ];
 
-  const fetch = () => {
-    //let a = [{lol: "1", asd: "asdasd"}, {lol: "2", asd: "vbbv"}, {lol: "3", asd: "ff"}];
-    //console.log(a.map((item) => (Object.assign(item, {visible: false}))));
-    fetchUsuariosBusqueda(values, startDate, endDate)
+  const fetch = (page) => {
+    let p = page ? page - 1 : 0;
+    fetchUsuariosBusqueda(values, startDate, endDate, p)
       .then((response) => {
         if (response.status === 200) {
           console.log(response.data);
@@ -100,10 +119,22 @@ export default function BuscarRegistrados() {
         }
       })
       .catch((error) => {
-        Noti(error.message);
+        Noti(error.response.data);
       });
-    //setData([...data, {tipoUser: "restaurante", nombreRestaurante: "asd", estado : "bloqueado"}]);
   };
+
+  // Pagination
+  const onPageChange = (page) => {
+    fetch(page);
+  };
+
+  const [page, setPage] = useState(1);
+
+  const handlePageChange = (e, value) => {
+    setPage(value);
+    onPageChange(value);
+  };
+  // End Pagination
 
   const handleChange = (e) => {
     e.persist();
@@ -115,11 +146,12 @@ export default function BuscarRegistrados() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-
+     e.preventDefault();
+    setPage(1);
+    onPageChange(1);
     // dependiendo de la respuesta del servidor para el request de buscar, muestro una tabla con
     // los datos de los usuarios y eventualmente 2 botones (des/bloquear y elim-perm (solo si bloq))
-    fetch();
+    //fetch();
     //setLoaded(!loaded);
   };
 
@@ -190,8 +222,8 @@ export default function BuscarRegistrados() {
                       onChange={handleChange}
                       id="estado"
                     >
-                      {estado.map((item) => (
-                        <option key={item.estado} value={item.value}>
+                      {estado.map((item,index) => (
+                        <option key={index} value={item.value}>
                           {item.estado}
                         </option>
                       ))}
@@ -199,13 +231,13 @@ export default function BuscarRegistrados() {
                     <label htmlFor="estado">Estado</label>
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                       <div className="form-floating">
                           <div className="checkbox">
                               <label>
                                   <input
                                       name="ordenar"
-                                      class="form-check-input"
+                                      className="form-check-input"
                                       type="checkbox"
                                       checked={values.ordenar}
                                       onChange={handleChange}
@@ -231,6 +263,27 @@ export default function BuscarRegistrados() {
               <div className="row align-items-center">
                 <div className="col-md">
                   {<ListadoRegistrados data={data} fetchFunc={fetch} />}
+                  {data && data.usuarios && data.usuarios.length > 0 ? (
+                    <Col
+                      style={{ display: "flex" }}
+                      className="justify-content-center"
+                    >
+                      <Pagination
+                        className="my-3"
+                        count={data.totalPages ? data.totalPages : 0}
+                        page={page}
+                        siblingCount={1}
+                        boundaryCount={1}
+                        variant="outlined"
+                        shape="rounded"
+                        onChange={handlePageChange}
+                      />
+                    </Col>
+                  ) : (
+                    <h5 className="text-center h5 mb-3 fw-normal">
+                      No se encontraron usuarios.
+                    </h5>
+                  )}
                 </div>
               </div>
             </div>

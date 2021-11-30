@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Button, FloatingLabel, Form, ButtonGroup } from "react-bootstrap";
 import { storage } from "../../Firebase";
 import { Alerta } from "../../components/Alerta";
-import {registrarRestaurante} from "../../services/Requests"
+import { registrarRestaurante } from "../../services/Requests";
 
 const Styles = styled.div`
   * {
@@ -208,7 +208,7 @@ function RegistroAltaMenu() {
                     }, 3000);
                   })
                   .catch((error) => {
-                    setAlerta(error.data.detailMessage);
+                    setAlerta(error.response.data);
                     setTipo("danger");
                     setTimeout(() => {
                       window.location.replace("/");
@@ -221,8 +221,6 @@ function RegistroAltaMenu() {
       } else {
         menu.imagen = process.env.REACT_APP_GENERIC_MENU; //cargo la imagen generica
         json.restaurante.menus.push(menu);
-        //aca hago el rest
-        console.log(json.restaurante);
         registrarRestaurante(json.restaurante)
           .then(() => {
             setAlerta("Registro exitoso");
@@ -233,7 +231,7 @@ function RegistroAltaMenu() {
             }, 3000);
           })
           .catch((error) => {
-            setAlerta(error.data.detailMessage);
+            setAlerta(error.response.data);
             setTipo("danger");
             setTimeout(() => {
               window.location.replace("/");

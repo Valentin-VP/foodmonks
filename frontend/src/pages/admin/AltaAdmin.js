@@ -84,6 +84,7 @@ export default function AltaAdmin() {
             </Alert>
           );
           setError(null);
+          window.location.replace("/");
         } else {
           setSuccess(null);
           setError(
@@ -139,7 +140,7 @@ export default function AltaAdmin() {
               <h1 className="text-center h5 mb-3 fw-normal">
                 Dar de Alta un Admin
               </h1>
-              <div class="col-lg">
+              <div className="col-lg">
                 <div className="form-floating">
                   <input
                     className="form-control"
@@ -151,10 +152,10 @@ export default function AltaAdmin() {
                     onChange={handleChange}
                     required={true}
                   />
-                  <label for="floatingInput">Nombre</label>
+                  <label htmlFor="floatingInput">Nombre</label>
                 </div>
               </div>
-              <div class="col-lg">
+              <div className="col-lg">
                 <div className="form-floating">
                   <input
                     className="form-control"
@@ -166,25 +167,24 @@ export default function AltaAdmin() {
                     onChange={handleChange}
                     required={true}
                   />
-                  <label for="floatingInput">Apellido</label>
+                  <label htmlFor="floatingInput">Apellido</label>
                 </div>
               </div>
-              <div class="col-lg">
+              <div className="col-lg">
                 <div className="form-floating">
                   <input
                     className="form-control"
                     type="email"
                     name="email"
                     id="email"
-                    value={values.email}
                     placeholder="Correo"
-                    onChange={handleChange}
+                    onChange={handleChange64}
                     required={true}
                   />
-                  <label for="floatingInput">Correo</label>
+                  <label htmlFor="floatingInput">Correo</label>
                 </div>
               </div>
-              <div class="col-lg">
+              <div className="col-lg">
                 <div className="form-floating">
                   <input
                     className="form-control"
@@ -195,10 +195,10 @@ export default function AltaAdmin() {
                     onChange={handleChange64}
                     required={true}
                   />
-                  <label for="floatingInput">Password</label>
+                  <label htmlFor="floatingInput">Password</label>
                 </div>
               </div>
-              <div class="col-lg"></div>
+              <div className="col-lg"></div>
 
               <button className="w-100 btn btn-md btn-primary" type="submit">
                 Alta
@@ -210,8 +210,8 @@ export default function AltaAdmin() {
             </div>
 
             <div className="form-floating">
-              <div class="row align-items-center">
-                <div class="col-md"></div>
+              <div className="row align-items-center">
+                <div className="col-md"></div>
               </div>
             </div>
           </main>
