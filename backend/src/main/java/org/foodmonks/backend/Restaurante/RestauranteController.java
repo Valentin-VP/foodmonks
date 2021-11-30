@@ -594,10 +594,9 @@ public class RestauranteController {
             @RequestParam(required = false, name = "fechaIni") String fechaInicio,
             @RequestParam(required = false, name = "fechaFin") String fechaFin) {
 
-        String newtoken = "";
         JsonObject jsonBalance = new JsonObject();
         try {
-            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(newtoken);
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, categoriaMenu);
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
