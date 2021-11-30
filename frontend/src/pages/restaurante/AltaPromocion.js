@@ -10,6 +10,7 @@ const Styles = styled.div`
   }
 
   #page-container {
+    padding-top: 50rem;
     background-image: url("https://images.pexels.com/photos/6419720/pexels-photo-6419720.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260");
     filter: blur(6px);
     background-position: center;
@@ -22,8 +23,7 @@ const Styles = styled.div`
     margin-bottom: 20px;
   }
 
-  .form-alta {
-
+  .card {
     position: absolute;
     left: 50%;
     top 45%;
@@ -68,6 +68,9 @@ const Styles = styled.div`
       border-radius: 5px;
   }
 
+  #descripcion {
+      height: 5rem;
+  }
 `;
 
 function AltaPromocion() {
@@ -153,7 +156,7 @@ function AltaPromocion() {
     return (
         <Styles>
             <div id="page-container"></div>
-            <section className="form-alta">
+            <section className="card">
                 <Form onSubmit={onSubmit}>
                 {/*nombre del menu a promocionar*/}
                 <div className="text-center">
@@ -192,7 +195,7 @@ function AltaPromocion() {
                     type="text"
                     name="descripcion"
                     id="descripcion"
-                    placeholder="Descripcion"
+                    placeholder="Descripción"
                     disabled
                     />
                     <label htmlFor="floatingInput">{state.descripcion}</label>
@@ -204,14 +207,14 @@ function AltaPromocion() {
                     type="number"
                     name="descuento"
                     id="descuento"
-                    placeholder="Descuento"
+                    placeholder="Descuento (%)"
                     max="100"
                     min="1"
                     required
                     defaultValue="1"
                     onChange={handleChange}
                     />
-                    <label htmlFor="floatingInput">Descuento</label>
+                    <label htmlFor="floatingInput">Descuento (%)</label>
                 </div>
                 <FloatingLabel controlId="floatingSelect" label="Categoría">
                     <Form.Select

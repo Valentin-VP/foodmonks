@@ -40,6 +40,10 @@ const StyledModal = Modal.styled`
   .tImg {
     object-fit: cover;
   }
+
+  .my-table{ 
+    max-width: 100%;
+  }
 `;
 
 const Styles = styled.div`
@@ -159,7 +163,7 @@ export default function Home() {
             <h5>Menus</h5>
             <div className="cuerpo">
               <div className="table-wrapper-scroll-y my-custom-scrollbar">
-                <table className="table table-bordered table-striped mb-0">
+                <table className="table table-bordered table-striped mb-0 my-table">
                   <thead>
                     <tr>
                       <th scope="col">#</th>

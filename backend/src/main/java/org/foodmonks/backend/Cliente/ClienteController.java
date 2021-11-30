@@ -233,7 +233,7 @@ public class ClienteController {
                                                         @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
         JsonArray jsonArray = new JsonArray();
         try {
-            List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre, categoria, orden);
+            List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre.toLowerCase(), categoria, orden);
 
             for (JsonObject restaurante : restaurantesAbiertos) {
                 jsonArray.add(restaurante);
@@ -267,7 +267,7 @@ public class ClienteController {
         JsonObject jsonObject = new JsonObject();
         try {
             String correo = clienteHelp.obtenerCorreoDelToken(token);
-            jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu, nombreRestaurante, medioPago, orden, fecha, total, page, size);
+            jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu.toLowerCase(), nombreRestaurante.toLowerCase(), medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
         } catch (ClienteNoEncontradoException e) {

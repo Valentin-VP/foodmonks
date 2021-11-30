@@ -56,6 +56,7 @@ export default function BuscarMenusPromociones() {
     nombre: sessionStorage.getItem("restauranteNombre"),
     calificacion: sessionStorage.getItem("restauranteCalif"),
     logo: sessionStorage.getItem("restauranteImagen"),
+    cantCal: sessionStorage.getItem("restauranteCantCal")
   };
 
   let categoria = [

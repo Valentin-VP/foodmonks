@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { Col, Button, Form, Alert } from "react-bootstrap";
+import { Col, Button, Form, Alert, InputGroup } from "react-bootstrap";
 import Pagination from "@material-ui/lab/Pagination";
 import Modal, { ModalProvider } from "styled-react-modal";
 import { Rating } from "react-simple-star-rating";
@@ -10,6 +10,7 @@ import {
   eliminarCalificacionRestaurante,
 } from "../../services/Requests";
 import { NotiError } from "../../components/Notification";
+import { AiFillDelete } from "react-icons/ai";
 
 const StyledModal = Modal.styled`
   border-radius: 5px;
@@ -123,6 +124,33 @@ const Styles = styled.div`
     }
     &:active {
       background-color: #e87121;
+    }
+  }
+
+  .calificaciones {
+    margin-top: 0.3rem;
+    margin-right: 0.2rem;
+    margin-left: 0.2rem;
+    Button {
+      position: relative;
+      padding: 0.1rem;
+      padding-right: 0.5rem;
+      padding-left: 0.5rem;s
+    }
+    .modificar {
+      color: white;
+      background-color: #e87121;
+      border: none;
+      &:focus {
+        box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
+        background-color: #e87121;
+      }
+      &:hover {
+        background-color: #da6416;
+      }
+      &:active {
+        background-color: #e87121;
+      }
     }
   }
 `;
@@ -280,8 +308,8 @@ export default function ListadoPedidosRealizados({
                                     </button>
                                   )}
                                 </td>
-                                <td>
                                   {item.calificacionRestaurante === "false" ? (
+                                    <td>
                                     <button
                                       type="button"
                                       className="clickeable"
@@ -291,10 +319,12 @@ export default function ListadoPedidosRealizados({
                                     >
                                       Calificar
                                     </button>
+                                    </td>
                                   ) : (
-                                    <div>
-                                      <button
-                                        className="clickeable"
+                                    <td className="tCal">
+                                      <InputGroup className="calificaciones">
+                                      <Button
+                                        className="modificar"
                                         variant="secondary"
                                         type="button"
                                         onClick={() =>
@@ -302,21 +332,20 @@ export default function ListadoPedidosRealizados({
                                         }
                                       >
                                         Modificar
-                                      </button>
-                                      <br />
+                                      </Button>
+                                      <br/>
                                       <Button
-                                        className=" mt-2 p-0"
                                         variant="danger"
                                         type="button"
                                         onClick={() =>
                                           eliminarCalificacion(item)
                                         }
                                       >
-                                        Eliminar
+                                        <AiFillDelete color="white" />
                                       </Button>
-                                    </div>
+                                      </InputGroup>
+                                    </td>
                                   )}
-                                </td>
                               </tr>
                             </Col>
                             {item.visibleMenu && item.menus ? (

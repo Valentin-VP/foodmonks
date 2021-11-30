@@ -22,7 +22,7 @@ const Styles = styled.div`
   }
 
   .logo {
-      width: 8rem;
+    width: 8rem;
   }
 
   .nombreRestaurante {
@@ -43,14 +43,14 @@ const Styles = styled.div`
   }
 `;
 
-export const PortadaRestaurante = ({props}) => (
+export const PortadaRestaurante = ({ props }) => (
   <Styles>
     <Container fluid className="portada">
       <Container className="contenido">
         <img src={props.logo} className="logo" alt="Logo de Restaurante" />
         <h3 className="nombreRestaurante">{props.nombre}</h3>
         <div className="calificacion">
-          <h3>{props.calificacion}⭐</h3>
+          {props.cantCal < 10 ? <h3>-⭐</h3> : <h3>{props.calificacion}⭐</h3>}
         </div>
       </Container>
     </Container>
