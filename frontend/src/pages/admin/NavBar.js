@@ -3,7 +3,6 @@ import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import styled from "styled-components";
 import foodlogo from "../../assets/foodLogo.png"; // Tell webpack this JS file uses this image
 // import cartIcon from "../../assets/cartIcon.png";
-import { Noti } from "../../components/Notification";
 import { clearState } from "../../services/Requests";
 
 console.log(foodlogo);
@@ -79,7 +78,7 @@ export const NavigationBar = () => (
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="items">
-            <NavDropdown align="end" title="Administrador" menuVariant="color">
+            <NavDropdown align="end" title={sessionStorage.getItem("nombreUsuario")} menuVariant="color">
               <NavDropdown.Item href="/buscarUsuarios">
                 Buscar Usuario
               </NavDropdown.Item>

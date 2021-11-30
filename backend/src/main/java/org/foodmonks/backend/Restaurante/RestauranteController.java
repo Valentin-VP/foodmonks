@@ -550,7 +550,7 @@ public class RestauranteController {
         JsonArray jsonArray = new JsonArray();
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
-            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, new String(Base64.getDecoder().decode(correoCliente)), razon);
+            jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, new String(Base64.getDecoder().decode(correoCliente)), razon.toLowerCase());
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

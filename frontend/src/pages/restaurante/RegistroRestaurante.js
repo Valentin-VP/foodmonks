@@ -1,6 +1,6 @@
 import { React, Fragment, useState } from "react";
 import styled from "styled-components";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, ProgressBar, Alert } from "react-bootstrap";
 import logo from "../../assets/foodMonks-sinfondo.png";
 import arrow from "../../assets/arrow.png";
 import usePlacesAutocomplete, {
@@ -18,6 +18,7 @@ import "@reach/combobox/styles.css";
 import { Alerta } from "../../components/Alerta";
 import { Base64 } from "js-base64";
 import { storage } from "../../Firebase";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 const Styles = styled.div`
   * {
@@ -29,7 +30,16 @@ const Styles = styled.div`
     position: relative;
     left: 50%;
     transform: translate(-50%);
-    max-width: 28%;
+    max-width: 30%;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .container {
+      max-width: 100%;
+      width: 80%;
+      height: 80%;
+      max-height: 100%;
+    }
   }
 
   .form-floating {
@@ -49,7 +59,7 @@ const Styles = styled.div`
   }
 
   Button {
-    width: 40%;
+    width: 70%;
     color: white;
     background-color: #e87121;
     border: none;
@@ -106,6 +116,7 @@ function RegistroRestaurante() {
 
   const [alerta, setAlerta] = useState(null);
   const [tipoError, setTipo] = useState();
+  const [uploadBar, setUploadBar] = useState(null);
 
   const {
     ready,
@@ -174,7 +185,11 @@ function RegistroRestaurante() {
               .put(img);
             uploadTask.on(
               "state_changed",
-              (snapshot) => {}, //el snapshot tiene que ir
+              (snapshot) => {
+                let percentage =
+                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadBar(<ProgressBar now={percentage} />);
+              },
               (error) => {
                 console.log(error.message);
                 setAlerta("Error al subir la imagen");
@@ -229,7 +244,7 @@ function RegistroRestaurante() {
           <a href="/">
             <img className="" src={logo} alt="" width="200" height="200" />
           </a>
-          <h2 className="mb-3">Registrate</h2>
+          <h2 className="mb-3">Regístrate como empresa</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-floating">
               <input
@@ -259,7 +274,7 @@ function RegistroRestaurante() {
                 placeholder="name@example.com"
                 required
               />
-              <label htmlFor="floatingInput">Correo electronico</label>
+              <label htmlFor="floatingInput">Correo electrónico</label>
             </div>
             <div className="form-floating">
               <input
@@ -369,18 +384,23 @@ function RegistroRestaurante() {
               rows={3}
             />
             {errorMsg}
+            {uploadBar}
             <Button className="btn-lg" type="submit">
               Siguiente
               <span className="flecha">
                 <img src={arrow} alt="arrow" width="25" />
               </span>
             </Button>
+            <Alert className="mt-3" variant={"warning"}>
+              <AiOutlineInfoCircle color="#543a2a" size="1.2rem" /> Esto es una
+              solicitud de registro
+            </Alert>
           </form>
           <p className="mt-2 mb-3 text-muted">
-            ¿Ya tienes cuenta?<a href="/">Inicia sesión</a>
+            ¿Ya tienes cuenta? <a href="/">Inicia sesión</a>
           </p>
           <a href="/register" className="ultimo">
-            Registrate como cliente
+            Regístrate como cliente
           </a>
         </div>
       </Fragment>
