@@ -84,6 +84,7 @@ export const NavigationBar = () => (
               menuVariant="color"
             >
               <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
+              <NavDropdown.Item href="/balance">Balance</NavDropdown.Item>
               <NavDropdown.Item href="/reclamos">Reclamos</NavDropdown.Item>
               <NavDropdown.Item href="/promocion">Promociones</NavDropdown.Item>
               <NavDropdown.Item href="/menu">Menús</NavDropdown.Item>

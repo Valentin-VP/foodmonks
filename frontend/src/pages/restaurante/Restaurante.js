@@ -12,6 +12,7 @@ import { NavigationBar } from "./NavBar";
 import Promocion from "./Promocion";
 import BuscarHistoricoPedidos from "./BuscarHistoricoPedidos";
 import BuscarReclamos from "./BuscarReclamos";
+import VerBalance from "./VerBalance";
 
 const Styles = styled.div`
   #page-container {
@@ -36,6 +37,7 @@ function Restaurante() {
             <Route exact path="/promocionar" component={AltaPromocion} />
             <Route exact path="/promocion" component={Promocion} />
             <Route exact path="/historico" component={BuscarHistoricoPedidos} />
+            <Route exact path="/balance" component={VerBalance} />
             <Route
               exact
               path="/listadoPedidosEfectivo"

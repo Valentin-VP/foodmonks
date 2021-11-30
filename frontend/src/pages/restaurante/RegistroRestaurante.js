@@ -164,7 +164,7 @@ function RegistroRestaurante() {
               results[0].address_components[0].long_name;
             restaurante.nombre = document.getElementById("nombre").value;
             restaurante.apellido = document.getElementById("apellido").value;
-            restaurante.correo = document.getElementById("correo").value;
+            const correoRes = document.getElementById("correo").value;
             restaurante.nombreRestaurante =
               document.getElementById("nombreRestaurante").value;
             restaurante.rut = document.getElementById("rut").value;
@@ -177,6 +177,7 @@ function RegistroRestaurante() {
             restaurante.direccion.detalles =
               document.getElementById("detalles").value;
             restaurante.password = Base64.encode(pass1);
+            restaurante.correo = Base64.encode(correoRes);
             var img = document.getElementById("img").files[0];
             //si se selecciona una imagen
             const uploadTask = storage

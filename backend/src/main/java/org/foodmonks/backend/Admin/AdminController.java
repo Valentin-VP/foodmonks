@@ -54,7 +54,7 @@ public class AdminController {
     @Operation(summary = "Crea un nuevo Administrador",
             description = "Alta de un nuevo Administrador",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "administrador" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Administrador creado con éxito"),
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
@@ -65,7 +65,7 @@ public class AdminController {
         try{
             JsonObject jsonAdmin = new Gson().fromJson(admin, JsonObject.class);
             adminService.crearAdmin(
-                    jsonAdmin.get("email").getAsString(),
+                    new String (Base64.getDecoder().decode(jsonAdmin.get("email").getAsString())),
                     jsonAdmin.get("nombre").getAsString(),
                     jsonAdmin.get("apellido").getAsString(),
                     new String (Base64.getDecoder().decode(jsonAdmin.get("password").getAsString()))
@@ -74,27 +74,6 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-    }
-
-    @GetMapping
-    //@GetMapping("/rutaEspecifica")
-    public List<Admin> listarAdmin(){
-        return adminService.listarAdmin();
-    }
-
-    @GetMapping("/buscar")
-    public void buscarAdmin(@RequestParam String correo) {
-        adminService.buscarAdmin(correo);
-    }
-
-    @DeleteMapping
-    public void elimiarAdmin(@RequestParam Long id) {
-        //adminService.eliminarAdmin(id);
-    }
-
-    @PutMapping
-    public void modificarAdmin(@RequestBody Admin admin) {
-        adminService.modificarAdmin(admin);
     }
 
     @Operation(summary = "Listar los Usuarios",
@@ -113,8 +92,6 @@ public class AdminController {
         JsonObject jsonObject = new JsonObject();
         try {
             jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
-
-
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -124,7 +101,7 @@ public class AdminController {
     @Operation(summary = "Cambiar estado de un Usuario",
             description = "Cambia el estado de un Usuario",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuario" })
+            tags = { "usuarios" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -135,26 +112,27 @@ public class AdminController {
         JsonObject JsonEstado;
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 
+        String correoDecrypted = new String(Base64.getDecoder().decode(correo));
         String state = JsonEstado.get("estado").getAsString();
         System.out.println("estado: " + state);
         switch (JsonEstado.get("estado").getAsString()) {
             case "BLOQUEAR":
-                usuarioService.bloquearUsuario(correo);
+                usuarioService.bloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "ELIMINAR":
                 if ( token != null && token.startsWith("Bearer ")) {
                     String newToken = token.substring(7);
-                    if (tokenHelp.getUsernameFromToken(newToken).equals(correo)){
+                    if (tokenHelp.getUsernameFromToken(newToken).equals(correoDecrypted)){
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede eliminar este usuario.");
                     }
                 }
-                usuarioService.eliminarUsuario(correo);
+                usuarioService.eliminarUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "DESBLOQUEAR":
-                usuarioService.desbloquearUsuario(correo);
+                usuarioService.desbloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "RECHAZAR":
-                restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+                restauranteService.modificarEstado(correoDecrypted, EstadoRestaurante.valueOf(estado));
                 return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -163,7 +141,7 @@ public class AdminController {
     @Operation(summary = "Listar/buscar Restaurantes con cierto estado",
             description = "Lista de los restaurantes que tienen el estado recibido",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -184,7 +162,7 @@ public class AdminController {
     @Operation(summary = "Modificar estado de un Restaurante",
             description = "Modifica el estado de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -197,14 +175,15 @@ public class AdminController {
     ) {
         JsonObject jsonResponse;
         try{
+            String correoDecrypted = new String(Base64.getDecoder().decode(correoRestaurante));
             estadoRestaurante = estadoRestaurante.toUpperCase();
-            jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
+            jsonResponse = adminService.cambiarEstadoRestaurante(correoDecrypted, estadoRestaurante);
             JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
             String comentarios = body.get("comentariosCambioEstado").getAsString();
             String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
             // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
             // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentarios} '
-            adminService.enviarCorreo(correoRestaurante, resultadoCambioEstado, comentarios);
+            adminService.enviarCorreo(correoDecrypted, resultadoCambioEstado, comentarios);
             // correoRestaurante: Destinatario del Correo
             // resultadoCambioEstado: Contiene 'APROBADO' o 'RECHAZADO
             // comentariosCambioEstado: Empty si es una aprobación, de lo contrario contiene el motivo del rechazo

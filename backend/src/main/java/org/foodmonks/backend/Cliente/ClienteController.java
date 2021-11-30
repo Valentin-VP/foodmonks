@@ -46,15 +46,15 @@ import java.util.List;
 @Slf4j
 public class ClienteController {
 
-    private final TokenHelper tokenHelp;
+    private final ClienteHelper clienteHelp;
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
     private final PedidoService pedidoService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService, PedidoService pedidoService) {
+    ClienteController(ClienteService clienteService, ClienteHelper clienteHelp, RestauranteService restauranteService, PedidoService pedidoService) {
         this.clienteService = clienteService;
-        this.tokenHelp = tokenHelp;
+        this.clienteHelp = clienteHelp;
         this.restauranteService = restauranteService;
         this.pedidoService = pedidoService;
     }
@@ -80,7 +80,7 @@ public class ClienteController {
             clienteService.crearCliente(
                     jsonCliente.get("nombre").getAsString(),
                     jsonCliente.get("apellido").getAsString(),
-                    jsonCliente.get("correo").getAsString(),
+                    new String (Base64.getDecoder().decode(jsonCliente.get("correo").getAsString())),
                     new String (Base64.getDecoder().decode(jsonCliente.get("password").getAsString())),
                     LocalDate.now(),
                     5.0f,
@@ -96,17 +96,6 @@ public class ClienteController {
         }
     }
 
-    @GetMapping//LISTAR CLIENTE
-    //@GetMapping("/rutaEspecifica")
-    public List<Cliente> listarCliente(){
-        return clienteService.listarCliente();
-    }
-
-    @GetMapping("/buscar")
-    public void buscarCliente(@RequestParam String correo) {
-        clienteService.buscarCliente(correo);
-    }
-
     @Operation(summary = "Elimina cuenta propia de Cliente",
             description = "Baja logica de Cliente, se cierra sesion al finalizar",
             security = @SecurityRequirement(name = "bearerAuth"),
@@ -115,16 +104,11 @@ public class ClienteController {
             @ApiResponse(responseCode = "200", description = "Operación exitosa. Se ha dado de baja."),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
-    @PreAuthorize("hasRole('ROLE_CLIENTE')")
     @DeleteMapping(path = "eliminarCuenta")//ELIMINAR CLIENTE
     public ResponseEntity<?> eliminarCuentaPropiaCliente(
             @RequestHeader("Authorization") String token) {
         try {
-            String newToken = null;
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
             log.debug("Cliente eliminado, enviando a cerrar sesion");
             return ResponseEntity.status(HttpStatus.OK).build();
@@ -135,6 +119,7 @@ public class ClienteController {
 
     @Operation(summary = "Modificar informacion del cliente",
             description = "Se modifica nombre y apellido del cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Informacion modificada"),
@@ -145,11 +130,7 @@ public class ClienteController {
                                               @RequestParam(name = "nombre") String nombre,
                                               @RequestParam(name = "apellido") String apellido) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             clienteService.modificarCliente(correo, nombre, apellido);
 
@@ -162,6 +143,7 @@ public class ClienteController {
 
     @Operation(summary = "Agregar una Direccion",
             description = "Agrega una nueva Direccion al Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Direccion agregada"),
@@ -176,11 +158,7 @@ public class ClienteController {
                                                               schema = @Schema(implementation = Direccion.class)))
                                               @RequestBody String direccion) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
 
@@ -204,11 +182,7 @@ public class ClienteController {
     public ResponseEntity<?> eliminarDireccion(@RequestHeader("Authorization") String token,
                                                @RequestParam(name = "id") String id) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             clienteService.eliminarDireccionCliente(correo, Long.valueOf(id));
 
@@ -220,6 +194,7 @@ public class ClienteController {
 
     @Operation(summary = "Modificar una Direccion",
             description = "Se modifica una direccion del Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Direccion modificada"),
@@ -229,16 +204,12 @@ public class ClienteController {
     public ResponseEntity<?> modificarDireccion(@RequestHeader("Authorization") String token,
                                                 @RequestParam(name = "id") String id,
                                                 @Parameter(description = "Datos del nuevo Cliente", required = true)
-                                                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                                            content = @Content(mediaType = "application/json",
-                                                                    schema = @Schema(implementation = Direccion.class)))
+                                                @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                        content = @Content(mediaType = "application/json",
+                                                                schema = @Schema(implementation = Direccion.class)))
                                                 @RequestBody String direccion) {
         try {
-            String newToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                newToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(newToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
 
             JsonObject jsonDireccion = new Gson().fromJson(direccion, JsonObject.class);
 
@@ -260,7 +231,6 @@ public class ClienteController {
     @GetMapping(path = "/listarAbiertos")
     public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
                                                         @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
-        //voy a querer el token para la ubicacion del cliente(mostrar restaurantes cercanos a dicha ubicacion)
         JsonArray jsonArray = new JsonArray();
         try {
             List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre.toLowerCase(), categoria, orden);
@@ -277,7 +247,7 @@ public class ClienteController {
     @Operation(summary = "Listar Pedidos Realizados",
             description = "Lista de los pedidos realizados del Cliente",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedidos" })
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -286,22 +256,17 @@ public class ClienteController {
     public ResponseEntity<?> listarPedidosRealizados(@RequestHeader("Authorization") String token,
                                                      @RequestParam(required = false, name = "estadoPedido") String estadoPedido,
                                                      @RequestParam(required = false, name = "nombreMenu") String nombreMenu,
-                                                    @RequestParam(required = false, name = "nombreRestaurante") String nombreRestaurante,
-                                                    @RequestParam(required = false, name = "medioPago") String medioPago,
-                                                    @RequestParam(required = false, name = "orden") String orden,
-                                                    @RequestParam(required = false, name = "fecha") String fecha,
-                                                    @RequestParam(required = false, name = "total") String total,
-                                                    @RequestParam(defaultValue = "0",required = false, name = "page") String page,
-                                                    @RequestParam(defaultValue = "1000", required = false, name = "size") String size) {
-        String newtoken = "";
-        String correo = "";
+                                                     @RequestParam(required = false, name = "nombreRestaurante") String nombreRestaurante,
+                                                     @RequestParam(required = false, name = "medioPago") String medioPago,
+                                                     @RequestParam(required = false, name = "orden") String orden,
+                                                     @RequestParam(required = false, name = "fecha") String fecha,
+                                                     @RequestParam(required = false, name = "total") String total,
+                                                     @RequestParam(defaultValue = "0",required = false, name = "page") String page,
+                                                     @RequestParam(defaultValue = "1000", required = false, name = "size") String size) {
         List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
         JsonObject jsonObject = new JsonObject();
         try {
-            if ( token != null && token.startsWith("Bearer ")) {
-                newtoken = token.substring(7);
-            }
-            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu.toLowerCase(), nombreRestaurante.toLowerCase(), medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
@@ -314,23 +279,24 @@ public class ClienteController {
     @Operation(summary = "Listar los Menús y Promociones ofrecidos por un Restaurante",
             description = "Lista de los Menús y Promociones que ofrece un Restaurante, aplicando búsqueda opcional por filtros",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "pedido", "cliente", "menú", "promoción" })
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Menu.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
+
     @GetMapping(path = "/listarProductosRestaurante")
     public ResponseEntity<?> listarProductosRestaurante(
             @RequestParam(name = "id") String restauranteCorreo,
             @RequestParam(required = false, name = "categoria") String categoria,
             @RequestParam(required = false, name = "precioInicial") Float precioInicial,
             @RequestParam(required = false, name = "precioFinal") Float precioFinal
-            ) {
+    ) {
 
         JsonArray jsonArray = new JsonArray();
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
-            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
+            List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(new String(Base64.getDecoder().decode(restauranteCorreo)), categoria, precioInicial, precioFinal);
 
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);
@@ -341,11 +307,12 @@ public class ClienteController {
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
     }
-  
-  
+
+
     @Operation(summary = "Realizar un nuevo Pedido a un Restaurante",
             description = "Realizar un nuevo Pedido a un Restaurante",
-            tags = { "cliente", "pedido" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pedido creado"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -355,24 +322,20 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestBody String pedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(strToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             // Obtener detalles del pedido
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
             return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
-        }catch (Exception e){            
+        }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @Operation(summary = "Agregar un Reclamo",
             description = "Agrega un nuevo Reclamo a un Pedido del Cliente",
-            tags = { "cliente", "reclamo" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Reclamo agregado"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -384,12 +347,7 @@ public class ClienteController {
                     content = @Content(mediaType = "application/json"))
             @RequestBody String reclamo) {
         try {
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correo = tokenHelp.getUsernameFromToken(strToken);
+            String correo = clienteHelp.obtenerCorreoDelToken(token);
             JsonObject jsonReclamo = new Gson().fromJson(reclamo, JsonObject.class);
             JsonObject jsonResponse = clienteService.agregarReclamo(correo, jsonReclamo);
             return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
@@ -403,7 +361,8 @@ public class ClienteController {
 
     @Operation(summary = "Calificar a un Restaurante",
             description = "Agrega una Calificación a un Restaurante a través de un Pedido",
-            tags = { "cliente", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Calificacion creada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -413,12 +372,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestBody String pedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correoCliente = tokenHelp.getUsernameFromToken(strToken);
+            String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             restauranteService.calificarRestaurante(correoCliente, jsonRequestPedido);
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -429,7 +383,8 @@ public class ClienteController {
 
     @Operation(summary = "Modificar una Calificacion realizada a un Restaurante",
             description = "Modifica (reemplaza) una Calificación realizada a un Restaurante a través de un Pedido",
-            tags = { "cliente", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calificacion modificada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -439,12 +394,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestBody String pedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correoCliente = tokenHelp.getUsernameFromToken(strToken);
+            String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             restauranteService.modificarCalificacionRestaurante(correoCliente, jsonRequestPedido);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -455,7 +405,8 @@ public class ClienteController {
 
     @Operation(summary = "Elimina una Calificacion realizada a un Restaurante",
             description = "Elimina una Calificación realizada a un Restaurante a través de un Pedido",
-            tags = { "cliente", "pedido", "calificacion" })
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Calificacion eliminada"),
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
@@ -465,12 +416,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token,
             @RequestParam (name= "idPedido") String idPedido){
         try{
-            // Obtener correo del cliente
-            String strToken = "";
-            if ( token != null && token.startsWith("Bearer ")) {
-                strToken = token.substring(7);
-            }
-            String correoCliente = tokenHelp.getUsernameFromToken(strToken);
+            String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
             restauranteService.eliminarCalificacionRestaurante(correoCliente, idPedido);
             return new ResponseEntity<>(HttpStatus.OK);
         }catch (Exception e){
