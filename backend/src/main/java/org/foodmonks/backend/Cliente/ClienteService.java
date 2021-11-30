@@ -97,7 +97,7 @@ public class ClienteService {
     }
 
     public void crearCliente(String nombre, String apellido, String correo, String password, LocalDate fechaRegistro,
-                             Float calificacion, JsonObject jsonDireccion, EstadoCliente activo) throws ClienteDireccionException, UsuarioExisteException, DireccionNumeroException {
+                             Float calificacion, JsonObject jsonDireccion, String activo) throws ClienteDireccionException, UsuarioExisteException, DireccionNumeroException {
         if (usuarioService.ObtenerUsuario(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
@@ -107,7 +107,7 @@ public class ClienteService {
         }
         List<Direccion> direcciones = new ArrayList<>();
         direcciones.add(direccion);
-        Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,0,direcciones,activo,"",null);
+        Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,0,direcciones,EstadoCliente.valueOf(activo),"",null);
         clienteRepository.save(cliente);
         System.out.println("direccion " + clienteRepository.findByCorreo(correo).getDirecciones().get(0).getCalle());
     }
@@ -130,9 +130,9 @@ public class ClienteService {
     }
 
 
-    public void modificarEstadoCliente(String correo, EstadoCliente estado) throws ClienteNoEncontradoException {
+    public void modificarEstadoCliente(String correo, String estado) throws ClienteNoEncontradoException {
         Cliente cliente = obtenerCliente(correo);
-        cliente.setEstado(estado);
+        cliente.setEstado(EstadoCliente.valueOf(estado));
         clienteRepository.save(cliente);
     }
 

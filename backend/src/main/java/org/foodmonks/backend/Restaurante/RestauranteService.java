@@ -94,15 +94,15 @@ public class RestauranteService {
         restauranteRepository.save(restaurante);
     }
 
-    public void modificarEstado(String correo, EstadoRestaurante estado) {
+    public void modificarEstado(String correo, String estado) {
         Restaurante restauranteAux = restauranteRepository.findByCorreo(correo);
-        restauranteAux.setEstado(estado);
+        restauranteAux.setEstado(EstadoRestaurante.valueOf(estado));
         restauranteRepository.save(restauranteAux);
     }
 
     public void createSolicitudAltaRestaurante(String nombre, String apellido, String correo, String password,
             LocalDate now, float calificacion, String nombreRestaurante, String rut, Direccion direccion,
-            EstadoRestaurante pendiente, String telefono, String descripcion, String cuentaPaypal, String url,
+            String pendiente, String telefono, String descripcion, String cuentaPaypal, String url,
             ArrayList<JsonObject> jsonMenus)
             throws UsuarioExisteException, ClienteDireccionException, RestauranteFaltaMenuException,
             UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException {
@@ -116,7 +116,7 @@ public class RestauranteService {
             throw new RestauranteFaltaMenuException("Debe ingresar al menos 3 menus");
         }
         Restaurante restaurante = new Restaurante(nombre, apellido, correo, passwordEncoder.encode(password), now,
-                calificacion, 0, nombreRestaurante, Long.valueOf(rut), direccion, pendiente, Integer.valueOf(telefono),
+                calificacion, 0, nombreRestaurante, Long.valueOf(rut), direccion, EstadoRestaurante.valueOf(pendiente), Integer.valueOf(telefono),
                 descripcion, cuentaPaypal, url);
         restauranteRepository.save(restaurante);
         for (JsonObject menu : jsonMenus) {

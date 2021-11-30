@@ -105,7 +105,7 @@ public class RestauranteController {
                     jsonRestaurante.get("nombreRestaurante").getAsString(),
                     jsonRestaurante.get("rut").getAsString(),
                     direccion,
-                    EstadoRestaurante.valueOf("PENDIENTE"),
+                    "PENDIENTE",
                     jsonRestaurante.get("telefono").getAsString(),
                     jsonRestaurante.get("descripcion").getAsString(),
                     jsonRestaurante.get("cuentaPaypal").getAsString(),
@@ -329,7 +329,7 @@ public class RestauranteController {
     public ResponseEntity<?> modificarEstado(@RequestHeader("Authorization") String token, @PathVariable String estado){
         try {
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
-            restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+            restauranteService.modificarEstado(correo, estado);
         } catch(Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
