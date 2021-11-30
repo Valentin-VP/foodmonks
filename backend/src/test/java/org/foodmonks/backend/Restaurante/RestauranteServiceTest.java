@@ -2,6 +2,7 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -12,6 +13,7 @@ import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.Pedido.Exceptions.*;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
@@ -896,5 +898,89 @@ class RestauranteServiceTest {
         expectedResult.add("ventas", meses);
         result = restauranteService.ventasRestaurantes("dummy", 2021);
         assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @Test
+    void obtenerBalance() throws Exception {
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+        Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
+                "apellidoDelRestaurante", "restaurante1@gmail.com",
+                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                4.2F, 5, "NombreRestaurante", 123456L,
+                dir1, EstadoRestaurante.ABIERTO, 23487123,
+                "DescripcionRestaurante", "CuentaDePaypal", null);
+        Pedido pedido;
+        ArrayList<Pedido> pedidos = new ArrayList<>();
+
+        int menu = 1;
+        EstadoPedido estado = EstadoPedido.RECLAMORECHAZADO;
+        MedioPago medioPago = MedioPago.EFECTIVO;
+        Float total = 150.0F;
+        for (int i = 0; i < 20; i++){
+            //System.out.println(LocalDateTime.of(2022,3,1,0,0,0).minusDays(i * 10).toLocalDate().toString());
+            pedido = new Pedido(estado, LocalDateTime.of(2022,3,1,0,0,0).minusDays(i * 10),
+                    total, medioPago,
+                    LocalDateTime.of(2022,3,1,0,0,0).minusDays(i * 10), dir1, null);
+            //pedido = new Pedido(EstadoPedido.FINALIZADO, LocalDateTime.of(2022,3,1,0,0,0).minusDays(i * 10),
+            //        500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2022,3,1,0,0,0),dir1,null);
+            pedido.setRestaurante(restaurante1);
+            restaurante1.getPedidos().add(pedido);
+            List<MenuCompra> menus = new ArrayList<>();
+            for (int j=0; j<2; j++){
+                MenuCompra menuCompra = new MenuCompra("menu" + menu, 75.0F, "a", 0.0F,
+                        "https://media.istockphoto.com/vectors/creative-hamburger-logo-design-symbol-vector-illustration-vector-id1156464773?k=20&m=1156464773&s=170667a&w=0&h=AcKSZuETET89SF-Liid0mAWTL5w6YQCIxeynD8J01Lk=",
+                        CategoriaMenu.PIZZAS);
+                menuCompra.setCantidad(i+1);
+                menus.add(menuCompra);
+                menu++;
+            }
+            pedido.setMenusCompra(menus);
+
+            estado = estado.equals(EstadoPedido.FINALIZADO) ? EstadoPedido.DEVUELTO : EstadoPedido.FINALIZADO;
+            medioPago = medioPago.equals(MedioPago.EFECTIVO) ? MedioPago.PAYPAL : MedioPago.EFECTIVO;
+            total = estado.equals(EstadoPedido.FINALIZADO) ? total + 3 : total;
+            pedidos.add(pedido);
+        }
+
+        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(pedidoService.pedidosRestaurante(any())).thenReturn(pedidos);
+
+        JsonObject result = restauranteService.obtenerBalance("dummy", "","","","");
+
+        assertThat(result.getAsJsonArray("meses").get(0).getAsJsonObject()
+                .get("indicadores").getAsJsonArray().get(0).getAsJsonObject().get("ventasEfectivo"))
+                .isEqualTo(new JsonPrimitive(0));
+        // ------------------------------------
+        when(pedidoService.pedidosRestauranteMedioPago(any(), any())).thenReturn(pedidos);
+        result = restauranteService.obtenerBalance("dummy", "PAYPAL","","","");
+
+        assertThat(result.getAsJsonArray("meses").get(0).getAsJsonObject()
+                .get("indicadores").getAsJsonArray().get(1).getAsJsonObject().get("ventasPaypal"))
+                .isEqualTo(new JsonPrimitive(168.0));
+        // ------------------------------------
+        when(pedidoService.pedidosRestauranteFechaHoraProcesado(any(), any(), any())).thenReturn(pedidos);
+        result = restauranteService.obtenerBalance("dummy", "","2021-08-23","2022-12-31","");
+
+        assertThat(result.getAsJsonArray("meses").get(0).getAsJsonObject()
+                .get("indicadores").getAsJsonArray().get(1).getAsJsonObject().get("ventasPaypal"))
+                .isEqualTo(new JsonPrimitive(180.0));
+        // ------------------------------------
+        when(pedidoService.pedidosRestauranteMedioPagoFechaHoraProcesado(any(), any(), any(), any())).thenReturn(pedidos);
+        result = restauranteService.obtenerBalance("dummy", "EFECTIVO","2021-08-23","2022-12-31","");
+
+        assertThat(result.getAsJsonArray("meses").get(0).getAsJsonObject()
+                .get("indicadores").getAsJsonArray().get(1).getAsJsonObject().get("ventasPaypal"))
+                .isEqualTo(new JsonPrimitive(180.0));
+        result = restauranteService.obtenerBalance("dummy", "PAYPAL","2021-08-23","2022-12-31","");
+
+        assertThat(result.getAsJsonArray("meses").get(0).getAsJsonObject()
+                .get("indicadores").getAsJsonArray().get(1).getAsJsonObject().get("ventasPaypal"))
+                .isEqualTo(new JsonPrimitive(180.0));
+        // ------------------------------------
+        result = restauranteService.obtenerBalance("dummy", "EFECTIVO","2021-08-23","2022-12-31","BEBIDAS");
+
+        assertThat(result.getAsJsonArray("meses").get(0).getAsJsonObject()
+                .get("indicadores").getAsJsonArray().get(1).getAsJsonObject().get("ventasPaypal"))
+                .isEqualTo(new JsonPrimitive(0.0));
     }
 }
