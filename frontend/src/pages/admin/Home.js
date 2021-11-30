@@ -89,7 +89,7 @@ export default function Home() {
         NotiError(error.response.data);
       });
   };
-  //termina para el modale ---------------------------------------------------------------------------------------
+  //termina para el modal ---------------------------------------------------------------------------------------
 
   useEffect(() => {
     listarRestaurantesPorEstado("PENDIENTE")
@@ -109,13 +109,14 @@ export default function Home() {
     const data = {
       comentariosCambioEstado: document.getElementById("mensaje").value,
     };
-    cambiarEstadoRestaurante(
-      restauranteSeleccionado.correo,
-      estado,
-      data
-    ).catch((error) => {
-      NotiError(error.response.data.detailMessage);
-    });
+
+    cambiarEstadoRestaurante(restauranteSeleccionado.correo, estado, data)
+      .then((response) => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        NotiError(error.response.data.detailMessage);
+      });
   };
 
   if (isLoading) {

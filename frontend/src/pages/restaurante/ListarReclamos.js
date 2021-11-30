@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Modal, { ModalProvider } from "styled-react-modal";
 import { fetchPedidoFromReclamo } from "../../services/Requests";
 import { Noti, NotiError } from "../../components/Notification";
 import { Button } from "react-bootstrap";
-import { realizarDevolucion } from "../../services/Requests";
+import { realizarDevolucion, fetchReclamos } from "../../services/Requests";
+import { Loading } from "../../components/Loading";
 
 const StyledModal = Modal.styled`
   * {
@@ -50,17 +51,155 @@ const Styles = styled.div`
   table {
     background-color: #ffffff;
   }
+  #scroll {
+    background: "transparent";
+    height: 6rem;
+  }
 `;
 
-function ListarReclamos({ reclamos }) {
+const perPage = 8;
+const types = {
+  start: "START",
+  loaded: "LOADED",
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case types.start:
+      return { ...state, loading: true };
+    case types.loaded:
+      return {
+        ...state,
+        loading: false,
+        data: [...state.data, ...action.newData],
+        more: action.newData.length === perPage,
+        after: state.after + action.newData.length,
+      };
+    default:
+      throw new Error("Don't understand action");
+  }
+};
+
+const MyContext = React.createContext();
+
+function MyProvider({ children }) {
+  const [reclamos, setReclamos] = useState([]);
+  const [cargando, isCargando] = useState(true);
+  const values = {
+    razon: "",
+    cliente: "",
+    ordenar: false,
+  };
+
+  useEffect(() => {
+    values.razon = sessionStorage.getItem("reclamos-razon");
+    values.cliente = sessionStorage.getItem("reclamos-cliente");
+    values.ordenar = sessionStorage.getItem("reclamos-ordenar");
+    if (values.razon === null) {
+      values.razon = "";
+    }
+    if (values.cliente === null) {
+      values.cliente = "";
+    }
+    if (values.ordenar === null) {
+      values.ordenar = false;
+    }
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetch = () => {
+    fetchReclamos(values)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.data);
+          setReclamos(response.data);
+          isCargando(false);
+        } else {
+          Noti(response.data);
+        }
+      })
+      .catch((error) => {
+        Noti(error.message);
+      });
+  };
+
+  const [state, dispatch] = React.useReducer(reducer, {
+    loading: false,
+    more: true,
+    data: [],
+    after: 0,
+  });
+  const { loading, data, after, more } = state;
+
+  const load = () => {
+    dispatch({ type: types.start });
+
+    setTimeout(() => {
+      const newData = reclamos.slice(after, after + perPage);
+      dispatch({ type: types.loaded, newData });
+    }, 300);
+  };
+
+  return (
+    <MyContext.Provider value={{ cargando, loading, data, more, load }}>
+      {children}
+    </MyContext.Provider>
+  );
+}
+
+function ListarReclamos() {
   const [pedido, setPedido] = useState();
-  const [loading, isLoading] = useState(true);
+  const [loadingModal, isLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isAceptar, setIsAceptar] = useState(false);
   const [isRechazar, setIsRechazar] = useState(false);
   const [comentario, setComentario] = useState({
     motivoDevolucion: "",
   });
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const { data, loading, more, load, cargando } = React.useContext(MyContext);
+  const loader = React.useRef(load);
+  const observer = React.useRef(
+    new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting) {
+          loader.current();
+        }
+      },
+      { threshold: 1 }
+    )
+  );
+  const [element, setElement] = React.useState(null);
+
+  React.useEffect(() => {
+    loader.current = load;
+  }, [load]);
+
+  React.useEffect(() => {
+    const currentElement = element;
+    const currentObserver = observer.current;
+
+    if (currentElement) {
+      currentObserver.observe(currentElement);
+    }
+
+    return () => {
+      if (currentElement) {
+        currentObserver.unobserve(currentElement);
+      }
+    };
+  }, [element]);
+
+  if (cargando) {
+    return (
+      <div className="App">
+        <Loading />
+      </div>
+    );
+  }
 
   const toggleModal = (e) => {
     setIsOpen(!isOpen);
@@ -100,6 +239,7 @@ function ListarReclamos({ reclamos }) {
   };
 
   const aceptarReclamo = () => {
+    setIsProcessing(true);
     realizarDevolucion(pedido.id, true, comentario)
       .then((response) => {
         console.log(response);
@@ -114,6 +254,7 @@ function ListarReclamos({ reclamos }) {
   };
 
   const rechazarReclamo = () => {
+    setIsProcessing(true);
     if (comentario.motivoDevolucion === "") {
       NotiError("debe haber un comentario");
     } else {
@@ -138,7 +279,7 @@ function ListarReclamos({ reclamos }) {
           <div className="table-responsive justify-content-center" id="list">
             <table className="table table-hover">
               <tbody>
-                {reclamos.map((reclamo) => {
+                {data.map((reclamo) => {
                   return (
                     <>
                       <br />
@@ -212,8 +353,10 @@ function ListarReclamos({ reclamos }) {
                 })}
               </tbody>
             </table>
+            {loading && more && <Loading />}
+            {!loading && more && <div ref={setElement} id="scroll"></div>}
           </div>
-          {!loading ? (
+          {!loadingModal ? (
             <StyledModal
               isOpen={isOpen}
               onBackgroundClick={toggleModal}
@@ -249,10 +392,18 @@ function ListarReclamos({ reclamos }) {
               </span>
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={aceptarReclamo}>
+              <Button
+                variant="danger"
+                disabled={isProcessing}
+                onClick={aceptarReclamo}
+              >
                 Aceptar
               </Button>
-              <Button variant="secondary" onClick={toggleModalAceptar}>
+              <Button
+                variant="secondary"
+                disabled={isProcessing}
+                onClick={toggleModalAceptar}
+              >
                 Cancelar
               </Button>
             </div>
@@ -274,10 +425,18 @@ function ListarReclamos({ reclamos }) {
               />
             </div>
             <div className="abajo">
-              <Button variant="danger" onClick={rechazarReclamo}>
+              <Button
+                variant="danger"
+                disabled={isProcessing}
+                onClick={rechazarReclamo}
+              >
                 Rechazar
               </Button>
-              <Button variant="secondary" onClick={toggleModalRechazar}>
+              <Button
+                variant="secondary"
+                disabled={isProcessing}
+                onClick={toggleModalRechazar}
+              >
                 Cancelar
               </Button>
             </div>
@@ -288,4 +447,11 @@ function ListarReclamos({ reclamos }) {
   );
 }
 
-export default ListarReclamos;
+// eslint-disable-next-line import/no-anonymous-default-export
+export default () => {
+  return (
+    <MyProvider>
+      <ListarReclamos />
+    </MyProvider>
+  );
+};

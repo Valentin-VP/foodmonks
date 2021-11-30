@@ -1,7 +1,7 @@
 package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
-import io.jsonwebtoken.ExpiredJwtException;
+import dev.paseto.jpaseto.ExpiredPasetoException;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
@@ -120,6 +120,33 @@ public class RestauranteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+  
+
+    @Operation(summary = "Listar Restaurantes", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping//LISTAR RESTAURANTES
+    //@GetMapping("/rutaEspecifica")
+    public List<Restaurante> listarRestaurante(){
+        return null;
+    }
+
+    @Operation(summary = "Buscar Restaurante", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/buscar")
+    public void buscarRestaurante(@RequestParam String correo) {
+        restauranteService.buscarRestaurante(correo);
+    }
+
+    @Operation(summary = "Modificar Restaurante", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping//MODIFICAR RESTAURANTE
+    public void modificarRestaurante(@RequestBody Restaurante restaurante) {
+        restauranteService.editarRestaurante(restaurante);
+
+    }
+
+    @Operation(summary = "Eliminar Restaurante", security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping//ELIMINAR RESTAURANTE
+    public void elimiarRestaurante(@RequestParam Long id) {
+        //restauranteService.eliminarRestaurante(id);
+    }
 
     @Operation(summary = "Crea un nuevo Menu",
             description = "Agrega un nuevo Menu al Restaurante",
@@ -197,7 +224,7 @@ public class RestauranteController {
             }
         } catch (JsonIOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch(ExpiredJwtException a) {
+        } catch(ExpiredPasetoException a) {
             return new ResponseEntity<>(a.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(jsonArray, HttpStatus.OK);
@@ -551,7 +578,34 @@ public class RestauranteController {
         return new ResponseEntity<>(pedidoResponse, HttpStatus.OK);
     }
 
-    @Operation(summary = "Realizar una devolucion",
+    @Operation(summary = "Obtiene balance de ventas",
+            description = "Obtiene un Balance de ventas de un restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "vetnas"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
+    @GetMapping(path = "/obtenerBalance")
+    public ResponseEntity<?> obtenerBalance(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false, name = "categoriaMenu") String categoriaMenu,
+            @RequestParam(required = false, name = "medioPago") String medioPago,
+            @RequestParam(required = false, name = "fechaIni") String fechaInicio,
+            @RequestParam(required = false, name = "fechaFin") String fechaFin) {
+
+        String newtoken = "";
+        JsonObject jsonBalance = new JsonObject();
+        try {
+            String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(newtoken);
+            jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, categoriaMenu);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(jsonBalance, HttpStatus.OK);
+    }
+  
+   @Operation(summary = "Realizar una devolucion",
             description = "Se realiza una devolucion de un pedido",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "reclamos" })

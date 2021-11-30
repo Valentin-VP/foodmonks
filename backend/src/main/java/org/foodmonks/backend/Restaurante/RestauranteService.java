@@ -7,11 +7,14 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
-import org.foodmonks.backend.Menu.Exceptions.MenuIdException;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.MenuCompra.MenuCompra;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoFechaProcesadoException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoMedioPagoException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Exceptions.*;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Pedido.PedidoService;
@@ -30,6 +33,7 @@ import org.foodmonks.backend.paypal.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.time.*;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -75,8 +79,11 @@ public class RestauranteService {
         this.payPalService = payPalService;
     }
 
-    public List<Restaurante> listarRestaurante() {
-        return restauranteRepository.findAll();
+    public JsonArray listarRestaurante(){
+        List<Restaurante> result = new ArrayList<>();
+        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
+        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.CERRADO));
+        return restauranteConverter.arrayJsonRestaurantes(result);
     }
 
     public Restaurante buscarRestaurante(String correo) {
@@ -256,10 +263,12 @@ public class RestauranteService {
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
-        String[] _total = (total != null && total.contains(",")) ? total.split(",") : null;
-        String[] _fecha = (fecha != null && fecha.contains(",")) ? fecha.split(",") : null;
-        // String[] _order = (!orden.isEmpty() && orden.contains(",")) ?
-        // orden.split(",") : null;
+
+        String[] _total = (total!=null && total.contains(",")) ? total.split(",") : null;
+        String[] _fecha = (fecha!=null && fecha.contains(",")) ? fecha.split(",") : null;
+
+        String[] _order = (!orden.isEmpty() && orden.contains(",")) ? orden.split(",") : null;
+
         Float[] totalFinal = new Float[2];
         LocalDateTime[] fechaFinal = new LocalDateTime[2];
 
@@ -473,6 +482,232 @@ public class RestauranteService {
         return reclamos;
     }
 
+    public JsonObject obtenerBalance(String correoRestaurante,String medioPago, String fechaIni, String fechaFin,String categoriaMenu) throws Exception {
+
+        Restaurante restaurante = obtenerRestaurante(correoRestaurante);
+
+        JsonObject balance = new JsonObject();
+        JsonArray meses = new JsonArray();
+        JsonArray totales = new JsonArray();
+
+        float totalVentasEfectivo = 0;
+        int totalCantidadVentasEfectivo = 0;
+        float totalVentasPaypal = 0;
+        int totalCantidadVentasPayPal = 0;
+        float totalDevolucionesEfectivo = 0;
+        int totalCantidadDevolucionesEfectivo = 0;
+        float totalDevolucionesPayPal = 0;
+        int totalCantidadDevolucionesPayPal = 0;
+        String mes = "";
+        // Preparo
+
+        // Categoria Menu
+        CategoriaMenu categoria = null;
+        if (categoriaMenu!= null && !categoriaMenu.isBlank()) {
+            categoria = CategoriaMenu.valueOf(categoriaMenu.trim().toUpperCase(Locale.ROOT));
+        }
+
+        // Medio Pago
+        MedioPago pago = null;
+
+        if (medioPago!= null && !medioPago.isBlank()) {
+            pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
+        }
+
+        // Fecha
+        LocalDateTime fechaInicial = null;
+        LocalDateTime fechaFinal = null;
+
+        if (fechaIni != null && !fechaIni.isBlank()){
+            fechaInicial = LocalDateTime.of(LocalDate.parse(fechaIni),LocalTime.MIDNIGHT);
+        }
+
+        if (fechaFin != null && !fechaFin.isBlank()){
+            fechaFinal = LocalDateTime.of(LocalDate.parse(fechaFin),LocalTime.MAX); // plusDays(1) para que sea inclusivo
+        }
+
+        if (fechaInicial != null && fechaFinal != null) {
+            if ((fechaInicial.getYear() > fechaFinal.getYear()) ||
+                    (fechaInicial.getYear() == fechaFinal.getYear() && (fechaInicial.getMonthValue() > fechaFinal.getMonthValue())) ||
+                    (fechaInicial.getYear() == fechaFinal.getYear() && (fechaInicial.getMonthValue() == fechaFinal.getMonthValue()) && (fechaInicial.getDayOfMonth() > fechaFinal.getDayOfMonth()))){
+                throw new Exception("Rango de fechas invalido");
+            }
+        }
+
+        // Diferencia entre mes de fecha inicio y mes de fecha final
+       //  int cantidadMeses = 12;
+       //  ver si funciona cantidadMeses
+        List<Pedido> listaPedidos;
+        if (pago != null && fechaInicial != null && fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteMedioPagoFechaHoraProcesado(restaurante,pago,fechaInicial,fechaFinal);
+        } else if (pago != null){
+            listaPedidos = pedidoService.pedidosRestauranteMedioPago(restaurante,pago);
+        } else if (fechaInicial != null && fechaFinal != null){
+            listaPedidos = pedidoService.pedidosRestauranteFechaHoraProcesado(restaurante,fechaInicial,fechaFinal);
+        } else {
+            listaPedidos = pedidoService.pedidosRestaurante(restaurante);
+        }
+
+        if (fechaInicial == null || fechaFinal == null){
+            fechaInicial = LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),1,0,0,0);
+            fechaFinal = LocalDateTime.now();
+        }
+
+        List<Pedido> aux;
+        List<Pedido> pedidosCategoria = new ArrayList<>();
+
+        if (categoria != null) {
+            for (Pedido pedido : listaPedidos) {
+                for (MenuCompra menuCompra : pedido.getMenusCompra()){
+                    if (menuCompra.getCategoria().equals(categoria)){
+                        if (!pedidosCategoria.contains(pedido)){
+                            pedidosCategoria.add(pedido);
+                        }
+                    }
+                }
+            }
+            listaPedidos = pedidosCategoria;
+        }
+
+        int mesfinal;
+        if (fechaFinal.getYear() - fechaInicial.getYear() > 0){
+            mesfinal = fechaFinal.getMonthValue() + ((fechaFinal.getYear() - fechaInicial.getYear()) * 12);
+        } else {
+            mesfinal = fechaFinal.getMonthValue();
+        }
+
+        int anio = fechaInicial.getYear();
+
+        for(int i =fechaInicial.getMonthValue(); i <= mesfinal; i++){
+
+            float subTotal = 0;
+            aux = listaPedidos;
+            float ventasEfectivo = 0;
+            int cantidadVentasEfectivo = 0;
+            float ventasPaypal = 0;
+            int cantidadVentasPayPal = 0;
+            float devolucionesEfectivo = 0;
+            int cantidadDevolucionesEfectivo = 0;
+            float devolucionesPayPal = 0;
+            int cantidadDevolucionesPayPal = 0;
+
+            mes = obtenerMes(i % 12);
+
+            for (Pedido pedido : aux){
+                LocalDateTime fechapedido = pedido.getFechaHoraProcesado();
+                if (fechapedido == null) {
+                    throw new PedidoFechaProcesadoException("Existe un pedido sin fecha de procesado en estado Finalizado-Devuelto-ReclamoRechazado");
+                }
+                if (pedido.getEstado().equals(EstadoPedido.FINALIZADO) || (pedido.getEstado().equals(EstadoPedido.RECLAMORECHAZADO))) {
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && (fechapedido.getMonthValue() % 12) == (i % 12) &&
+                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal)) && (fechapedido.getYear() == anio)) {
+                        if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
+                            ventasEfectivo += pedido.getTotal();
+                            cantidadVentasEfectivo++;
+                            subTotal += pedido.getTotal();
+                        } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
+                            ventasPaypal += pedido.getTotal();
+                            cantidadVentasPayPal++;
+                            subTotal += pedido.getTotal();
+                        }
+                        //anio = pedido.getFechaHoraProcesado().getYear();
+                    }
+                } else if (pedido.getEstado().equals(EstadoPedido.DEVUELTO)){
+                    if ((fechapedido.isEqual(fechaInicial) || fechapedido.isAfter(fechaInicial)) && (fechapedido.getMonthValue() % 12) == (i % 12) &&
+                            ( fechapedido.isBefore(fechaFinal) || fechapedido.isEqual(fechaFinal)) && (fechapedido.getYear() == anio)) {
+                        if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
+                            devolucionesEfectivo += pedido.getTotal();
+                            cantidadDevolucionesEfectivo++;
+                            subTotal -= pedido.getTotal();
+                        } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
+                            devolucionesPayPal += pedido.getTotal();
+                            cantidadDevolucionesPayPal++;
+                            subTotal -= pedido.getTotal();
+                        }
+                    }
+                }
+            }
+
+            totalVentasEfectivo += ventasEfectivo;
+            totalCantidadVentasEfectivo += cantidadVentasEfectivo;
+            totalVentasPaypal += ventasPaypal;
+            totalCantidadVentasPayPal += cantidadVentasPayPal;
+            totalDevolucionesEfectivo += devolucionesEfectivo;
+            totalCantidadDevolucionesEfectivo += cantidadDevolucionesEfectivo;
+            totalDevolucionesPayPal += devolucionesPayPal;
+            totalCantidadDevolucionesPayPal += cantidadDevolucionesPayPal;
+
+            JsonObject jsonMes = new JsonObject();
+            jsonMes.addProperty("mes", mes);
+            jsonMes.addProperty("anio", anio);
+            JsonArray indicadores = new JsonArray();
+
+            // Cargar los 4 json de indicadores
+            JsonObject jsonIndicadorVE = new JsonObject();
+            jsonIndicadorVE.addProperty("ventasEfectivo", ventasEfectivo);
+            jsonIndicadorVE.addProperty("cantidad", cantidadVentasEfectivo);
+
+            JsonObject jsonIndicadorVPP = new JsonObject();
+            jsonIndicadorVPP.addProperty("ventasPaypal", ventasPaypal);
+            jsonIndicadorVPP.addProperty("cantidad", cantidadVentasPayPal);
+
+            JsonObject jsonIndicadorDE = new JsonObject();
+            jsonIndicadorDE.addProperty("devolucionesEfectivo", devolucionesEfectivo);
+            jsonIndicadorDE.addProperty("cantidad", cantidadDevolucionesEfectivo);
+
+            JsonObject jsonIndicadorDPP = new JsonObject();
+            jsonIndicadorDPP.addProperty("devolucionesPaypal", devolucionesPayPal);
+            jsonIndicadorDPP.addProperty("cantidad", cantidadDevolucionesPayPal);
+
+            indicadores.add(jsonIndicadorVE);
+            indicadores.add(jsonIndicadorVPP);
+            indicadores.add(jsonIndicadorDE);
+            indicadores.add(jsonIndicadorDPP);
+            jsonMes.add("indicadores", indicadores);
+            jsonMes.addProperty("subtotal", subTotal);
+
+            // Termina iteracion de todo lo relacionado a un mes
+            meses.add(jsonMes);
+
+            if ((i % 12) == 0) {
+                anio ++;
+            }
+        }
+
+        // Cargo totales
+
+        JsonObject ventasEfectivoTotal = new JsonObject();
+        ventasEfectivoTotal.addProperty("ventasEfectivo", totalVentasEfectivo);
+        ventasEfectivoTotal.addProperty("cantidad", totalCantidadVentasEfectivo);
+
+        JsonObject ventasPayPalTotal = new JsonObject();
+        ventasPayPalTotal.addProperty("ventasPayPal", totalVentasPaypal);
+        ventasPayPalTotal.addProperty("cantidad", totalCantidadVentasPayPal);
+
+        JsonObject devolucionesEfectivoTotal = new JsonObject();
+        devolucionesEfectivoTotal.addProperty("devolucionesEfectivo", totalDevolucionesEfectivo);
+        devolucionesEfectivoTotal.addProperty("cantidad", totalCantidadDevolucionesEfectivo);
+
+        JsonObject devolucionesPayPalTotal = new JsonObject();
+        devolucionesPayPalTotal.addProperty("devolucionesPayPal", totalDevolucionesPayPal);
+        devolucionesPayPalTotal.addProperty("cantidad", totalCantidadDevolucionesPayPal);
+
+        JsonObject total = new JsonObject(); // Para agregar los totales finales al front
+        total.addProperty("total", totalVentasEfectivo + totalVentasPaypal - totalDevolucionesEfectivo - totalDevolucionesPayPal);
+        total.addProperty("cantidadVentas", totalCantidadVentasEfectivo + totalCantidadVentasPayPal);
+        total.addProperty("cantidadDevoluciones", totalCantidadDevolucionesEfectivo + totalCantidadDevolucionesPayPal);
+
+        // Termina todo, retorno balance
+        totales.add(ventasEfectivoTotal);
+        totales.add(ventasPayPalTotal);
+        totales.add(devolucionesEfectivoTotal);
+        totales.add(devolucionesPayPalTotal);
+        totales.add(total); // Para agregar los totales finales al front
+        balance.add("meses", meses);
+        balance.add("totales", totales);
+        return balance;
+    }
+
     public JsonObject realizarDevolucion(String correoRestaurante, String idPedido, String motivoDevolucion,
             Boolean estadoDevolucion)
             throws PedidoNoExisteException, PedidoIdException, RestauranteNoEncontradoException,
@@ -549,5 +784,103 @@ public class RestauranteService {
         }
         return response;
     }
-    
+
+    public JsonObject pedidosRegistrados(int anio){
+        JsonObject result = new JsonObject();
+        List<Restaurante> restaurantes = restauranteRepository.findAllByRolesOrderByCalificacion("ROLE_RESTAURANTE");
+        JsonArray mes = new JsonArray();
+        for (int i=1; i <= 12 ; i++) {
+            LocalDateTime fechaIni = LocalDateTime.of(LocalDate.of(anio, i, 1),LocalTime.MIDNIGHT);
+            LocalDateTime fechaFin;
+            if (i == 12) {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio + 1, 1, 1).minusDays(1),LocalTime.MAX);
+            } else {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio, i + 1, 1).minusDays(1),LocalTime.MAX);
+            }
+            int cantidadRegistrados = 0;
+            for (Restaurante restaurante : restaurantes){
+                cantidadRegistrados += pedidoService.cantPedidosRestaurante(restaurante,fechaIni,fechaFin);
+            }
+            JsonObject pedidosRestaurante = new JsonObject();
+            pedidosRestaurante.addProperty("mes", obtenerMes(i));
+            pedidosRestaurante.addProperty("cantidad",cantidadRegistrados);
+            mes.add(pedidosRestaurante);
+        }
+        result.add("pedidosRegistrados",mes);
+        return result;
+    }
+
+    public String obtenerMes (int mes){
+        String result;
+        switch (mes) {
+            case 1:
+                result = "Enero";
+                break;
+            case 2:
+                result = "Febrero";
+                break;
+            case 3:
+                result = "Marzo";
+                break;
+            case 4:
+                result = "Abril";
+                break;
+            case 5:
+                result = "Mayo";
+                break;
+            case 6:
+                result = "Junio";
+                break;
+            case 7:
+                result = "Julio";
+                break;
+            case 8:
+                result = "Agosto";
+                break;
+            case 9:
+                result = "Septiembre";
+                break;
+            case 10:
+                result = "Octubre";
+                break;
+            case 11:
+                result = "Noviembre";
+                break;
+            default:
+                result = "Diciembre";
+                break;
+        }
+        return result;
+    }
+
+    public Long restaurantesActivos(){
+        return restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.ABIERTO) +
+                restauranteRepository.countRestaurantesByEstado(EstadoRestaurante.CERRADO);
+    }
+
+    public JsonObject ventasRestaurantes(String correo, int anio) throws RestauranteNoEncontradoException {
+        Restaurante restaurante = obtenerRestaurante(correo);
+        JsonObject ventasRestaurante = new JsonObject();
+        JsonArray meses = new JsonArray();
+        for (int i=1; i<=12; i++){
+            LocalDateTime fechaIni = LocalDateTime.of(LocalDate.of(anio, i, 1),LocalTime.MIDNIGHT);
+            LocalDateTime fechaFin;
+            if (i == 12) {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio + 1, 1, 1).minusDays(1),LocalTime.MAX);
+            } else {
+                fechaFin = LocalDateTime.of(LocalDate.of(anio, i + 1, 1).minusDays(1),LocalTime.MAX);
+            }
+            JsonObject mes = new JsonObject();
+            Long cantidad = pedidoService.cantVentasRestauranteAnio(restaurante,fechaIni,fechaFin);
+            mes.addProperty("mes",obtenerMes(i));
+            mes.addProperty("cantidad", cantidad);
+            meses.add(mes);
+        }
+        ventasRestaurante.addProperty("restaurante",restaurante.getNombreRestaurante());
+        ventasRestaurante.addProperty("anio",anio);
+        ventasRestaurante.add("ventas", meses);
+        return ventasRestaurante;
+    }
+
 }
+

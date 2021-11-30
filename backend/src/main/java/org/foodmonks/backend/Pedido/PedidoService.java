@@ -20,7 +20,6 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.datatypes.DtOrdenPaypal;
 import java.util.List;
-import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 
 @Service
 public class PedidoService {
@@ -45,12 +44,18 @@ public class PedidoService {
         List<CriterioQuery> querys = new ArrayList<>();
 
         if (estadoPedido != null) {
-            querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            if (estadoPedido.equals(EstadoPedido.FINALIZADO)){
+                querys.add(new CriterioQuery("estado",":",EstadoPedido.RECLAMORECHAZADO, true));
+                querys.add(new CriterioQuery("estado",":",estadoPedido, true));
+            }else{
+                querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            }
 //            result = pedidoRepository.findAll(estadoSpec);
             //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
         }else{
             querys.add(new CriterioQuery("estado",":",EstadoPedido.DEVUELTO, true));
             querys.add(new CriterioQuery("estado",":",EstadoPedido.FINALIZADO, true));
+            querys.add(new CriterioQuery("estado",":",EstadoPedido.RECLAMORECHAZADO, true));
 //            result = pedidoRepository.findAll(estadoSpecF.and(estadoSpecD));
             //result = pedidos.stream().filter(p -> (p.getEstado().equals(EstadoPedido.DEVUELTO) || p.getEstado().equals(EstadoPedido.FINALIZADO))).collect(Collectors.toList());
         }
@@ -109,9 +114,13 @@ public class PedidoService {
         PedidoSpecificationBuilder builder = new PedidoSpecificationBuilder();
         List<CriterioQuery> querys = new ArrayList<>();
 
-        querys.add(new CriterioQuery("cliente", ":", cliente,false));
         if (estadoPedido != null) {
-            querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            if (estadoPedido.equals(EstadoPedido.FINALIZADO)){
+                querys.add(new CriterioQuery("estado",":",estadoPedido, true));
+                querys.add(new CriterioQuery("estado",":",EstadoPedido.RECLAMORECHAZADO, true));
+            }else{
+                querys.add(new CriterioQuery("estado",":",estadoPedido, false));
+            }
 //            result = pedidoRepository.findAll(estadoSpec);
             //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
         }
@@ -146,6 +155,7 @@ public class PedidoService {
 //            )).collect(Collectors.toList());
 //            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
+        querys.add(new CriterioQuery("cliente", ":", cliente,false));
         for(CriterioQuery c : querys){
             builder.with(c);
         }
@@ -210,7 +220,33 @@ public class PedidoService {
         pedidoRepository.save(pedido);
         return pedidoConverter.jsonPedido(pedido);
     }
-    
+
+    public void agregarReclamoPedido(Pedido pedido, Reclamo reclamo){
+        pedido.setReclamo(reclamo);
+        pedidoRepository.save(pedido);
+    }
+
+    public Long cantPedidosRestaurante(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
+        return pedidoRepository.countPedidosByRestauranteAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
+    }
+
+    public Long cantVentasRestauranteAnio(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin){
+        return pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(restaurante,EstadoPedido.FINALIZADO,fechaIni,fechaFin) +
+                pedidoRepository.countPedidosByRestauranteAndEstadoAndFechaHoraProcesadoBetween(restaurante,EstadoPedido.RECLAMORECHAZADO,fechaIni,fechaFin);  
+    }
+  
+    public void modificarCalificacionRestaurantePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
+        Pedido pedido = obtenerPedido(idPedido);
+        pedido.setCalificacionRestaurante(calificacion);
+        pedidoRepository.save(pedido);
+    }
+
+    public void modificarCalificacionClientePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
+        Pedido pedido = obtenerPedido(idPedido);
+        pedido.setCalificacionCliente(calificacion);
+        pedidoRepository.save(pedido);
+    }
+
     public Pedido obtenerPedido(Long id) throws PedidoNoExisteException {
         Pedido pedido = pedidoRepository.findPedidoById(id);
         if (pedido == null) {
@@ -223,21 +259,20 @@ public class PedidoService {
         return pedidoConverter.jsonPedido(obtenerPedido(id));
     }
 
-    public void agregarReclamoPedido(Pedido pedido, Reclamo reclamo){
-        pedido.setReclamo(reclamo);
-        pedidoRepository.save(pedido);
+    public List<Pedido> pedidosRestaurante(Restaurante restaurante){
+        return pedidoRepository.findPedidosByRestaurante(restaurante);
     }
 
-    public void modificarCalificacionRestaurantePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
-        Pedido pedido = obtenerPedido(idPedido);
-        pedido.setCalificacionRestaurante(calificacion);
-        pedidoRepository.save(pedido);
+    public List<Pedido> pedidosRestauranteMedioPago(Restaurante restaurante, MedioPago medioPago) {
+        return pedidoRepository.findPedidosByRestauranteAndMedioPago(restaurante,medioPago);
     }
 
-    public void modificarCalificacionClientePedido(Long idPedido, DtCalificacion calificacion) throws PedidoNoExisteException {
-        Pedido pedido = obtenerPedido(idPedido);
-        pedido.setCalificacionCliente(calificacion);
-        pedidoRepository.save(pedido);
+    public List<Pedido> pedidosRestauranteFechaHoraProcesado(Restaurante restaurante, LocalDateTime fechaIni, LocalDateTime fechaFin) {
+        return pedidoRepository.findPedidosByRestauranteAndFechaHoraProcesadoBetween(restaurante,fechaIni,fechaFin);
+    }
+
+    public List<Pedido> pedidosRestauranteMedioPagoFechaHoraProcesado(Restaurante restaurante, MedioPago medioPago, LocalDateTime fechaIni, LocalDateTime fechaFin) {
+        return pedidoRepository.findPedidosByRestauranteAndMedioPagoAndFechaHoraProcesadoBetween(restaurante,medioPago,fechaIni,fechaFin);
     }
 
 }
