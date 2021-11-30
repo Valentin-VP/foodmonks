@@ -1,6 +1,6 @@
 import { React, Fragment, useState } from "react";
 import styled from "styled-components";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, ProgressBar } from "react-bootstrap";
 import logo from "../../assets/foodMonks-sinfondo.png";
 import arrow from "../../assets/arrow.png";
 import usePlacesAutocomplete, {
@@ -115,6 +115,7 @@ function RegistroRestaurante() {
 
   const [alerta, setAlerta] = useState(null);
   const [tipoError, setTipo] = useState();
+  const [uploadBar, setUploadBar] = useState(null);
 
   const {
     ready,
@@ -163,11 +164,13 @@ function RegistroRestaurante() {
             restaurante.nombre = document.getElementById("nombre").value;
             restaurante.apellido = document.getElementById("apellido").value;
             restaurante.correo = document.getElementById("correo").value;
-            restaurante.nombreRestaurante = document.getElementById("nombreRestaurante").value;
+            restaurante.nombreRestaurante =
+              document.getElementById("nombreRestaurante").value;
             restaurante.rut = document.getElementById("rut").value;
             restaurante.telefono = document.getElementById("telefono").value;
             restaurante.cuentaPaypal = document.getElementById("paypal").value;
-            restaurante.descripcion = document.getElementById("descripcion").value;
+            restaurante.descripcion =
+              document.getElementById("descripcion").value;
             restaurante.direccion.esquina =
               document.getElementById("esquina").value;
             restaurante.direccion.detalles =
@@ -175,10 +178,16 @@ function RegistroRestaurante() {
             restaurante.password = Base64.encode(pass1);
             var img = document.getElementById("img").files[0];
             //si se selecciona una imagen
-            const uploadTask = storage.ref(`/restaurantes/${img.name}`).put(img);
+            const uploadTask = storage
+              .ref(`/restaurantes/${img.name}`)
+              .put(img);
             uploadTask.on(
               "state_changed",
-              (snapshot) => {}, //el snapshot tiene que ir
+              (snapshot) => {
+                let percentage =
+                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadBar(<ProgressBar now={percentage} />);
+              },
               (error) => {
                 console.log(error.message);
                 setAlerta("Error al subir la imagen");
@@ -373,6 +382,7 @@ function RegistroRestaurante() {
               rows={3}
             />
             {errorMsg}
+            {uploadBar}
             <Button className="btn-lg" type="submit">
               Siguiente
               <span className="flecha">
@@ -381,10 +391,10 @@ function RegistroRestaurante() {
             </Button>
           </form>
           <p className="mt-2 mb-3 text-muted">
-            ¿Ya tienes cuenta?<a href="/">Inicia sesión</a>
+            ¿Ya tienes cuenta? <a href="/">Inicia sesión</a>
           </p>
           <a href="/register" className="ultimo">
-            Registrate como cliente
+            Regístrate como cliente
           </a>
         </div>
       </Fragment>

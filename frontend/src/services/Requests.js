@@ -73,7 +73,7 @@ export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("react-use-cart");
-  //window.location.replace("/");
+  window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu

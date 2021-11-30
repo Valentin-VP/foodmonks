@@ -68,6 +68,9 @@ const Styles = styled.div`
       border-radius: 5px;
   }
 
+  #descripcion {
+      height: 5rem;
+  }
 `;
 
 function AltaPromocion() {
@@ -192,7 +195,7 @@ function AltaPromocion() {
                     type="text"
                     name="descripcion"
                     id="descripcion"
-                    placeholder="Descripcion"
+                    placeholder="Descripción"
                     disabled
                     />
                     <label htmlFor="floatingInput">{state.descripcion}</label>
@@ -204,14 +207,14 @@ function AltaPromocion() {
                     type="number"
                     name="descuento"
                     id="descuento"
-                    placeholder="Descuento"
+                    placeholder="Descuento (%)"
                     max="100"
                     min="1"
                     required
                     defaultValue="1"
                     onChange={handleChange}
                     />
-                    <label htmlFor="floatingInput">Descuento</label>
+                    <label htmlFor="floatingInput">Descuento (%)</label>
                 </div>
                 <FloatingLabel controlId="floatingSelect" label="Categoría">
                     <Form.Select

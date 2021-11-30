@@ -60,9 +60,6 @@ const Styles = styled.div`
     }
   }
 
-  table {
-  }
-
   table,
   tbody,
   tr,
@@ -122,7 +119,7 @@ function Menu() {
                   <th className scope="col">Imágen</th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Precio</th>
-                  <th scope="col">Descripcion</th>
+                  <th scope="col">Descripción</th>
                   <th scope="col">Categoría</th>
                   <th scope="col"></th>
                 </tr>

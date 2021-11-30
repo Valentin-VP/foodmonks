@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Button, FloatingLabel, Form, ButtonGroup } from "react-bootstrap";
+import {
+  Button,
+  FloatingLabel,
+  Form,
+  ButtonGroup,
+  ProgressBar,
+} from "react-bootstrap";
 import { storage } from "../../Firebase";
 import { Alerta } from "../../components/Alerta";
 import { registrarRestaurante } from "../../services/Requests";
@@ -87,6 +93,7 @@ function RegistroAltaMenu() {
 
   const [alerta, setAlerta] = useState(null);
   const [tipoError, setTipo] = useState();
+  const [uploadBar, setUploadBar] = useState(null);
 
   const handleChange = (e) => {
     e.persist();
@@ -119,7 +126,11 @@ function RegistroAltaMenu() {
         const uploadTask = storage.ref(`/menus/${img.name}`).put(img);
         uploadTask.on(
           "state_changed",
-          (snapshot) => {}, //el snapshot tiene que ir
+          (snapshot) => {
+            let percentage =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadBar(<ProgressBar now={percentage} />);
+          },
           (error) => {
             setAlerta("Error al subir la imagen");
             setTipo("danger");
@@ -329,6 +340,7 @@ function RegistroAltaMenu() {
           {/* image uploader */}
           <Form.Control className="archivo mb-3" id="img" type="file" />
           {infoMsg}
+          {uploadBar}
           <ButtonGroup className="bGroup">
             <Button id="cancelar" onClick={onCancel}>
               Cancelar
