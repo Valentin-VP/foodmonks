@@ -2,8 +2,10 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
 import dev.paseto.jpaseto.ExpiredPasetoException;
+import io.github.jav.exposerversdk.PushClientException;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
@@ -20,6 +22,9 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoDevolucionException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoDistintoRestauranteException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
@@ -34,6 +39,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 
+import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -458,7 +464,7 @@ public class RestauranteController {
             }
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
-        } catch (PedidoNoExisteException | RestauranteNoEncontradoException e) {
+        } catch (PedidoNoExisteException | RestauranteNoEncontradoException | PedidoIdException | PedidoDevolucionException | PedidoDistintoRestauranteException | IOException | EmailNoEnviadoException | PushClientException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok("Se cambió el estado del pedido.");

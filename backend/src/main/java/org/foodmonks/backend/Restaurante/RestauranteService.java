@@ -2,6 +2,7 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.jav.exposerversdk.PushClientException;
 import io.swagger.v3.core.util.Json;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -29,6 +30,7 @@ import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoExcep
 import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.foodmonks.backend.datatypes.MedioPago;
+import org.foodmonks.backend.notificacion.NotificacionExpoService;
 import org.foodmonks.backend.paypal.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,12 +63,13 @@ public class RestauranteService {
     private final TemplateEngine templateEngine;
     private final EmailService emailService;
     private final PayPalService payPalService;
+    private final NotificacionExpoService notificacionExpoService;
 
     @Autowired
     public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder,
             UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter,
             PedidoService pedidoService, ReclamoConverter reclamoConverter, TemplateEngine templateEngine,
-            EmailService emailService, PayPalService payPalService) {
+            EmailService emailService, PayPalService payPalService, NotificacionExpoService notificacionExpoService) {
         this.restauranteRepository = restauranteRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = usuarioRepository;
@@ -77,6 +80,7 @@ public class RestauranteService {
         this.templateEngine = templateEngine;
         this.emailService = emailService;
         this.payPalService = payPalService;
+        this.notificacionExpoService = notificacionExpoService;
     }
 
     public JsonArray listarRestaurante(){
@@ -215,7 +219,7 @@ public class RestauranteService {
     // Si el estado es "CONFIRMADO" se agregan el tiempo a fechaHoraEntrega (a
     // partir de fechaHoraProcesado)
     public void actualizarEstadoPedido(String correo, Long idPedido, String estado, Integer minutos)
-            throws RestauranteNoEncontradoException, PedidoNoExisteException {
+            throws RestauranteNoEncontradoException, PedidoNoExisteException, PedidoIdException, PedidoDevolucionException, PedidoDistintoRestauranteException, IOException, EmailNoEnviadoException, PushClientException, InterruptedException {
         Restaurante restaurante = restauranteRepository.findByCorreo(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
@@ -225,7 +229,6 @@ public class RestauranteService {
                     "No existe el pedido con id " + idPedido + " para el Restaurante " + correo);
         }
         Pedido pedido = pedidoService.obtenerPedido(idPedido);
-
         if (estado.equals("CONFIRMADO")) {
             pedidoService.cambiarFechasEntregaProcesado(idPedido, minutos);
             if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
@@ -233,10 +236,37 @@ public class RestauranteService {
             } else {
                 pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.FINALIZADO);
             }
+            //MAIL
+            String[] cc = new String[1];
+            cc[0] = correo;
+            Context context = new Context();
+            context.setVariable("user", "Gracias " + pedido.getCliente().getNombre() + " " +  pedido.getCliente().getApellido() + "!");
+            context.setVariable("contenido", restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. El hora estimado de entrega es " + LocalTime.now().plusMinutes(minutos) + " y " + LocalTime.now().plusMinutes(minutos+15));
+            String htmlContent = templateEngine.process("aprobar-rechazar", context);
+            emailService.enviarMail(pedido.getCliente().getCorreo(),"Confirmado Pedido #" + pedido.getId(),htmlContent,cc);
+            //PUSH NOTIFICATION
+            if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
+                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Confirmado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. El hora estimado de entrega es " + LocalTime.now().plusMinutes(minutos) + " y " + LocalTime.now().plusMinutes(minutos+15));
+            }
         } else if (estado.equals("RECHAZADO")) {
             pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.RECHAZADO);
+            //ENVIO DE MAIL DE RECHAZO
+            String[] cc = new String[1];
+            cc[0] = correo;
+            Context context = new Context();
+            context.setVariable("user", "Estimado " + pedido.getCliente().getNombre() + " " +  pedido.getCliente().getApellido() + ".");
+            context.setVariable("contenido", restaurante.getNombreRestaurante() + " ha rechazado el pedido que realizaste.");
+            String htmlContent = templateEngine.process("aprobar-rechazar", context);
+            emailService.enviarMail(pedido.getCliente().getCorreo(),"Rechazado Pedido #" + pedido.getId(),htmlContent,cc);
             if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
-                // HACER DEVOLUCION DE PAYPAL
+                realizarDevolucion(correo,String.valueOf(idPedido),"rechazado",true);
+            }
+            if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
+                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido");
+            }
+            // PUSH NOTIFICATION
+            if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
+                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazo Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido que realizaste");
             }
         }
     }
@@ -732,6 +762,7 @@ public class RestauranteService {
         cc[0] = pedido.getRestaurante().getCorreo();
         String htmlContent = "";
         if (estadoDevolucion) {
+            String asunto = "Reclamo aceptado :" + pedido.getReclamo().getRazon();
             if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                 pedidoService.cambiarEstadoPedido(pedido.getId(), EstadoPedido.DEVUELTO);
                 response.addProperty("status", "completado");
@@ -751,16 +782,21 @@ public class RestauranteService {
             } else if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
                 response.addProperty("status",
                         payPalService.refundOrder(payPalService.getOrder(pedido.getOrdenPaypal().getOrdenId())));
-                context.setVariable("contenido",
-                        "Su reclamo al restaurante " + restaurante.getNombreRestaurante() + " ha sido aceptado.");
+                if (motivoDevolucion.equals("rechazado")){
+                    asunto = "Devolucion por rechazo de pedido";
+                    context.setVariable("contenido",
+                            "Su pedido al restaurante " + restaurante.getNombreRestaurante() + " ha sido rechzado.");
+                } else {
+                    context.setVariable("contenido",
+                            "Su reclamo al restaurante " + restaurante.getNombreRestaurante() + " ha sido aceptado.");
+                }
                 context.setVariable("pedido", "Identificador pedido: #" + pedido.getId());
                 context.setVariable("paypal", "Identificador Paypal: order#" + pedido.getOrdenPaypal().getOrdenId());
                 context.setVariable("mensaje",
                         "Te hemos realizado una devolucion de $" + pedido.getTotal() + " en tu cuenta de Paypal.");
                 htmlContent = templateEngine.process("reclamo-aceptado-paypal", context);
             }
-            emailService.enviarMail(pedido.getCliente().getCorreo(),
-                    "Reclamo aceptado :" + pedido.getReclamo().getRazon(), htmlContent, cc);
+            emailService.enviarMail(pedido.getCliente().getCorreo(), asunto, htmlContent, cc);
             pedidoService.cambiarEstadoPedido(pedido.getId(), EstadoPedido.DEVUELTO);
         } else {
             if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
