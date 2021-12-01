@@ -85,7 +85,7 @@ public class ClienteController {
                     LocalDate.now(),
                     5.0f,
                     jsonDireccion,
-                    EstadoCliente.valueOf("ACTIVO")
+                    "ACTIVO"
                     // pedidos se crea el array vacio en el back
                     // y mobileToken es null hasta que instale la aplicacion
             );
@@ -125,7 +125,7 @@ public class ClienteController {
                 newToken = token.substring(7);
             }
             String correo = tokenHelp.getUsernameFromToken(newToken);
-            clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
+            clienteService.modificarEstadoCliente(correo, "ELIMINADO");
             log.debug("Cliente eliminado, enviando a cerrar sesion");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
