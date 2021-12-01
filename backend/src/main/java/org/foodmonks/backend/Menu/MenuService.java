@@ -1,10 +1,7 @@
 package org.foodmonks.backend.Menu;
 
 import com.google.gson.JsonObject;
-import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
-import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
+import org.foodmonks.backend.Menu.Exceptions.*;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -48,13 +45,16 @@ public class MenuService {
             menuRepository.save(menu);
     }
 
-    public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException {
+    public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException, MenuCantidadException {
 
         Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
         Menu menu = menuRepository.findByIdAndRestaurante(idMenu, restaurante);
         if (menu == null){
             throw new MenuNoEncontradoException("No se encontro el Menu con id "+ idMenu + " para el Restuarante "
                     + correoRestaurante);
+        }
+        if (restaurante.getMenus().size() == 3){
+            throw new MenuCantidadException("No puede eliminar el menu, el restaurante tiene el minimo de cantidad de menus");
         }
         menuRepository.delete(menu);
     }

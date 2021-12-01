@@ -1,9 +1,6 @@
 package org.foodmonks.backend.Menu;
 
-import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
-import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
+import org.foodmonks.backend.Menu.Exceptions.*;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -201,7 +198,7 @@ class MenuServiceTest {
     //}
 
     @Test
-    void eliminarMenu() throws MenuNoEncontradoException {
+    void eliminarMenu() throws MenuNoEncontradoException, MenuCantidadException {
         //dado
         /* Concepto similar al de 'altaMenu', pero al [Menu] creado se le setea un Id para luego preguntar si coincide...
         * ...pero igual que antes, no es útil o necesario por la falta de 'hashCode' y 'equals' en la clase [Menu]...
