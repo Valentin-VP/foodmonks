@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import lombok.SneakyThrows;
 import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Cliente.ClienteService;
@@ -18,8 +17,8 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
@@ -123,6 +122,14 @@ public class AuthenticationController {
         }
     }
 
+    @Operation(summary = "Renovar Tokens",
+            description = "Se renuevan los tokens, solo se usa al momento de error 401",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "autenticación" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @GetMapping(path = "/auth/refresh")
     public ResponseEntity<?> refreshTokens (@RequestHeader("RefreshAuthentication") String refreshToken) {
         String parsedToken = null;
@@ -161,7 +168,7 @@ public class AuthenticationController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "autenticación" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Usuario.class))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, AdminNoEncontradoException {
