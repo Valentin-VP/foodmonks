@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -202,6 +203,11 @@ public class AuthenticationController {
     @PostMapping(path = "/password/recuperacion/solicitud")
     public ResponseEntity<?> solicitarCambioPassword(
             @Parameter(description = "Correo del usuario que requiere cambio de password", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo correo para cambio de contraseña",
+                                    value = "{\"email\": \"correo@gmail.com\"" + "}")}))
             @RequestBody String data)  {
         /*
         * chequear que existe usuario con correo
@@ -257,7 +263,13 @@ public class AuthenticationController {
     @PostMapping(path = "/password/recuperacion/cambio")
     public ResponseEntity<?> realizarCambioPassword(
             @Parameter(description = "Nuevos datos para cambio de password", required = true)
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"correo\": \"correo@gmail.com\","
+                                    + "\"password\": \"contraseña\","
+                                    + "\"token\": \"token\""
+                                    + "}")}))
             @RequestBody String resetRequest) {
         try{
             JsonObject jsonReset = new Gson().fromJson(resetRequest, JsonObject.class);
@@ -313,7 +325,12 @@ public class AuthenticationController {
     @PostMapping(path = "/password/recuperacion/check")
     public ResponseEntity<?> validarToken(
             @Parameter(description = "Email y token para validar en DB que coincidan", required = true)
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"correo\": \"correo@gmail.com\","
+                                    + "\"token\": \"token\""
+                                    + "}")}))
             @RequestBody String tokenResetRequest) {
         JsonObject jsonReset = new Gson().fromJson(tokenResetRequest, JsonObject.class);
         TokenReset tokenReset = new TokenReset(new String(Base64.getDecoder().decode(jsonReset.get("email").getAsString())), jsonReset.get("token").getAsString());

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -370,6 +371,14 @@ public class ClienteController {
     @PostMapping(path = "/calificarRestaurante")
     public ResponseEntity<?> calificarRestaurante(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Id del pedido, puntaje y comentario", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"idPedido\": \"1\","
+                                    + "\"puntaje\": \"2.5\","
+                                    + "\"comentario\": \"muy rico todo\""
+                                    + "}")}))
             @RequestBody String pedido){
         try{
             String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
@@ -392,6 +401,14 @@ public class ClienteController {
     @PutMapping(path = "/modificarCalificacionRestaurante")
     public ResponseEntity<?> modificarCalificacionRestaurante(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Id del pedido, puntaje y comentario", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"idPedido\": \"1\","
+                                    + "\"puntaje\": \"2.5\","
+                                    + "\"comentario\": \"muy rico todo\""
+                                    + "}")}))
             @RequestBody String pedido){
         try{
             String correoCliente = clienteHelp.obtenerCorreoDelToken(token);

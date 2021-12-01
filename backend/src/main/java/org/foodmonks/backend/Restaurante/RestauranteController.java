@@ -2,6 +2,7 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
 import dev.paseto.jpaseto.ExpiredPasetoException;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
@@ -445,6 +446,14 @@ public class RestauranteController {
     @PostMapping(path = "/calificarCliente")
     public ResponseEntity<?> calificarCliente(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Id del pedido, puntaje y comentario", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"idPedido\": \"1\","
+                                    + "\"puntaje\": \"2.5\","
+                                    + "\"comentario\": \"muy rico todo\""
+                                    + "}")}))
             @RequestBody String pedido){
         try{
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
@@ -467,6 +476,14 @@ public class RestauranteController {
     @PutMapping(path = "/modificarCalificacionCliente")
     public ResponseEntity<?> modificarCalificacionCliente(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Id del pedido, puntaje y comentario", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"idPedido\": \"1\","
+                                    + "\"puntaje\": \"2.5\","
+                                    + "\"comentario\": \"muy rico todo\""
+                                    + "}")}))
             @RequestBody String pedido){
         try{
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
@@ -580,11 +597,15 @@ public class RestauranteController {
             @ApiResponse(responseCode = "400", description = "Ha courrido un error")
     })
     @PostMapping("/realizarDevolucion")
-    public ResponseEntity<?> realizarDevolucion(
+    public ResponseEntity<?> realizarDevolucion(//motivoDevolucion
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "idPedido") String idPedido,
             @RequestParam(name = "estadoDevolucion") boolean estadoDevolucion,
             @Parameter(description = "Motivo de la no devolucion del dinero", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                  content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = String.class),
+                  examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"motivoDevolucion\": \"elMotivoDeLaNODevolucion\"" + "}")}))
             @RequestBody String motivoDevolucion){
         JsonObject response = new JsonObject();
         try {
