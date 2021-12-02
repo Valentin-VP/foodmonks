@@ -3,7 +3,6 @@ package org.foodmonks.backend.Restaurante;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.jav.exposerversdk.PushClientException;
-import io.swagger.v3.core.util.Json;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
@@ -15,7 +14,6 @@ import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.MenuCompra.MenuCompra;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoFechaProcesadoException;
-import org.foodmonks.backend.Pedido.Exceptions.PedidoMedioPagoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Exceptions.*;
 import org.foodmonks.backend.Pedido.Pedido;
@@ -36,10 +34,8 @@ import org.foodmonks.backend.paypal.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.*;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -167,8 +163,6 @@ public class RestauranteService {
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
-        // System.out.println(restaurante.getNombreRestaurante() +
-        // restaurante.getPedidos());
         return pedidoService.listaPedidosEfectivoConfirmados(restaurante);
     }
 
@@ -305,32 +299,22 @@ public class RestauranteService {
 
         EstadoPedido estado = null;
         MedioPago pago = null;
-        int pageFinal = 0;
-        int sizeFinal = 10;
+        int pageFinal;
+        int sizeFinal;
         if (estadoPedido != null && !estadoPedido.equals("")) {
-            try {
-                estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException e) {
-                estado = null;
-            }
+            estado = EstadoPedido.valueOf(estadoPedido.trim().toUpperCase(Locale.ROOT));
         }
+
         if (medioPago != null && !medioPago.equals("")) {
-            try {
-                pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException e) {
-                pago = null;
-            }
+            pago = MedioPago.valueOf(medioPago.trim().toUpperCase(Locale.ROOT));
         }
 
         if (_total != null && _total[0] != null && _total[1] != null) {
-            try {
-                totalFinal[0] = Math.abs(Float.valueOf(_total[0]));
-                totalFinal[1] = Math.abs(Float.valueOf(_total[1]));
-            } catch (NumberFormatException e) {
-                totalFinal = null;
-            }
-        } else
+            totalFinal[0] = Math.abs(Float.valueOf(_total[0]));
+            totalFinal[1] = Math.abs(Float.valueOf(_total[1]));
+        } else {
             totalFinal = null;
+        }
 
         if (_fecha != null && _fecha[0] != null && _fecha[1] != null) {
             try {
@@ -341,17 +325,12 @@ public class RestauranteService {
             } catch (DateTimeException e) {
                 fechaFinal = null;
             }
-        } else
+        } else {
             fechaFinal = null;
-
-        try {
-            pageFinal = Integer.parseInt(page);
-            sizeFinal = Integer.parseInt(size);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            pageFinal = 0;
-            sizeFinal = 5;
         }
+
+        pageFinal = Integer.parseInt(page);
+        sizeFinal = Integer.parseInt(size);
         return pedidoService.listaPedidosHistorico(restaurante, estado, pago, orden, fechaFinal, totalFinal, pageFinal,
                 sizeFinal);
     }

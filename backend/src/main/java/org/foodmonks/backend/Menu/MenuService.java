@@ -87,12 +87,12 @@ public class MenuService {
 
     public JsonObject infoMenu(Long id, String correo) {
         return menuConverter.jsonMenu(menuRepository.findByIdAndRestaurante(id,
-                restauranteRepository.findById(correo).get()));
+                restauranteRepository.findRestaurantesByCorreo(correo)));
     }
 
     public List<JsonObject> listarMenu(String correoRestaurante){
         return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(
-                restauranteRepository.findById(correoRestaurante).get()));
+                restauranteRepository.findRestaurantesByCorreo(correoRestaurante)));
     }
 
     public Boolean existeCategoriaMenu(Restaurante restaurante, CategoriaMenu categoriaMenu){
@@ -101,10 +101,6 @@ public class MenuService {
 
     public Menu obtenerMenu(Long id, Restaurante restaurante){
         return menuRepository.findByIdAndRestaurante(id,restaurante);
-    }
-
-    public List<JsonObject> obtenerListaMenu(Restaurante restaurante){
-        return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(restaurante));
     }
 
     public void verificarJsonMenu(JsonObject jsonMenu) throws MenuPrecioException, MenuMultiplicadorException, MenuNombreException {

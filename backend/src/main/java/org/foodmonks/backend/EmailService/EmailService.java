@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @Service 
 public class EmailService {
 	private final JavaMailSender emailSender;
-	//private final TemplateEngine templateEngine;
 	
 	@Value("${mail.username}")
     private String mailReclamos;
@@ -26,11 +25,7 @@ public class EmailService {
 
 
 	public void enviarMail (String destinatario, String asunto, String htmlContent, String[] Cc) throws EmailNoEnviadoException {
-		
-		//ARMAR EL CONTENIDO DEL MAIL SE DEBE ENCARGAR EL CASO DE USO QUE LO REQUIERA. ESTO VA AHI.
-				//Context context = new Context();
-				//context.setVariable("contenido", contenido);
-				//String htmlContent = templateEngine.process("index", context);
+
 		try {
 		MimeMessage mimeMessage = emailSender.createMimeMessage();
 		MimeMessageHelper message;
