@@ -65,16 +65,16 @@ class MenuServiceTest {
                 "imagen", CategoriaMenu.OTROS, restaurante);
         /* 'when' se utiliza para simular un comportamiento de un método que en realidad no sucede (por estar el componente anotado como @Mock)
         * En estos casos ni el repository del [Restaurante] o el [Menu] tienen ninguna comunicación con la BD. Son 'falsos'...
-        * ...por lo que '.findByCorreo' o '.existsByNombreAndRestaurante' darán siempre el mismo valor (null y false respectivamente).
-        * Se le dice (concepto de premisas) que cuando (when) se llama a la función '.findByCorreo' con 'anyString()' (que es como un wildcard)...
+        * ...por lo que '.findByCorreoIgnoreCase' o '.existsByNombreAndRestaurante' darán siempre el mismo valor (null y false respectivamente).
+        * Se le dice (concepto de premisas) que cuando (when) se llama a la función '.findByCorreoIgnoreCase' con 'anyString()' (que es como un wildcard)...
         * ...se retorne la variable 'restaurante' creada arriba. Si no se hace esto se retornaría [null] y se cortaría en el 'if (restaurante==null).
         * En el caso de '.existsByNombreAndRestaurante', se le pasan 2 'wildcards' y se simula que ese método del repositorio...
         * ...retorna que no existe el menú repetido en la BD.
         * Este es el concepto de 'stubbing'. Imitar un objeto y sus funcionalidades reales, pero sin depender de si estas funcionan bien.
         * Dato: No importan los strings o clases que se le pasen porque lo necesario es el valor de retorno, siempre y cuando coincidan con la firma.
         * */
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
-        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
+        when(menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
 
         //cuando
         /* Acá se llama al método que está siendo probado 'altaMenu' con datos relativamente reales. Luego se preguntará por alguno de estos.*/
@@ -102,18 +102,18 @@ class MenuServiceTest {
     }
 
     @Test
-    void altaMenu_MenuRepetido() throws UsuarioNoRestaurante, MenuNombreExistente {
+    void altaMenu_MenuRepetido() {
         //dado
         Restaurante restaurante = new Restaurante();
 
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
 
         /* Se "fuerza" o simula que un menú exista para comprobar que el resto de la función corta donde tiene que cortar.
          * Con esto, donde en 'altaTest' se pregunta por si existe ese menú (y que en la realidad se utilizaría la BD real para la consulta)...
          * ...directamente se le dictamina que existe (.thenReturn(true)).
          * Se puede hacer de las 2 formas.
          * */
-        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
+        when(menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
         //BDDMockito.given(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).willReturn(true);
 
         //cuando
@@ -141,12 +141,12 @@ class MenuServiceTest {
     }
 
     @Test
-    void altaMenu_RestauranteInexistente() throws UsuarioNoRestaurante, MenuNombreExistente {
+    void altaMenu_RestauranteInexistente() {
         //dado
         /* Acá se quiere ver que la función falla si el restaurante es null, pero obviamente no existe conexión con la BD...
         * ...entonces se le simula un retorno para que 'if (restaurante == null)' corte por lo sano.
         * */
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(null);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
 
         //cuando
         //entonces
@@ -175,7 +175,7 @@ class MenuServiceTest {
     //    Restaurante restaurante = new Restaurante();
     //    Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
     //            "imagen", CategoriaMenu.OTROS, restaurante);
-    //    when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+    //    when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
     //    when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
         /* Se le fuerza a que cuando se llama al .save se lanze la excepción que lanzaría en operación normal (en caso de entidad nula o repetida)
         * El comentario de arriba detalla por qué esto se hace.
@@ -208,7 +208,7 @@ class MenuServiceTest {
         Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
                 "imagen", CategoriaMenu.OTROS, restaurante);
         menu.setId(1L);
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(menu);
         //cuando
         /* Se llama al método, y el correoRestaurante en realidad es irrelevante porque no hay BD real (están los .when para simular)
@@ -229,14 +229,14 @@ class MenuServiceTest {
     }
 
     @Test
-    void eliminarMenu_MenuInexistente() throws MenuNoEncontradoException {
+    void eliminarMenu_MenuInexistente() {
         //IGNORAR: //doThrow(IllegalStateException.class).when(menuRepository).delete(any());
 
         /* Mismo concepto que los tests que esperan arrojar una excepción...
         * */
         //dado
         Restaurante restaurante = new Restaurante();
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
         //cuando
         //entonces
         assertThatThrownBy(()->menuService.eliminarMenu(1L, "correoRestaurante"))
@@ -254,8 +254,8 @@ class MenuServiceTest {
         Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
                 "imagen", CategoriaMenu.OTROS, restaurante);
         menu.setId(1L);
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
-        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
+        when(menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
         /*Aca podría utilizar 'new Menu()' u otro Menu en vez de 'menu', para evitar que 'nombre' se modifique también en 'menu' (la variable local de este test).
         * Sucede porque en al momento de hacer el 'when...thenReturn' se le pasa la variable 'menu' (que está en este mismo test) como referencia y no como copia.
         * Eso lo hace Mockito automáticamente.
@@ -279,12 +279,12 @@ class MenuServiceTest {
     }
 
     @Test
-    void modificarMenu_MenuInexistente() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante {
+    void modificarMenu_MenuInexistente() {
         /* Concepto similar al de los anteriores testeos de inexistentes.
         * */
         //dado
         Restaurante restaurante = new Restaurante();
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(null);
         //cuando
         //entonces
@@ -297,7 +297,7 @@ class MenuServiceTest {
     }
 
     @Test
-    void modificarMenu_NombreRepetido() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante {
+    void modificarMenu_NombreRepetido() {
         /* Concepto similar...
         * ...pero siempre hay que saber qué comportamientos y de qué componentes hay que simular, de lo contrario Mockito dará error.
         * Si falta un 'when', no se llegará al resultado esperado (que corte porque el nombre "está repetido"), y si sobra ERROR de TEST...
@@ -310,9 +310,9 @@ class MenuServiceTest {
         Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
                 "imagen", CategoriaMenu.OTROS, restaurante);
         menu.setId(1L);
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(menu);
-        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
+        when(menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
         //cuando
         //entonces
         /* Igual que antes */
@@ -325,12 +325,12 @@ class MenuServiceTest {
     }
 
     @Test
-    void modificarMenu_RestauranteInexistente() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante {
+    void modificarMenu_RestauranteInexistente() {
         /* Concepto similar...
         * ...y no vale la pena crear nada, ya que para esta excepción solo se necesita llegar hasta el 'if (restaurante == null)' con un True.
         * */
         //dado
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(null);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
         //cuando
         //entonces
         /* Igual que antes */
@@ -350,7 +350,7 @@ class MenuServiceTest {
     //    Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
     //            "imagen", CategoriaMenu.OTROS, restaurante);
     //    menu.setId(1L);
-    //    when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
+    //    when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
     //    when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
     //    when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(new Menu());
     //    doThrow(IllegalStateException.class).when(menuRepository).save(any());

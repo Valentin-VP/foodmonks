@@ -47,7 +47,7 @@ public class AdminService {
     }
 
     public void crearAdmin(String correo, String nombre, String apellido, String password) throws UsuarioExisteException {
-        if (usuarioRepository.findByCorreo(correo) != null){
+        if (usuarioRepository.findByCorreoIgnoreCase(correo) != null){
             throw new UsuarioExisteException("Ya existe un Usuario con el correo " + correo);
         }
         Admin admin = new Admin(nombre, apellido, correo, passwordEncoder.encode(password),LocalDate.now());
@@ -59,7 +59,7 @@ public class AdminService {
     }
 
     public Admin buscarAdmin(String correo) {
-        return adminRepository.findByCorreo(correo);
+        return adminRepository.findByCorreoIgnoreCase(correo);
     }
 
     public void modificarAdmin(Admin admin) {
@@ -67,13 +67,13 @@ public class AdminService {
     }
 
     public JsonArray listarRestaurantesPorEstado(String estadoRestaurante) {
-        List<Restaurante> restauranteAux = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.valueOf(estadoRestaurante));
+        List<Restaurante> restauranteAux = restauranteRepository.findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.valueOf(estadoRestaurante));
         return restauranteConverter.arrayJsonRestaurantes(restauranteAux);
     }
 
     public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) throws RestauranteNoEncontradoException {
         System.out.println(estadoRestaurante);
-        Restaurante restauranteAux = restauranteRepository.findByCorreo(correoRestaurante);
+        Restaurante restauranteAux = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
 
         if (restauranteAux == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correoRestaurante);
@@ -90,7 +90,7 @@ public class AdminService {
 
     public void enviarCorreo(String correoRestaurante, String resultadoCambioEstado, String comentariosCambioEstado) throws EmailNoEnviadoException {
 
-        Usuario usuarioAux = usuarioRepository.findByCorreo(correoRestaurante);
+        Usuario usuarioAux = usuarioRepository.findByCorreoIgnoreCase(correoRestaurante);
 
         String nombre = usuarioAux.getNombre() + ", " + usuarioAux.getApellido();
 
@@ -112,7 +112,7 @@ public class AdminService {
     }
 
     public JsonObject obtenerJsonAdmin (String correo) throws AdminNoEncontradoException {
-        Admin admin = adminRepository.findByCorreo(correo);
+        Admin admin = adminRepository.findByCorreoIgnoreCase(correo);
         if (admin == null) {
             throw new AdminNoEncontradoException("No existe el Admin " + correo);
         }

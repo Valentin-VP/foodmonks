@@ -23,11 +23,11 @@ public class MenuService {
 
     public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
 
-            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+            Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
             if (restaurante == null) {
                 throw new UsuarioNoRestaurante("El correo "+ correoRestaurante + " no pertenece a un restaurante");
             }
-            if (menuRepository.existsMenuByNombreAndRestaurante(jsonMenu.get("nombre").getAsString(), restaurante)){
+            if (menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(jsonMenu.get("nombre").getAsString(), restaurante)){
                 throw new MenuNombreExistente("Ya existe un menu con el nombre " + jsonMenu.get("nombre").getAsString() +
                         " para el restaurante " + correoRestaurante);
             }
@@ -46,7 +46,7 @@ public class MenuService {
 
     public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException, MenuCantidadException {
 
-        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
         Menu menu = menuRepository.findByIdAndRestaurante(idMenu, restaurante);
         if (menu == null){
             throw new MenuNoEncontradoException("No se encontro el Menu con id "+ idMenu + " para el Restuarante "
@@ -60,7 +60,7 @@ public class MenuService {
 
     public void modificarMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException, MenuPrecioException, MenuMultiplicadorException, MenuNombreException, MenuNombreExistente {
 
-        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
         if (restaurante == null) {
             throw new UsuarioNoRestaurante("El correo "+ correoRestaurante + " no pertenece a un restaurante");
         }
@@ -70,7 +70,7 @@ public class MenuService {
                     + correoRestaurante);
         }
         if (!menuAux.getNombre().equals(jsonMenu.get("nombre").getAsString())){
-            if (menuRepository.existsMenuByNombreAndRestaurante(jsonMenu.get("nombre").getAsString(),restaurante)){
+            if (menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(jsonMenu.get("nombre").getAsString(),restaurante)){
                 throw new MenuNombreExistente("Ya existe un menu con el nombre " + jsonMenu.get("nombre").getAsString());
             }
         }
@@ -87,12 +87,12 @@ public class MenuService {
 
     public JsonObject infoMenu(Long id, String correo) {
         return menuConverter.jsonMenu(menuRepository.findByIdAndRestaurante(id,
-                restauranteRepository.findRestaurantesByCorreo(correo)));
+                restauranteRepository.findRestaurantesByCorreoIgnoreCase(correo)));
     }
 
     public List<JsonObject> listarMenu(String correoRestaurante){
         return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(
-                restauranteRepository.findRestaurantesByCorreo(correoRestaurante)));
+                restauranteRepository.findRestaurantesByCorreoIgnoreCase(correoRestaurante)));
     }
 
     public Boolean existeCategoriaMenu(Restaurante restaurante, CategoriaMenu categoriaMenu){

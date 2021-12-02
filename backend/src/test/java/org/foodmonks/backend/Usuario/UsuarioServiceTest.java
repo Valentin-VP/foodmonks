@@ -23,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.internal.matchers.Any;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.TemplateEngine;
@@ -33,7 +32,6 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -72,42 +70,42 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante3 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante3@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante4 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante4@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.5F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 5.0f,10,
+                LocalDate.of(2020, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Cliente cliente3 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente3@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.5f,10,
+                LocalDate.of(2020, 1, 1), 4.5f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
 
         List<Usuario> expectedList = List.of(restaurante1, restaurante2, restaurante3, restaurante4, cliente1);
@@ -128,42 +126,42 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante3 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante3@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante4 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante4@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.5F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 5.0f,10,
+                LocalDate.of(2020, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Cliente cliente3 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente3@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.5f,10,
+                LocalDate.of(2020, 1, 1), 4.5f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
 
         List<Usuario> expectedList = List.of(cliente2, cliente3);
@@ -184,42 +182,42 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante3 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante3@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante4 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante4@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.5F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 5.0f,10,
+                LocalDate.of(2020, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Cliente cliente3 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente3@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.5f,10,
+                LocalDate.of(2020, 1, 1), 4.5f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
 
         List<Usuario> expectedList = List.of(cliente1);
@@ -240,42 +238,42 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante3 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante3@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante4 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante4@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 4.5F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01), 5.0f,10,
+                LocalDate.of(2010, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Cliente cliente3 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente3@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.5f,10,
+                LocalDate.of(2020, 1, 1), 4.5f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
 
         List<Usuario> expectedList = List.of(restaurante1, restaurante3, cliente1, cliente3);
@@ -296,42 +294,42 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante3 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante3@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante4 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante4@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 4.5F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01), 5.0f,10,
+                LocalDate.of(2010, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Cliente cliente3 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente3@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.5f,10,
+                LocalDate.of(2020, 1, 1), 4.5f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
 
         List<Usuario> expectedList = List.of(restaurante2, restaurante4, cliente2);
@@ -352,31 +350,31 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01), 4.0f,10,
+                LocalDate.of(2010, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01), 5.0f,10,
+                LocalDate.of(2010, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Admin admin1 =  new Admin("nombreDelAdmin",
                 "apellidoDelAdmin",
                 "admin1@gmail.com",
                 passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01));
+                LocalDate.of(2010, 1, 1));
 
         when(usuarioRepository.findAll()).thenReturn(
                 List.of(restaurante1, restaurante2, cliente1, cliente2, admin1));
@@ -416,48 +414,48 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante3 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante3@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante4 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante4@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 4.5F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01), 5.0f,10,
+                LocalDate.of(2010, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Cliente cliente3 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente3@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.5f,10,
+                LocalDate.of(2020, 1, 1), 4.5f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
         Admin admin1 =  new Admin("nombreDelAdmin",
                 "apellidoDelAdmin",
                 "admin1@gmail.com",
                 passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01));
+                LocalDate.of(2010, 1, 1));
 
         when(usuarioRepository.findAll()).thenReturn(
                 List.of(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1));
@@ -481,7 +479,7 @@ class UsuarioServiceTest {
         expectedJsonObject.addProperty("currentPage", 0);
         expectedJsonObject.addProperty("totalItems", 3);
         expectedJsonObject.addProperty("totalPages", 1);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1);
         result = usuarioService.listarUsuarios("","","","","DESBLOQUEADO",false,"");
         assertThat(result).isEqualTo(expectedJsonObject);
 
@@ -490,7 +488,7 @@ class UsuarioServiceTest {
         expectedJsonObject.addProperty("totalItems", 2);
         expectedJsonObject.addProperty("totalPages", 1);
 
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1);
         result = usuarioService.listarUsuarios("","","","","BLOQUEADO",false,"");
         assertThat(result).isEqualTo(expectedJsonObject);
 
@@ -499,7 +497,7 @@ class UsuarioServiceTest {
         expectedJsonObject.addProperty("totalItems", 2);
         expectedJsonObject.addProperty("totalPages", 1);
 
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1);
         result = usuarioService.listarUsuarios("","","","","ELIMINADO",false,"");
         assertThat(result).isEqualTo(expectedJsonObject);
     }
@@ -510,48 +508,48 @@ class UsuarioServiceTest {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante2 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante2@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 3.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante3 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante3@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Restaurante restaurante4 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante4@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2010, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2010, 1, 1),
                 4.5F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         Cliente cliente2 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente2@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01), 5.0f,10,
+                LocalDate.of(2010, 1, 1), 5.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
         Cliente cliente3 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente3@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.5f,10,
+                LocalDate.of(2020, 1, 1), 4.5f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
         Admin admin1 =  new Admin("nombreDelAdmin",
                 "apellidoDelAdmin",
                 "admin1@gmail.com",
                 passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01));
+                LocalDate.of(2010, 1, 1));
 
         when(usuarioRepository.findAll()).thenReturn(
                 List.of(restaurante1, restaurante2, restaurante3, restaurante4, cliente1, cliente2, cliente3, admin1));
@@ -595,9 +593,9 @@ class UsuarioServiceTest {
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
 
         usuarioService.bloquearUsuario("dummy");
         ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
@@ -607,16 +605,16 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void bloquearUsuario_Cliente_EstadoIncorrecto() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
+    void bloquearUsuario_Cliente_EstadoIncorrecto() {
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
 
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
 
         assertThatThrownBy(()->usuarioService.bloquearUsuario("dummy"))
                 .isInstanceOf(UsuarioNoBloqueadoException.class)
@@ -631,11 +629,11 @@ class UsuarioServiceTest {
 
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
 
         usuarioService.bloquearUsuario("dummy");
         ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
@@ -645,17 +643,17 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void bloquearUsuario_Restaurante_EstadoIncorrecto() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
+    void bloquearUsuario_Restaurante_EstadoIncorrecto() {
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
 
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ELIMINADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
 
         assertThatThrownBy(()->usuarioService.bloquearUsuario("dummy"))
                 .isInstanceOf(UsuarioNoBloqueadoException.class)
@@ -664,8 +662,8 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void bloquearUsuario_Inexistente() throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+    void bloquearUsuario_Inexistente() throws EmailNoEnviadoException {
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
 
         assertThatThrownBy(()->usuarioService.bloquearUsuario("dummy"))
                 .isInstanceOf(UsuarioNoEncontradoException.class)
@@ -682,9 +680,9 @@ class UsuarioServiceTest {
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
 
         usuarioService.desbloquearUsuario("dummy");
         ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
@@ -701,9 +699,9 @@ class UsuarioServiceTest {
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ELIMINADO, null, null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
 
         assertThatThrownBy(()->usuarioService.desbloquearUsuario("dummy"))
                 .isInstanceOf(UsuarioNoDesbloqueadoException.class)
@@ -718,11 +716,11 @@ class UsuarioServiceTest {
 
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
 
         usuarioService.desbloquearUsuario("dummy");
         ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
@@ -738,11 +736,11 @@ class UsuarioServiceTest {
 
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.PENDIENTE, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
 
         assertThatThrownBy(()->usuarioService.desbloquearUsuario("dummy"))
                 .isInstanceOf(UsuarioNoDesbloqueadoException.class)
@@ -752,7 +750,7 @@ class UsuarioServiceTest {
 
     @Test
     void desbloquearUsuario_Inexistente() throws EmailNoEnviadoException {
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
 
         assertThatThrownBy(()->usuarioService.desbloquearUsuario("dummy"))
                 .isInstanceOf(UsuarioNoEncontradoException.class)
@@ -769,9 +767,9 @@ class UsuarioServiceTest {
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.BLOQUEADO, null, null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
 
         usuarioService.eliminarUsuario("dummy");
         ArgumentCaptor<Cliente> clienteArgumentCaptor = ArgumentCaptor.forClass(Cliente.class);
@@ -788,9 +786,9 @@ class UsuarioServiceTest {
         Cliente cliente1 =  new Cliente("nombreDelCliente",
                 "apellidoDelCliente",
                 "cliente1@gmail.com", passwordEncoder.encode("a"),
-                LocalDate.of(2020, 01, 01), 4.0f,10,
+                LocalDate.of(2020, 1, 1), 4.0f,10,
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(cliente1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
 
         assertThatThrownBy(()->usuarioService.eliminarUsuario("dummy"))
                 .isInstanceOf(UsuarioNoEliminadoException.class)
@@ -799,17 +797,17 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void eliminarUsuario_Restaurante() throws UsuarioNoDesbloqueadoException, UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
+    void eliminarUsuario_Restaurante() throws UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
 
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
 
         usuarioService.eliminarUsuario("dummy");
         ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
@@ -825,11 +823,11 @@ class UsuarioServiceTest {
 
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
-                passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
+                passwordEncoder.encode("a"), LocalDate.of(2020, 1, 1),
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.CERRADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
 
         assertThatThrownBy(()->usuarioService.eliminarUsuario("dummy"))
                 .isInstanceOf(UsuarioNoEliminadoException.class)
@@ -838,14 +836,14 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void eliminarUsuario_Admin() throws UsuarioNoDesbloqueadoException, UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
+    void eliminarUsuario_Admin() throws UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("a");
         Admin admin1 =  new Admin("nombreDelAdmin",
                 "apellidoDelAdmin",
                 "admin1@gmail.com",
                 passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01));
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(admin1);
+                LocalDate.of(2010, 1, 1));
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(admin1);
 
         usuarioService.eliminarUsuario("dummy");
         ArgumentCaptor<Admin> adminArgumentCaptor = ArgumentCaptor.forClass(Admin.class);
@@ -856,7 +854,7 @@ class UsuarioServiceTest {
 
     @Test
     void eliminarUsuario_Inexistente() throws EmailNoEnviadoException {
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
 
         assertThatThrownBy(()->usuarioService.eliminarUsuario("dummy"))
                 .isInstanceOf(UsuarioNoEncontradoException.class)
@@ -872,8 +870,8 @@ class UsuarioServiceTest {
                 "apellidoDelAdmin",
                 "admin1@gmail.com",
                 passwordEncoder.encode("a"),
-                LocalDate.of(2010, 01, 01));
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(admin1);
+                LocalDate.of(2010, 1, 1));
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(admin1);
         when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("b");
 
         usuarioService.cambiarPassword("dummy", "dummy");
@@ -885,8 +883,8 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void cambiarPassword_Inexistente() throws UsuarioNoEncontradoException {
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+    void cambiarPassword_Inexistente() {
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
 
         assertThatThrownBy(()->usuarioService.cambiarPassword("dummy", "dummy"))
                 .isInstanceOf(UsuarioNoEncontradoException.class)

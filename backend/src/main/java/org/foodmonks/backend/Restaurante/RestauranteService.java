@@ -82,13 +82,13 @@ public class RestauranteService {
 
     public JsonArray listarRestaurante(){
         List<Restaurante> result = new ArrayList<>();
-        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
-        result.addAll(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.CERRADO));
+        result.addAll(restauranteRepository.findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.ABIERTO));
+        result.addAll(restauranteRepository.findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.CERRADO));
         return restauranteConverter.arrayJsonRestaurantes(result);
     }
 
     public Restaurante buscarRestaurante(String correo) {
-        return restauranteRepository.findByCorreo(correo);
+        return restauranteRepository.findByCorreoIgnoreCase(correo);
     }
 
     public void editarRestaurante(Restaurante restaurante) {
@@ -96,7 +96,7 @@ public class RestauranteService {
     }
 
     public void modificarEstado(String correo, String estado) {
-        Restaurante restauranteAux = restauranteRepository.findByCorreo(correo);
+        Restaurante restauranteAux = restauranteRepository.findByCorreoIgnoreCase(correo);
         restauranteAux.setEstado(EstadoRestaurante.valueOf(estado));
         restauranteRepository.save(restauranteAux);
     }
@@ -107,7 +107,7 @@ public class RestauranteService {
             ArrayList<JsonObject> jsonMenus)
             throws UsuarioExisteException, ClienteDireccionException, RestauranteFaltaMenuException,
             UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
-        if (usuarioRepository.findByCorreo(correo) != null) {
+        if (usuarioRepository.findByCorreoIgnoreCase(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }
         if (direccion == null) {
@@ -126,7 +126,7 @@ public class RestauranteService {
     }
 
     public EstadoRestaurante restauranteEstado(String correo) throws RestauranteNoEncontradoException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
@@ -134,7 +134,7 @@ public class RestauranteService {
     }
 
     public JsonObject obtenerJsonRestaurante(String correo) throws RestauranteNoEncontradoException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
@@ -144,7 +144,7 @@ public class RestauranteService {
 
     public void registrarPagoEfectivo(String correo, Long idPedido)
             throws RestauranteNoEncontradoException, PedidoNoExisteException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
@@ -159,7 +159,7 @@ public class RestauranteService {
     }
 
     public List<JsonObject> listarPedidosEfectivoConfirmados(String correo) throws RestauranteNoEncontradoException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
@@ -172,31 +172,31 @@ public class RestauranteService {
         if (ordenCalificacion) {
             if (!nombreRestaurante.isBlank()) {
                 return restauranteConverter.listaRestaurantes(restauranteRepository
-                        .findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
+                        .findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
                                 EstadoRestaurante.ABIERTO));
             }
             if (!categoriaMenu.isBlank()) {
                 List<Restaurante> restaurantes = restauranteRepository
-                        .findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
+                        .findRestaurantesIgnoreCaseByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
                 CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
                 return obtenerRestauranteMenuConCategoria(restaurantes, categoria);
             }
             return restauranteConverter.listaRestaurantes(
-                    restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
+                    restauranteRepository.findRestaurantesIgnoreCaseByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
         } else {
             if (!nombreRestaurante.isBlank()) {
                 return restauranteConverter.listaRestaurantes(
-                        restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,
+                        restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstado(nombreRestaurante,
                                 EstadoRestaurante.ABIERTO));
             }
             if (!categoriaMenu.isBlank()) {
                 List<Restaurante> restaurantes = restauranteRepository
-                        .findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+                        .findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.ABIERTO);
                 CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
                 return obtenerRestauranteMenuConCategoria(restaurantes, categoria);
             }
             return restauranteConverter
-                    .listaRestaurantes(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
+                    .listaRestaurantes(restauranteRepository.findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.ABIERTO));
         }
     }
 
@@ -215,7 +215,7 @@ public class RestauranteService {
     // partir de fechaHoraProcesado)
     public void actualizarEstadoPedido(String correo, Long idPedido, String estado, Integer minutos)
             throws RestauranteNoEncontradoException, PedidoNoExisteException, PedidoIdException, PedidoDevolucionException, PedidoDistintoRestauranteException, IOException, EmailNoEnviadoException, PushClientException, InterruptedException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
@@ -267,7 +267,7 @@ public class RestauranteService {
     }
 
     public Restaurante obtenerRestaurante(String correo) throws RestauranteNoEncontradoException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
@@ -275,7 +275,7 @@ public class RestauranteService {
     }
 
     public List<JsonObject> listarPedidosPendientes(String correo) throws RestauranteNoEncontradoException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
@@ -284,7 +284,7 @@ public class RestauranteService {
 
     public JsonObject listarHistoricoPedidos(String correo, String estadoPedido, String medioPago, String orden,
             String fecha, String total, String page, String size) throws RestauranteNoEncontradoException {
-        Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
         if (restaurante == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correo);
         }
