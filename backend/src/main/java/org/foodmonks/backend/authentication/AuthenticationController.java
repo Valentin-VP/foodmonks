@@ -265,7 +265,8 @@ public class AuthenticationController {
             // Chequear que token coincida y exista en Firestore - Arroja excepcion si algo falla
             TokenReset tokenReset = new TokenReset(correo, resetToken);
             if (awsService.comprobarResetToken(tokenReset)){
-                // Todo ok, cambiar password
+                // Todo ok, cambiar password y eliminar Token de DynamoDB
+                awsService.eliminarResetToken(awsService.getToken(correo));
                 usuarioService.cambiarPassword(correo, password);
                 return ResponseEntity.ok("Nueva password cambiada con éxito");
             } else{

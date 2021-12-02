@@ -28,8 +28,10 @@ public class TokenResetDAO {
 
     public boolean comprobarResetToken(TokenReset tokenReset) {
         String awsToken = getToken(tokenReset.getEmail()).getToken();
-        System.out.println("Token de AWS: " + awsToken);
-        System.out.println("Token del front: " + tokenReset.getToken());
         return (awsToken.equals(tokenReset.getToken()));
+    }
+
+    public void eliminarResetToken(TokenReset tokenReset){
+        dynamoDBMapper.delete(tokenReset);
     }
 }
