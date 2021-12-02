@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Getter
@@ -14,9 +16,13 @@ import java.time.LocalDate;
 public abstract class Usuario implements UserDetails {
 
 	@Id
+    @NotBlank(message = "El correo no puede ser vacio")
 	private String correo;
+    @NotBlank(message = "El nombre no puede ser vacio")
     private String nombre;
+    @NotBlank(message = "El apellido no puede ser vacio")
     private String apellido;
+    @NotBlank(message = "La pass no puede ser vacia")
     private String contrasenia;
     private LocalDate fechaRegistro;
 

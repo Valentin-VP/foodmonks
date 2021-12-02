@@ -15,14 +15,11 @@ import org.foodmonks.backend.Cliente.Exceptions.ClientePedidoNoCoincideException
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
-import lombok.SneakyThrows;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
-import org.foodmonks.backend.Pedido.Pedido;
-import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
@@ -30,17 +27,17 @@ import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.authentication.TokenHelper;
-import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/cliente")
 @Slf4j
@@ -49,14 +46,12 @@ public class ClienteController {
     private final ClienteHelper clienteHelp;
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
-    private final PedidoService pedidoService;
 
     @Autowired
     ClienteController(ClienteService clienteService, ClienteHelper clienteHelp, RestauranteService restauranteService, PedidoService pedidoService) {
         this.clienteService = clienteService;
         this.clienteHelp = clienteHelp;
         this.restauranteService = restauranteService;
-        this.pedidoService = pedidoService;
     }
 
     @Operation(summary = "Crea un nuevo Cliente",
@@ -85,7 +80,7 @@ public class ClienteController {
                     LocalDate.now(),
                     5.0f,
                     jsonDireccion,
-                    EstadoCliente.valueOf("ACTIVO")
+                    "ACTIVO"
                     // pedidos se crea el array vacio en el back
                     // y mobileToken es null hasta que instale la aplicacion
             );
@@ -110,7 +105,6 @@ public class ClienteController {
         try {
             String correo = clienteHelp.obtenerCorreoDelToken(token);
             clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
-            log.debug("Cliente eliminado, enviando a cerrar sesion");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -297,11 +291,9 @@ public class ClienteController {
         try {
             //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
             List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(new String(Base64.getDecoder().decode(restauranteCorreo)), categoria, precioInicial, precioFinal);
-
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);
             }
-
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

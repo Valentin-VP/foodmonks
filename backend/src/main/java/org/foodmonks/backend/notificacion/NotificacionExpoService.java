@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 public class NotificacionExpoService {
 
-    public void crearNotifacion(String tokenExpo, String asunto, String message) throws PushClientException, InterruptedException {
+    public void crearNotifacion(String tokenExpo, String asunto, String message) throws PushClientException{
 
         if (!PushClient.isExponentPushToken(tokenExpo))
             throw new Error("Token:" + tokenExpo + " is not a valid token.");
