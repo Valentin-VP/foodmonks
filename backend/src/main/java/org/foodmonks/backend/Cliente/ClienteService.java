@@ -306,58 +306,37 @@ public class ClienteService {
     public List<JsonObject> listarMenus (String correo, String categoria, Float precioInicial, Float precioFinal) throws RestauranteNoEncontradoException {
 
         Restaurante restaurante = restauranteService.obtenerRestaurante(correo);
-
-        if (restaurante == null) {
-            throw new RestauranteNoEncontradoException("No existe el Restaurante " + restaurante);
-        }
-
         List<Menu> menus = menuRepository.findMenusByRestaurante(restaurante);
         List<Menu> resultado = new ArrayList<>();
-
-        if(!categoria.isBlank() && precioInicial == null && precioFinal == null){
-            return menuService.listMenuRestauranteCategoria(restaurante,CategoriaMenu.valueOf(categoria));
-        }
-
-        if(!categoria.isBlank() && precioInicial != null && precioFinal != null){
-
-                CategoriaMenu categoriaMenu = CategoriaMenu.valueOf(categoria);
-
-            if (menuService.existeCategoriaMenu(restaurante,categoriaMenu)) {
-
-                for (Menu menu : menus) {
-                    if (menu.getMultiplicadorPromocion() != 0) {
-                        float precioPromo =  (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
-
-                        if(precioInicial <= precioPromo && precioFinal >= precioPromo){
-                            resultado.add(menu);
-                        }
-                    }else{
-                        if(precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()){
-                            resultado.add(menu);
-                        }
-                    }
-                }
-                return menuConverter.listaJsonMenu(resultado);
-            }
-        }
-        if(categoria.isBlank() && precioInicial != null && precioFinal != null){
-
+        if(precioInicial != null && precioFinal != null){
             for (Menu menu : menus) {
                 if (menu.getMultiplicadorPromocion() != 0) {
-                    float precioPromo =  (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
-
-                    if(precioInicial <= precioPromo && precioFinal >= precioPromo){
-                        resultado.add(menu);
+                    float precioPromo = (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
+                    if (precioInicial <= precioPromo && precioFinal >= precioPromo) {
+                        if (categoria != null){
+                            if (menu.getCategoria().equals(CategoriaMenu.valueOf(categoria))){
+                                resultado.add(menu);
+                            }
+                        } else {
+                           resultado.add(menu);
+                        }
                     }
-                }else{
-                    if(precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()){
-                        resultado.add(menu);
+                } else {
+                    if (precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()) {
+                        if (categoria != null){
+                            if (menu.getCategoria().equals(CategoriaMenu.valueOf(categoria))){
+                                resultado.add(menu);
+                            }
+                        } else {
+                            resultado.add(menu);
+                        }
                     }
                 }
             }
             return menuConverter.listaJsonMenu(resultado);
+        } else if(categoria != null){
+            return menuService.listMenuRestauranteCategoria(restaurante,CategoriaMenu.valueOf(categoria));
         }
-
         return menuConverter.listaJsonMenu(menus);
     }
 

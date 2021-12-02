@@ -331,13 +331,10 @@ public class ClienteController {
 
         JsonArray jsonArray = new JsonArray();
         try {
-            //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
             List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
-
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);
             }
-
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
