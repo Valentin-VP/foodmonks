@@ -956,7 +956,7 @@ class RestauranteServiceTest {
 
         assertThat(result.getAsJsonArray("meses").get(0).getAsJsonObject()
                 .get("indicadores").getAsJsonArray().get(1).getAsJsonObject().get("ventasPaypal"))
-                .isEqualTo(new JsonPrimitive(168.0));
+                .isEqualTo(new JsonPrimitive(165.0));
         // ------------------------------------
         when(pedidoService.pedidosRestauranteFechaHoraProcesado(any(), any(), any())).thenReturn(pedidos);
         result = restauranteService.obtenerBalance("dummy", "","2021-08-23","2022-12-31","");
