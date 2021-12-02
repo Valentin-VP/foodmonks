@@ -29,7 +29,6 @@ public class Restaurante extends Usuario {
     private Integer cantidadCalificaciones;
     @NotEmpty(message = "El nombre del Restaurante no puede ser vacio")
     private String nombreRestaurante;
-    @NotEmpty(message = "El rut del Restaurante no puede ser vacio")
     private Long rut;
     @OneToOne(cascade=CascadeType.ALL)
     private Direccion direccion;
