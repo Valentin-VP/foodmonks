@@ -64,12 +64,14 @@ function MyProvider({ children }) {
     categoria: "",
     nombre: "",
     calificacion: false,
+    idDireccion: "",
   };
 
   useEffect(() => {
     values.categoria = sessionStorage.getItem("restaurantes-categoria");
     values.nombre = sessionStorage.getItem("restaurantes-nombre");
     values.calificacion = sessionStorage.getItem("restaurantes-calificacion");
+    values.idDireccion = sessionStorage.getItem("cliente-direccion");
     if (values.categoria === null) {
       values.categoria = "";
     }
@@ -78,6 +80,9 @@ function MyProvider({ children }) {
     }
     if (values.calificacion === null) {
       values.calificacion = false;
+    }
+    if (values.idDireccion === null) {
+      values.idDireccion = false;
     }
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps

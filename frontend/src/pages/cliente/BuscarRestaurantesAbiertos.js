@@ -1,9 +1,11 @@
-import { React, Fragment, useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import { Container, InputGroup } from "react-bootstrap";
 import styled from "styled-components";
 import food from "../../assets/food2.jpg";
 import { Layout } from "../../components/Layout";
 import ListadoRestaurantesAbiertos from "./ListadoRestaurantesAbiertos";
+import { fetchUserData } from "../../services/Requests";
+import { Loading } from "../../components/Loading";
 
 const Styles = styled.div`
   .portada {
@@ -27,6 +29,16 @@ const Styles = styled.div`
     }
 
     #categoria {
+      border: none;
+      margin-left: 10px;
+      border-radius: 30px;
+      max-width: 20%;
+      &:focus{
+          box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
+      }
+    }
+
+    #direcciones {
       border: none;
       margin-left: 10px;
       border-radius: 30px;
@@ -111,11 +123,26 @@ const Styles = styled.div`
 `;
 
 export default function BuscarRestaurantesAbiertos() {
+  const [cliente, setCliente] = useState();
+
+  useEffect(() => {
+    fetchInfoCliente();
+    console.log(cliente);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [values, setValues] = useState({
     categoria: "",
     nombre: "",
     calificacion: false,
+    idDireccion: "",
   });
+
+  const fetchInfoCliente = () => {
+    fetchUserData().then((response) => {
+      setCliente(response.data);
+    });
+  };
 
   let categoria = [
     { nombre: "Pizzas", value: "PIZZAS" },
@@ -146,6 +173,7 @@ export default function BuscarRestaurantesAbiertos() {
     sessionStorage.setItem("restaurantes-categoria", values.categoria);
     sessionStorage.setItem("restaurantes-nombre", values.nombre);
     sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
+    sessionStorage.setItem("cliente-direccion", values.idDireccion);
     window.location.reload();
   };
 
@@ -201,6 +229,23 @@ export default function BuscarRestaurantesAbiertos() {
                 Ordenar por Calificación
               </label>
             </div>
+            <select
+              name="direcciones"
+              className="mt-2 form-select"
+              onChange={handleChange}
+              required
+              id="direcciones"
+              defaultValue={"DEFAULT"}
+            >
+              <option value="DEFAULT" disabled>
+                Direccion
+              </option>
+              {cliente.direcciones.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.calle} {item.numero}
+                </option>
+              ))}
+            </select>
           </Container>
         </Container>
         <Layout>

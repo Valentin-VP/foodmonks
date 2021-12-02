@@ -282,7 +282,7 @@ export const editNombre = (nombre, apellido) => {
 
 export const fetchRestaurantesBusqueda = (datos) => {
   return instance.get(
-    `api/v1/cliente/listarAbiertos?nombre=${datos.nombre}&categoria=${datos.categoria}&orden=${datos.calificacion}`,
+    `api/v1/cliente/listarAbiertos?nombre=${datos.nombre}&categoria=${datos.categoria}&orden=${datos.calificacion}&direccion=${datos.idDireccion}`,
     datos
   );
   // const response = axios({

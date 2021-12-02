@@ -228,10 +228,12 @@ public class ClienteController {
     })
     @GetMapping(path = "/listarAbiertos")
     public ResponseEntity<?> listarRestaurantesAbiertos(@RequestHeader("Authorization") String token, @RequestParam(required = false, name = "nombre") String nombre,
-                                                        @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden) {
+                                                        @RequestParam(required = false, name = "categoria") String categoria, @RequestParam(required = false, name = "orden") boolean orden,
+                                                        @RequestParam(required = false, name = "direccion") boolean direccion) {
         JsonArray jsonArray = new JsonArray();
         try {
             List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre.toLowerCase(), categoria, orden);
+            //List<JsonObject> restaurantesAbiertos = restauranteService.listaRestaurantesAbiertos(nombre.toLowerCase(), categoria, orden, direccion);
 
             for (JsonObject restaurante : restaurantesAbiertos) {
                 jsonArray.add(restaurante);
