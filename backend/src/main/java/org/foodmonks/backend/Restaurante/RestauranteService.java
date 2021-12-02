@@ -247,7 +247,7 @@ public class RestauranteService {
             emailService.enviarMail(pedido.getCliente().getCorreo(),"Confirmado Pedido #" + pedido.getId(),htmlContent,cc);
             //PUSH NOTIFICATION
             if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
-                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Confirmado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. El hora estimado de entrega es " + LocalTime.now().plusMinutes(minutos) + " y " + LocalTime.now().plusMinutes(minutos+15));
+                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Confirmado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. La hora estimada de entrega es " + LocalTime.now().plusMinutes(minutos) + " y " + LocalTime.now().plusMinutes(minutos+15));
             }
         } else if (estado.equals("RECHAZADO")) {
             pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.RECHAZADO);
@@ -763,7 +763,7 @@ public class RestauranteService {
         cc[0] = pedido.getRestaurante().getCorreo();
         String htmlContent = "";
         if (estadoDevolucion) {
-            String asunto = "Reclamo aceptado :" + pedido.getReclamo().getRazon();
+            String asunto = "Reclamo aceptado: " + pedido.getReclamo().getRazon();
             if (pedido.getMedioPago().equals(MedioPago.EFECTIVO)) {
                 pedidoService.cambiarEstadoPedido(pedido.getId(), EstadoPedido.DEVUELTO);
                 response.addProperty("status", "completado");
@@ -786,7 +786,7 @@ public class RestauranteService {
                 if (motivoDevolucion.equals("rechazado")){
                     asunto = "Devolucion por rechazo de pedido";
                     context.setVariable("contenido",
-                            "Su pedido al restaurante " + restaurante.getNombreRestaurante() + " ha sido rechzado.");
+                            "Su pedido al restaurante " + restaurante.getNombreRestaurante() + " ha sido rechazado.");
                 } else {
                     context.setVariable("contenido",
                             "Su reclamo al restaurante " + restaurante.getNombreRestaurante() + " ha sido aceptado.");
