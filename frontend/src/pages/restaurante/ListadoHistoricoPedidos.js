@@ -30,6 +30,23 @@ const StyledModal = Modal.styled`
   }
 `;
 
+const StyledModal2 = Modal.styled`
+  border-radius: 5px;
+  padding: 1.5%;
+  width: 50%;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  overflow-y: auto;
+  max-height: 80%;
+  width: 70%;
+  margin-top: 2rem;
+  
+  table {
+    max-width: 100%;
+  }
+`;
+
 const Styles = styled.div`
   .lista {
     padding-top: 35px;
@@ -150,29 +167,38 @@ const Styles = styled.div`
   }
 `;
 
-export default function ListadoHistoricoPedidos({ datos, onVisible }) {
+export default function ListadoHistoricoPedidos({ datos }) {
   const [tipoAccion, setAccion] = useState();
   const [error, setError] = useState(null);
   const [pedido, setPedido] = useState();
   const [rating, setRating] = useState(0); // valor inicial de la calificacion
-  // para el modal -----------------------------------------------------------------------------------------------
+  // para los modals -----------------------------------------------------------------------------------------------
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpen2, setIsOpen2] = useState(false);
 
   const toggleModal = () => {
     setIsOpen(!isOpen);
     setError(null);
   };
-  //termina para el modale ---------------------------------------------------------------------------------------
+
+  const toggleModal2 = () => {
+    setIsOpen2(!isOpen2);
+    setError(null);
+  };
+
+  const cargarModal2 = (item) => {
+    setPedido(item);
+    toggleModal2();
+  };
+  //termina para los modals ---------------------------------------------------------------------------------------
 
   const handleRating = (rate) => {
     setRating(rate);
-    // Some logic
   };
 
   const crearCalificacion = (item, accion) => {
     setPedido(item);
     setAccion(accion);
-    console.log(item);
     if (item.calificacionCliente === "false") {
       setRating(0);
     } else {
@@ -214,7 +240,6 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
   };
 
   const eliminarCalificacion = (item) => {
-    console.log(item);
     eliminarCalificacionCliente(item.id)
       .then(() => {
         window.location.replace("historico");
@@ -233,126 +258,78 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
             <div className="form-floating">
               <div className="table-responsive justify-content-center">
                 <table className="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">ID Pedido</th>
+                      <th scope="col">Dirección</th>
+                      <th scope="col">Cliente</th>
+                      <th scope="col">M. de Pago</th>
+                      <th scope="col">Estado</th>
+                      <th scope="col">F. Entrega</th>
+                      <th scope="col">Total</th>
+                      <th scope="col">Menús</th>
+                      <th scope="col">Calificación</th>
+                    </tr>
+                  </thead>
                   <tbody>
-                    {datos.pedidos
+                    {datos !== undefined && datos.pedidos !== undefined
                       ? datos.pedidos.map((item, index) => {
                           return (
-                            <div key={index}>
-                              <Col>
-                                <thead>
-                                  <tr>
-                                    <th scope="col">ID Pedido</th>
-                                    <th scope="col">Dirección</th>
-                                    <th scope="col">Cliente</th>
-                                    <th scope="col">M. de Pago</th>
-                                    <th scope="col">Estado</th>
-                                    <th scope="col">F. Entrega</th>
-                                    <th scope="col">Total</th>
-                                    <th scope="col">Menús</th>
-                                    <th scope="col">Calificación</th>
-                                  </tr>
-                                </thead>
-                                <tr>
-                                  <td id="itemId">{item.id}</td>
-                                  <td>{item.direccion}</td>
-                                  <td>{item.nombreApellidoCliente}</td>
-                                  <td>{item.medioPago}</td>
-                                  <td>{item.estadoPedido}</td>
-                                  <td>{item.fechaHoraEntrega}</td>
-                                  <td>${item.total}</td>
-                                  <td>
-                                    {
-                                      <button
-                                        className="clickeable"
-                                        type="button"
-                                        onClick={(e) => onVisible(item.id)}
-                                      >
-                                        ver
-                                      </button>
+                            <tr key={index}>
+                              <td id="itemId">{item.id}</td>
+                              <td>{item.direccion}</td>
+                              <td>{item.nombreApellidoCliente}</td>
+                              <td>{item.medioPago}</td>
+                              <td>{item.estadoPedido}</td>
+                              <td>{item.fechaHoraEntrega}</td>
+                              <td>${item.total}</td>
+                              <td>
+                                {
+                                  <button
+                                    className="clickeable"
+                                    type="button"
+                                    onClick={(e) => cargarModal2(item)}
+                                  >
+                                    ver
+                                  </button>
+                                }
+                              </td>
+                              {item.calificacionCliente === "false" ? (
+                                <td>
+                                  <button
+                                    type="button"
+                                    className="clickeable"
+                                    onClick={() =>
+                                      crearCalificacion(item, "CALIFICAR")
                                     }
-                                  </td>
-                                  {item.calificacionCliente === "false" ? (
-                                    <td>
-                                      <button
-                                        type="button"
-                                        className="clickeable"
-                                        onClick={() =>
-                                          crearCalificacion(item, "CALIFICAR")
-                                        }
-                                      >
-                                        Calificar
-                                      </button>
-                                    </td>
-                                  ) : (
-                                    <td className="tCal">
-                                      <InputGroup className="calificaciones">
-                                        <Button
-                                          className="modificar"
-                                          variant="secondary"
-                                          type="button"
-                                          onClick={() =>
-                                            crearCalificacion(item, "MODIFICAR")
-                                          }
-                                        >
-                                          Modificar
-                                        </Button>
-                                        <Button
-                                          variant="danger"
-                                          type="button"
-                                          onClick={() =>
-                                            eliminarCalificacion(item)
-                                          }
-                                        >
-                                          <AiFillDelete color="white" />
-                                        </Button>
-                                      </InputGroup>
-                                    </td>
-                                  )}
-                                </tr>
-                              </Col>
-                              {item.visible && (
-                                <Col>
-                                  {item.menus
-                                    ? item.menus.map((menu, menuindex) => {
-                                        return (
-                                          <>
-                                            <tr key={menuindex}>
-                                              <td>
-                                                <img
-                                                  className="m-1"
-                                                  src={menu.imagen}
-                                                  alt="productimg"
-                                                  border="2"
-                                                  width="75"
-                                                  height="75"
-                                                />
-                                              </td>
-                                              <td>
-                                                Menú: {menu.menu} (x
-                                                {menu.cantidad})
-                                              </td>
-                                              <td>
-                                                Precio Unitario: ${menu.precio}
-                                              </td>
-                                              <td>
-                                                Descuento:{" "}
-                                                {menu.multiplicadorPromocion} %
-                                              </td>
-                                              <td>
-                                                Total Parcial: $
-                                                {menu.precioPorCantidad}
-                                              </td>
-                                              <td>
-                                                Total Final: ${menu.calculado}
-                                              </td>
-                                            </tr>
-                                          </>
-                                        );
-                                      })
-                                    : null}
-                                </Col>
+                                  >
+                                    Calificar
+                                  </button>
+                                </td>
+                              ) : (
+                                <td className="tCal">
+                                  <InputGroup className="calificaciones">
+                                    <Button
+                                      className="modificar"
+                                      variant="secondary"
+                                      type="button"
+                                      onClick={() =>
+                                        crearCalificacion(item, "MODIFICAR")
+                                      }
+                                    >
+                                      Modificar
+                                    </Button>
+                                    <Button
+                                      variant="danger"
+                                      type="button"
+                                      onClick={() => eliminarCalificacion(item)}
+                                    >
+                                      <AiFillDelete color="white" />
+                                    </Button>
+                                  </InputGroup>
+                                </td>
                               )}
-                            </div>
+                            </tr>
                           );
                         })
                       : null}
@@ -362,7 +339,7 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
             </div>
           </main>
         </div>
-
+        {/* modal para calificaciones*/}
         <StyledModal
           isOpen={isOpen}
           onBackgroundClick={toggleModal}
@@ -401,6 +378,56 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
             </div>
           </Form>
         </StyledModal>
+
+        {/* modal para menus del pedido */}
+        <StyledModal2
+          isOpen={isOpen2}
+          onBackgroundClick={toggleModal2}
+          onEscapeKeydown={toggleModal2}
+        >
+          <h2>Menús del pedido</h2>
+          <hr />
+          <table className="table table-bordered table-striped mb-0 my-table">
+            <thead>
+              <tr>
+                <th scope="col">Imágen</th>
+                <th scope="col">Menú</th>
+                <th scope="col">Precio Unitario</th>
+                <th scope="col">Descuento</th>
+                <th scope="col">Total Parcial</th>
+                <th scope="col">Total Final</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pedido !== undefined && pedido.menus !== undefined
+                ? pedido.menus.map((menu, menuindex) => {
+                    return (
+                      <tr key={menuindex}>
+                        <td>
+                          <img
+                            className="m-1"
+                            src={menu.imagen}
+                            alt="productimg"
+                            border="2"
+                            width="75"
+                            height="75"
+                          />
+                        </td>
+                        <td>
+                          {menu.menu} (x
+                          {menu.cantidad})
+                        </td>
+                        <td>${menu.precio}</td>
+                        <td>{menu.multiplicadorPromocion} %</td>
+                        <td>${menu.precioPorCantidad}</td>
+                        <td>${menu.calculado}</td>
+                      </tr>
+                    );
+                  })
+                : null}
+            </tbody>
+          </table>
+        </StyledModal2>
       </ModalProvider>
     </Styles>
   );
