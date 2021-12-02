@@ -4,6 +4,7 @@ import logo from "../assets/foodMonks-sinfondo.png";
 import { recuperarPassword } from "../services/Requests";
 import { Alert } from "react-bootstrap";
 import { Fragment } from "react";
+import { Base64 } from "js-base64";
 
 const Styles = styled.div`
   .text-center {
@@ -63,11 +64,11 @@ export default function ResetPassword() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const handleChange = (e) => {
+  const handleChange64 = (e) => {
     e.persist();
     setValues({
       ...values,
-      [e.target.name]: e.target.value,
+      [e.target.name]: Base64.encode(e.target.value),
     });
   };
 
@@ -132,7 +133,7 @@ export default function ResetPassword() {
                   className="form-control"
                   id="email"
                   placeholder="name@example.com"
-                  onChange={handleChange}
+                  onChange={handleChange64}
                   //value={values.email}
                   required
                 />

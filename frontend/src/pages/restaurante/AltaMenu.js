@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Button, FloatingLabel, Form, Alert } from "react-bootstrap";
+import {
+  Button,
+  FloatingLabel,
+  Form,
+  Alert,
+  ProgressBar,
+} from "react-bootstrap";
 import { storage } from "../../Firebase";
 import { altaMenu } from "../../services/Requests";
 import { Error } from "../../components/Error";
@@ -12,6 +18,7 @@ const Styles = styled.div`
   }
 
   #page-container {
+    padding-top: 35rem;
     background-image: url("https://images.pexels.com/photos/6419720/pexels-photo-6419720.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260");
     filter: blur(6px);
     background-position: center;
@@ -37,7 +44,6 @@ const Styles = styled.div`
     margin: auto;
     border-radius: 5px;
     box-shadow: 7px 13px 37px #000;
-
 
     Button {
       width: 100%;
@@ -101,6 +107,7 @@ function AltaMenu() {
 
   const [success, setSuccess] = useState(null);
   const [componente, setComponente] = useState(null);
+  const [uploadBar, setUploadBar] = useState(null);
 
   const handleUpload = (data) => {
     state.img = data.target.files[0];
@@ -121,7 +128,11 @@ function AltaMenu() {
       const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
       uploadTask.on(
         "state_changed",
-        (snapshot) => {}, //el snapshot tiene que ir
+        (snapshot) => {
+          let percentage =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadBar(<ProgressBar now={percentage} />);
+        },
         (error) => {
           console.log(error.message);
           setComponente(<Error error="Error al subir la imagen" />);
@@ -138,10 +149,10 @@ function AltaMenu() {
               menu.imagen = state.imgUrl;
               altaMenu(menu).then((response) => {
                 console.log(response);
-                if (response.status === 201)
-                  setSuccess(
-                    <Alert variant="success">Menú creado con exito!</Alert>
-                  );
+                if (response.status === 201) setUploadBar(null);
+                setSuccess(
+                  <Alert variant="success">Menú creado con exito!</Alert>
+                );
               });
               setTimeout(() => {
                 window.location.replace("/menu");
@@ -161,7 +172,7 @@ function AltaMenu() {
           //llamo al back
           console.log(response);
           if (response.status === 201)
-            setSuccess(<Alert variant="success">Menú creado con exito!</Alert>);
+            setSuccess(<Alert variant="success">Menú creado con éxito!</Alert>);
           setTimeout(() => {
             window.location.replace("/menu");
           }, 3000);
@@ -210,7 +221,7 @@ function AltaMenu() {
               type="text"
               name="descripcion"
               id="descripcion"
-              placeholder="Descripcion"
+              placeholder="Descripción"
               onChange={handleChange}
             />
             <label htmlFor="floatingInput">Descripción</label>
@@ -218,6 +229,7 @@ function AltaMenu() {
           <FloatingLabel controlId="floatingSelect" label="Categoría">
             <Form.Select
               aria-label="Floating label select example"
+              required
               name="categoria"
               onChange={handleChange}
             >
@@ -240,6 +252,7 @@ function AltaMenu() {
           />
           {success}
           {componente}
+          {uploadBar}
           <Button id="submit" onClick={onSubmit}>
             Alta
           </Button>

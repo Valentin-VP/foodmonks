@@ -40,7 +40,8 @@ const RestauranteCard = (props) => {
     sessionStorage.setItem("restauranteImagen", props.imagen);
     sessionStorage.setItem("restauranteCalif", props.calificacion);
     sessionStorage.setItem("restauranteNombre", props.nombre);
-    window.location.replace("/listarProductos");
+    sessionStorage.setItem("restauranteCantCal", props.item.cantidadCalificaciones);
+    window.location.replace("/perfilRestaurante");
   };
 
   return (
@@ -50,14 +51,7 @@ const RestauranteCard = (props) => {
         <div className="card-body">
           <h5 className="card-title">{props.nombre}</h5>
           <h5 className="card-subtitle">Teléfono: {props.telefono}</h5>
-          <p className="card-text">{props.calificacion}⭐</p>
-          {/* <Button
-              href="/listarProductos"
-              className="btn-primary margin-auto"
-              onClick={() => onClick()}
-            >
-              Acceder
-            </Button> */}
+          {props.item.cantidadCalificaciones < 10 ? <p className="card-text">-⭐</p> : <p className="card-text">{props.calificacion}⭐</p>}
         </div>
       </div>
     </Styles>

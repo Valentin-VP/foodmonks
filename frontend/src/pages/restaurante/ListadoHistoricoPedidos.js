@@ -9,15 +9,17 @@ import {
 } from "../../services/Requests";
 import Modal, { ModalProvider } from "styled-react-modal";
 import { Rating } from "react-simple-star-rating";
+import { AiFillDelete } from "react-icons/ai";
 
 const StyledModal = Modal.styled`
   border-radius: 5px;
   padding: 1.5%;
-  width: 25%;
+  width: 30%;
   align-items: center;
   justify-content: center;
   background-color: white;
   overflow-y:inherit !important;
+  min-width: 300px;
 
   .cuerpo{
     text-align: center;
@@ -116,13 +118,19 @@ const Styles = styled.div`
     }
   }
 
+  .tCal{
+    min-width: 9rem;
+  }
+
   .calificaciones {
     margin-right: 0.2rem;
     margin-left: 0.2rem;
+    min-width: 124px;
     Button {
+      position: relative;
       padding: 0.1rem;
       padding-right: 0.5rem;
-      padding-left: 0.5rem;
+      padding-left: 0.5rem;s
     }
     .modificar {
       color: white;
@@ -164,6 +172,7 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
   const crearCalificacion = (item, accion) => {
     setPedido(item);
     setAccion(accion);
+    console.log(item);
     if (item.calificacionCliente === "false") {
       setRating(0);
     } else {
@@ -263,38 +272,41 @@ export default function ListadoHistoricoPedidos({ datos, onVisible }) {
                                     }
                                   </td>
                                   {item.calificacionCliente === "false" ? (
-                                    <button
-                                      type="button"
-                                      className="clickeable"
-                                      onClick={() =>
-                                        crearCalificacion(item, "CALIFICAR")
-                                      }
-                                    >
-                                      Calificar
-                                    </button>
+                                    <td>
+                                      <button
+                                        type="button"
+                                        className="clickeable"
+                                        onClick={() =>
+                                          crearCalificacion(item, "CALIFICAR")
+                                        }
+                                      >
+                                        Calificar
+                                      </button>
+                                    </td>
                                   ) : (
-                                    <InputGroup className="calificaciones">
-                                      <Button
-                                        className="modificar"
-                                        variant="secondary"
-                                        type="button"
-                                        onClick={() =>
-                                          crearCalificacion(item, "MODIFICAR")
-                                        }
-                                      >
-                                        Modificar
-                                      </Button>
-                                      <br />
-                                      <Button
-                                        variant="danger"
-                                        type="button"
-                                        onClick={() =>
-                                          eliminarCalificacion(item)
-                                        }
-                                      >
-                                        Eliminar
-                                      </Button>
-                                    </InputGroup>
+                                    <td className="tCal">
+                                      <InputGroup className="calificaciones">
+                                        <Button
+                                          className="modificar"
+                                          variant="secondary"
+                                          type="button"
+                                          onClick={() =>
+                                            crearCalificacion(item, "MODIFICAR")
+                                          }
+                                        >
+                                          Modificar
+                                        </Button>
+                                        <Button
+                                          variant="danger"
+                                          type="button"
+                                          onClick={() =>
+                                            eliminarCalificacion(item)
+                                          }
+                                        >
+                                          <AiFillDelete color="white" />
+                                        </Button>
+                                      </InputGroup>
+                                    </td>
                                   )}
                                 </tr>
                               </Col>

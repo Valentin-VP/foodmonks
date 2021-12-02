@@ -168,7 +168,26 @@ function ListadoRestaurantesAbiertos() {
     <>
       <Styles>
         <Layout>
-          <h1>asdasd</h1>
+          <br />
+          {data.length === 0 ? (
+            <h5 className="text-center h5 mb-3 fw-normal">
+              No hay ningun restaurante abierto en el momento
+            </h5>
+          ) : null}
+          {data.length > 0 &&
+          sessionStorage.getItem("restaurantes-categoria") ? (
+            <h3>
+              resultados de la busqueda por categoria:
+              {sessionStorage.getItem("restaurantes-categoria")}
+            </h3>
+          ) : null}
+          {data.length > 0 && sessionStorage.getItem("restaurantes-nombre") ? (
+            <h3>
+              resultados de la busqueda por nombre:
+              {sessionStorage.getItem("restaurantes-nombre")}
+            </h3>
+          ) : null}
+          <br />
           <div className="table-responsive justify-content-center" id="list">
             <table className="table table-hover m-0">
               <tbody>

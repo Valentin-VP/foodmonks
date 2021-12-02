@@ -135,7 +135,7 @@ export default function BuscarPedidosRealizados() {
         }
       })
       .catch((error) => {
-        Noti(error.response.data);
+        Noti(error.response);
       });
   };
 
@@ -154,6 +154,7 @@ export default function BuscarPedidosRealizados() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(values.nombreRestaurante);
     setPage(1);
     onPageChange(1);
   };
@@ -259,7 +260,6 @@ export default function BuscarPedidosRealizados() {
                       type="text"
                       onChange={handleChange}
                       id="nombreRestaurante"
-                      value={values.nombreRestaurante}
                     ></input>
                     <label htmlFor="nombreRestaurante">Restaurante</label>
                   </div>

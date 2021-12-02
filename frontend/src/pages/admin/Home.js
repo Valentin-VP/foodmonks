@@ -11,7 +11,6 @@ import RestauranteCard from "./RestauranteCardRA";
 import Modal, { ModalProvider } from "styled-react-modal";
 import { getMenusFromRestaurante } from "../../services/Requests";
 import { Noti, NotiError } from "../../components/Notification";
-import { Input } from "@material-ui/core";
 
 const StyledModal = Modal.styled`
   border-radius: 5px;
@@ -20,7 +19,13 @@ const StyledModal = Modal.styled`
   align-items: center;
   justify-content: center;
   background-color: white;
-  overflow-y:inherit !important;
+  overflow-y: auto;
+  max-height: 80%;
+  
+
+  img {
+    object-fit: cover;
+  }
 
   .cuerpo{
     margin-bottom: 15px;
@@ -38,6 +43,19 @@ const StyledModal = Modal.styled`
 
   .tImg {
     object-fit: cover;
+  }
+
+  .my-table{ 
+    max-width: 100%;
+  }
+
+  p{
+    margin: 0;
+  }
+
+  .lowMargin{
+    margin: 0;
+    padding: 0;
   }
 `;
 
@@ -108,6 +126,7 @@ export default function Home() {
     const data = {
       comentariosCambioEstado: document.getElementById("mensaje").value,
     };
+
     cambiarEstadoRestaurante(restauranteSeleccionado.correo, estado, data)
       .then((response) => {
         window.location.reload();
@@ -154,10 +173,28 @@ export default function Home() {
           >
             <h2>{restauranteSeleccionado.nombreRestaurante}</h2>
             <hr />
-            <h5>Menus</h5>
+            {console.log(restauranteSeleccionado)}
+            <h4>Info</h4>
+            <p>Correo:{restauranteSeleccionado.correo}</p>
+            <hr className="lowMargin" />
+            <p>Paypal: {restauranteSeleccionado.cuentaPaypal}</p>
+            <hr className="lowMargin" />
+            <p>Descripción: {restauranteSeleccionado.descripcion}</p>
+            <hr className="lowMargin" />
+            <p>Rut: {restauranteSeleccionado.rut}</p>
+            <hr className="lowMargin" />
+            <p>Teléfono: {restauranteSeleccionado.telefono}</p>
+            <hr className="lowMargin" />
+            <p>
+              Dirección: {restauranteSeleccionado.direcciones[0].calle}{" "}
+              {restauranteSeleccionado.direcciones[0].numero}
+            </p>
+            <hr className="lowMargin" />
+            <p>Registro: {restauranteSeleccionado.fechaRegistro}</p>
+            <h5 className="mt-2">Menus</h5>
             <div className="cuerpo">
               <div className="table-wrapper-scroll-y my-custom-scrollbar">
-                <table className="table table-bordered table-striped mb-0">
+                <table className="table table-bordered table-striped mb-0 my-table">
                   <thead>
                     <tr>
                       <th scope="col">#</th>
