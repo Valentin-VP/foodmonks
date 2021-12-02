@@ -2,7 +2,6 @@ import { React, Fragment } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "./Home";
 import { Cart } from "./Cart";
-import { Grafico } from "../Grafico";
 import BuscarMenusPromociones from "./BuscarMenusPromociones";
 import { NavigationBar } from "../cliente/NavBar";
 import { Footer } from "../../components/Footer";
@@ -41,11 +40,13 @@ function Cliente() {
                 />
                 <Route
                   exact
-                  path="/listarProductos"
+                  path="/perfilRestaurante"
                   component={BuscarMenusPromociones}
                 />
-                <Route exact path="/grafica" component={Grafico} />
-                <Route path="/listadoPedidos" component={BuscarPedidosRealizados} />
+                <Route
+                  path="/listadoPedidos"
+                  component={BuscarPedidosRealizados}
+                />
                 <Route exact path="/reclamo" component={Reclamo} />
                 {/* <Route path="no-match" component={NoMatch} /> */}
               </Fragment>

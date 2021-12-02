@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import {
-  actualizarEstadoUsuario,
-} from "../../services/Requests";
+import { actualizarEstadoUsuario } from "../../services/Requests";
 import { Noti } from "../../components/Notification";
+import { Base64 } from "js-base64";
 
 const Styles = styled.div`
   h1 {
@@ -27,8 +26,8 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
         ? "BLOQUEAR"
         : null;
     //// actualizarEstadoUsuario(item).then((response)=>{
-      setProcessing(true);
-    actualizarEstadoUsuario(estado, item.correo)
+    setProcessing(true);
+    actualizarEstadoUsuario(estado, Base64.encode(item.correo))
       .then((response) => {
         if (response.status === 200) {
           Noti("El estado del usuario ha sido cambiado.");
@@ -38,7 +37,8 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
           Noti(response.data);
           setProcessing(false);
         }
-      }).catch((error)=>{
+      })
+      .catch((error) => {
         Noti(error.response.data);
         setProcessing(false);
       })
@@ -51,8 +51,8 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
   const updateStateEliminar = (item) => {
     console.log(item);
     //// actualizarEstadoUsuario(item).then((response)=>{
-      setProcessing(true);
-    actualizarEstadoUsuario("ELIMINAR", item.correo)
+    setProcessing(true);
+    actualizarEstadoUsuario("ELIMINAR", Base64.encode(item.correo))
       .then((response) => {
         if (response.status === 200) {
           setProcessing(false);
@@ -62,7 +62,8 @@ export default function ListadoRegistrados({ data, fetchFunc }) {
           Noti(response.data);
           setProcessing(false);
         }
-      }).catch((error)=>{
+      })
+      .catch((error) => {
         Noti(error.response.data);
         setProcessing(false);
       })
