@@ -56,7 +56,11 @@ public class DemoController {
             @RequestBody String fechas){
         try{
             // Obtener correo del Header
-            String correo = tokenHelper.getUsernameFromToken(token);
+            String parsedToken = "";
+            if ( token != null && token.startsWith("Bearer ")) {
+                parsedToken = token.substring(7);
+            }
+            String correo = tokenHelper.getUsernameFromToken(parsedToken);
             // Luego comparar con variable de Super Admin del application.properties
             if(correo.equals(superAdminUsername)){
                 JsonObject request = new Gson().fromJson(fechas, JsonObject.class);
