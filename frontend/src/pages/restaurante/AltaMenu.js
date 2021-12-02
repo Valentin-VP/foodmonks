@@ -229,6 +229,7 @@ function AltaMenu() {
           <FloatingLabel controlId="floatingSelect" label="Categoría">
             <Form.Select
               aria-label="Floating label select example"
+              required={state.categoria === ""}
               name="categoria"
               onChange={handleChange}
             >
