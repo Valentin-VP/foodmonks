@@ -6,9 +6,7 @@ import io.github.jav.exposerversdk.PushClientException;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
-import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
+import org.foodmonks.backend.Menu.Exceptions.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -19,7 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoDevolucionException;
@@ -172,7 +169,7 @@ public class RestauranteController {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
             menuService.altaMenu(jsonMenu, correoRestaurante);
-        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException | MenuNombreException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNombreExistente menuNombreExistente) {
             return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
@@ -254,7 +251,7 @@ public class RestauranteController {
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
             jsonMenu.addProperty("id", menuId);
             menuService.modificarMenu(jsonMenu, correo);
-        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException | MenuNombreException | MenuNombreExistente e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
             return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);

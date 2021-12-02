@@ -9,6 +9,7 @@ import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
+import org.foodmonks.backend.Menu.Exceptions.MenuNombreException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
@@ -109,7 +110,7 @@ public class RestauranteService {
             String pendiente, String telefono, String descripcion, String cuentaPaypal, String url,
             ArrayList<JsonObject> jsonMenus)
             throws UsuarioExisteException, ClienteDireccionException, RestauranteFaltaMenuException,
-            UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException {
+            UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
         if (usuarioRepository.findByCorreo(correo) != null) {
             throw new UsuarioExisteException("Ya existe un Usuario registrado con el correo " + correo);
         }

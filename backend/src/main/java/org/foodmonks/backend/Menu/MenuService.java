@@ -21,14 +21,13 @@ public class MenuService {
     public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, MenuConverter menuConverter)
     { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConverter = menuConverter; }
 
-    public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException {
+    public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
 
             Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
             if (restaurante == null) {
                 throw new UsuarioNoRestaurante("El correo "+ correoRestaurante + " no pertenece a un restaurante");
             }
-
-            if (menuRepository.existsByNombreAndRestaurante(jsonMenu.get("nombre").getAsString(), restaurante)){
+            if (menuRepository.existsMenuByNombreAndRestaurante(jsonMenu.get("nombre").getAsString(), restaurante)){
                 throw new MenuNombreExistente("Ya existe un menu con el nombre " + jsonMenu.get("nombre").getAsString() +
                         " para el restaurante " + correoRestaurante);
             }
@@ -59,7 +58,7 @@ public class MenuService {
         menuRepository.delete(menu);
     }
 
-    public void modificarMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException, MenuPrecioException, MenuMultiplicadorException {
+    public void modificarMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException, MenuPrecioException, MenuMultiplicadorException, MenuNombreException, MenuNombreExistente {
 
         Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
         if (restaurante == null) {
@@ -69,6 +68,11 @@ public class MenuService {
         if (menuAux == null){
             throw new MenuNoEncontradoException("No existe el Menu con id " + jsonMenu.get("id").getAsLong()  + " para el Restaurante "
                     + correoRestaurante);
+        }
+        if (!menuAux.getNombre().equals(jsonMenu.get("nombre").getAsString())){
+            if (menuRepository.existsMenuByNombreAndRestaurante(jsonMenu.get("nombre").getAsString(),restaurante)){
+                throw new MenuNombreExistente("Ya existe un menu con el nombre " + jsonMenu.get("nombre").getAsString());
+            }
         }
         verificarJsonMenu(jsonMenu);
         menuAux.setNombre(jsonMenu.get("nombre").getAsString());
@@ -103,12 +107,15 @@ public class MenuService {
         return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(restaurante));
     }
 
-    public void verificarJsonMenu(JsonObject jsonMenu) throws MenuPrecioException, MenuMultiplicadorException {
+    public void verificarJsonMenu(JsonObject jsonMenu) throws MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
         if (!jsonMenu.get("price").getAsString().matches("^\\d+(.\\d+)*$") || jsonMenu.get("price").getAsString().isBlank()) {
             throw new MenuPrecioException("El precio debe ser un numero real");
         }
         if (!jsonMenu.get("multiplicador").getAsString().matches("^\\d+(.\\d+)*$") || jsonMenu.get("multiplicador").getAsString().isBlank()) {
             throw new MenuMultiplicadorException("El multiplicador debe ser un numero real");
+        }
+        if (jsonMenu.get("nombre").getAsString().isBlank()){
+            throw new MenuNombreException("El nombre del menu no puede ser vacio");
         }
     }
 

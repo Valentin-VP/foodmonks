@@ -50,7 +50,7 @@ class MenuServiceTest {
     }
 
     @Test
-    void altaMenu() throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException {
+    void altaMenu() throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
         /* Se debe crear un [Restaurante] (vacío porque no se utiliza ningún atributo del mismo en la función que está bajo test)
         * Se debe crear un [Menu] que tenga datos para poder comparar que los dos tengan el mismo contenido luego del .save
         * NOTA: Como no existe un 'equals' y un 'hashcode' en la clase [Menu], no se pueden comparar dos objetos de este tipo porque...
@@ -74,7 +74,7 @@ class MenuServiceTest {
         * Dato: No importan los strings o clases que se le pasen porque lo necesario es el valor de retorno, siempre y cuando coincidan con la firma.
         * */
         when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
-        when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
+        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
 
         //cuando
         /* Acá se llama al método que está siendo probado 'altaMenu' con datos relativamente reales. Luego se preguntará por alguno de estos.*/
@@ -113,7 +113,7 @@ class MenuServiceTest {
          * ...directamente se le dictamina que existe (.thenReturn(true)).
          * Se puede hacer de las 2 formas.
          * */
-        when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
+        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
         //BDDMockito.given(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).willReturn(true);
 
         //cuando
@@ -246,7 +246,7 @@ class MenuServiceTest {
     }
 
     @Test
-    void modificarMenu() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante, MenuMultiplicadorException, MenuPrecioException {
+    void modificarMenu() throws MenuNombreExistente, MenuNoEncontradoException, UsuarioNoRestaurante, MenuMultiplicadorException, MenuPrecioException, MenuNombreException {
         //dado
         /* Concepto similar a los anteriores
         * */
@@ -255,7 +255,7 @@ class MenuServiceTest {
                 "imagen", CategoriaMenu.OTROS, restaurante);
         menu.setId(1L);
         when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
-        when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
+        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
         /*Aca podría utilizar 'new Menu()' u otro Menu en vez de 'menu', para evitar que 'nombre' se modifique también en 'menu' (la variable local de este test).
         * Sucede porque en al momento de hacer el 'when...thenReturn' se le pasa la variable 'menu' (que está en este mismo test) como referencia y no como copia.
         * Eso lo hace Mockito automáticamente.
@@ -312,7 +312,7 @@ class MenuServiceTest {
         menu.setId(1L);
         when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(menu);
-        when(menuRepository.existsByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
+        when(menuRepository.existsMenuByNombreAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
         //cuando
         //entonces
         /* Igual que antes */
