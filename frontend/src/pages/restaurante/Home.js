@@ -28,6 +28,10 @@ const Styles = styled.div`
     color: #e87121;
     font-weight: bold;
   }
+
+  img {
+    object-fit: cover;
+  }
 `;
 
 function Home() {

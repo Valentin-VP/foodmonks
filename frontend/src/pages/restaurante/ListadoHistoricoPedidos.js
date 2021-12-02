@@ -125,6 +125,7 @@ const Styles = styled.div`
   .calificaciones {
     margin-right: 0.2rem;
     margin-left: 0.2rem;
+    min-width: 124px;
     Button {
       position: relative;
       padding: 0.1rem;

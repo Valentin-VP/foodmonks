@@ -129,8 +129,9 @@ const Styles = styled.div`
 
   .calificaciones {
     margin-top: 0.3rem;
-    margin-right: 0.2rem;
-    margin-left: 0.2rem;
+    text-align: center;
+    margin-bottom: 0.3rem;
+    min-width: 124px;
     Button {
       position: relative;
       padding: 0.1rem;
@@ -308,8 +309,8 @@ export default function ListadoPedidosRealizados({
                                     </button>
                                   )}
                                 </td>
-                                  {item.calificacionRestaurante === "false" ? (
-                                    <td>
+                                {item.calificacionRestaurante === "false" ? (
+                                  <td>
                                     <button
                                       type="button"
                                       className="clickeable"
@@ -319,10 +320,10 @@ export default function ListadoPedidosRealizados({
                                     >
                                       Calificar
                                     </button>
-                                    </td>
-                                  ) : (
-                                    <td className="tCal">
-                                      <InputGroup className="calificaciones">
+                                  </td>
+                                ) : (
+                                  <td className="tCal">
+                                    <InputGroup className="calificaciones">
                                       <Button
                                         className="modificar"
                                         variant="secondary"
@@ -333,7 +334,7 @@ export default function ListadoPedidosRealizados({
                                       >
                                         Modificar
                                       </Button>
-                                      <br/>
+                                      <br />
                                       <Button
                                         variant="danger"
                                         type="button"
@@ -343,9 +344,9 @@ export default function ListadoPedidosRealizados({
                                       >
                                         <AiFillDelete color="white" />
                                       </Button>
-                                      </InputGroup>
-                                    </td>
-                                  )}
+                                    </InputGroup>
+                                  </td>
+                                )}
                               </tr>
                             </Col>
                             {item.visibleMenu && item.menus ? (
