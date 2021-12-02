@@ -15,14 +15,11 @@ import org.foodmonks.backend.Cliente.Exceptions.ClientePedidoNoCoincideException
 import org.foodmonks.backend.Direccion.Direccion;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
-import lombok.SneakyThrows;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
-import org.foodmonks.backend.Pedido.Pedido;
-import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
@@ -30,7 +27,6 @@ import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.authentication.TokenHelper;
-import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +34,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -51,14 +46,12 @@ public class ClienteController {
     private final TokenHelper tokenHelp;
     private final ClienteService clienteService;
     private final RestauranteService restauranteService;
-    private final PedidoService pedidoService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService, PedidoService pedidoService) {
+    ClienteController(ClienteService clienteService, TokenHelper tokenHelp, RestauranteService restauranteService) {
         this.clienteService = clienteService;
         this.tokenHelp = tokenHelp;
         this.restauranteService = restauranteService;
-        this.pedidoService = pedidoService;
     }
 
     @Operation(summary = "Crea un nuevo Cliente",
@@ -296,14 +289,12 @@ public class ClienteController {
                                                     @RequestParam(defaultValue = "0",required = false, name = "page") String page,
                                                     @RequestParam(defaultValue = "1000", required = false, name = "size") String size) {
         String newtoken = "";
-        String correo = "";
-        List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
-        JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject;
         try {
             if ( token != null && token.startsWith("Bearer ")) {
                 newtoken = token.substring(7);
             }
-            correo = tokenHelp.getUsernameFromToken(newtoken);
+            String correo = tokenHelp.getUsernameFromToken(newtoken);
             jsonObject = clienteService.listarPedidosRealizados(correo, estadoPedido, nombreMenu, nombreRestaurante, medioPago, orden, fecha, total, page, size);
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");

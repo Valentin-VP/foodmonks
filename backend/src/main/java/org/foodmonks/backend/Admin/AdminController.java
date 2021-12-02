@@ -7,16 +7,12 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.SneakyThrows;
-import org.foodmonks.backend.Cliente.Cliente;
-import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.authentication.TokenHelper;
-import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,15 +34,13 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
-    private final ClienteService clienteService;
     private final RestauranteService restauranteService;
     private final UsuarioService usuarioService;
     private final TokenHelper tokenHelp;
 
     @Autowired
-    AdminController(AdminService adminService, ClienteService clienteService, RestauranteService restauranteService, UsuarioService usuarioService, TokenHelper tokenHelp) {
+    AdminController(AdminService adminService, RestauranteService restauranteService, UsuarioService usuarioService, TokenHelper tokenHelp) {
         this.adminService = adminService;
-        this.clienteService = clienteService;
         this.restauranteService = restauranteService;
         this.usuarioService = usuarioService;
         this.tokenHelp = tokenHelp;
@@ -89,10 +83,10 @@ public class AdminController {
         adminService.buscarAdmin(correo);
     }
 
-    @DeleteMapping
+/*    @DeleteMapping
     public void elimiarAdmin(@RequestParam Long id) {
-        //adminService.eliminarAdmin(id);
-    }
+        adminService.eliminarAdmin(id);
+    }*/
 
     @PutMapping
     public void modificarAdmin(@RequestBody Admin admin) {
@@ -112,7 +106,7 @@ public class AdminController {
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
                                             @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden,
                                             @RequestParam(defaultValue = "0",required = false, name = "page") String page) {
-        JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject;
         try {
             jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
 

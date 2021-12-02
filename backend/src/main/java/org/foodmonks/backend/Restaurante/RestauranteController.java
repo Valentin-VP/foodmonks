@@ -27,23 +27,14 @@ import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
-import org.foodmonks.backend.authentication.TokenHelper;
-import org.foodmonks.backend.datatypes.EstadoPedido;
-import org.foodmonks.backend.datatypes.MedioPago;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.foodmonks.backend.datatypes.EstadoRestaurante;
-
 import java.io.IOException;
-import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Validated
 @RestController
@@ -352,7 +343,7 @@ public class RestauranteController {
     })
     @GetMapping(path = "/listarPedidosPendientes")
     public ResponseEntity<?> listarPedidosPendientes(@RequestHeader("Authorization") String token) {
-        List<JsonObject> listaMenu = new ArrayList<JsonObject>();
+        List<JsonObject> listaMenu;
         JsonArray jsonArray = new JsonArray();
         try {
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
@@ -411,8 +402,7 @@ public class RestauranteController {
                                                     @RequestParam(required = false, name = "total") String total,
                                                     @RequestParam(defaultValue = "0",required = false, name = "page") String page,
                                                     @RequestParam(defaultValue = "5", required = false, name = "size") String size) {
-        List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
-        JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject;
         try {
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
             jsonObject = restauranteService.listarHistoricoPedidos(correo, estadoPedido, medioPago, orden, fecha, total, page, size);
@@ -435,12 +425,11 @@ public class RestauranteController {
     })
     @PutMapping(path = "/actualizarEstadoPedido/{idPedido}")
     public ResponseEntity<?> actualizarEstadoPedido(@RequestHeader("Authorization") String token, @PathVariable String idPedido, @RequestBody String nuevoEstado) {
-        JsonObject jsonPedido = new JsonObject();
+        JsonObject jsonPedido;
         try {
-            String estado = "";
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
             jsonPedido = new Gson().fromJson(nuevoEstado, JsonObject.class);
-            estado = jsonPedido.get("estado").getAsString();
+            String estado = jsonPedido.get("estado").getAsString();
             if (estado!=null){
                 if (estado.equals("FINALIZADO")) {
                     try {
@@ -542,7 +531,7 @@ public class RestauranteController {
             @RequestParam(required = false, name = "cliente") String correoCliente,
             @RequestParam(required = false, name = "razon") String razon
     ) {
-        JsonArray jsonArray = new JsonArray();
+        JsonArray jsonArray;
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, correoCliente, razon);
@@ -590,7 +579,7 @@ public class RestauranteController {
             @RequestParam(required = false, name = "fechaFin") String fechaFin) {
 
         String newtoken = "";
-        JsonObject jsonBalance = new JsonObject();
+        JsonObject jsonBalance;
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(newtoken);
             jsonBalance = restauranteService.obtenerBalance(correoRestaurante, medioPago,fechaInicio, fechaFin, categoriaMenu);
@@ -606,7 +595,7 @@ public class RestauranteController {
             @RequestParam(name = "idPedido") String idPedido,
             @RequestParam(name = "estadoDevolucion") boolean estadoDevolucion,
             @RequestBody String motivoDevolucion){
-        JsonObject response = new JsonObject();
+        JsonObject response;
         try {
             JsonObject jsonMotivoDevolucion = new Gson().fromJson(motivoDevolucion, JsonObject.class);
             String motivo = jsonMotivoDevolucion.get("motivoDevolucion").getAsString();
