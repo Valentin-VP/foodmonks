@@ -284,7 +284,6 @@ function ModificarMenu() {
             <Form.Select
               aria-label="Floating label select example"
               name="categoria"
-              required={state.categoria === ""}
               onChange={handleChange}
             >
               <option>{state.categoria}</option>
