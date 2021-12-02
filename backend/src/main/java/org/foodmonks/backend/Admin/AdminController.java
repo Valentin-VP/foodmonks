@@ -1,13 +1,16 @@
 package org.foodmonks.backend.Admin;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
-import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Restaurante.Restaurante;
@@ -16,6 +19,7 @@ import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoExcep
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.authentication.TokenHelper;
+import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,24 +31,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.Base64;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
-
+@Tag(name = "admin", description = "API de Admins")
 public class AdminController {
 
     private final AdminService adminService;
-    private final ClienteService clienteService;
     private final RestauranteService restauranteService;
     private final UsuarioService usuarioService;
     private final TokenHelper tokenHelp;
 
     @Autowired
-    AdminController(AdminService adminService, ClienteService clienteService, RestauranteService restauranteService, UsuarioService usuarioService, TokenHelper tokenHelp) {
+    AdminController(AdminService adminService, RestauranteService restauranteService, UsuarioService usuarioService, TokenHelper tokenHelp) {
         this.adminService = adminService;
-        this.clienteService = clienteService;
         this.restauranteService = restauranteService;
         this.usuarioService = usuarioService;
         this.tokenHelp = tokenHelp;
@@ -54,18 +55,19 @@ public class AdminController {
     @Operation(summary = "Crea un nuevo Administrador",
             description = "Alta de un nuevo Administrador",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "administrador" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Administrador creado con éxito"),
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
     })
-
     @PostMapping(path = "/altaAdmin")
-    public ResponseEntity<?> createAdmin(@RequestBody String admin) {
+    public ResponseEntity<?> createAdmin(@Parameter(description = "Se crea un Admin", required = true)
+                                         @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Admin.class)))
+                                         @RequestBody String admin) {
         try{
             JsonObject jsonAdmin = new Gson().fromJson(admin, JsonObject.class);
             adminService.crearAdmin(
-                    jsonAdmin.get("email").getAsString(),
+                    new String (Base64.getDecoder().decode(jsonAdmin.get("email").getAsString())),
                     jsonAdmin.get("nombre").getAsString(),
                     jsonAdmin.get("apellido").getAsString(),
                     new String (Base64.getDecoder().decode(jsonAdmin.get("password").getAsString()))
@@ -76,31 +78,10 @@ public class AdminController {
         }
     }
 
-    @GetMapping
-    //@GetMapping("/rutaEspecifica")
-    public List<Admin> listarAdmin(){
-        return adminService.listarAdmin();
-    }
-
-    @GetMapping("/buscar")
-    public void buscarAdmin(@RequestParam String correo) {
-        adminService.buscarAdmin(correo);
-    }
-
-    @DeleteMapping
-    public void elimiarAdmin(@RequestParam Long id) {
-        //adminService.eliminarAdmin(id);
-    }
-
-    @PutMapping
-    public void modificarAdmin(@RequestBody Admin admin) {
-        adminService.modificarAdmin(admin);
-    }
-
     @Operation(summary = "Listar los Usuarios",
             description = "Lista de los Usuarios de el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuario" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Usuario.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -113,8 +94,6 @@ public class AdminController {
         JsonObject jsonObject = new JsonObject();
         try {
             jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
-
-
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -124,37 +103,45 @@ public class AdminController {
     @Operation(summary = "Cambiar estado de un Usuario",
             description = "Cambia el estado de un Usuario",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuario" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{correo}")
-    public ResponseEntity<?> cambiarEstadoUsuario(@RequestHeader("Authorization") String token, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))) @RequestBody String estado, @PathVariable String correo) {
+    public ResponseEntity<?> cambiarEstadoUsuario(@RequestHeader("Authorization") String token,
+                                                  @Parameter(description = "comentario de cambio e estado", required = true)
+                                                  @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                          content = @Content(mediaType = "application/json",
+                                                                  schema = @Schema(implementation = String.class),
+                                                                  examples = {@ExampleObject(name = "ejemplo cambio de estado de un restaurante",
+                                                                          value = "\"ABIERTO\"")}))
+                                                  @RequestBody String estado, @PathVariable String correo) {
         JsonObject JsonEstado;
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 
+        String correoDecrypted = new String(Base64.getDecoder().decode(correo));
         String state = JsonEstado.get("estado").getAsString();
         System.out.println("estado: " + state);
         switch (JsonEstado.get("estado").getAsString()) {
             case "BLOQUEAR":
-                usuarioService.bloquearUsuario(correo);
+                usuarioService.bloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "ELIMINAR":
                 if ( token != null && token.startsWith("Bearer ")) {
                     String newToken = token.substring(7);
-                    if (tokenHelp.getUsernameFromToken(newToken).equals(correo)){
+                    if (tokenHelp.getUsernameFromToken(newToken).equals(correoDecrypted)){
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede eliminar este usuario.");
                     }
                 }
-                usuarioService.eliminarUsuario(correo);
+                usuarioService.eliminarUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "DESBLOQUEAR":
-                usuarioService.desbloquearUsuario(correo);
+                usuarioService.desbloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "RECHAZAR":
-                restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+                restauranteService.modificarEstado(correoDecrypted, EstadoRestaurante.valueOf(estado));
                 return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -163,9 +150,9 @@ public class AdminController {
     @Operation(summary = "Listar/buscar Restaurantes con cierto estado",
             description = "Lista de los restaurantes que tienen el estado recibido",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Restaurante.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/listarRestaurantesPorEstado")
@@ -184,27 +171,34 @@ public class AdminController {
     @Operation(summary = "Modificar estado de un Restaurante",
             description = "Modifica el estado de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @PutMapping("/cambiarEstadoRestaurante")
     public ResponseEntity<?> cambiarEstadoRestaurante(
             @RequestParam(name = "correoRestaurante") String correoRestaurante,
             @RequestParam(name = "estadoRestaurante") String estadoRestaurante,
+            @Parameter(description = "Comentario de cambio de estado", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = String.class),
+                   examples = {@ExampleObject(name = "ejemplo cambio de estado de un restaurante",
+                   value = "{\"comentariosCambioEstado\": \"nuevoEstadoDeRestaurante\"" + "}")}))
             @RequestBody String comentariosCambioEstado
     ) {
         JsonObject jsonResponse;
         try{
+            String correoDecrypted = new String(Base64.getDecoder().decode(correoRestaurante));
             estadoRestaurante = estadoRestaurante.toUpperCase();
-            jsonResponse = adminService.cambiarEstadoRestaurante(correoRestaurante, estadoRestaurante);
+            jsonResponse = adminService.cambiarEstadoRestaurante(correoDecrypted, estadoRestaurante);
             JsonObject body = new Gson().fromJson(comentariosCambioEstado, JsonObject.class);
             String comentarios = body.get("comentariosCambioEstado").getAsString();
             String resultadoCambioEstado = jsonResponse.get("resultadoCambioEstado").getAsString(); // APROBADO o RECHAZADO
             // 'Bienvenido a FoodMonks! Le informamos que su solicitud ha sido aprobada.' o
             // 'Le informamos que su solicitud ha sido rechazada por el siguiente motivo: {comentarios} '
-            adminService.enviarCorreo(correoRestaurante, resultadoCambioEstado, comentarios);
+            adminService.enviarCorreo(correoDecrypted, resultadoCambioEstado, comentarios);
             // correoRestaurante: Destinatario del Correo
             // resultadoCambioEstado: Contiene 'APROBADO' o 'RECHAZADO
             // comentariosCambioEstado: Empty si es una aprobación, de lo contrario contiene el motivo del rechazo
@@ -217,9 +211,9 @@ public class AdminController {
     @Operation(summary = "consulta informacion para la estadistica de los pedidos de un restaurante",
             description = "devuelve la informacion de los pedidos de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasPedidos")
@@ -236,9 +230,9 @@ public class AdminController {
     @Operation(summary = "consulta informacion para la estadistica de ventas de un restaurante",
             description = "devuelve la informacion de las ventas de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasVentas")
@@ -259,7 +253,7 @@ public class AdminController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasUsuarios")
@@ -276,9 +270,9 @@ public class AdminController {
     @Operation(summary = "consulta informacion para la estadistica de los registros de usuarios en el sistema",
             description = "devuelve la informacion de los registros de usuarios en el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante", "cliente" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasRegistros")
@@ -295,9 +289,9 @@ public class AdminController {
     @Operation(summary = "lista de todos los restaurantes del sistema",
             description = "devuelve un listado de todos los restaurantes registrados",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "obtenerRestaurantes")

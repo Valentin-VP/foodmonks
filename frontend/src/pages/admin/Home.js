@@ -12,6 +12,7 @@ import Modal, { ModalProvider } from "styled-react-modal";
 import { getMenusFromRestaurante } from "../../services/Requests";
 import { Noti, NotiError } from "../../components/Notification";
 import { Input } from "@material-ui/core";
+import { Base64 } from "js-base64";
 
 const StyledModal = Modal.styled`
   border-radius: 5px;
@@ -38,6 +39,10 @@ const StyledModal = Modal.styled`
 
   .tImg {
     object-fit: cover;
+  }
+
+  .my-table{ 
+    max-width: 100%;
   }
 `;
 
@@ -108,6 +113,7 @@ export default function Home() {
     const data = {
       comentariosCambioEstado: document.getElementById("mensaje").value,
     };
+
     cambiarEstadoRestaurante(restauranteSeleccionado.correo, estado, data)
       .then((response) => {
         window.location.reload();
@@ -157,7 +163,7 @@ export default function Home() {
             <h5>Menus</h5>
             <div className="cuerpo">
               <div className="table-wrapper-scroll-y my-custom-scrollbar">
-                <table className="table table-bordered table-striped mb-0">
+                <table className="table table-bordered table-striped mb-0 my-table">
                   <thead>
                     <tr>
                       <th scope="col">#</th>

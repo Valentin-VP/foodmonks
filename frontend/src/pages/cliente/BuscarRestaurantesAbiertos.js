@@ -1,8 +1,74 @@
 import { React, Fragment, useState, useEffect } from "react";
+import { Container, InputGroup } from "react-bootstrap";
 import styled from "styled-components";
+import food from "../../assets/food2.jpg";
+import { Layout } from "../../components/Layout";
 import ListadoRestaurantesAbiertos from "./ListadoRestaurantesAbiertos";
 
 const Styles = styled.div`
+  .portada {
+    display: flex;
+    background-image: url(${food}) ;
+    background-size: cover;
+    background-color: #E5E5E5;
+    height: 25rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 40px;
+    }
+
+
+    #nombre{
+        border: none;
+        border-radius: 30px;
+        &:focus{
+            box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
+        }
+    }
+
+    #categoria {
+      border: none;
+      margin-left: 10px;
+      border-radius: 30px;
+      max-width: 20%;
+      &:focus{
+          box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
+      }
+    }
+
+    #cText{
+      margin-top: 10px;
+      color: white;
+      margin-left: 20px;
+      text-shadow: 0px 0px 20px rgba(0,0,0,1);
+      input{
+        &:hover{
+          border-color: #E87121;
+        }
+      }
+    }
+    
+    #boton{
+        width: 150px;
+        color: white;
+        background-color: #E87121;
+        border: none;
+        margin-left: 10px;
+        border-radius: 30px;
+        &:focus{
+            box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
+        }
+    }
+  }   
+
+  #grupo{
+    border-radius: 5px;
+    height: 50px;
+  }
+
+  #buscador{
+  }
+
   .form {
     padding-top: 35px;
   }
@@ -52,7 +118,6 @@ export default function BuscarRestaurantesAbiertos() {
   });
 
   let categoria = [
-    { nombre: "(Cualquiera)", value: "" },
     { nombre: "Pizzas", value: "PIZZAS" },
     { nombre: "Hamburguesas", value: "HAMBURGUESAS" },
     { nombre: "Bebidas", value: "BEBIDAS" },
@@ -72,6 +137,8 @@ export default function BuscarRestaurantesAbiertos() {
       [e.target.name]:
         e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
+    console.log(e.target);
+    console.log(e.target.value);
   };
 
   const handleSubmit = (e) => {
@@ -84,75 +151,67 @@ export default function BuscarRestaurantesAbiertos() {
 
   return (
     <Styles>
-      <Fragment>
-        <div className="container-lg">
-          <main className="form">
-            <form id="inputs" onSubmit={handleSubmit}>
-              <div className="row align-items-center">
-                <div className="col-lg">
-                  <div className="form-floating">
-                    <input
-                      name="nombre"
-                      className="form-control"
-                      onChange={handleChange}
-                      id="nombre"
-                      value={values.nombre}
-                    ></input>
-                    <label htmlFor="nombre">Nombre</label>
-                  </div>
-                </div>
-                <div className="col-lg">
-                  <div className="form-floating">
-                    <select
-                      name="categoria"
-                      className="form-select"
-                      onChange={handleChange}
-                      id="categoria"
-                    >
-                      {categoria.map((item) => (
-                        <option key={item.nombre} value={item.value}>
-                          {item.nombre}
-                        </option>
-                      ))}
-                    </select>
-                    <label htmlFor="categoria">Categoría</label>
-                  </div>
-                </div>
-                <div className="col-lg">
-                  <div className="form-floating">
-                    <div className="checkbox">
-                      <label>
-                        <input
-                          name="calificacion"
-                          className="form-check-input"
-                          type="checkbox"
-                          checked={values.calificacion}
-                          onChange={handleChange}
-                          id="calificacion"
-                        />{" "}
-                        Ordenar por Calificación
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <button className="w-100 btn btn-md btn-primary" type="submit">
+      <form id="inputs" onSubmit={handleSubmit}>
+        <Container fluid className="portada">
+          <Container id="buscador">
+            <InputGroup id="grupo">
+              <input
+                name="nombre"
+                id="nombre"
+                type="text"
+                className="form-control"
+                placeholder="Nombre"
+                onChange={handleChange}
+              />
+              <select
+                name="categoria"
+                className="form-select"
+                onChange={handleChange}
+                id="categoria"
+                defaultValue={"DEFAULT"}
+              >
+                <option value="DEFAULT" disabled>
+                  Categoria
+                </option>
+                {categoria.map((item) => (
+                  <option key={item.nombre} value={item.value}>
+                    {item.nombre}
+                  </option>
+                ))}
+              </select>
+              <button
+                id="boton"
+                type="submit"
+                className="btn btn-secondary"
+                type="submit"
+              >
                 Buscar
               </button>
-            </form>
-            <div className="form-floating">
-              {/*Espacio para alguna otra cosa?¿?*/}
+            </InputGroup>
+            <div className="checkbox">
+              <label id="cText">
+                <input
+                  name="calificacion"
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={values.calificacion}
+                  onChange={handleChange}
+                  id="calificacion"
+                />{" "}
+                Ordenar por Calificación
+              </label>
             </div>
-
-            <div className="form-floating">
-              <div className="row align-items-center">
-                <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
-              </div>
+          </Container>
+        </Container>
+        <Layout>
+          <h2>Restaurantes</h2>
+          <div className="container-lg">
+            <div className="row align-items-center">
+              <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
             </div>
-          </main>
-        </div>
-      </Fragment>
+          </div>
+        </Layout>
+      </form>
     </Styles>
   );
 }

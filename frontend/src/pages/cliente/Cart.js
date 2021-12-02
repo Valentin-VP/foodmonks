@@ -32,6 +32,8 @@ const Styles = styled.div`
   img {
     border-radius: 5px;
     object-fit: cover;
+    height: 6rem;
+    width: 7rem;
   }
   .btn-info {
     color: white;
@@ -219,7 +221,7 @@ export const Cart = () => {
                     return (
                       <tr key={index}>
                         <td>
-                          <img src={item.imagen} alt="productimg" width="120" />
+                          <img src={item.imagen} alt="productimg" />
                         </td>
                         <td className="font-weight-bold">{item.nombre}</td>
                         <td>Cantidad: {item.quantity}</td>

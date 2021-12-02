@@ -24,10 +24,16 @@ const Styles = styled.div`
     left: 50%;
     -webkit-transform: translate(-50%);
     transform: translate(-50%);
+    padding-bottom: 5rem;
   }
 
-  .form-signin {
-    width: 500px;
+  @media only screen and (max-width: 768px) {
+    .text-center {
+      max-width: 100%;
+      width: 80%;
+      height: 80%;
+      max-height: 100%;
+    }
   }
 
   .form-floating {
@@ -59,11 +65,9 @@ const Styles = styled.div`
 
   .busqueda {
     height: 55px;
-    width: 500px;
     margin-bottom: 10px;
     .form-control {
       height: 55px;
-      width: 500px;
       border-radius: 5px;
     }
   }
@@ -130,34 +134,41 @@ function RegistroCliente() {
       .then((results) => {
         getLatLng(results[0]).then(({ lat, lng }) => {
           registro.direccion.calle = results[0].address_components[1].long_name;
-          registro.direccion.numero = results[0].address_components[0].long_name;
+          registro.direccion.numero =
+            results[0].address_components[0].long_name;
           registro.nombre = document.getElementById("nombre").value;
           registro.apellido = document.getElementById("apellido").value;
-          registro.correo = document.getElementById("correo").value;
+          const correoCliente = document.getElementById("correo").value;
           registro.direccion.esquina = document.getElementById("esquina").value;
-          registro.direccion.detalles = document.getElementById("detalles").value;
+          registro.direccion.detalles =
+            document.getElementById("detalles").value;
           registro.direccion.latitud = lat;
           registro.direccion.longitud = lng;
           var pass1 = document.getElementById("password1").value;
           var pass2 = document.getElementById("password2").value;
           if (pass1 === pass2) {
             registro.password = Base64.encode(pass1);
+            registro.correo = Base64.encode(correoCliente);
             console.log(registro);
-            registrarCliente(registro).then((response) => {
-              if (response.status === 201) {
-                setAlerta("Registro hecho con exito");
-                setTipo("success");
-                setTimeout(() => { window.location.replace("/"); }, 2000); //para esperar 5 segundos y redireccionar
-              }
-            }).catch((error) =>{
+            registrarCliente(registro)
+              .then((response) => {
+                if (response.status === 201) {
+                  setAlerta("Registro hecho con exito");
+                  setTipo("success");
+                  setTimeout(() => {
+                    window.location.replace("/");
+                  }, 2000); //para esperar 5 segundos y redireccionar
+                }
+              })
+              .catch((error) => {
                 setAlerta(error.response.data);
-                setTipo("danger");        
-            });
+                setTipo("danger");
+              });
           } else {
             setAlerta("Las contraseñas no coinciden");
             setTipo("danger");
           }
-          });
+        });
         console.log(registro.direccion);
       })
       .catch((error) => {
@@ -182,7 +193,7 @@ function RegistroCliente() {
               <a href="/">
                 <img className="" src={logo} alt="" width="200" height="200" />
               </a>
-              <h2 className="mb-3">Registrate</h2>
+              <h2 className="mb-3">Regístrate como Cliente</h2>
 
               <div className="form-floating">
                 <input
@@ -212,7 +223,7 @@ function RegistroCliente() {
                   placeholder="name@example.com"
                   required
                 />
-                <label htmlFor="floatingInput">Correo electronico</label>
+                <label htmlFor="floatingInput">Correo electrónico</label>
               </div>
               <div className="form-floating">
                 <input
@@ -271,11 +282,11 @@ function RegistroCliente() {
               </button>
             </form>
             <p className="mt-2 mb-3 text-muted">
-              ¿Ya tienes cuenta?<a href="/">Inicia sesión</a>
+              ¿Ya tienes cuenta? <a href="/">Inicia sesión</a>
             </p>
             <p className="mt-2 mb-3 text-muted">
-              ¿Eres una empresa?
-              <a href="/registroRestaurante">Registrate como restaurante</a>
+              ¿Eres un restaurante o empresa?{" "}
+              <a href="/registroRestaurante">Regístrate como restaurante</a>
             </p>
           </main>
         </div>
