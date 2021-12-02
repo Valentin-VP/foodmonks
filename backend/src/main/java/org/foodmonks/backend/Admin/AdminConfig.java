@@ -21,10 +21,10 @@ public class AdminConfig {
     @Bean
     CommandLineRunner commandLineRunnerAdmin(AdminRepository repository) {
         return args ->{
-            Admin admin =  new Admin("nombreDelAdmin",
-                    "apellidoDelAdmin",
-                    "admin@gmail.com",
-                    passwordEncoder.encode("admin123"),
+            Admin admin =  new Admin("Administrador Principal",
+                    "Food Monks",
+                    "rootfoodmonks@gmail.com",
+                    passwordEncoder.encode("JavaSucks2021"),
                     LocalDate.now());
 
             repository.saveAll(List.of(admin));
