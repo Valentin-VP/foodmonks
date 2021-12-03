@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Usuario;
@@ -141,7 +142,7 @@ public class AdminController {
                 usuarioService.desbloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "RECHAZAR":
-                restauranteService.modificarEstado(correoDecrypted, EstadoRestaurante.valueOf(estado));
+                restauranteService.modificarEstado(correoDecrypted, EstadoRestaurante.valueOf(estado).toString());
                 return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
