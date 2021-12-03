@@ -55,6 +55,7 @@ public class MenuService {
         if (restaurante.getMenus().size() == 3){
             throw new MenuCantidadException("No puede eliminar el menu, el restaurante tiene el minimo de cantidad de menus");
         }
+        restaurante.getMenus().remove(menu);
         menuRepository.delete(menu);
     }
 

@@ -253,12 +253,9 @@ public class RestauranteService {
             if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
                 realizarDevolucion(correo,String.valueOf(idPedido),"rechazado",true);
             }
-            if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
-                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido");
-            }
             // PUSH NOTIFICATION
             if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
-                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazo Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido que realizaste");
+                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido que realizaste");
             }
         }
     }
