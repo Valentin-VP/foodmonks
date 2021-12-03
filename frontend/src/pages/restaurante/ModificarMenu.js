@@ -86,11 +86,6 @@ function ModificarMenu() {
   const state = {
     //valores cargados del menu a modificar
     id: menu.id,
-    nombre: menu.nombre,
-    price: menu.price,
-    descripcion: menu.descripcion,
-    descuento: menu.multiplicadorPromocion,
-    categoria: menu.categoria,
     img: "",
     imgUrl: menu.imagen,
   };
@@ -106,16 +101,16 @@ function ModificarMenu() {
   };
 
   let categorias = [
-    { nombre: "PIZZAS" },
-    { nombre: "HAMBURGUESAS" },
-    { nombre: "BEBIDAS" },
-    { nombre: "COMBOS" },
-    { nombre: "MINUTAS" },
-    { nombre: "POSTRES" },
-    { nombre: "PASTAS" },
-    { nombre: "COMIDAARABE" },
-    { nombre: "SUSHI" },
-    { nombre: "OTROS" },
+    { value: "PIZZAS", nombre: "Pizzas" },
+    { value: "HAMBURGUESAS", nombre: "Hamburguesas" },
+    { value: "BEBIDAS", nombre: "Bebidas" },
+    { value: "COMBOS", nombre: "Combos" },
+    { value: "MINUTAS", nombre: "Minutas" },
+    { value: "POSTRES", nombre: "Postres" },
+    { value: "PASTAS", nombre: "Pastas" },
+    { value: "COMIDAARABE", nombre: "Comida arabe" },
+    { value: "SUSHI", nombre: "Sushi" },
+    { value: "OTROS", nombre: "Otros" },
   ];
 
   let componente;
@@ -132,11 +127,11 @@ function ModificarMenu() {
   const onSubmit = () => {
     //cargo todo menos la imagen
     document.getElementById("submit").disabled = true;
-    menuRetorno.nombre = state.nombre;
-    menuRetorno.categoria = state.categoria;
-    menuRetorno.descripcion = state.descripcion;
-    menuRetorno.multiplicador = state.descuento;
-    menuRetorno.price = state.price;
+    menuRetorno.nombre = document.getElementById("nombre").value;;
+    menuRetorno.categoria = document.getElementById("categoria").value;;
+    menuRetorno.descripcion = document.getElementById("descripcion").value;
+    menuRetorno.multiplicador = document.getElementById("descuento").value;
+    menuRetorno.price = document.getElementById("price").value;
     if (state.img !== "") {
       //si se selecciona una imagen
       const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
@@ -288,7 +283,7 @@ function ModificarMenu() {
             >
               <option>{state.categoria}</option>
               {categorias.map((categoria) => (
-                <option key={categoria.nombre} value={categoria.nombre}>
+                <option key={categoria.nombre} value={categoria.value}>
                   {categoria.nombre}
                 </option>
               ))}
