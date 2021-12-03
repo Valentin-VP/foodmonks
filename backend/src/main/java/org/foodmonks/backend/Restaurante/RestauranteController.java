@@ -142,9 +142,9 @@ public class RestauranteController {
         } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException | MenuNombreException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNombreExistente menuNombreExistente) {
-            return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(menuNombreExistente.getMessage(), HttpStatus.CONFLICT);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
-            return new ResponseEntity<>(usuarioNoRestaurante, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(usuarioNoRestaurante.getMessage(), HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -225,9 +225,9 @@ public class RestauranteController {
         } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException | MenuNombreException | MenuNombreExistente e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
-            return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(menuNoEncontradoException.getMessage(), HttpStatus.NOT_FOUND);
         } catch (UsuarioNoRestaurante usuarioNoRestaurante) {
-            return new ResponseEntity<>(usuarioNoRestaurante, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(usuarioNoRestaurante.getMessage(), HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
