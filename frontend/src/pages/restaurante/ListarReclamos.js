@@ -277,22 +277,22 @@ function ListarReclamos() {
       <Styles>
         <ModalProvider>
           <br />
-          {sessionStorage.getItem("reclamos-razon") ? (
+          {data.length === 0 ? (
+            <h5 className="text-center h5 mb-3 fw-normal">
+              No hay ningun reclamo
+            </h5>
+          ) : null}
+          {data.length > 0 && sessionStorage.getItem("reclamos-razon") ? (
             <h3>
-              resultados de la busqueda por razon del reclamo:
+              resultados de la busqueda por razon:
               {sessionStorage.getItem("reclamos-razon")}
             </h3>
-          ) : (
-            <h3> resultados de la busqueda </h3>
-          )}
-          {sessionStorage.getItem("reclamos-cliente") ? (
+          ) : null}
+          {data.length > 0 && sessionStorage.getItem("reclamos-cliente") ? (
             <h3>
-              resultados de la busqueda por cliente del reclamo:
+              resultados de la busqueda por cliente:
               {sessionStorage.getItem("reclamos-cliente")}
             </h3>
-          ) : null}
-          {sessionStorage.getItem("reclamos-ordenar") ? (
-            <h3>resultados de la busqueda ordenados</h3>
           ) : null}
           <br />
           <div className="table-responsive justify-content-center" id="list">

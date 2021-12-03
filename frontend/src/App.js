@@ -26,6 +26,8 @@ function App() {
             "nombreUsuario",
             response.data.nombreRestaurante
           );
+          sessionStorage.setItem("cantCal", response.data.cantidadCalificaciones);
+          sessionStorage.setItem("calificacionUsuario", response.data.calificacion);
         } else {
           sessionStorage.setItem("nombreUsuario", response.data.nombre);
         }

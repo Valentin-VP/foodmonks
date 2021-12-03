@@ -7,6 +7,7 @@ import org.foodmonks.backend.datatypes.CategoriaMenu;
 import org.foodmonks.backend.persistencia.MenuID;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -15,9 +16,9 @@ import javax.persistence.*;
 public class Menu {
 	
 	@Id
-	//@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id; 
+    private Long id;
+	@NotBlank(message = "El nombre no puede ser vacio")
 	private String nombre;
 	private Float price;
 	private String descripcion;

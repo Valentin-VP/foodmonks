@@ -1,10 +1,7 @@
 package org.foodmonks.backend.Menu;
 
 import com.google.gson.JsonObject;
-import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
-import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
+import org.foodmonks.backend.Menu.Exceptions.*;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
@@ -24,14 +21,13 @@ public class MenuService {
     public MenuService(MenuRepository menuRepository, RestauranteRepository restauranteRepository, MenuConverter menuConverter)
     { this.menuRepository = menuRepository; this.restauranteRepository = restauranteRepository; this.menuConverter = menuConverter; }
 
-    public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException {
+    public void altaMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNombreExistente, MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
 
-            Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+            Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
             if (restaurante == null) {
                 throw new UsuarioNoRestaurante("El correo "+ correoRestaurante + " no pertenece a un restaurante");
             }
-
-            if (menuRepository.existsByNombreAndRestaurante(jsonMenu.get("nombre").getAsString(), restaurante)){
+            if (menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(jsonMenu.get("nombre").getAsString(), restaurante)){
                 throw new MenuNombreExistente("Ya existe un menu con el nombre " + jsonMenu.get("nombre").getAsString() +
                         " para el restaurante " + correoRestaurante);
             }
@@ -48,20 +44,23 @@ public class MenuService {
             menuRepository.save(menu);
     }
 
-    public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException {
+    public void eliminarMenu(Long idMenu, String correoRestaurante) throws MenuNoEncontradoException, MenuCantidadException {
 
-        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
         Menu menu = menuRepository.findByIdAndRestaurante(idMenu, restaurante);
         if (menu == null){
             throw new MenuNoEncontradoException("No se encontro el Menu con id "+ idMenu + " para el Restuarante "
                     + correoRestaurante);
         }
+        if (restaurante.getMenus().size() == 3){
+            throw new MenuCantidadException("No puede eliminar el menu, el restaurante tiene el minimo de cantidad de menus");
+        }
         menuRepository.delete(menu);
     }
 
-    public void modificarMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException, MenuPrecioException, MenuMultiplicadorException {
+    public void modificarMenu(JsonObject jsonMenu, String correoRestaurante) throws UsuarioNoRestaurante, MenuNoEncontradoException, MenuPrecioException, MenuMultiplicadorException, MenuNombreException, MenuNombreExistente {
 
-        Restaurante restaurante = restauranteRepository.findByCorreo(correoRestaurante);
+        Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
         if (restaurante == null) {
             throw new UsuarioNoRestaurante("El correo "+ correoRestaurante + " no pertenece a un restaurante");
         }
@@ -69,6 +68,11 @@ public class MenuService {
         if (menuAux == null){
             throw new MenuNoEncontradoException("No existe el Menu con id " + jsonMenu.get("id").getAsLong()  + " para el Restaurante "
                     + correoRestaurante);
+        }
+        if (!menuAux.getNombre().equals(jsonMenu.get("nombre").getAsString())){
+            if (menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(jsonMenu.get("nombre").getAsString(),restaurante)){
+                throw new MenuNombreExistente("Ya existe un menu con el nombre " + jsonMenu.get("nombre").getAsString());
+            }
         }
         verificarJsonMenu(jsonMenu);
         menuAux.setNombre(jsonMenu.get("nombre").getAsString());
@@ -83,12 +87,12 @@ public class MenuService {
 
     public JsonObject infoMenu(Long id, String correo) {
         return menuConverter.jsonMenu(menuRepository.findByIdAndRestaurante(id,
-                restauranteRepository.findById(correo).get()));
+                restauranteRepository.findRestaurantesByCorreoIgnoreCase(correo)));
     }
 
     public List<JsonObject> listarMenu(String correoRestaurante){
         return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(
-                restauranteRepository.findById(correoRestaurante).get()));
+                restauranteRepository.findRestaurantesByCorreoIgnoreCase(correoRestaurante)));
     }
 
     public Boolean existeCategoriaMenu(Restaurante restaurante, CategoriaMenu categoriaMenu){
@@ -99,16 +103,15 @@ public class MenuService {
         return menuRepository.findByIdAndRestaurante(id,restaurante);
     }
 
-    public List<JsonObject> obtenerListaMenu(Restaurante restaurante){
-        return menuConverter.listaJsonMenu(menuRepository.findMenusByRestaurante(restaurante));
-    }
-
-    public void verificarJsonMenu(JsonObject jsonMenu) throws MenuPrecioException, MenuMultiplicadorException {
+    public void verificarJsonMenu(JsonObject jsonMenu) throws MenuPrecioException, MenuMultiplicadorException, MenuNombreException {
         if (!jsonMenu.get("price").getAsString().matches("^\\d+(.\\d+)*$") || jsonMenu.get("price").getAsString().isBlank()) {
             throw new MenuPrecioException("El precio debe ser un numero real");
         }
         if (!jsonMenu.get("multiplicador").getAsString().matches("^\\d+(.\\d+)*$") || jsonMenu.get("multiplicador").getAsString().isBlank()) {
             throw new MenuMultiplicadorException("El multiplicador debe ser un numero real");
+        }
+        if (jsonMenu.get("nombre").getAsString().isBlank()){
+            throw new MenuNombreException("El nombre del menu no puede ser vacio");
         }
     }
 

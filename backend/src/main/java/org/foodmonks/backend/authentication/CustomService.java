@@ -29,7 +29,7 @@ public class CustomService implements UserDetailsService {
 
         try {
 
-            Admin admin = adminRepository.findByCorreo(correo);
+            Admin admin = adminRepository.findByCorreoIgnoreCase(correo);
             if(null==admin) {
                 throw new UsernameNotFoundException("User Not Found with userName " + correo);
             }
@@ -38,7 +38,7 @@ public class CustomService implements UserDetailsService {
         } catch(Exception a) {
 
             try {
-                Restaurante restaurante = restauranteRepository.findByCorreo(correo);
+                Restaurante restaurante = restauranteRepository.findByCorreoIgnoreCase(correo);
                 if(null==restaurante) {
                     throw new UsernameNotFoundException("User Not Found with userName " + correo);
                 }
@@ -46,7 +46,7 @@ public class CustomService implements UserDetailsService {
 
             } catch(Exception r) {
 
-                Cliente cliente = clienteRepository.findByCorreo(correo);
+                Cliente cliente = clienteRepository.findByCorreoIgnoreCase(correo);
                 if(null==cliente) {
                     throw new UsernameNotFoundException("User Not Found with userName " + correo);
                 }
