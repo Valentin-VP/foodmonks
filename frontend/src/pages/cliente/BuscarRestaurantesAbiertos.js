@@ -174,6 +174,8 @@ export default function BuscarRestaurantesAbiertos() {
     sessionStorage.setItem("restaurantes-nombre", values.nombre);
     sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
     sessionStorage.setItem("cliente-direccion", values.idDireccion);
+    sessionStorage.setItem("cliente-calle", cliente.direcciones.calle);
+    sessionStorage.setItem("cliente-numero", cliente.direcciones.numero);
     window.location.reload();
   };
 

@@ -136,11 +136,11 @@ export const Cart = () => {
   const onEfectivo = (e) => {
     e.preventDefault();
     var menus = [];
-    items.forEach(menu => {
+    items.forEach((menu) => {
       const aux = {
         id: menu.id,
-        cantidad: menu.quantity, 
-      }
+        cantidad: menu.quantity,
+      };
       menus.push(aux);
     });
     const jsonPedido = {
@@ -150,26 +150,29 @@ export const Cart = () => {
       total: Math.round((cartTotal + Number.EPSILON) * 100) / 100,
       ordenId: "", // Lo que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
       linkAprobacion: "", // URL que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
-      menus: menus
+      menus: menus,
     };
     console.log(jsonPedido);
-    hacerPedidoEfectivo(jsonPedido).then((response) =>{
-      console.log(response);
-      Noti("Pedido realizado con exito");
-      emptyCart();
-    }).catch((error) => {
-      NotiError(error.response.data);
-    });
+    hacerPedidoEfectivo(jsonPedido)
+      .then((response) => {
+        console.log(response);
+        Noti("Pedido realizado con exito");
+        emptyCart();
+      })
+      .catch((error) => {
+        NotiError(error.response.data);
+      });
   };
 
-  const onPaypal = (cartId) => { //Copiado del efectivo + lo que corresponde a paypal
+  const onPaypal = (cartId) => {
+    //Copiado del efectivo + lo que corresponde a paypal
     //e.preventDefault();
     var menus = [];
-    items.forEach(menu => {
+    items.forEach((menu) => {
       const aux = {
         id: menu.id,
-        cantidad: menu.quantity, 
-      }
+        cantidad: menu.quantity,
+      };
       menus.push(aux);
     });
     const jsonPedido = {
@@ -179,26 +182,31 @@ export const Cart = () => {
       total: cartTotal,
       ordenId: cartId,
       linkAprobacion: "",
-      menus: menus
+      menus: menus,
     };
     console.log(jsonPedido);
-    paypalEnviarCART(jsonPedido).then((response) =>{
-      console.log(response);
-      Noti("Pedido realizado con exito");
-      emptyCart();
-    }).catch((error) => {
-      NotiError(error.response.data);
-    });
+    paypalEnviarCART(jsonPedido)
+      .then((response) => {
+        console.log(response);
+        Noti("Pedido realizado con exito");
+        emptyCart();
+      })
+      .catch((error) => {
+        NotiError(error.response.data);
+      });
   };
 
   const getOrder = () => {
-    let order = { customer: perfil.nombre, total: Math.round((cartTotal + Number.EPSILON) * 100) / 100
+    let order = {
+      customer: perfil.nombre,
+      total: Math.round((cartTotal + Number.EPSILON) * 100) / 100,
     };
     const orderItems = items.map((item) => {
       return {
-        name: `${item.nombre + " (subtotal $" + item.price * item.quantity + ")"}`,
-        price: Math.round((item.price + Number.EPSILON) * 100) / 100
-        ,
+        name: `${
+          item.nombre + " (subtotal $" + item.price * item.quantity + ")"
+        }`,
+        price: Math.round((item.price + Number.EPSILON) * 100) / 100,
         quantity: item.quantity,
         currency: "USD",
       };
@@ -266,7 +274,11 @@ export const Cart = () => {
                 <h2>Realizar pedido</h2>
                 <br />
                 <h5 className="mb-2">Dirección del envio</h5>
-                <Form.Select
+                <p>
+                  {sessionStorage.getItem("cliente-calle")}{" "}
+                  {sessionStorage.getItem("cliente-numero")}
+                </p>
+                {/* <Form.Select
                   aria-label="Default select example"
                   id="direcciones"
                   required
@@ -278,12 +290,15 @@ export const Cart = () => {
                       </option>
                     );
                   })}
-                </Form.Select>
+                </Form.Select> */}
                 <br />
 
                 <label className="mb-2">Total de items: {totalItems}</label>
                 <h4>Finalizar Compra</h4>
-                <h5 className="mb-4">Precio final: $ {Math.round((cartTotal + Number.EPSILON) * 100) / 100}</h5>
+                <h5 className="mb-4">
+                  Precio final: ${" "}
+                  {Math.round((cartTotal + Number.EPSILON) * 100) / 100}
+                </h5>
                 <div className="row bPagoE">
                   <Button
                     className="eButton"
@@ -295,7 +310,10 @@ export const Cart = () => {
                   </Button>
                 </div>
                 <div className="row bPagoP">
-                  <PaypalCheckoutButton order={getOrder()} onAuthorizeCallback={onPaypal} />
+                  <PaypalCheckoutButton
+                    order={getOrder()}
+                    onAuthorizeCallback={onPaypal}
+                  />
                   {/* <Button variant="primary" className="ppb" onClick={onPaypal} value="paypal">
                     </Button> */}
                 </div>
