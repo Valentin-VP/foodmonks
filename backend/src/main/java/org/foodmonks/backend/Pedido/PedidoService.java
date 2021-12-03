@@ -79,8 +79,8 @@ public class PedidoService {
                 orders.add(new Order(Sort.Direction.ASC, "total"));
             else if (orden.equals("desc"))
                 orders.add(new Order(Sort.Direction.DESC, "total"));
-        } else {
-            orders.add(new Order(Sort.Direction.DESC, "id"));
+            else if (orden.isBlank())
+                orders.add(new Order(Sort.Direction.DESC, "id"));
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
         Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
