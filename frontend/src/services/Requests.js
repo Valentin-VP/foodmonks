@@ -71,10 +71,10 @@ export const renovarTokens = () => {
 
 //esta funcion es para cerrar sesion
 export const clearState = () => {
-  // localStorage.removeItem("token");
-  // localStorage.removeItem("refreshToken");
-  // localStorage.removeItem("react-use-cart");
-  // window.location.replace("/");
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("react-use-cart");
+  window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
@@ -418,12 +418,12 @@ export const estadisticasUsuariosRegistrados = () => {
   });
 };
 
-export const estadisticasPedidosRegistrados = () => {
+export const estadisticasPedidosRegistrados = (anio) => {
   return axios({
     method: "GET",
     url: `${
       process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${new Date().getFullYear()}`,
+    }api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${anio}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),

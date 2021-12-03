@@ -180,9 +180,6 @@ function RegistroAltaMenu() {
         unico = false;
     });
     if (unico) {
-      document.getElementById("cancelar").disabled = true;
-      document.getElementById("agregar").disabled = true;
-      document.getElementById("terminar").disabled = true;
       menu.categoria = document.getElementById("categoria").value;
       menu.descripcion = document.getElementById("descripcion").value;
       menu.price = document.getElementById("price").value;
@@ -211,6 +208,9 @@ function RegistroAltaMenu() {
                 //aca hago el rest
                 registrarRestaurante(json.restaurante)
                   .then(() => {
+                    document.getElementById("cancelar").disabled = true;
+                    document.getElementById("agregar").disabled = true;
+                    document.getElementById("terminar").disabled = true;
                     setAlerta("Registro exitoso");
                     setTipo("success");
                     setTimeout(() => {
@@ -234,6 +234,9 @@ function RegistroAltaMenu() {
         json.restaurante.menus.push(menu);
         registrarRestaurante(json.restaurante)
           .then(() => {
+            document.getElementById("cancelar").disabled = true;
+            document.getElementById("agregar").disabled = true;
+            document.getElementById("terminar").disabled = true;
             setAlerta("Registro exitoso");
             setTipo("success");
             setTimeout(() => {
