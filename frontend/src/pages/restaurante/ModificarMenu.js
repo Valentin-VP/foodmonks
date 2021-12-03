@@ -126,17 +126,27 @@ function ModificarMenu() {
 
   const handleChange = (e) => {
     e.persist();
-    state[e.target.name] = e.target.value;
+    menuRetorno[e.target.name] = e.target.value;
   };
 
   const onSubmit = () => {
     //cargo todo menos la imagen
     document.getElementById("submit").disabled = true;
-    menuRetorno.nombre = state.nombre;
-    menuRetorno.categoria = state.categoria;
-    menuRetorno.descripcion = state.descripcion;
-    menuRetorno.multiplicador = state.descuento;
-    menuRetorno.price = state.price;
+    if (menuRetorno.nombre === "") {
+      menuRetorno.nombre = state.nombre;
+    }
+    if (menuRetorno.categoria === "") {
+      menuRetorno.categoria = state.categoria;
+    }
+    if (menuRetorno.descripcion === "") {
+      menuRetorno.descripcion = state.descripcion;
+    }
+    if (menuRetorno.multiplicador === "") {
+      menuRetorno.multiplicador = state.descuento;
+    }
+    if (menuRetorno.price === "") {
+      menuRetorno.price = state.price;
+    }
     if (state.img !== "") {
       //si se selecciona una imagen
       const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
@@ -158,8 +168,6 @@ function ModificarMenu() {
               //cambio la imagen
               state.imgUrl = url;
               menuRetorno.imagen = state.imgUrl;
-              console.log(menuRetorno);
-              console.log(state.id);
               modMenu(menuRetorno, state.id)
                 .then((response) => {
                   //request al backend
@@ -268,7 +276,7 @@ function ModificarMenu() {
             <input
               className="form-control"
               type="number"
-              name="descuento"
+              name="multiplicador"
               id="descuento"
               placeholder="Descuento"
               max="100"
