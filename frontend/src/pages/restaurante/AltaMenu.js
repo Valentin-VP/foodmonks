@@ -74,10 +74,6 @@ const Styles = styled.div`
 
 function AltaMenu() {
   const state = {
-    nombre: "",
-    price: "",
-    descripcion: "",
-    categoria: "",
     img: "",
     imgUrl: "",
   };
@@ -93,16 +89,16 @@ function AltaMenu() {
   };
 
   let categorias = [
-    { nombre: "PIZZAS" },
-    { nombre: "HAMBURGUESAS" },
-    { nombre: "BEBIDAS" },
-    { nombre: "COMBOS" },
-    { nombre: "MINUTAS" },
-    { nombre: "POSTRES" },
-    { nombre: "PASTAS" },
-    { nombre: "COMIDAARABE" },
-    { nombre: "SUSHI" },
-    { nombre: "OTROS" },
+    { value: "PIZZAS", nombre: "Pizzas" },
+    { value: "HAMBURGUESAS", nombre: "Hamburguesas" },
+    { value: "BEBIDAS", nombre: "Bebidas" },
+    { value: "COMBOS", nombre: "Combos" },
+    { value: "MINUTAS", nombre: "Minutas" },
+    { value: "POSTRES", nombre: "Postres" },
+    { value: "PASTAS", nombre: "Pastas" },
+    { value: "COMIDAARABE", nombre: "Comida arabe" },
+    { value: "SUSHI", nombre: "Sushi" },
+    { value: "OTROS", nombre: "Otros" },
   ];
 
   const [success, setSuccess] = useState(null);
@@ -113,16 +109,12 @@ function AltaMenu() {
     state.img = data.target.files[0];
   };
 
-  const handleChange = (e) => {
-    e.persist();
-    state[e.target.name] = e.target.value;
-  };
-
-  const onSubmit = () => {
-    menu.nombre = state.nombre;
-    menu.categoria = state.categoria;
-    menu.descripcion = state.descripcion;
-    menu.price = state.price;
+  const onSubmit = (e) => {
+    e.preventDefault();
+    menu.nombre = document.getElementById("nombre").value;
+    menu.categoria = document.getElementById("categoria").value;
+    menu.descripcion = document.getElementById("descripcion").value;
+    menu.price = document.getElementById("price").value;
     if (state.img !== "") {
       //si se selecciona una imagen
       const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
@@ -134,10 +126,10 @@ function AltaMenu() {
           setUploadBar(<ProgressBar now={percentage} />);
         },
         (error) => {
-          console.log(error.message);
           setComponente(<Error error="Error al subir la imagen" />);
         },
         () => {
+          setUploadBar(null);
           setComponente(null);
           storage
             .ref("menus")
@@ -148,29 +140,29 @@ function AltaMenu() {
               //ahora cargo el json y hago el alta
               menu.imagen = state.imgUrl;
               altaMenu(menu).then((response) => {
-                console.log(response);
                 if (response.status === 201) setUploadBar(null);
                 setSuccess(
                   <Alert variant="success">Menú creado con exito!</Alert>
                 );
+                setTimeout(() => {
+                  window.location.replace("/menu");
+                }, 3000);
+              }).catch((error) => {
+                setComponente(<Error error={error.response.data.detailMessage} />);
               });
-              setTimeout(() => {
-                window.location.replace("/menu");
-              }, 3000);
             })
             .catch((error) => {
-              error.response.data();
+              setComponente(
+                <Error error={error.response.data.detailMessage} />
+              );
             });
         }
       );
     } else {
-      /* "https://firebasestorage.googleapis.com/v0/b/foodmonks-70c28.appspot.com/o/menus%2Fsin_imagen.png?alt=media&to" */
       menu.imagen = process.env.REACT_APP_GENERIC_MENU; //cargo la imagen generica
-      console.log(menu);
       altaMenu(menu)
         .then((response) => {
           //llamo al back
-          console.log(response);
           if (response.status === 201)
             setSuccess(<Alert variant="success">Menú creado con éxito!</Alert>);
           setTimeout(() => {
@@ -178,7 +170,7 @@ function AltaMenu() {
           }, 3000);
         })
         .catch((error) => {
-          setComponente(<Error error={error.response.data.detailMessage} />);
+          setComponente(<Error error={error.response} />);
         });
     }
   };
@@ -187,7 +179,7 @@ function AltaMenu() {
     <Styles>
       <div id="page-container"></div>
       <section className="form-alta">
-        <Form>
+        <Form onSubmit={onSubmit}>
           <h4>Alta Menú</h4>
           {/*nombre del menu*/}
           <div className="form-floating">
@@ -197,7 +189,7 @@ function AltaMenu() {
               name="nombre"
               id="nombre"
               placeholder="Nombre del Menú"
-              onChange={handleChange}
+              required
             />
             <label htmlFor="floatingInput">Nombre del Menú</label>
           </div>
@@ -210,7 +202,7 @@ function AltaMenu() {
               id="price"
               placeholder="Precio"
               min="1"
-              onChange={handleChange}
+              required
             />
             <label htmlFor="floatingInput">Precio</label>
           </div>
@@ -222,20 +214,20 @@ function AltaMenu() {
               name="descripcion"
               id="descripcion"
               placeholder="Descripción"
-              onChange={handleChange}
+              required
             />
             <label htmlFor="floatingInput">Descripción</label>
           </div>
           <FloatingLabel controlId="floatingSelect" label="Categoría">
             <Form.Select
               aria-label="Floating label select example"
-              required
               name="categoria"
-              onChange={handleChange}
+              id="categoria"
+              required
             >
-              <option>Seleccione una categoría</option>
+              <option value="">Seleccione una categoría</option>
               {categorias.map((categoria) => (
-                <option key={categoria.nombre} value={categoria.nombre}>
+                <option key={categoria.nombre} value={categoria.value}>
                   {categoria.nombre}
                 </option>
               ))}
@@ -248,12 +240,11 @@ function AltaMenu() {
             type="file"
             size="lg"
             onChange={handleUpload}
-            required
           />
           {success}
           {componente}
           {uploadBar}
-          <Button id="submit" onClick={onSubmit}>
+          <Button id="submit" type="submit">
             Alta
           </Button>
         </Form>

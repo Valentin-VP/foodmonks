@@ -36,7 +36,6 @@ public class EmailService {
 		if (Cc != null) message.setCc(Cc);
 		message.setText(htmlContent, true);
 		emailSender.send(mimeMessage);
-		//logger.info("El correo se envio de manera exitosa!!");
 		} catch (MessagingException e) {
 			throw new EmailNoEnviadoException("No se pudo enviar el mail");
 		}

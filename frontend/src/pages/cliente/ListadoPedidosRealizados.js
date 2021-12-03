@@ -47,6 +47,25 @@ const StyledModal2 = Modal.styled`
   }
 `;
 
+const StyledModal3 = Modal.styled`
+  border-radius: 5px;
+  padding: 1.5%;
+  width: 50%;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  overflow-y: auto;
+  max-height: 80%;
+  width: 70%;
+  margin-top: 2rem;
+
+  table,
+  tr {
+    width: %;
+  }
+  
+`;
+
 const Styles = styled.div`
   .lista {
     margin-top: 35px;
@@ -189,6 +208,7 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
   // para el modal -----------------------------------------------------------------------------------------------
   const [isOpen, setIsOpen] = useState(false);
   const [isOpen2, setIsOpen2] = useState(false);
+  const [isOpen3, setIsOpen3] = useState(false);
 
   const toggleModal = () => {
     setIsOpen(!isOpen);
@@ -203,6 +223,16 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
   const cargarModal2 = (item) => {
     setPedido(item);
     toggleModal2();
+  };
+
+  const toggleModal3 = () => {
+    setIsOpen3(!isOpen3);
+  };
+
+  const cargarModal3 = (item) => {
+    console.log(item);
+    setPedido(item);
+    toggleModal3();
   };
   //termina para el modale ---------------------------------------------------------------------------------------
 
@@ -317,7 +347,7 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
                                 <button
                                   className="clickeable"
                                   type="button"
-                                  onClick={(e) => onVisibleReclamo(item.id)}
+                                  onClick={(e) => cargarModal3(item)}
                                 >
                                   Reclamo
                                 </button>
@@ -346,40 +376,27 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
                               </td>
                             ) : (
                               <td className="tCal">
-                                  <Button
-                                    className="modificar"
-                                    variant="secondary"
-                                    type="button"
-                                    onClick={() =>
-                                      crearCalificacion(item, "MODIFICAR")
-                                    }
-                                  >
-                                    Modificar
-                                  </Button>
-                                  <br />
-                                  <Button
-                                    variant="danger delButton"
-                                    type="button"
-                                    onClick={() => eliminarCalificacion(item)}
-                                  >
-                                    <AiFillDelete color="white" />
-                                  </Button>
+                                <Button
+                                  className="modificar"
+                                  variant="secondary"
+                                  type="button"
+                                  onClick={() =>
+                                    crearCalificacion(item, "MODIFICAR")
+                                  }
+                                >
+                                  Modificar
+                                </Button>
+                                <br />
+                                <Button
+                                  variant="danger delButton"
+                                  type="button"
+                                  onClick={() => eliminarCalificacion(item)}
+                                >
+                                  <AiFillDelete color="white" />
+                                </Button>
                               </td>
                             )}
                           </tr>
-
-                          // {item.visibleReclamo &&
-                          //   (item.reclamo && item.reclamo.id ? (
-                          //     <Col key={item.reclamo.id}>
-                          //       <tr>
-                          //         <td>Razón: {item.reclamo.razon}</td>
-                          //         <td>
-                          //           Comentario: {item.reclamo.comentario}
-                          //         </td>
-                          //         <td>Fecha Reclamo: {item.reclamo.fecha}</td>
-                          //       </tr>
-                          //     </Col>
-                          //   ) : null)}
                         );
                       })
                     : null}
@@ -427,8 +444,6 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
             </div>
           </Form>
         </StyledModal>
-
-        {/* modal para menus de pedido */}
         {/* modal para menus del pedido */}
         <StyledModal2
           isOpen={isOpen2}
@@ -478,42 +493,31 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
             </tbody>
           </table>
         </StyledModal2>
+
+        {/* modal para el reclamo */}
+        <StyledModal3
+          isOpen={isOpen3}
+          onBackgroundClick={toggleModal3}
+          onEscapeKeydown={toggleModal3}
+        >
+          <h2>Reclamo de pedido</h2>
+          <hr />
+          {pedido !== undefined &&
+          pedido.reclamo !== undefined &&
+          pedido.reclamo.id !== undefined ? (
+            <div>
+              <h5>Razón</h5>
+              <label>{pedido.reclamo.razon}</label>
+              <hr />
+              <h5>Comentario</h5>
+              <label>{pedido.reclamo.comentario}</label>
+              <hr />
+              <h5>Fecha Reclamo</h5>
+              <label>{pedido.reclamo.fecha}</label>
+            </div>
+          ) : null}
+        </StyledModal3>
       </ModalProvider>
     </Styles>
   );
 }
-
-// {item.visibleMenu && item.menus ? (
-//     {item.menus.map((menu, menuIndex) => {
-//       return (
-//         <tbody key={menuIndex}>
-//           <tr>
-//             <td>
-//               <img
-//                 className="m-1"
-//                 src={menu.imagen}
-//                 alt="productimg"
-//                 border="2"
-//                 width="75"
-//                 height="75"
-//               />
-//             </td>
-//             <td>
-//               Menú: {menu.menu} (x
-//               {menu.cantidad})
-//             </td>
-//             <td>Precio Unitario: ${menu.precio}</td>
-//             <td>
-//               Descuento:{" "}
-//               {menu.multiplicadorPromocion} %
-//             </td>
-//             <td>
-//               Total Parcial: $
-//               {menu.precioPorCantidad}
-//             </td>
-//             <td>Total Final: ${menu.calculado}</td>
-//           </tr>
-//         </tbody>
-//       );
-//     })}
-// ) : null}

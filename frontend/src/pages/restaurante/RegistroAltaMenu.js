@@ -79,16 +79,16 @@ function RegistroAltaMenu() {
   };
 
   let categorias = [
-    { nombre: "PIZZAS" },
-    { nombre: "HAMBURGUESAS" },
-    { nombre: "BEBIDAS" },
-    { nombre: "COMBOS" },
-    { nombre: "MINUTAS" },
-    { nombre: "POSTRES" },
-    { nombre: "PASTAS" },
-    { nombre: "COMIDAARABE" },
-    { nombre: "SUSHI" },
-    { nombre: "OTROS" },
+    { value: "PIZZAS", nombre: "Pizzas" },
+    { value: "HAMBURGUESAS", nombre: "Hamburguesas" },
+    { value: "BEBIDAS", nombre: "Bebidas" },
+    { value: "COMBOS", nombre: "Combos" },
+    { value: "MINUTAS", nombre: "Minutas" },
+    { value: "POSTRES", nombre: "Postres" },
+    { value: "PASTAS", nombre: "Pastas" },
+    { value: "COMIDAARABE", nombre: "Comida arabe" },
+    { value: "SUSHI", nombre: "Sushi" },
+    { value: "OTROS", nombre: "Otros" },
   ];
 
   const [alerta, setAlerta] = useState(null);
@@ -180,9 +180,6 @@ function RegistroAltaMenu() {
         unico = false;
     });
     if (unico) {
-      document.getElementById("cancelar").disabled = true;
-      document.getElementById("agregar").disabled = true;
-      document.getElementById("terminar").disabled = true;
       menu.categoria = document.getElementById("categoria").value;
       menu.descripcion = document.getElementById("descripcion").value;
       menu.price = document.getElementById("price").value;
@@ -211,6 +208,9 @@ function RegistroAltaMenu() {
                 //aca hago el rest
                 registrarRestaurante(json.restaurante)
                   .then(() => {
+                    document.getElementById("cancelar").disabled = true;
+                    document.getElementById("agregar").disabled = true;
+                    document.getElementById("terminar").disabled = true;
                     setAlerta("Registro exitoso");
                     setTipo("success");
                     setTimeout(() => {
@@ -234,6 +234,9 @@ function RegistroAltaMenu() {
         json.restaurante.menus.push(menu);
         registrarRestaurante(json.restaurante)
           .then(() => {
+            document.getElementById("cancelar").disabled = true;
+            document.getElementById("agregar").disabled = true;
+            document.getElementById("terminar").disabled = true;
             setAlerta("Registro exitoso");
             setTipo("success");
             setTimeout(() => {
@@ -328,9 +331,9 @@ function RegistroAltaMenu() {
               onChange={handleChange}
               required
             >
-              <option>Seleccione una categoría</option>
+              <option value="">Seleccione una categoría</option>
               {categorias.map((categoria) => (
-                <option key={categoria.nombre} value={categoria.nombre}>
+                <option key={categoria.nombre} value={categoria.value}>
                   {categoria.nombre}
                 </option>
               ))}

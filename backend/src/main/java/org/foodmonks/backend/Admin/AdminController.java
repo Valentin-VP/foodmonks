@@ -1,18 +1,25 @@
 package org.foodmonks.backend.Admin;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.authentication.TokenHelper;
+import org.foodmonks.backend.datatypes.EstadoPedido;
+import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +31,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.Base64;
-import java.util.List;
 
 @Validated
 @RestController
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
-
+@Tag(name = "admin", description = "API de Admins")
 public class AdminController {
 
     private final AdminService adminService;
@@ -55,9 +61,10 @@ public class AdminController {
             @ApiResponse(responseCode = "201", description = "Administrador creado con éxito"),
             @ApiResponse(responseCode = "400", description = "Error: solicitud inválida")
     })
-
     @PostMapping(path = "/altaAdmin")
-    public ResponseEntity<?> createAdmin(@RequestBody String admin) {
+    public ResponseEntity<?> createAdmin(@Parameter(description = "Se crea un Admin", required = true)
+                                         @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Admin.class)))
+                                         @RequestBody String admin) {
         try{
             JsonObject jsonAdmin = new Gson().fromJson(admin, JsonObject.class);
             adminService.crearAdmin(
@@ -75,7 +82,7 @@ public class AdminController {
     @Operation(summary = "Listar los Usuarios",
             description = "Lista de los Usuarios de el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuario" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Usuario.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -87,7 +94,7 @@ public class AdminController {
                                             @RequestParam(defaultValue = "0",required = false, name = "page") String page) {
         JsonObject jsonObject;
         try {
-            jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
+            jsonObject = usuarioService.listarUsuarios(new String(Base64.getDecoder().decode(correo)), tipoUser, fechaInicio, fechaFin, estado, orden, page);
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -97,14 +104,21 @@ public class AdminController {
     @Operation(summary = "Cambiar estado de un Usuario",
             description = "Cambia el estado de un Usuario",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "usuarios" })
+            tags = { "admin" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @SneakyThrows
     @PutMapping(path = "/cambiarEstado/{correo}")
-    public ResponseEntity<?> cambiarEstadoUsuario(@RequestHeader("Authorization") String token, @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))) @RequestBody String estado, @PathVariable String correo) {
+    public ResponseEntity<?> cambiarEstadoUsuario(@RequestHeader("Authorization") String token,
+                                                  @Parameter(description = "comentario de cambio e estado", required = true)
+                                                  @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                          content = @Content(mediaType = "application/json",
+                                                                  schema = @Schema(implementation = String.class),
+                                                                  examples = {@ExampleObject(name = "ejemplo cambio de estado de un restaurante",
+                                                                          value = "\"ABIERTO\"")}))
+                                                  @RequestBody String estado, @PathVariable String correo) {
         JsonObject JsonEstado;
         JsonEstado = new Gson().fromJson(estado, JsonObject.class);
 
@@ -139,7 +153,7 @@ public class AdminController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Restaurante.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/listarRestaurantesPorEstado")
@@ -160,13 +174,19 @@ public class AdminController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = JsonObject.class)))),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @PutMapping("/cambiarEstadoRestaurante")
     public ResponseEntity<?> cambiarEstadoRestaurante(
             @RequestParam(name = "correoRestaurante") String correoRestaurante,
             @RequestParam(name = "estadoRestaurante") String estadoRestaurante,
+            @Parameter(description = "Comentario de cambio de estado", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = String.class),
+                   examples = {@ExampleObject(name = "ejemplo cambio de estado de un restaurante",
+                   value = "{\"comentariosCambioEstado\": \"nuevoEstadoDeRestaurante\"" + "}")}))
             @RequestBody String comentariosCambioEstado
     ) {
         JsonObject jsonResponse;
@@ -192,9 +212,9 @@ public class AdminController {
     @Operation(summary = "consulta informacion para la estadistica de los pedidos de un restaurante",
             description = "devuelve la informacion de los pedidos de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasPedidos")
@@ -211,9 +231,9 @@ public class AdminController {
     @Operation(summary = "consulta informacion para la estadistica de ventas de un restaurante",
             description = "devuelve la informacion de las ventas de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasVentas")
@@ -234,7 +254,7 @@ public class AdminController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasUsuarios")
@@ -251,9 +271,9 @@ public class AdminController {
     @Operation(summary = "consulta informacion para la estadistica de los registros de usuarios en el sistema",
             description = "devuelve la informacion de los registros de usuarios en el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "admin", "restaurante", "cliente" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/obtenerEstadisticasRegistros")
@@ -270,9 +290,9 @@ public class AdminController {
     @Operation(summary = "lista de todos los restaurantes del sistema",
             description = "devuelve un listado de todos los restaurantes registrados",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "restaurante" })
+            tags = { "admin" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "obtenerRestaurantes")

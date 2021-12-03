@@ -139,7 +139,7 @@ export default function VerBalance() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
-              <div class="row align-items-center">
+              <div className="row align-items-center">
                 <div className="col-lg">
                   <div className="form-floating">
                     <DatePicker
@@ -156,7 +156,7 @@ export default function VerBalance() {
                     />
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                   <div className="form-floating">
                     <select
                       name="categoria"
@@ -173,7 +173,7 @@ export default function VerBalance() {
                     <label htmlFor="categoria">Categoría Menú</label>
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                   <div className="form-floating">
                     <select
                       name="medioPago"
@@ -201,8 +201,8 @@ export default function VerBalance() {
             </div>
 
             <div className="form-floating">
-              <div class="row align-items-center">
-                <div class="col-md">
+              <div className="row align-items-center">
+                <div className="col-md">
                   {loaded && (!data.meses || !data.meses.length > 0) ? (
                     <h5 className="text-center h5 mb-3 fw-normal">
                       No se encontraron pedidos.
