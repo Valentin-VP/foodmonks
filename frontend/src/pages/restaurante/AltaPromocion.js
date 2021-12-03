@@ -158,7 +158,7 @@ function AltaPromocion() {
       .catch((error) => {
         console.log(error.response.data);
         setSuccess(
-          <Alert variant="danger">{error.response.data.detailMessage}</Alert>
+          <Alert variant="danger">{error.response.data}</Alert>
         );
       });
   };
