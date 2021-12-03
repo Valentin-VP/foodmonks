@@ -71,10 +71,10 @@ export const renovarTokens = () => {
 
 //esta funcion es para cerrar sesion
 export const clearState = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("react-use-cart");
-  window.location.replace("/");
+  // localStorage.removeItem("token");
+  // localStorage.removeItem("refreshToken");
+  // localStorage.removeItem("react-use-cart");
+  // window.location.replace("/");
 };
 
 //retorna la id del menu para el modificarMenu
