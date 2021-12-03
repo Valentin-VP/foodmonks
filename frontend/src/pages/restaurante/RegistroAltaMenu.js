@@ -330,7 +330,7 @@ function RegistroAltaMenu() {
             >
               <option>Seleccione una categoría</option>
               {categorias.map((categoria) => (
-                <option key={categoria.nombre} value={categoria.nombre}>
+                <option key={categoria.nombre} value={categoria.value}>
                   {categoria.nombre}
                 </option>
               ))}
