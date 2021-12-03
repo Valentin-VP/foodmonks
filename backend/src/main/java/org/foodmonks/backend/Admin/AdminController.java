@@ -94,7 +94,7 @@ public class AdminController {
                                             @RequestParam(defaultValue = "0",required = false, name = "page") String page) {
         JsonObject jsonObject;
         try {
-            jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
+            jsonObject = usuarioService.listarUsuarios(new String(Base64.getDecoder().decode(correo)), tipoUser, fechaInicio, fechaFin, estado, orden, page);
         } catch (JsonIOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

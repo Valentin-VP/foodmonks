@@ -418,24 +418,24 @@ export const estadisticasUsuariosRegistrados = () => {
   });
 };
 
-export const estadisticasPedidosRegistrados = () => {
+export const estadisticasPedidosRegistrados = (anio) => {
   return axios({
     method: "GET",
     url: `${
       process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${new Date().getFullYear()}`,
+    }api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${anio}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
     },
   });
 };
-export const estadisticasVentasRestaurante = (restaurante) => {
+export const estadisticasVentasRestaurante = (restaurante, anio) => {
   return axios({
     method: "GET",
     url: `${
       process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${new Date().getFullYear()}`,
+    }api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${anio}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),

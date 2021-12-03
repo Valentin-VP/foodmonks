@@ -192,8 +192,8 @@ export default function BuscarPedidosRealizados() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
-              <div class="row align-items-center">
-                <div class="col-lg">
+              <div className="row align-items-center">
+                <div className="col-lg">
                   <div className="form-floating">
                     <input
                       name="minTotal"
@@ -252,7 +252,7 @@ export default function BuscarPedidosRealizados() {
                     <label htmlFor="ordenamiento">Ordenamiento</label>
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                   <div className="form-floating">
                     <input
                       name="nombreRestaurante"
@@ -275,7 +275,7 @@ export default function BuscarPedidosRealizados() {
                     <label htmlFor="nombreMenu">Menú</label>
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                   <div className="form-floating">
                     <select
                       name="estadoPedido"
@@ -321,8 +321,8 @@ export default function BuscarPedidosRealizados() {
             </div>
 
             <div className="form-floating">
-              <div class="row align-items-center">
-                <div class="col-md">
+              <div className="row align-items-center">
+                <div className="col-md">
                   {
                     <ListadoPedidosRealizados
                       datos={data}
