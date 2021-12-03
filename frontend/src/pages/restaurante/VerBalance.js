@@ -1,12 +1,12 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useEffect } from "react";
 import styled from "styled-components";
 import { obtenerBalance } from "../../services/Requests";
-import { Noti } from "../../components/Notification"
+import { Noti } from "../../components/Notification";
 import DatePicker from "react-datepicker";
 import ResultadoBalance from "./ResultadoBalance";
 
 const Styles = styled.div`
-  .form{
+  .form {
     padding-top: 35px;
   }
   .text-center {
@@ -36,16 +36,16 @@ const Styles = styled.div`
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
     }
   }
-  .form-check-input{
+  .form-check-input {
     &:hover {
-      border-color: #2080FF;
+      border-color: #2080ff;
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
     }
   }
-  #fecha{
+  #fecha {
     height: 58px;
   }
-  .MuiPaginationItem-page.Mui-selected{
+  .MuiPaginationItem-page.Mui-selected {
     background-color: #e87121;
     &:focus {
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
@@ -95,28 +95,36 @@ export default function VerBalance() {
   let medioPago = [
     { nombre: "(Cualquiera)", value: "" },
     { nombre: "PayPal", value: "PAYPAL" },
-    { nombre: "Efectivo", value: "EFECTIVO"},
+    { nombre: "Efectivo", value: "EFECTIVO" },
   ];
 
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const fetch = () => {
-    obtenerBalance(values, startDate, endDate).then((response)=>{
-      if (response.status===200){
-        setLoaded(true);
-        //console.log(response.data);
-        setData(response.data);
-      }else{
-        Noti(response.data);
-      }
-    }).catch((error)=>{
-      Noti(error.response.data);
-    })
-  }
+    obtenerBalance(values, startDate, endDate)
+      .then((response) => {
+        if (response.status === 200) {
+          setLoaded(true);
+          //console.log(response.data);
+          setData(response.data);
+        } else {
+          Noti(response.data);
+        }
+      })
+      .catch((error) => {
+        Noti(error.response.data);
+      });
+  };
 
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
       ...values,
-      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+      [e.target.name]:
+        e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
   };
 
@@ -132,71 +140,79 @@ export default function VerBalance() {
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
               <div class="row align-items-center">
-                  <div className="col-lg">
-                      <div className="form-floating">
-                          <DatePicker
-                            id="fecha"
-                            name="fecha"
-                            className="form-control"
-                            selected={startDate}
-                            onChange={onChangeDate}
-                            startDate={startDate}
-                            endDate={endDate}
-                            selectsRange
-                            dateFormat="yyyy-MM-dd"
-                            placeholderText="Fechas Entrega"
-                          />
-                      </div>
+                <div className="col-lg">
+                  <div className="form-floating">
+                    <DatePicker
+                      id="fecha"
+                      name="fecha"
+                      className="form-control"
+                      selected={startDate}
+                      onChange={onChangeDate}
+                      startDate={startDate}
+                      endDate={endDate}
+                      selectsRange
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="Fechas Entrega"
+                    />
                   </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <select 
-                              name="categoria"
-                              className="form-select"
-                              onChange={handleChange}
-                              id="categoria">
-                              {categoria.map((item)=>(
-                                <option key={item.nombre} value={item.value}>{item.nombre}</option>
-                              ))}
-                          </select>
-                          <label htmlFor="categoria">Categoría Menú</label>
-                      </div>
+                </div>
+                <div class="col-lg">
+                  <div className="form-floating">
+                    <select
+                      name="categoria"
+                      className="form-select"
+                      onChange={handleChange}
+                      id="categoria"
+                    >
+                      {categoria.map((item) => (
+                        <option key={item.nombre} value={item.value}>
+                          {item.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    <label htmlFor="categoria">Categoría Menú</label>
                   </div>
-                  <div class="col-lg">
-                      <div className="form-floating">
-                          <select 
-                              name="medioPago"
-                              className="form-select"
-                              onChange={handleChange}
-                              id="medioPago">
-                              {medioPago.map((item)=>(
-                                <option key={item.nombre} value={item.value}>{item.nombre}</option>
-                              ))}
-                          </select>
-                          <label htmlFor="medioPago">Medio de pago</label>
-                      </div>
+                </div>
+                <div class="col-lg">
+                  <div className="form-floating">
+                    <select
+                      name="medioPago"
+                      className="form-select"
+                      onChange={handleChange}
+                      id="medioPago"
+                    >
+                      {medioPago.map((item) => (
+                        <option key={item.nombre} value={item.value}>
+                          {item.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    <label htmlFor="medioPago">Medio de pago</label>
                   </div>
+                </div>
               </div>
 
               <button className="w-100 btn btn-md btn-primary" type="submit">
                 Obtener
               </button>
             </form>
-              <div className="form-floating">
-                {/*Espacio para alguna otra cosa?¿?*/}
-              </div>
+            <div className="form-floating">
+              {/*Espacio para alguna otra cosa?¿?*/}
+            </div>
 
-              <div className="form-floating">
-                <div class="row align-items-center">
-                  <div class="col-md">
-                      {(loaded && (!data.meses || !data.meses.length > 0)) ?
-                        <h5 className="text-center h5 mb-3 fw-normal">No se encontraron pedidos.</h5>
-                        : (loaded && data.meses && data.meses.length > 0) ?
-                        <ResultadoBalance datos={data}/>
-                        : null}
-                  </div>
+            <div className="form-floating">
+              <div class="row align-items-center">
+                <div class="col-md">
+                  {loaded && (!data.meses || !data.meses.length > 0) ? (
+                    <h5 className="text-center h5 mb-3 fw-normal">
+                      No se encontraron pedidos.
+                    </h5>
+                  ) : loaded && data.meses && data.meses.length > 0 ? (
+                    <ResultadoBalance datos={data} />
+                  ) : null}
                 </div>
               </div>
+            </div>
           </main>
         </div>
       </Fragment>

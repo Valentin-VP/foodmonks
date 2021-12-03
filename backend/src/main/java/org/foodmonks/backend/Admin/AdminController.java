@@ -11,9 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
-import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Usuario;
@@ -24,6 +22,7 @@ import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,6 +31,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.Base64;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -91,7 +91,7 @@ public class AdminController {
                                             @RequestParam(required = false, name = "fechaReg") String fechaInicio, @RequestParam(required = false, name = "fechafin") String fechaFin,
                                             @RequestParam(required = false, name = "estado") String estado, @RequestParam(required = false, name = "orden") boolean orden,
                                             @RequestParam(defaultValue = "0",required = false, name = "page") String page) {
-        JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject;
         try {
             jsonObject = usuarioService.listarUsuarios(correo, tipoUser, fechaInicio, fechaFin, estado, orden, page);
         } catch (JsonIOException e) {

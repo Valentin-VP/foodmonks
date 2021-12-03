@@ -4,6 +4,7 @@ import styled from "styled-components";
 import foodlogo from "../../assets/foodLogo.png"; // Tell webpack this JS file uses this image
 import { clearState } from "../../services/Requests";
 import { FiLogOut } from "react-icons/fi";
+import { AiFillStar } from "react-icons/ai";
 
 console.log(foodlogo);
 
@@ -66,6 +67,33 @@ const Styles = styled.div`
       }
     }
   }
+
+  .nuevo {
+    font-size: 0.7rem;
+    margin-right: 0.3rem;
+    font-family: "Poppins", sans-serif;
+    color: #e87121;
+    border-radius: 3rem;
+    background-color: white;
+    padding: 0.2rem;
+    position: relative;
+    top 5px;
+  }
+
+  .calificacion{
+    margin-right: 0.3rem;
+    font-family: "Poppins", sans-serif;
+    color: white;
+    border-radius: 3rem;
+    padding: 0.2rem;
+    position: relative;
+    top 5px;
+  }
+
+  .estrella {
+    vertical-align: bottom;
+    margin-right: 1rem;
+  }
 `;
 
 export const NavigationBar = () => (
@@ -80,7 +108,7 @@ export const NavigationBar = () => (
           <Nav className="items">
             <NavDropdown
               align="end"
-              title={sessionStorage.getItem("nombreUsuario")}
+              title={sessionStorage.getItem("nombreUsuario") }
               menuVariant="color"
             >
               <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
@@ -96,6 +124,16 @@ export const NavigationBar = () => (
                 Cerrar Sesion <FiLogOut color="black" />
               </NavDropdown.Item>
             </NavDropdown>
+            <Nav.Item>
+              {sessionStorage.getItem("cantCal") < 10 ? (
+                <label className="nuevo">NUEVO</label>
+              ) : (
+                <label className="calificacion">
+                  {sessionStorage.getItem("calificacionUsuario")}{" "}
+                  <AiFillStar className="estrella" color="gold" size="1.5rem" />
+                </label>
+              )}
+            </Nav.Item>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

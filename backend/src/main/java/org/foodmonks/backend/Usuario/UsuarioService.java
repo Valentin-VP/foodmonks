@@ -51,7 +51,7 @@ public class UsuarioService {
 	}
   
   public void cambiarPassword(String correo, String password) throws UsuarioNoEncontradoException {
-       Usuario usuario = usuarioRepository.findByCorreo(correo);
+       Usuario usuario = usuarioRepository.findByCorreoIgnoreCase(correo);
         if (usuario == null) {
             throw new UsuarioNoEncontradoException("No existe el Usuario " + correo);
         }
@@ -128,24 +128,24 @@ public class UsuarioService {
 			for (Usuario user : listaUsuarios) {
 				if (estado.equals("BLOQUEADO") || estado.equals("ELIMINADO")) {
 					if (user instanceof Cliente) {
-						Cliente cliente = (Cliente) usuarioRepository.findByCorreo(user.getCorreo());
+						Cliente cliente = (Cliente) usuarioRepository.findByCorreoIgnoreCase(user.getCorreo());
 						if(cliente.getEstado().equals(EstadoCliente.valueOf(estado))) {
 							auxList.add(user);
 						}
 					} else if(user instanceof Restaurante) {
-						Restaurante restaurante = (Restaurante) usuarioRepository.findByCorreo(user.getCorreo());
+						Restaurante restaurante = (Restaurante) usuarioRepository.findByCorreoIgnoreCase(user.getCorreo());
 						if(restaurante.getEstado().equals(EstadoRestaurante.valueOf(estado))) {
 							auxList.add(user);
 						}
 					}
 				} else if (estado.equals("DESBLOQUEADO")) {
 					if (user instanceof Cliente) {
-						Cliente cliente = (Cliente) usuarioRepository.findByCorreo(user.getCorreo());
+						Cliente cliente = (Cliente) usuarioRepository.findByCorreoIgnoreCase(user.getCorreo());
 						if(cliente.getEstado().equals(EstadoCliente.valueOf("ACTIVO"))) {
 							auxList.add(user);
 						}
 					} else if(user instanceof Restaurante) {
-						Restaurante restaurante = (Restaurante) usuarioRepository.findByCorreo(user.getCorreo());
+						Restaurante restaurante = (Restaurante) usuarioRepository.findByCorreoIgnoreCase(user.getCorreo());
 						if(restaurante.getEstado().equals(EstadoRestaurante.valueOf("ABIERTO")) || restaurante.getEstado().equals(EstadoRestaurante.valueOf("CERRADO"))) {
 							auxList.add(user);
 						}
@@ -180,7 +180,7 @@ public class UsuarioService {
 	
 	public void bloquearUsuario (String correo) throws UsuarioNoEncontradoException, UsuarioNoBloqueadoException, EmailNoEnviadoException {
 		
-			Usuario usuario = usuarioRepository.findByCorreo(correo);
+			Usuario usuario = usuarioRepository.findByCorreoIgnoreCase(correo);
 				
 					if (usuario instanceof Restaurante) {
 						Restaurante restaurante = (Restaurante) usuario;
@@ -217,7 +217,7 @@ public class UsuarioService {
 	
 	public void desbloquearUsuario (String correo) throws UsuarioNoEncontradoException, UsuarioNoDesbloqueadoException, EmailNoEnviadoException {
 		
-		Usuario usuario = usuarioRepository.findByCorreo(correo);
+		Usuario usuario = usuarioRepository.findByCorreoIgnoreCase(correo);
 			
 				if (usuario instanceof Restaurante) {
 					Restaurante restaurante = (Restaurante) usuario;
@@ -253,7 +253,7 @@ public class UsuarioService {
 	
 	public void eliminarUsuario (String correo) throws UsuarioNoEncontradoException, EmailNoEnviadoException, UsuarioNoEliminadoException {
 		
-		Usuario usuario = usuarioRepository.findByCorreo(correo);
+		Usuario usuario = usuarioRepository.findByCorreoIgnoreCase(correo);
 			
 				if (usuario instanceof Restaurante) {
 					Restaurante restaurante = (Restaurante) usuario;
@@ -289,7 +289,7 @@ public class UsuarioService {
 	}
 
 	public Usuario ObtenerUsuario (String correo) {
-		return usuarioRepository.findByCorreo(correo);
+		return usuarioRepository.findByCorreoIgnoreCase(correo);
 	}
 
 	public JsonArray usuariosRegistrados(int anio){

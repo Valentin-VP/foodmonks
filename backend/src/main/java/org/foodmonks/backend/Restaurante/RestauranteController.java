@@ -2,12 +2,12 @@ package org.foodmonks.backend.Restaurante;
 
 import com.google.gson.*;
 import dev.paseto.jpaseto.ExpiredPasetoException;
+import io.github.jav.exposerversdk.PushClientException;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.foodmonks.backend.Cliente.ClienteService;
 import org.foodmonks.backend.Direccion.DireccionService;
-import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNoEncontradoException;
-import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
+import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
+import org.foodmonks.backend.Menu.Exceptions.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -18,9 +18,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.foodmonks.backend.Direccion.Direccion;
-import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.Menu;
 import org.foodmonks.backend.Menu.MenuService;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoDevolucionException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoDistintoRestauranteException;
+import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.PedidoService;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Pedido;
@@ -31,11 +33,14 @@ import org.foodmonks.backend.datatypes.EstadoPedido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import java.time.LocalDate;
 import java.util.*;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/restaurante")
 @Tag(name = "restaurante", description = "API de Restaurantes")
@@ -101,7 +106,7 @@ public class RestauranteController {
                     jsonRestaurante.get("nombreRestaurante").getAsString(),
                     jsonRestaurante.get("rut").getAsString(),
                     direccion,
-                    EstadoRestaurante.valueOf("PENDIENTE"),
+                    "PENDIENTE",
                     jsonRestaurante.get("telefono").getAsString(),
                     jsonRestaurante.get("descripcion").getAsString(),
                     jsonRestaurante.get("cuentaPaypal").getAsString(),
@@ -134,7 +139,7 @@ public class RestauranteController {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             JsonObject jsonMenu = new Gson().fromJson(infoMenu, JsonObject.class);
             menuService.altaMenu(jsonMenu, correoRestaurante);
-        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException | MenuNombreException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNombreExistente menuNombreExistente) {
             return new ResponseEntity<>(menuNombreExistente, HttpStatus.CONFLICT);
@@ -217,7 +222,7 @@ public class RestauranteController {
             JsonObject jsonMenu = new Gson().fromJson(updatedMenu, JsonObject.class);
             jsonMenu.addProperty("id", menuId);
             menuService.modificarMenu(jsonMenu, correo);
-        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException e) {
+        } catch(JsonParseException | MenuPrecioException | MenuMultiplicadorException | MenuNombreException | MenuNombreExistente e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MenuNoEncontradoException menuNoEncontradoException) {
             return new ResponseEntity<>(menuNoEncontradoException, HttpStatus.NOT_FOUND);
@@ -298,7 +303,7 @@ public class RestauranteController {
     public ResponseEntity<?> modificarEstado(@RequestHeader("Authorization") String token, @PathVariable String estado){
         try {
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
-            restauranteService.modificarEstado(correo, EstadoRestaurante.valueOf(estado));
+            restauranteService.modificarEstado(correo, estado);
         } catch(Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -316,7 +321,7 @@ public class RestauranteController {
     })
     @GetMapping(path = "/listarPedidosPendientes")
     public ResponseEntity<?> listarPedidosPendientes(@RequestHeader("Authorization") String token) {
-        List<JsonObject> listaMenu = new ArrayList<JsonObject>();
+        List<JsonObject> listaMenu;
         JsonArray jsonArray = new JsonArray();
         try {
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
@@ -403,10 +408,9 @@ public class RestauranteController {
                                                     @RequestBody String nuevoEstado) {
         JsonObject jsonPedido = new JsonObject();
         try {
-            String estado = "";
             String correo = restauranteHelper.obtenerCorreoDelToken(token);
             jsonPedido = new Gson().fromJson(nuevoEstado, JsonObject.class);
-            estado = jsonPedido.get("estado").getAsString();
+            String estado = jsonPedido.get("estado").getAsString();
             if (estado!=null){
                 if (estado.equals("FINALIZADO")) {
                     try {
@@ -429,7 +433,7 @@ public class RestauranteController {
             }
         } catch (JsonIOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en la solicitud.");
-        } catch (PedidoNoExisteException | RestauranteNoEncontradoException e) {
+        } catch (PedidoNoExisteException | RestauranteNoEncontradoException | PedidoIdException | PedidoDevolucionException | PedidoDistintoRestauranteException | IOException | EmailNoEnviadoException | PushClientException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok("Se cambió el estado del pedido.");
@@ -531,7 +535,7 @@ public class RestauranteController {
             @RequestParam(required = false, name = "cliente") String correoCliente,
             @RequestParam(required = false, name = "razon") String razon
     ) {
-        JsonArray jsonArray = new JsonArray();
+        JsonArray jsonArray;
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
             jsonArray = restauranteService.listarReclamos(correoRestaurante, orden, new String(Base64.getDecoder().decode(correoCliente)), razon.toLowerCase());
@@ -577,7 +581,6 @@ public class RestauranteController {
             @RequestParam(required = false, name = "medioPago") String medioPago,
             @RequestParam(required = false, name = "fechaIni") String fechaInicio,
             @RequestParam(required = false, name = "fechaFin") String fechaFin) {
-
         JsonObject jsonBalance = new JsonObject();
         try {
             String correoRestaurante = restauranteHelper.obtenerCorreoDelToken(token);
@@ -607,7 +610,7 @@ public class RestauranteController {
                   schema = @Schema(implementation = String.class),
                   examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"motivoDevolucion\": \"elMotivoDeLaNODevolucion\"" + "}")}))
             @RequestBody String motivoDevolucion){
-        JsonObject response = new JsonObject();
+        JsonObject response;
         try {
             JsonObject jsonMotivoDevolucion = new Gson().fromJson(motivoDevolucion, JsonObject.class);
             String motivo = jsonMotivoDevolucion.get("motivoDevolucion").getAsString();

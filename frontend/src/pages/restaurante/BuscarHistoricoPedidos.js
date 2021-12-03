@@ -143,16 +143,16 @@ export default function BuscarHistoricoPedidos() {
     onPageChange(1);
   };
 
-  const onVisible = (id) => {
-    let items = [...data.pedidos];
-    //de paso le pregunto si tiene menus (normalmente deberia tener), sino tiene no hago nada
-    items.map((i) => {
-      if (i.id === id && i.menus) i.visible = !i.visible;
-      return i;
-    });
-    console.log(items);
-    setData({ ...data, pedidos: items });
-  };
+  // const onVisible = (id) => {
+  //   let items = [...data.pedidos];
+  //   //de paso le pregunto si tiene menus (normalmente deberia tener), sino tiene no hago nada
+  //   items.map((i) => {
+  //     if (i.id === id && i.menus) i.visible = !i.visible;
+  //     return i;
+  //   });
+  //   console.log(items);
+  //   setData({ ...data, pedidos: items });
+  // };
 
   const [page, setPage] = useState(1);
 
@@ -277,7 +277,6 @@ export default function BuscarHistoricoPedidos() {
                       datos={data}
                       cantidadPages={data.totalPages}
                       onPageChange={onPageChange}
-                      onVisible={onVisible}
                     />
                   }
                   {data.pedidos && data.pedidos.length > 0 ? (
