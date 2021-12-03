@@ -74,168 +74,180 @@ const Styles = styled.div`
 `;
 
 function AltaPromocion() {
-    const [menu, setMenu] = useState();
-    const [isLoading, setLoading] = useState(true);
-    const [success, setSuccess] = useState(null);
+  const [menu, setMenu] = useState();
+  const [isLoading, setLoading] = useState(true);
+  const [success, setSuccess] = useState(null);
 
-    useEffect(() => {
-        getMenuInfo().then((response) => {
-            console.log("paso por fetch de promocionar");
-            console.log(response.data);
-            setMenu(response.data);
-            setLoading(false);
-        });
-    }, []);
+  useEffect(() => {
+    getMenuInfo().then((response) => {
+      console.log("paso por fetch de promocionar");
+      console.log(response.data);
+      setMenu(response.data);
+      setLoading(false);
+    });
+  }, []);
 
-    if (isLoading) {
-        return <div className="App">Cargando...</div>;
+  if (isLoading) {
+    return <div className="App">Cargando...</div>;
+  }
+
+  const state = {
+    //valores cargados del menu a modificar
+    id: menu.id,
+    nombre: menu.nombre,
+    price: menu.price,
+    descripcion: menu.descripcion,
+    descuento: menu.multiplicadorPromocion,
+    categoria: menu.categoria,
+    imgUrl: menu.imagen,
+  };
+
+  const menuRetorno = {
+    nombre: "",
+    price: "",
+    descripcion: "",
+    visibilidad: true,
+    multiplicador: "",
+    categoria: "",
+    imagen: "",
+  };
+
+  let categorias = [
+    { nombre: "PIZZAS" },
+    { nombre: "HAMBURGUESAS" },
+    { nombre: "BEBIDAS" },
+    { nombre: "COMBOS" },
+    { nombre: "MINUTAS" },
+    { nombre: "POSTRES" },
+    { nombre: "PASTAS" },
+    { nombre: "COMIDAARABE" },
+    { nombre: "SUSHI" },
+    { nombre: "OTROS" },
+  ];
+
+  const handleChange = (e) => {
+    e.persist();
+    menuRetorno[e.target.name] = e.target.value;
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (menuRetorno.nombre === "") {
+      menuRetorno.nombre = state.nombre;
     }
+    menuRetorno.categoria = state.categoria;
+    menuRetorno.descripcion = state.descripcion;
+    menuRetorno.multiplicador = document.getElementById("descuento").value;
+    menuRetorno.price = state.price;
+    menuRetorno.imagen = state.imgUrl;
 
-    const state = {//valores cargados del menu a modificar
-        id: menu.id,
-        nombre: menu.nombre,
-        price: menu.price,
-        descripcion: menu.descripcion,
-        descuento: menu.multiplicadorPromocion,
-        categoria: menu.categoria,
-        imgUrl: menu.imagen,
-    };
+    altaMenu(menuRetorno)
+      .then((response) => {
+        //request al backend
+        document.getElementById("submit").disabled = true;
+        console.log("entro al then");
+        setSuccess(
+          <Alert variant="success">Promocion creada con exito!</Alert>
+        );
+        console.log(response);
+        sessionStorage.removeItem("menuId");
+        setTimeout(() => {
+          window.location.replace("/promocion");
+        }, 3000);
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+        setSuccess(
+          <Alert variant="danger">{error.response.data}</Alert>
+        );
+      });
+  };
 
-    const menuRetorno = {
-        nombre: "",
-        price: "",
-        descripcion: "",
-        visibilidad: true,
-        multiplicador: "",
-        categoria: "",
-        imagen: "",
-    }
-
-    let categorias = [
-        { nombre: "PIZZAS" },
-        { nombre: "HAMBURGUESAS" },
-        { nombre: "BEBIDAS" },
-        { nombre: "COMBOS" },
-        { nombre: "MINUTAS" },
-        { nombre: "POSTRES" },
-        { nombre: "PASTAS" },
-        { nombre: "COMIDAARABE" },
-        { nombre: "SUSHI" },
-        { nombre: "OTROS" },
-    ];
-
-    const handleChange = (e) => {
-        e.persist();
-        state[e.target.name] = e.target.value;
-    };
-
-    const onSubmit = (e) => {
-        e.preventDefault();
-        menuRetorno.nombre = state.nombre;
-        menuRetorno.categoria = state.categoria;
-        menuRetorno.descripcion = state.descripcion;
-        menuRetorno.multiplicador = document.getElementById("descuento").value;
-        menuRetorno.price = state.price;
-        menuRetorno.imagen = state.imgUrl;
-
-        altaMenu(menuRetorno).then((response) => {//request al backend
-            document.getElementById("submit").disabled = true;
-            console.log("entro al then");
-            setSuccess(<Alert variant="success">Promocion creada con exito!</Alert>);
-            console.log(response);
-            sessionStorage.removeItem("menuId");
-            setTimeout(() => {
-                window.location.replace("/promocion");
-            }, 3000);
-        }).catch((error) => {
-            console.log(error.response.data);
-            setSuccess(<Alert variant="danger">{error.response.data.detailMessage}</Alert>);
-        });
-    };
-
-    return (
-        <Styles>
-            <div id="page-container"></div>
-            <section className="card">
-                <Form onSubmit={onSubmit}>
-                {/*nombre del menu a promocionar*/}
-                <div className="text-center">
-                    <h4>Promocionar Menú</h4>
-                    <img src={state.imgUrl} alt="productimg" height="150"/>
-                </div>
-                {/*imagen del menu a promocionar*/}
-                <div className="form-floating">
-                    <input
-                    className="form-control"
-                    type="text"
-                    name="nombre"
-                    id="nombre"
-                    placeholder="Nombre de la Promocion"
-                    onChange={handleChange}
-                    />
-                    <label htmlFor="floatingInput">{state.nombre}</label>
-                </div>
-                {/*Precio*/}
-                <div className="form-floating">
-                    <input
-                    className="form-control"
-                    type="number"
-                    name="price"
-                    id="price"
-                    placeholder="Precio"
-                    min="1"
-                    disabled
-                    />
-                    <label htmlFor="floatingInput">{state.price}</label>
-                </div>
-                {/*descripcion*/}
-                <div className="form-floating">
-                    <input
-                    className="form-control"
-                    type="text"
-                    name="descripcion"
-                    id="descripcion"
-                    placeholder="Descripción"
-                    disabled
-                    />
-                    <label htmlFor="floatingInput">{state.descripcion}</label>
-                </div>
-                {/*descuento*/}
-                <div className="form-floating">
-                    <input
-                    className="form-control"
-                    type="number"
-                    name="descuento"
-                    id="descuento"
-                    placeholder="Descuento (%)"
-                    max="100"
-                    min="1"
-                    required
-                    defaultValue="1"
-                    onChange={handleChange}
-                    />
-                    <label htmlFor="floatingInput">Descuento (%)</label>
-                </div>
-                <FloatingLabel controlId="floatingSelect" label="Categoría">
-                    <Form.Select
-                    aria-label="Floating label select example"
-                    name="categoria"
-                    disabled
-                    >
-                    <option>{state.categoria}</option>
-                    {categorias.map((categoria) => (
-                        <option key={categoria.nombre} value={categoria.nombre}>
-                        {categoria.nombre}
-                        </option>
-                    ))}
-                    </Form.Select>
-                </FloatingLabel>
-                {success}
-                <Button type="submit" id="submit">Promocionar</Button>
-            </Form>
-        </section>
-        </Styles>
-    );
+  return (
+    <Styles>
+      <div id="page-container"></div>
+      <section className="card">
+        <Form onSubmit={onSubmit}>
+          {/*nombre del menu a promocionar*/}
+          <div className="text-center">
+            <h4>Promocionar Menú</h4>
+            <img src={state.imgUrl} alt="productimg" height="150" />
+          </div>
+          {/*imagen del menu a promocionar*/}
+          <div className="form-floating">
+            <input
+              className="form-control"
+              type="text"
+              name="nombre"
+              id="nombre"
+              placeholder="Nombre de la Promocion"
+              onChange={handleChange}
+            />
+            <label htmlFor="floatingInput">{state.nombre}</label>
+          </div>
+          {/*Precio*/}
+          <div className="form-floating">
+            <input
+              className="form-control"
+              type="number"
+              name="price"
+              id="price"
+              placeholder="Precio"
+              min="1"
+              disabled
+            />
+            <label htmlFor="floatingInput">{state.price}</label>
+          </div>
+          {/*descripcion*/}
+          <div className="form-floating">
+            <input
+              className="form-control"
+              type="text"
+              name="descripcion"
+              id="descripcion"
+              placeholder="Descripción"
+              disabled
+            />
+            <label htmlFor="floatingInput">{state.descripcion}</label>
+          </div>
+          {/*descuento*/}
+          <div className="form-floating">
+            <input
+              className="form-control"
+              type="number"
+              name="multiplicador"
+              id="descuento"
+              placeholder="Descuento (%)"
+              max="100"
+              min="1"
+              required
+              defaultValue="1"
+              onChange={handleChange}
+            />
+            <label htmlFor="floatingInput">Descuento (%)</label>
+          </div>
+          <FloatingLabel controlId="floatingSelect" label="Categoría">
+            <Form.Select
+              aria-label="Floating label select example"
+              name="categoria"
+              disabled
+            >
+              <option>{state.categoria}</option>
+              {categorias.map((categoria) => (
+                <option key={categoria.nombre} value={categoria.nombre}>
+                  {categoria.nombre}
+                </option>
+              ))}
+            </Form.Select>
+          </FloatingLabel>
+          {success}
+          <Button type="submit" id="submit">
+            Promocionar
+          </Button>
+        </Form>
+      </section>
+    </Styles>
+  );
 }
 
 export default AltaPromocion;

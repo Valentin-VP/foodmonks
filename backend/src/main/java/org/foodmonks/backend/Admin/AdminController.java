@@ -142,7 +142,7 @@ public class AdminController {
                 usuarioService.desbloquearUsuario(correoDecrypted);
                 return new ResponseEntity<>(HttpStatus.OK);
             case "RECHAZAR":
-                restauranteService.modificarEstado(correoDecrypted, EstadoRestaurante.valueOf(estado).toString());
+                restauranteService.modificarEstado(correoDecrypted, estado);
                 return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
