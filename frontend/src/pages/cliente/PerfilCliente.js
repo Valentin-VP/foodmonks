@@ -24,7 +24,12 @@ import {
   clearState,
   eliminarCuentaClientePropia,
 } from "../../services/Requests";
-import { MdOutlineModeEditOutline, CgClose, BiHistory } from "react-icons/all";
+import {
+  MdOutlineModeEditOutline,
+  CgClose,
+  BiHistory,
+  AiFillStar,
+} from "react-icons/all";
 import Modal, { ModalProvider } from "styled-react-modal";
 
 const StyledModal = Modal.styled`
@@ -182,6 +187,18 @@ const Styles = styled.div`
       background-color: #e87121;
     }
   }
+
+  .nuevo {
+    width: 100%;
+    color: white;
+    border-radius: 3rem;
+    background-color: #262626;
+    padding: 0.2rem;
+  }
+
+  .estrella {
+    vertical-align: bottom;
+  }
 `;
 
 function PerfilCliente() {
@@ -332,10 +349,23 @@ function PerfilCliente() {
                 </span>
                 <span className="mail">{perfil.correo}</span>
                 <br />
-                 {perfil.cantidadCalificaciones < 10 ? (
-                   <span>-⭐</span>
+                {perfil.cantidadCalificaciones < 10 ? (
+                  <div>
+                    <label className="nuevo">NUEVO</label>
+                    <span className="mt-2">
+                      {perfil.calificacion}
+                      <AiFillStar
+                        className="estrella"
+                        color="gold"
+                        size="1.5rem"
+                      />
+                    </span>
+                  </div>
                 ) : (
-                  <span>{perfil.calificacion}⭐</span>
+                  <span>
+                    {perfil.calificacion}
+                    <AiFillStar className="estrella" color="gold" size="1rem" />
+                  </span>
                 )}
                 <br />
                 <span className="direccion">Direcciones</span>

@@ -69,10 +69,10 @@ const RestauranteCard = (props) => {
   // para el modal -----------------------------------------------------------------------------------------------
   const [isOpen, setIsOpen] = useState(false);
   const [modalIsLoading, setMLoading] = useState(true);
-  var year = new Date().getFullYear();
+  let year = sessionStorage.getItem("fechaStat");
 
   const toggleModal = (restaurante) => {
-    estadisticasVentasRestaurante(restaurante)
+    estadisticasVentasRestaurante(restaurante, year)
       .then((response) => {
         console.log(response.data);
         var ventasRestaurante = [];

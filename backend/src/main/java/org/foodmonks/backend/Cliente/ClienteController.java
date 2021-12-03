@@ -30,15 +30,19 @@ import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
 import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
-import org.foodmonks.backend.datatypes.EstadoCliente;
+import org.foodmonks.backend.authentication.TokenHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/cliente")
 @Tag(name = "cliente", description = "API de Cliente")
@@ -83,7 +87,7 @@ public class ClienteController {
                     LocalDate.now(),
                     5.0f,
                     jsonDireccion,
-                    EstadoCliente.valueOf("ACTIVO")
+                    "ACTIVO"
                     // pedidos se crea el array vacio en el back
                     // y mobileToken es null hasta que instale la aplicacion
             );
@@ -107,8 +111,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token) {
         try {
             String correo = clienteHelp.obtenerCorreoDelToken(token);
-            clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
-            log.debug("Cliente eliminado, enviando a cerrar sesion");
+            clienteService.modificarEstadoCliente(correo, "ELIMINADO");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -293,11 +296,9 @@ public class ClienteController {
         JsonArray jsonArray = new JsonArray();
         try {
             List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(new String(Base64.getDecoder().decode(restauranteCorreo)), categoria, precioInicial, precioFinal);
-
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);
             }
-
         }catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

@@ -46,16 +46,7 @@ public class Cliente extends Usuario {
         this.mobileToken = mobileToken;
         this.pedidos = pedidos;
     }
-/*
-    //CONSTRUCTOR CON UNA DIRECCION
-    public Cliente(String nombre, String apellido, String correo, String contrasenia, LocalDate fechaRegistro, Float calificacion, Direccion direccion, EstadoCliente estado, String mobileToken) {
-        super(nombre, apellido, correo, contrasenia, fechaRegistro);
-        this.calificacion = calificacion;
-        this.direcciones.add(direccion); //se agrega la direccion que se pasa ya que nunca agregamos mas de una direccion
-        this.estado = estado;
-        this.mobileToken = mobileToken;
-    }
-*/
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String[] autoridades = new String[1];
