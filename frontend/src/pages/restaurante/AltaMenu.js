@@ -148,12 +148,12 @@ function AltaMenu() {
                   window.location.replace("/menu");
                 }, 3000);
               }).catch((error) => {
-                setComponente(<Error error={error.response.data.detailMessage} />);
+                setComponente(<Error error={error.response.data} />);
               });
             })
             .catch((error) => {
               setComponente(
-                <Error error={error.response.data.detailMessage} />
+                <Error error={error.response.data} />
               );
             });
         }
@@ -170,7 +170,7 @@ function AltaMenu() {
           }, 3000);
         })
         .catch((error) => {
-          setComponente(<Error error={error.response} />);
+          setComponente(<Error error={error.response.data} />);
         });
     }
   };
