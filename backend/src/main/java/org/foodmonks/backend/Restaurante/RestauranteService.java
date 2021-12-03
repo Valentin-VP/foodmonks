@@ -434,7 +434,7 @@ public class RestauranteService {
             throws RestauranteNoEncontradoException {
         Restaurante restaurante = obtenerRestaurante(correoRestaurante);
         List<Reclamo> reclamos;
-        if (!correoCliente.isBlank() && !correoCliente.isBlank()) {
+        if (!correoCliente.isBlank() && !razon.isBlank()) {
             reclamos = obtenerReclamoClienteRazon(restaurante, correoCliente, razon);
         } else if (!correoCliente.isBlank()) {
             reclamos = obtenerReclamoCliente(restaurante, correoCliente);
