@@ -235,7 +235,7 @@ public class RestauranteService {
             Context context = new Context();
             context.setVariable("user", "Gracias " + pedido.getCliente().getNombre() + " " +  pedido.getCliente().getApellido() + "!");
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-            context.setVariable("contenido", restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. La hora estimada de entrega es " + formatter.format(LocalTime.now().plusMinutes(minutos)) + " y " + formatter.format(LocalTime.now().plusMinutes(minutos+15)));
+            context.setVariable("contenido", restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. El hora estimado de entrega es " + formatter.format(LocalTime.now().plusMinutes(minutos)) + " y " + formatter.format(LocalTime.now().plusMinutes(minutos+15)));
             String htmlContent = templateEngine.process("aprobar-rechazar", context);
             emailService.enviarMail(pedido.getCliente().getCorreo(),"Confirmado Pedido #" + pedido.getId(),htmlContent,null);
             //PUSH NOTIFICATION
