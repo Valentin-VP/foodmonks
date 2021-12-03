@@ -34,6 +34,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class ClienteController {
     private final RestauranteService restauranteService;
 
     @Autowired
-    ClienteController(ClienteService clienteService, ClienteHelper clienteHelp, RestauranteService restauranteService, PedidoService pedidoService) {
+    ClienteController(ClienteService clienteService, ClienteHelper clienteHelp, RestauranteService restauranteService) {
         this.clienteService = clienteService;
         this.clienteHelp = clienteHelp;
         this.restauranteService = restauranteService;
@@ -104,7 +105,7 @@ public class ClienteController {
             @RequestHeader("Authorization") String token) {
         try {
             String correo = clienteHelp.obtenerCorreoDelToken(token);
-            clienteService.modificarEstadoCliente(correo, EstadoCliente.ELIMINADO);
+            clienteService.modificarEstadoCliente(correo, "ELIMINADO");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
