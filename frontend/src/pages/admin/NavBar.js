@@ -86,7 +86,7 @@ export const NavigationBar = () => (
                 Dar alta Admin
               </NavDropdown.Item>
               <NavDropdown.Item href="/estadisticas">
-                Estadisticas
+                Estadísticas
               </NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>

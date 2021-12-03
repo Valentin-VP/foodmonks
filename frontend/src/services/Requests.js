@@ -405,12 +405,10 @@ export const estadisticasUsuariosTotales = () => {
   });
 };
 
-export const estadisticasUsuariosRegistrados = () => {
+export const estadisticasUsuariosRegistrados = (anio) => {
   return axios({
     method: "GET",
-    url: `${
-      process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasRegistros?anioPedidos=${new Date().getFullYear()}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasRegistros?anioPedidos=${anio}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
@@ -421,9 +419,7 @@ export const estadisticasUsuariosRegistrados = () => {
 export const estadisticasPedidosRegistrados = (anio) => {
   return axios({
     method: "GET",
-    url: `${
-      process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${anio}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${anio}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
@@ -433,9 +429,7 @@ export const estadisticasPedidosRegistrados = (anio) => {
 export const estadisticasVentasRestaurante = (restaurante, anio) => {
   return axios({
     method: "GET",
-    url: `${
-      process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${anio}`,
+    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${anio}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
