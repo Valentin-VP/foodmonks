@@ -723,7 +723,7 @@ public class RestauranteService {
             throw new PedidoIdException("El id del pedido no es un numero entero");
         }
         Pedido pedido = pedidoService.obtenerPedido(Long.valueOf(idPedido));
-        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO)) {
+        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) && !pedido.getEstado().equals(EstadoPedido.RECHAZADO)) {
             throw new PedidoDevolucionException("El pedido no esta FINALIZADO, no se puede aplicar una devolucion");
         }
         if (!pedido.getRestaurante().getCorreo().equals(restaurante.getCorreo())) {
