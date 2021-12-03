@@ -38,6 +38,10 @@ const Styles = styled.div`
   .gTitle {
     font-family: "Poppins", sans-serif;
   }
+
+  #anio {
+    width: 5rem;
+  }
 `;
 
 export default function Estadisticas() {
@@ -45,9 +49,14 @@ export default function Estadisticas() {
   const [usuarios, setUsuarios] = useState(null);
   const [pedidos, setPedidos] = useState(null);
   const [fecha, setFecha] = useState(2021);
+  sessionStorage.setItem("fechaStat", fecha);
 
   const onChange = () => {
     setFecha(document.getElementById("anio").value);
+  };
+
+  const onChange2 = () => {
+    sessionStorage.setItem("fechaStat", fecha);
   };
 
   useEffect(() => {
@@ -88,7 +97,7 @@ export default function Estadisticas() {
       .catch((error) => {
         NotiError(error.response);
       });
-  }, []);
+  }, [fecha]);
 
   if (usuarios === null || usuariosRegistrados === null || pedidos === null) {
     return <Loading />;
@@ -226,6 +235,16 @@ export default function Estadisticas() {
           </div>
         </div>
         <h3 className="gTitle text-center mt-5">Restaurantes registrados</h3>
+        <h4> Buscar para el anio <input
+                id="anio"
+                type="number"
+                min="1990"
+                max="2099"
+                step="1"
+                value={fecha2}
+                onChange={onChange2}
+                name="anio"
+              /></h4>
         <ListadoRestaurantes />
       </Layout>
     </Styles>

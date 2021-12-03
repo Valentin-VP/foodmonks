@@ -430,12 +430,12 @@ export const estadisticasPedidosRegistrados = (anio) => {
     },
   });
 };
-export const estadisticasVentasRestaurante = (restaurante) => {
+export const estadisticasVentasRestaurante = (restaurante, anio) => {
   return axios({
     method: "GET",
     url: `${
       process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${new Date().getFullYear()}`,
+    }api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${anio}`,
     headers: {
       Authorization: "Bearer " + getToken(),
       RefreshAuthentication: "Bearer " + getRefreshToken(),
