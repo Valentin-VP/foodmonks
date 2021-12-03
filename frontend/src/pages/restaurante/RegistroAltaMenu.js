@@ -79,16 +79,16 @@ function RegistroAltaMenu() {
   };
 
   let categorias = [
-    { nombre: "PIZZAS" },
-    { nombre: "HAMBURGUESAS" },
-    { nombre: "BEBIDAS" },
-    { nombre: "COMBOS" },
-    { nombre: "MINUTAS" },
-    { nombre: "POSTRES" },
-    { nombre: "PASTAS" },
-    { nombre: "COMIDAARABE" },
-    { nombre: "SUSHI" },
-    { nombre: "OTROS" },
+    { value: "PIZZAS", nombre: "Pizzas" },
+    { value: "HAMBURGUESAS", nombre: "Hamburguesas" },
+    { value: "BEBIDAS", nombre: "Bebidas" },
+    { value: "COMBOS", nombre: "Combos" },
+    { value: "MINUTAS", nombre: "Minutas" },
+    { value: "POSTRES", nombre: "Postres" },
+    { value: "PASTAS", nombre: "Pastas" },
+    { value: "COMIDAARABE", nombre: "Comida arabe" },
+    { value: "SUSHI", nombre: "Sushi" },
+    { value: "OTROS", nombre: "Otros" },
   ];
 
   const [alerta, setAlerta] = useState(null);
