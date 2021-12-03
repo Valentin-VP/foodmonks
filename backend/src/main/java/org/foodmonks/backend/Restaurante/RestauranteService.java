@@ -232,36 +232,30 @@ public class RestauranteService {
                 pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.FINALIZADO);
             }
             //MAIL
-            String[] cc = new String[1];
-            cc[0] = correo;
             Context context = new Context();
             context.setVariable("user", "Gracias " + pedido.getCliente().getNombre() + " " +  pedido.getCliente().getApellido() + "!");
-            context.setVariable("contenido", restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. El hora estimado de entrega es " + LocalTime.now().plusMinutes(minutos) + " y " + LocalTime.now().plusMinutes(minutos+15));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            context.setVariable("contenido", restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. La hora estimada de entrega es " + formatter.format(LocalTime.now().plusMinutes(minutos)) + " y " + formatter.format(LocalTime.now().plusMinutes(minutos+15)));
             String htmlContent = templateEngine.process("aprobar-rechazar", context);
-            emailService.enviarMail(pedido.getCliente().getCorreo(),"Confirmado Pedido #" + pedido.getId(),htmlContent,cc);
+            emailService.enviarMail(pedido.getCliente().getCorreo(),"Confirmado Pedido #" + pedido.getId(),htmlContent,null);
             //PUSH NOTIFICATION
             if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
-                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Confirmado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. La hora estimada de entrega es " + LocalTime.now().plusMinutes(minutos) + " y " + LocalTime.now().plusMinutes(minutos+15));
+                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Confirmado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ya esta preparando tu pedido. La hora estimada de entrega es " + formatter.format(LocalTime.now().plusMinutes(minutos)) + " y " + formatter.format(LocalTime.now().plusMinutes(minutos+15)));
             }
         } else if (estado.equals("RECHAZADO")) {
             pedidoService.cambiarEstadoPedido(idPedido, EstadoPedido.RECHAZADO);
             //ENVIO DE MAIL DE RECHAZO
-            String[] cc = new String[1];
-            cc[0] = correo;
             Context context = new Context();
             context.setVariable("user", "Estimado " + pedido.getCliente().getNombre() + " " +  pedido.getCliente().getApellido() + ".");
             context.setVariable("contenido", restaurante.getNombreRestaurante() + " ha rechazado el pedido que realizaste.");
             String htmlContent = templateEngine.process("aprobar-rechazar", context);
-            emailService.enviarMail(pedido.getCliente().getCorreo(),"Rechazado Pedido #" + pedido.getId(),htmlContent,cc);
+            emailService.enviarMail(pedido.getCliente().getCorreo(),"Rechazado Pedido #" + pedido.getId(),htmlContent,null);
             if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
                 realizarDevolucion(correo,String.valueOf(idPedido),"rechazado",true);
             }
-            if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
-                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido");
-            }
             // PUSH NOTIFICATION
             if (pedido.getCliente().getMobileToken() != null && !pedido.getCliente().getMobileToken().isBlank()){
-                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazo Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido que realizaste");
+                notificacionExpoService.crearNotifacion(pedido.getCliente().getMobileToken(),"Rechazado Pedido #" + pedido.getId(),restaurante.getNombreRestaurante() + " ha rechazado el pedido que realizaste");
             }
         }
     }
@@ -729,7 +723,7 @@ public class RestauranteService {
             throw new PedidoIdException("El id del pedido no es un numero entero");
         }
         Pedido pedido = pedidoService.obtenerPedido(Long.valueOf(idPedido));
-        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO)) {
+        if (!pedido.getEstado().equals(EstadoPedido.FINALIZADO) && !pedido.getEstado().equals(EstadoPedido.RECHAZADO)) {
             throw new PedidoDevolucionException("El pedido no esta FINALIZADO, no se puede aplicar una devolucion");
         }
         if (!pedido.getRestaurante().getCorreo().equals(restaurante.getCorreo())) {
@@ -738,8 +732,6 @@ public class RestauranteService {
         }
         Context context = new Context();
         context.setVariable("user", pedido.getCliente().getNombre() + " " + pedido.getCliente().getApellido());
-        String[] cc = new String[1];
-        cc[0] = pedido.getRestaurante().getCorreo();
         String htmlContent = "";
         if (estadoDevolucion) {
             String asunto = "Reclamo aceptado: " + pedido.getReclamo().getRazon();
@@ -776,7 +768,7 @@ public class RestauranteService {
                         "Te hemos realizado una devolucion de $" + pedido.getTotal() + " en tu cuenta de Paypal.");
                 htmlContent = templateEngine.process("reclamo-aceptado-paypal", context);
             }
-            emailService.enviarMail(pedido.getCliente().getCorreo(), asunto, htmlContent, cc);
+            emailService.enviarMail(pedido.getCliente().getCorreo(), asunto, htmlContent, null);
             pedidoService.cambiarEstadoPedido(pedido.getId(), EstadoPedido.DEVUELTO);
         } else {
             if (pedido.getMedioPago().equals(MedioPago.PAYPAL)) {
@@ -794,7 +786,7 @@ public class RestauranteService {
                 htmlContent = templateEngine.process("reclamo-rechazado-efectivo", context);
             }
             emailService.enviarMail(pedido.getCliente().getCorreo(),
-                    "Reclamo rechazo: " + pedido.getReclamo().getRazon(), htmlContent, cc);
+                    "Reclamo rechazo: " + pedido.getReclamo().getRazon(), htmlContent, null);
             response.addProperty("status", "Mail de rechazo enviado");
             pedidoService.cambiarEstadoPedido(pedido.getId(), EstadoPedido.RECLAMORECHAZADO);
         }
