@@ -288,7 +288,7 @@ public class ClienteService {
                 if (menu.getMultiplicadorPromocion() != 0) {
                     float precioPromo = (menu.getPrice() - (menu.getPrice() * menu.getMultiplicadorPromocion() / 100));
                     if (precioInicial <= precioPromo && precioFinal >= precioPromo) {
-                        if (categoria != null){
+                        if (categoria != null && !categoria.isBlank()){
                             if (menu.getCategoria().equals(CategoriaMenu.valueOf(categoria))){
                                 resultado.add(menu);
                             }
@@ -298,7 +298,7 @@ public class ClienteService {
                     }
                 } else {
                     if (precioInicial <= menu.getPrice() && precioFinal >= menu.getPrice()) {
-                        if (categoria != null){
+                        if (categoria != null && !categoria.isBlank()){
                             if (menu.getCategoria().equals(CategoriaMenu.valueOf(categoria))){
                                 resultado.add(menu);
                             }
@@ -309,7 +309,7 @@ public class ClienteService {
                 }
             }
             return menuConverter.listaJsonMenu(resultado);
-        } else if(categoria != null){
+        } else if(categoria != null && !categoria.isBlank()){
             return menuService.listMenuRestauranteCategoria(restaurante,CategoriaMenu.valueOf(categoria));
         }
         return menuConverter.listaJsonMenu(menus);
