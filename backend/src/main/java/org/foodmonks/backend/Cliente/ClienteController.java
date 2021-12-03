@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import lombok.SneakyThrows;
 import org.foodmonks.backend.Cliente.Exceptions.ClientePedidoNoCoincideException;
@@ -20,10 +22,12 @@ import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoIdException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoNoExisteException;
 import org.foodmonks.backend.Pedido.Exceptions.PedidoSinRestauranteException;
+import org.foodmonks.backend.Pedido.Pedido;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoComentarioException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoExisteException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoNoFinalizadoException;
 import org.foodmonks.backend.Reclamo.Exceptions.ReclamoRazonException;
+import org.foodmonks.backend.Reclamo.Reclamo;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
 import org.foodmonks.backend.authentication.TokenHelper;
@@ -32,15 +36,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
 @Validated
 @RestController
 @RequestMapping("/api/v1/cliente")
+@Tag(name = "cliente", description = "API de Cliente")
 @Slf4j
 public class ClienteController {
 
@@ -57,6 +62,7 @@ public class ClienteController {
 
     @Operation(summary = "Crea un nuevo Cliente",
             description = "Alta de un nuevo Cliente",
+            security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Registro exitoso"),
@@ -97,7 +103,7 @@ public class ClienteController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa. Se ha dado de baja."),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa. Se ha dado de baja"),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @DeleteMapping(path = "eliminarCuenta")//ELIMINAR CLIENTE
@@ -218,7 +224,7 @@ public class ClienteController {
     @Operation(summary = "Listar los Restaurantes abiertos",
             description = "Lista de los restaurantes que actualmente estan abiertos al publico",
             security = @SecurityRequirement(name = "bearerAuth"),
-            tags = { "restaurante" })
+            tags = { "cliente" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Restaurante.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
@@ -244,7 +250,7 @@ public class ClienteController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "cliente" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pedido.class)))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     @GetMapping(path = "/listarPedidosRealizados")
@@ -258,7 +264,6 @@ public class ClienteController {
                                                      @RequestParam(required = false, name = "total") String total,
                                                      @RequestParam(defaultValue = "0",required = false, name = "page") String page,
                                                      @RequestParam(defaultValue = "1000", required = false, name = "size") String size) {
-        List<JsonObject> listaPedidos = new ArrayList<JsonObject>();
         JsonObject jsonObject = new JsonObject();
         try {
             String correo = clienteHelp.obtenerCorreoDelToken(token);
@@ -290,7 +295,6 @@ public class ClienteController {
 
         JsonArray jsonArray = new JsonArray();
         try {
-            //jsonArray = clienteService.listarMenus(restauranteCorreo, categoria, precioInicial, precioFinal);
             List<JsonObject> listarProductosRestaurante = clienteService.listarMenus(new String(Base64.getDecoder().decode(restauranteCorreo)), categoria, precioInicial, precioFinal);
             for (JsonObject restaurante : listarProductosRestaurante) {
                 jsonArray.add(restaurante);
@@ -313,10 +317,13 @@ public class ClienteController {
     @PostMapping(path = "/realizarPedido")
     public ResponseEntity<?> realizarPedido(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Datos del nuevo Pedido", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Pedido.class)))
             @RequestBody String pedido){
         try{
             String correo = clienteHelp.obtenerCorreoDelToken(token);
-            // Obtener detalles del pedido
             JsonObject jsonRequestPedido = new Gson().fromJson(pedido, JsonObject.class);
             JsonObject jsonResponsePedido = clienteService.crearPedido(correo, jsonRequestPedido);
             return new ResponseEntity<>(jsonResponsePedido, HttpStatus.OK);
@@ -336,8 +343,10 @@ public class ClienteController {
     @PostMapping(path = "/agregarReclamo")
     public ResponseEntity<?> realizarReclamo(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Datos del nuevo Reclamo", required = true)
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(mediaType = "application/json"))
+                    content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Reclamo.class)))
             @RequestBody String reclamo) {
         try {
             String correo = clienteHelp.obtenerCorreoDelToken(token);
@@ -363,6 +372,14 @@ public class ClienteController {
     @PostMapping(path = "/calificarRestaurante")
     public ResponseEntity<?> calificarRestaurante(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Id del pedido, puntaje y comentario", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"idPedido\": \"1\","
+                                    + "\"puntaje\": \"2.5\","
+                                    + "\"comentario\": \"muy rico todo\""
+                                    + "}")}))
             @RequestBody String pedido){
         try{
             String correoCliente = clienteHelp.obtenerCorreoDelToken(token);
@@ -385,6 +402,14 @@ public class ClienteController {
     @PutMapping(path = "/modificarCalificacionRestaurante")
     public ResponseEntity<?> modificarCalificacionRestaurante(
             @RequestHeader("Authorization") String token,
+            @Parameter(description = "Id del pedido, puntaje y comentario", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"idPedido\": \"1\","
+                                    + "\"puntaje\": \"2.5\","
+                                    + "\"comentario\": \"muy rico todo\""
+                                    + "}")}))
             @RequestBody String pedido){
         try{
             String correoCliente = clienteHelp.obtenerCorreoDelToken(token);

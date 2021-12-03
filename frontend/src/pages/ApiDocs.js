@@ -10,14 +10,14 @@ const Styles = styled.div`
 `;
 
 export default function ApiDocs() {
-  const url = process.env.REACT_APP_BACKEND_URL_BASE + "v3/apidocs";
+  const url = process.env.REACT_APP_BACKEND_URL_BASE + "v3/api-docs";
   return (
     <Styles>
-        <rapi-doc
+      <rapi-doc
         style={{ height: "100vh", width: "100%" }}
         spec-url={url}
         render-style="read"
-        />
+      />
     </Styles>
   );
 }
