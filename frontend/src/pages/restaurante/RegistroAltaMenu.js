@@ -169,6 +169,12 @@ function RegistroAltaMenu() {
   };
 
   const onEnd = (event) => {
+    if(document.getElementById("categoria").value === "" ||
+      document.getElementById("nombre").value === "" ||
+      document.getElementById("descripcion").value === "" ||
+      document.getElementById("price").value === ""){
+      return null;
+    }
     event.preventDefault();
     var json = JSON.parse(sessionStorage.getItem("registroRestaurante"));
     menu.nombre = document.getElementById("nombre").value;
@@ -219,12 +225,9 @@ function RegistroAltaMenu() {
                     }, 3000);
                   })
                   .catch((error) => {
+                    console.log("entro al catch");
                     setAlerta(error.response.data);
                     setTipo("danger");
-                    setTimeout(() => {
-                      window.location.replace("/");
-                      sessionStorage.clear();
-                    }, 3000);
                   });
               });
           }
@@ -254,7 +257,7 @@ function RegistroAltaMenu() {
           });
       }
     } else {
-      setAlerta("El nombre del menu debe ser unico");
+      setAlerta("El nombre del menú debe ser único");
       setTipo("danger");
     }
   };
