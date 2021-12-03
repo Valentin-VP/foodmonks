@@ -3,6 +3,7 @@ package org.foodmonks.backend.Restaurante;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.github.jav.exposerversdk.PushClientException;
 import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
@@ -10,6 +11,7 @@ import org.foodmonks.backend.Direccion.DireccionConverter;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
+import org.foodmonks.backend.Menu.Exceptions.MenuNombreException;
 import org.foodmonks.backend.Menu.Exceptions.MenuNombreExistente;
 import org.foodmonks.backend.Menu.Exceptions.MenuPrecioException;
 import org.foodmonks.backend.Menu.MenuService;
@@ -25,6 +27,7 @@ import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioNoRestaurante;
 import org.foodmonks.backend.Usuario.UsuarioRepository;
 import org.foodmonks.backend.datatypes.*;
+import org.foodmonks.backend.notificacion.NotificacionExpoService;
 import org.foodmonks.backend.paypal.PayPalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,6 +77,8 @@ class RestauranteServiceTest {
     EmailService emailService;
     @Mock
     PayPalService payPalService;
+    @Mock
+    NotificacionExpoService notificacionExpoService;
 
     @Mock
     DireccionConverter direccionConverter;
@@ -84,11 +89,11 @@ class RestauranteServiceTest {
         restauranteService = new RestauranteService(restauranteRepository, passwordEncoder,
                 usuarioRepository, menuService, restauranteConverter,
                 pedidoService, reclamoConverter, templateEngine,
-                emailService, payPalService);
+                emailService, payPalService, notificacionExpoService);
     }
 
     @Test
-    void createSolicitudAltaRestaurante() throws UsuarioNoRestaurante, UsuarioExisteException, MenuMultiplicadorException, MenuNombreExistente, RestauranteFaltaMenuException, MenuPrecioException, ClienteDireccionException {
+    void createSolicitudAltaRestaurante() throws UsuarioNoRestaurante, UsuarioExisteException, MenuMultiplicadorException, MenuNombreExistente, RestauranteFaltaMenuException, MenuPrecioException, ClienteDireccionException, MenuNombreException {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
@@ -96,13 +101,13 @@ class RestauranteServiceTest {
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
 
         ArrayList<JsonObject> jsonMenus = new ArrayList<>();
         jsonMenus.addAll(List.of(new JsonObject(), new JsonObject(), new JsonObject()));
 
         restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
-                "1234", dir1, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus);
+                "1234", dir1, "PENDIENTE", "1234", "dummy", "dummy", "dummy", jsonMenus);
 
         ArgumentCaptor<Restaurante> restauranteArgumentCaptor = ArgumentCaptor.forClass(Restaurante.class);
         verify(restauranteRepository).save(restauranteArgumentCaptor.capture());
@@ -110,24 +115,24 @@ class RestauranteServiceTest {
 
         // ---------------------------------
 
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         assertThatThrownBy(()-> restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
-                "1234", dir1, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus))
+                "1234", dir1, "PENDIENTE", "1234", "dummy", "dummy", "dummy", jsonMenus))
                 .isInstanceOf(UsuarioExisteException.class).hasMessageContaining("Ya existe un Usuario registrado con el correo dummy");
 
         // ---------------------------------
 
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
         assertThatThrownBy(()-> restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
-                "1234", null, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus))
+                "1234", null, "PENDIENTE", "1234", "dummy", "dummy", "dummy", jsonMenus))
                 .isInstanceOf(ClienteDireccionException.class).hasMessageContaining("Debe ingresar una direccion");
 
         // ---------------------------------
 
-        when(usuarioRepository.findByCorreo(anyString())).thenReturn(null);
+        when(usuarioRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
         jsonMenus.remove(0);
         assertThatThrownBy(()-> restauranteService.createSolicitudAltaRestaurante("dummy", "dummy", "dummy", "dummy", LocalDate.now(), 5.0f, "dummy",
-                "1234", dir1, EstadoRestaurante.PENDIENTE, "1234", "dummy", "dummy", "dummy", jsonMenus))
+                "1234", dir1, "PENDIENTE", "1234", "dummy", "dummy", "dummy", jsonMenus))
                 .isInstanceOf(RestauranteFaltaMenuException.class).hasMessageContaining("Debe ingresar al menos 3 menus");
     }
 
@@ -140,22 +145,22 @@ class RestauranteServiceTest {
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
-        restauranteService.listarHistoricoPedidos("","","","","","","","");
-        restauranteService.listarHistoricoPedidos("a","","","","","","","");
-        restauranteService.listarHistoricoPedidos("","FINALIZADO","","","","","","");
-        restauranteService.listarHistoricoPedidos("","asdasd","","","","","","");
-        restauranteService.listarHistoricoPedidos("","","PAYPAL","","","","","");
-        restauranteService.listarHistoricoPedidos("","","asdasd","","","","","");
-        restauranteService.listarHistoricoPedidos("","","","","2020-01-01,2021-01-01","","","");
-        restauranteService.listarHistoricoPedidos("","","","","2020-01-01T18:05:05,2021-01-01T19:05:05","","","");
-        restauranteService.listarHistoricoPedidos("","","","","","1,2","","");
-        restauranteService.listarHistoricoPedidos("","","","","","1a,b2","","");
-        restauranteService.listarHistoricoPedidos("","","","","","","0","");
-        restauranteService.listarHistoricoPedidos("","","","","","","O","");
-        restauranteService.listarHistoricoPedidos("","","","","","","","10");
-        restauranteService.listarHistoricoPedidos("","","","","","","","1O");
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(null);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
+        restauranteService.listarHistoricoPedidos("","","","","","","0","5");
+        restauranteService.listarHistoricoPedidos("a","","","","","","0","5");
+        restauranteService.listarHistoricoPedidos("","FINALIZADO","","","","","0","5");
+        //restauranteService.listarHistoricoPedidos("","asdasd","","","","","0","5");
+        restauranteService.listarHistoricoPedidos("","","PAYPAL","","","","0","5");
+        //restauranteService.listarHistoricoPedidos("","","asdasd","","","","0","5");
+        restauranteService.listarHistoricoPedidos("","","","","2020-01-01,2021-01-01","","0","5");
+        //restauranteService.listarHistoricoPedidos("","","","","2020-01-01T18:05:05,2021-01-01T19:05:05","","0","5");
+        restauranteService.listarHistoricoPedidos("","","","","","1,2","0","5");
+        //restauranteService.listarHistoricoPedidos("","","","","","1a,b2","0","5");
+        restauranteService.listarHistoricoPedidos("","","","","","","0","5");
+        //restauranteService.listarHistoricoPedidos("","","","","","","O","5");
+        //restauranteService.listarHistoricoPedidos("","","","","","","0","10");
+        //restauranteService.listarHistoricoPedidos("","","","","","","0","1O");
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
         assertThatThrownBy(()->restauranteService.listarHistoricoPedidos("dummy","","",
                 "","","","",""))
                 .isInstanceOf(RestauranteNoEncontradoException.class)
@@ -179,24 +184,24 @@ class RestauranteServiceTest {
                 4.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.ABIERTO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         when(pedidoService.existePedido(anyLong())).thenReturn(true);
         when(pedidoService.existePedidoRestaurante(anyLong(), any(Restaurante.class))).thenReturn(true);
         restauranteService.registrarPagoEfectivo("dummy",1L);
         verify(pedidoService).cambiarEstadoPedido(anyLong(), any(EstadoPedido.class));
         // -------------------------------------------------------
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(null);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
         assertThatThrownBy(()->restauranteService.registrarPagoEfectivo("dummy", 1L))
                 .isInstanceOf(RestauranteNoEncontradoException.class)
                 .hasMessageContaining("No existe el Restaurante dummy");
         // -------------------------------------------------------
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         when(pedidoService.existePedido(anyLong())).thenReturn(false);
         assertThatThrownBy(()->restauranteService.registrarPagoEfectivo("dummy", 1L))
                 .isInstanceOf(PedidoNoExisteException.class)
                 .hasMessageContaining("No existe el pedido con id 1");
         // -------------------------------------------------------
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         when(pedidoService.existePedido(anyLong())).thenReturn(true);
         when(pedidoService.existePedidoRestaurante(anyLong(), any(Restaurante.class))).thenReturn(false);
         assertThatThrownBy(()->restauranteService.registrarPagoEfectivo("dummy", 1L))
@@ -225,13 +230,13 @@ class RestauranteServiceTest {
                 5.0F, 10, "NombreRestaurante", 123456L,
                 dir1, EstadoRestaurante.BLOQUEADO, 23487123,
                 "DescripcionRestaurante", "CuentaDePaypal", null);
-        when(restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(any(EstadoRestaurante.class))).thenReturn(
+        when(restauranteRepository.findRestaurantesIgnoreCaseByEstadoOrderByCalificacionDesc(any(EstadoRestaurante.class))).thenReturn(
                         List.of(restaurante2, restaurante1));
         List<JsonObject> expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante2, restaurante1));
         List<JsonObject> result = restauranteService.listaRestaurantesAbiertos("", "", true);
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
-        when(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(anyString(), any(EstadoRestaurante.class))).thenReturn(
+        when(restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstadoOrderByCalificacionDesc(anyString(), any(EstadoRestaurante.class))).thenReturn(
                 List.of(restaurante2, restaurante1));
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante2, restaurante1));
         result = restauranteService.listaRestaurantesAbiertos("nombreDelRestaurante", "", true);
@@ -242,13 +247,13 @@ class RestauranteServiceTest {
         result = restauranteService.listaRestaurantesAbiertos("", "OTROS", true);
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
-        when(restauranteRepository.findRestaurantesByEstado(any(EstadoRestaurante.class))).thenReturn(
+        when(restauranteRepository.findRestaurantesIgnoreCaseByEstado(any(EstadoRestaurante.class))).thenReturn(
                 List.of(restaurante1, restaurante2));
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante1, restaurante2));
         result = restauranteService.listaRestaurantesAbiertos("", "", false);
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
-        when(restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(anyString(), any(EstadoRestaurante.class))).thenReturn(
+        when(restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstado(anyString(), any(EstadoRestaurante.class))).thenReturn(
                 List.of(restaurante1, restaurante2));
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante1, restaurante2));
         result = restauranteService.listaRestaurantesAbiertos("nombreDelRestaurante", "", false);
@@ -261,7 +266,7 @@ class RestauranteServiceTest {
     }
 
     @Test
-    void actualizarEstadoPedido() throws PedidoNoExisteException, RestauranteNoEncontradoException {
+    void actualizarEstadoPedido() throws PedidoNoExisteException, RestauranteNoEncontradoException, PushClientException, PedidoIdException, PedidoDevolucionException, PedidoDistintoRestauranteException, IOException, EmailNoEnviadoException, InterruptedException {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
@@ -271,8 +276,14 @@ class RestauranteServiceTest {
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         Pedido pedido1 = new Pedido(EstadoPedido.PENDIENTE, LocalDateTime.of(2020,1,1,0,0,0),
                 500.0F,MedioPago.EFECTIVO, LocalDateTime.of(2020,1,1,0,0,0),dir1,null);
-
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        Cliente cliente1 =  new Cliente("nombreDelCliente",
+                "apellidoDelCliente",
+                "cliente1@gmail.com", passwordEncoder.encode("a"),
+                LocalDate.of(2020, 01, 01), 4.0f,10,
+                List.of(dir1), EstadoCliente.ACTIVO, null, null);
+        pedido1.setCliente(cliente1);
+        pedido1.setRestaurante(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         when(pedidoService.existePedidoRestaurante(anyLong(), any(Restaurante.class))).thenReturn(true);
         when(pedidoService.obtenerPedido(anyLong())).thenReturn(pedido1);
         restauranteService.actualizarEstadoPedido("dummy", 1L,"CONFIRMADO",30);
@@ -285,15 +296,15 @@ class RestauranteServiceTest {
         restauranteService.actualizarEstadoPedido("dummy", 1L,"CONFIRMADO",30);
         verify(pedidoService).cambiarEstadoPedido(1L, EstadoPedido.FINALIZADO);
         // -------------------------------------------------------
-        restauranteService.actualizarEstadoPedido("dummy", 1L,"RECHAZADO",30);
-        verify(pedidoService, times(2)).cambiarEstadoPedido(1L, EstadoPedido.RECHAZADO);
+        //restauranteService.actualizarEstadoPedido("dummy", 1L,"RECHAZADO",30);
+        //verify(pedidoService, times(2)).cambiarEstadoPedido(1L, EstadoPedido.RECHAZADO);
         // -------------------------------------------------------
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(null);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
         assertThatThrownBy(()->restauranteService.actualizarEstadoPedido("dummy", 1L, "dummy", 0))
                 .isInstanceOf(RestauranteNoEncontradoException.class)
                 .hasMessageContaining("No existe el Restaurante dummy");
         // -------------------------------------------------------
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         when(pedidoService.existePedidoRestaurante(anyLong(), any(Restaurante.class))).thenReturn(false);
         assertThatThrownBy(()->restauranteService.actualizarEstadoPedido("dummy", 1L, "dummy", 0))
                 .isInstanceOf(RestauranteNoEncontradoException.class)
@@ -497,7 +508,7 @@ class RestauranteServiceTest {
         restaurante1.setReclamos(reclamoArrayList);
 
 
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         JsonArray expectedReclamos = reclamoConverter.arrayJsonReclamo(List.of(reclamo1, reclamo2));
 
         JsonArray result = restauranteService.listarReclamos("dummy", false, "", "");
@@ -563,7 +574,7 @@ class RestauranteServiceTest {
         pedido1.setReclamo(reclamo1);
         restaurante1.setReclamos(List.of(reclamo1));
 
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         when(pedidoService.obtenerPedido(anyLong())).thenReturn(pedido1);
         when(payPalService.refundOrder(anyString())).thenReturn("dummy");
         when(payPalService.getOrder(anyString())).thenReturn("dummy");
@@ -596,12 +607,12 @@ class RestauranteServiceTest {
                 .isInstanceOf(PedidoIdException.class)
                 .hasMessageContaining("El id del pedido no es un numero entero");
         // -------------------------------------------------------
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante2);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante2);
         assertThatThrownBy(()->restauranteService.realizarDevolucion("restaurante2@gmail.com", "1","dummy",false))
                 .isInstanceOf(PedidoDistintoRestauranteException.class)
                 .hasMessageContaining("El pedido id 1 no pertenece al restaurante restaurante2@gmail.com");
         // -------------------------------------------------------
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         pedido1.setEstado(EstadoPedido.DEVUELTO);
         assertThatThrownBy(()->restauranteService.realizarDevolucion("dummy", "1","dummy",false))
                 .isInstanceOf(PedidoDevolucionException.class)
@@ -777,7 +788,7 @@ class RestauranteServiceTest {
             restaurante1.getPedidos().add(pedido);
         }
 
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         JsonObject expectedResult = new JsonObject();
         JsonArray meses = new JsonArray();
         JsonObject pedidosRestaurante = new JsonObject();
@@ -942,7 +953,7 @@ class RestauranteServiceTest {
             pedidos.add(pedido);
         }
 
-        when(restauranteRepository.findByCorreo(anyString())).thenReturn(restaurante1);
+        when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante1);
         when(pedidoService.pedidosRestaurante(any())).thenReturn(pedidos);
 
         JsonObject result = restauranteService.obtenerBalance("dummy", "","","","");
