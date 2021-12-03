@@ -39,7 +39,8 @@ const Styles = styled.div`
     font-family: "Poppins", sans-serif;
   }
 
-  #anio {
+  #anio,
+  #anio2 {
     width: 5rem;
   }
 `;
@@ -49,14 +50,16 @@ export default function Estadisticas() {
   const [usuarios, setUsuarios] = useState(null);
   const [pedidos, setPedidos] = useState(null);
   const [fecha, setFecha] = useState(2021);
-  sessionStorage.setItem("fechaStat", fecha);
+  const [fecha2, setFecha2] = useState(2021);
+  sessionStorage.setItem("fechaStat", fecha2);
 
   const onChange = () => {
     setFecha(document.getElementById("anio").value);
   };
 
   const onChange2 = () => {
-    sessionStorage.setItem("fechaStat", fecha);
+    setFecha2(document.getElementById("anio2").value)
+    sessionStorage.setItem("fechaStat", fecha2);
   };
 
   useEffect(() => {
@@ -235,15 +238,14 @@ export default function Estadisticas() {
           </div>
         </div>
         <h3 className="gTitle text-center mt-5">Restaurantes registrados</h3>
-        <h4> Buscar para el anio <input
-                id="anio"
+        <h4> Buscar para el año <input
+                id="anio2"
                 type="number"
                 min="1990"
                 max="2099"
                 step="1"
-                value={fecha}
+                value={fecha2}
                 onChange={onChange2}
-                name="anio"
               /></h4>
         <ListadoRestaurantes />
       </Layout>
