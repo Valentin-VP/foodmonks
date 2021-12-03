@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Menu;
 
+import com.google.gson.JsonObject;
 import org.foodmonks.backend.Menu.Exceptions.*;
 import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteRepository;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -37,7 +39,7 @@ class MenuServiceTest {
     MenuRepository menuRepository;
     @Mock
     RestauranteRepository restauranteRepository;
-    @Mock
+    @Spy
     MenuConverter menuConverter;
 
     @BeforeEach
@@ -77,9 +79,11 @@ class MenuServiceTest {
         when(menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
 
         //cuando
+        JsonObject jsonObject = menuConverter.jsonMenu(menu);
+        jsonObject.addProperty("multiplicador", 1.0F);
+        jsonObject.addProperty("visibilidad", true);
         /* Acá se llama al método que está siendo probado 'altaMenu' con datos relativamente reales. Luego se preguntará por alguno de estos.*/
-        menuService.altaMenu(menuConverter.jsonMenu(new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante");
+        menuService.altaMenu(jsonObject, "correoRestaurante");
         //entonces
         /* Si se quiere comparar los atributos del objeto que llega al método .save con lo que se le envió al método...
         * ...(o si fuese el caso el objeto entero), se necesita utilizar un 'ArgumentCaptor' del tipo correcto, que es [Menu]...
@@ -147,12 +151,12 @@ class MenuServiceTest {
         * ...entonces se le simula un retorno para que 'if (restaurante == null)' corte por lo sano.
         * */
         when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(null);
-
+        Restaurante restaurante = new Restaurante();
         //cuando
         //entonces
         /* Igual que antes, solo que con la excepción de cuando el restaurante es null */
         assertThatThrownBy(()->menuService.altaMenu(menuConverter.jsonMenu(new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS,null)), "correoRestaurante"))
+                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante"))
                 .isInstanceOf(UsuarioNoRestaurante.class)
                 .hasMessageContaining("El correo correoRestaurante no pertenece a un restaurante");
         verify(menuRepository, never()).save(any());
@@ -254,6 +258,9 @@ class MenuServiceTest {
         Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
                 "imagen", CategoriaMenu.OTROS, restaurante);
         menu.setId(1L);
+        Menu menuModified = new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, restaurante);
+        menuModified.setId(1L);
         when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
         when(menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(false);
         /*Aca podría utilizar 'new Menu()' u otro Menu en vez de 'menu', para evitar que 'nombre' se modifique también en 'menu' (la variable local de este test).
@@ -261,10 +268,13 @@ class MenuServiceTest {
         * Eso lo hace Mockito automáticamente.
         * No es importante acá.
         */
+
+        JsonObject jsonObject = menuConverter.jsonMenu(menuModified);
+        jsonObject.addProperty("multiplicador", 1.0F);
+        jsonObject.addProperty("visibilidad", true);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(menu);
         //cuando
-        menuService.modificarMenu(menuConverter.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante");
+        menuService.modificarMenu(jsonObject, "correoRestaurante");
         //entonces
         ArgumentCaptor<Menu> menuArgumentCaptor = ArgumentCaptor.forClass(Menu.class);
         verify(menuRepository).save(menuArgumentCaptor.capture());
@@ -284,13 +294,18 @@ class MenuServiceTest {
         * */
         //dado
         Restaurante restaurante = new Restaurante();
+        Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
+                "imagen", CategoriaMenu.OTROS, restaurante);
+        menu.setId(1L);
         when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(null);
         //cuando
         //entonces
         /* Mismo concepto que anteriormente */
-        assertThatThrownBy(()->menuService.modificarMenu(menuConverter.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS,restaurante)), "correoRestaurante"))
+        JsonObject jsonObject = menuConverter.jsonMenu(menu);
+        jsonObject.addProperty("multiplicador", 1.0F);
+        jsonObject.addProperty("visibilidad", true);
+        assertThatThrownBy(()->menuService.modificarMenu(jsonObject, "correoRestaurante"))
                 .isInstanceOf(MenuNoEncontradoException.class)
                 .hasMessageContaining("No existe el Menu con id 1 para el Restaurante correoRestaurante");
         verify(menuRepository, never()).save(any());
@@ -310,16 +325,19 @@ class MenuServiceTest {
         Menu menu = new Menu("nombre", 100.0F, "descripcion", true, 1.0F,
                 "imagen", CategoriaMenu.OTROS, restaurante);
         menu.setId(1L);
+        JsonObject jsonObject = menuConverter.jsonMenu(menu);
+        jsonObject.addProperty("multiplicador", 1.0F);
+        jsonObject.addProperty("nombre", "dummy");
+        jsonObject.addProperty("visibilidad", true);
         when(restauranteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(restaurante);
         when(menuRepository.findByIdAndRestaurante(anyLong(), any(Restaurante.class))).thenReturn(menu);
         when(menuRepository.existsMenuByNombreIgnoreCaseAndRestaurante(anyString(), any(Restaurante.class))).thenReturn(true);
         //cuando
         //entonces
         /* Igual que antes */
-        assertThatThrownBy(()->menuService.modificarMenu(menuConverter.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS, restaurante)), "correoRestaurante"))
+        assertThatThrownBy(()->menuService.modificarMenu(jsonObject, "correoRestaurante"))
                 .isInstanceOf(MenuNombreExistente.class)
-                .hasMessageContaining("Ya existe un menu con el nombre nombre para el Restaurante correoRestaurante");
+                .hasMessageContaining("Ya existe un menu con el nombre dummy");
         verify(menuRepository, never()).save(any());
         //assertThat(result).isFalse();
     }
@@ -335,7 +353,7 @@ class MenuServiceTest {
         //entonces
         /* Igual que antes */
         assertThatThrownBy(()->menuService.modificarMenu(menuConverter.jsonMenu(new Menu("MODIFICADO_nombre", 100.0F, "descripcion", true, 1.0F,
-                "imagen", CategoriaMenu.OTROS,null)), "correoRestaurante"))
+                "imagen", CategoriaMenu.OTROS,new Restaurante())), "correoRestaurante"))
                 .isInstanceOf(UsuarioNoRestaurante.class)
                 .hasMessageContaining("El correo correoRestaurante no pertenece a un restaurante");
         verify(menuRepository, never()).save(any());
