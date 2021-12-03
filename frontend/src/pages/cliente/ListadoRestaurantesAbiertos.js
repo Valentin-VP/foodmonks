@@ -64,7 +64,7 @@ function MyProvider({ children }) {
     categoria: "",
     nombre: "",
     calificacion: false,
-    idDireccion: "",
+    idDireccion: null,
   };
 
   useEffect(() => {
@@ -72,6 +72,7 @@ function MyProvider({ children }) {
     values.nombre = sessionStorage.getItem("restaurantes-nombre");
     values.calificacion = sessionStorage.getItem("restaurantes-calificacion");
     values.idDireccion = sessionStorage.getItem("cliente-direccion");
+    console.log(values);
     if (values.categoria === null) {
       values.categoria = "";
     }
@@ -81,9 +82,6 @@ function MyProvider({ children }) {
     if (values.calificacion === null) {
       values.calificacion = false;
     }
-    if (values.idDireccion === null) {
-      values.idDireccion = false;
-    }
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -92,6 +90,7 @@ function MyProvider({ children }) {
     fetchRestaurantesBusqueda(values)
       .then((response) => {
         if (response.status === 200) {
+          console.log(response);
           setDatos(response.data);
           isLoading(false);
         } else {

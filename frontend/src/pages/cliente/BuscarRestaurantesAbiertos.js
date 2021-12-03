@@ -128,7 +128,6 @@ export default function BuscarRestaurantesAbiertos() {
 
   useEffect(() => {
     fetchInfoCliente();
-    console.log(cliente);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -136,11 +135,16 @@ export default function BuscarRestaurantesAbiertos() {
     categoria: "",
     nombre: "",
     calificacion: false,
-    idDireccion: "",
+    idDireccion: null,
   });
 
   const fetchInfoCliente = () => {
     fetchUserData().then((response) => {
+      console.log(response.data);
+      setValues((values) => ({
+        ...values,
+        idDireccion: response.data.direcciones[0].id,
+      }));
       setCliente(response.data);
       setCargando(false);
     });
@@ -166,12 +170,13 @@ export default function BuscarRestaurantesAbiertos() {
       [e.target.name]:
         e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
-    console.log(e.target);
     console.log(e.target.value);
+    console.log(values);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(values);
     sessionStorage.setItem("restaurantes-categoria", values.categoria);
     sessionStorage.setItem("restaurantes-nombre", values.nombre);
     sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
@@ -238,16 +243,13 @@ export default function BuscarRestaurantesAbiertos() {
               </label>
             </div>
             <select
-              name="direcciones"
+              name="idDireccion"
               className="mt-2 form-select"
               onChange={handleChange}
               required
               id="direcciones"
               defaultValue={"DEFAULT"}
             >
-              <option value="DEFAULT" disabled>
-                Direccion
-              </option>
               {cliente.direcciones.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.calle} {item.numero}
@@ -260,7 +262,14 @@ export default function BuscarRestaurantesAbiertos() {
           <h2>Restaurantes</h2>
           <div className="container-lg">
             <div className="row align-items-center">
-              <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
+              {values.idDireccion !== null ? (
+                <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
+              ) : (
+                <h5 className="text-center h5 mb-3 fw-normal">
+                  Elija una direccion y haga click en buscar para ver
+                  restaurantes abiertos cerca de su zona.
+                </h5>
+              )}
             </div>
           </div>
         </Layout>
