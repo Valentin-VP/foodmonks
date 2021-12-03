@@ -241,7 +241,7 @@ export default function Estadisticas() {
                 min="1990"
                 max="2099"
                 step="1"
-                value={fecha2}
+                value={fecha}
                 onChange={onChange2}
                 name="anio"
               /></h4>
