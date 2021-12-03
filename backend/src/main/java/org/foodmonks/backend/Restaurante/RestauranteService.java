@@ -5,6 +5,9 @@ import com.google.gson.JsonObject;
 import io.swagger.v3.core.util.Json;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
+import org.foodmonks.backend.Direccion.DireccionService;
+import org.foodmonks.backend.Direccion.Exceptions.DireccionNoExisteException;
+import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
@@ -31,11 +34,19 @@ import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.foodmonks.backend.datatypes.MedioPago;
 import org.foodmonks.backend.paypal.PayPalService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.*;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import java.io.IOException;
 import java.time.DateTimeException;
@@ -61,12 +72,17 @@ public class RestauranteService {
     private final TemplateEngine templateEngine;
     private final EmailService emailService;
     private final PayPalService payPalService;
+    private final DireccionService direccionService;
+
+    @Value("${google.api.key}")
+    private String googleapikey;
+    private int distanciaMaxima = 10000;
 
     @Autowired
     public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder,
             UsuarioRepository usuarioRepository, MenuService menuService, RestauranteConverter restauranteConverter,
             PedidoService pedidoService, ReclamoConverter reclamoConverter, TemplateEngine templateEngine,
-            EmailService emailService, PayPalService payPalService) {
+            EmailService emailService, PayPalService payPalService, DireccionService direccionService) {
         this.restauranteRepository = restauranteRepository;
         this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = usuarioRepository;
@@ -77,6 +93,7 @@ public class RestauranteService {
         this.templateEngine = templateEngine;
         this.emailService = emailService;
         this.payPalService = payPalService;
+        this.direccionService = direccionService;
     }
 
     public JsonArray listarRestaurante(){
@@ -168,36 +185,43 @@ public class RestauranteService {
     }
 
     public List<JsonObject> listaRestaurantesAbiertos(String nombreRestaurante, String categoriaMenu,
-            boolean ordenCalificacion) {
+            boolean ordenCalificacion, String idDireccion) throws Exception {
 
+        if (!idDireccion.matches("[0-9]*") || idDireccion.isBlank()) {
+            throw new PedidoIdException("El id del pedido no es un numero entero");
+        }
+        Direccion direccion = direccionService.obtenerDireccion(Long.valueOf(idDireccion));
+        if (direccion == null){
+            throw new DireccionNoExisteException("No existe direccion con id" + idDireccion);
+        }
+        List<Restaurante> restaurantes, result = new ArrayList<>();
         if (ordenCalificacion) {
             if (!nombreRestaurante.isBlank()) {
-                return restauranteConverter.listaRestaurantes(restauranteRepository
-                        .findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
-                                EstadoRestaurante.ABIERTO));
+            restaurantes = restauranteRepository
+                    .findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
+                            EstadoRestaurante.ABIERTO);
+            } else {
+             restaurantes = restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
             }
-            if (!categoriaMenu.isBlank()) {
-                List<Restaurante> restaurantes = restauranteRepository
-                        .findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
-                CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
-                return obtenerRestauranteMenuConCategoria(restaurantes, categoria);
-            }
-            return restauranteConverter.listaRestaurantes(
-                    restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO));
         } else {
             if (!nombreRestaurante.isBlank()) {
                 return restauranteConverter.listaRestaurantes(
                         restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,
                                 EstadoRestaurante.ABIERTO));
+            } else {
+                restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
             }
-            if (!categoriaMenu.isBlank()) {
-                List<Restaurante> restaurantes = restauranteRepository
-                        .findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
-                CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
-                return obtenerRestauranteMenuConCategoria(restaurantes, categoria);
+        }
+        for (Restaurante restaurante : restaurantes){
+            if (calcularDistancia(direccion.getLatitud() + ";" + direccion.getLongitud(),restaurante.getDireccion().getLatitud() + ";" + restaurante.getDireccion().getLongitud()) <= distanciaMaxima){
+                result.add(restaurante);
             }
-            return restauranteConverter
-                    .listaRestaurantes(restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO));
+        }
+        if (!categoriaMenu.isBlank()){
+            CategoriaMenu categoria = CategoriaMenu.valueOf(categoriaMenu);
+            return obtenerRestauranteMenuConCategoria(result, categoria);
+        } else {
+            return restauranteConverter.listaRestaurantes(result);
         }
     }
 
@@ -880,6 +904,22 @@ public class RestauranteService {
         ventasRestaurante.addProperty("anio",anio);
         ventasRestaurante.add("ventas", meses);
         return ventasRestaurante;
+    }
+
+    public Long calcularDistancia(String source, String destination) throws Exception {
+        var url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + source + "&destinations=" + destination + "&key=" + googleapikey;
+        var request = HttpRequest.newBuilder().GET().uri(URI.create(url)).build();
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+        JSONParser jp = new JSONParser();
+        JSONObject jo = (JSONObject) jp.parse(response);
+        JSONArray ja = (JSONArray) jo.get("rows");
+        jo = (JSONObject) ja.get(0);
+        ja = (JSONArray) jo.get("elements");
+        jo = (JSONObject) ja.get(0);
+        JSONObject je = (JSONObject) jo.get("distance");
+        JSONObject jf = (JSONObject) jo.get("duration");
+        return (long) je.get("value");
     }
 
 }
