@@ -124,6 +124,7 @@ const Styles = styled.div`
 
 export default function BuscarRestaurantesAbiertos() {
   const [cliente, setCliente] = useState();
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     fetchInfoCliente();
@@ -141,6 +142,7 @@ export default function BuscarRestaurantesAbiertos() {
   const fetchInfoCliente = () => {
     fetchUserData().then((response) => {
       setCliente(response.data);
+      setCargando(false);
     });
   };
 
@@ -178,6 +180,10 @@ export default function BuscarRestaurantesAbiertos() {
     sessionStorage.setItem("cliente-numero", cliente.direcciones.numero);
     window.location.reload();
   };
+
+  if (cargando) {
+    return <Loading />;
+  }
 
   return (
     <Styles>
