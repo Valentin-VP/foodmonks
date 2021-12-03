@@ -328,7 +328,7 @@ function RegistroAltaMenu() {
               onChange={handleChange}
               required
             >
-              <option>Seleccione una categoría</option>
+              <option value="">Seleccione una categoría</option>
               {categorias.map((categoria) => (
                 <option key={categoria.nombre} value={categoria.value}>
                   {categoria.nombre}
