@@ -213,7 +213,8 @@ public class RestauranteService {
             }
         }
         for (Restaurante restaurante : restaurantes){
-            if (calcularDistancia(direccion.getLatitud() + ";" + direccion.getLongitud(),restaurante.getDireccion().getLatitud() + ";" + restaurante.getDireccion().getLongitud()) <= distanciaMaxima){
+            Long distancia = calcularDistancia(direccion.getLatitud() + "," + direccion.getLongitud(),restaurante.getDireccion().getLatitud() + "," + restaurante.getDireccion().getLongitud());
+            if (distancia <= distanciaMaxima){
                 result.add(restaurante);
             }
         }
@@ -919,6 +920,9 @@ public class RestauranteService {
         jo = (JSONObject) ja.get(0);
         JSONObject je = (JSONObject) jo.get("distance");
         JSONObject jf = (JSONObject) jo.get("duration");
+        if (je == null){
+            throw new Exception("Hay una direccion incorrecta y no puede calcularse la distancia");
+        }
         return (long) je.get("value");
     }
 
