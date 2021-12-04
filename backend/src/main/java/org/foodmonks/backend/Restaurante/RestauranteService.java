@@ -76,7 +76,8 @@ public class RestauranteService {
 
     @Value("${google.api.key}")
     private String googleapikey;
-    private int distanciaMaxima = 10000;
+    private final long distanciaMaxima = 10000L;
+    private final long distanciaInvalida = 1000000L;
 
     @Autowired
     public RestauranteService(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder,
@@ -198,7 +199,7 @@ public class RestauranteService {
         if (ordenCalificacion) {
             if (!nombreRestaurante.isBlank()) {
             restaurantes = restauranteRepository
-                    .findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
+                    .findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
                             EstadoRestaurante.ABIERTO);
             } else {
              restaurantes = restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
@@ -206,7 +207,7 @@ public class RestauranteService {
         } else {
             if (!nombreRestaurante.isBlank()) {
                 return restauranteConverter.listaRestaurantes(
-                        restauranteRepository.findRestaurantesByNombreRestauranteContainsAndEstado(nombreRestaurante,
+                        restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstado(nombreRestaurante,
                                 EstadoRestaurante.ABIERTO));
             } else {
                 restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
@@ -920,10 +921,14 @@ public class RestauranteService {
         jo = (JSONObject) ja.get(0);
         JSONObject je = (JSONObject) jo.get("distance");
         JSONObject jf = (JSONObject) jo.get("duration");
+        Long distancia;
         if (je == null){
-            throw new Exception("Hay una direccion incorrecta y no puede calcularse la distancia");
+            System.out.println("Hay una direccion incorrecta en la bd y no puede calcularse la distancia");
+            distancia = distanciaInvalida;
+        } else {
+            distancia = (long) je.get("value");
         }
-        return (long) je.get("value");
+        return distancia;
     }
 
 }

@@ -11,8 +11,8 @@ import java.util.List;
 public interface RestauranteRepository extends JpaRepository<Restaurante, String> {
 
     Restaurante findByCorreo(String correo);
-    List<Restaurante> findRestaurantesByNombreRestauranteContainsAndEstado(String nombreRestaurante, EstadoRestaurante estadoRestaurante);
-    List<Restaurante> findRestaurantesByNombreRestauranteContainsAndEstadoOrderByCalificacionDesc(String nombreRestaurante, EstadoRestaurante estadoRestaurante);
+    List<Restaurante> findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstado(String nombreRestaurante, EstadoRestaurante estadoRestaurante);
+    List<Restaurante> findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstadoOrderByCalificacionDesc(String nombreRestaurante, EstadoRestaurante estadoRestaurante);
     List<Restaurante> findRestaurantesByEstado(EstadoRestaurante estadoRestaurante);
     List<Restaurante> findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante estadoRestaurante);
     List<Restaurante> findAllByRolesOrderByCalificacion(String role);
