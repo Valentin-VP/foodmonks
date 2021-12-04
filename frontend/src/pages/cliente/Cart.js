@@ -145,7 +145,8 @@ export const Cart = () => {
     });
     const jsonPedido = {
       restaurante: sessionStorage.getItem("restauranteCart"), //falta arreglar el restaurante
-      direccionId: document.getElementById("direcciones").value, // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
+      //document.getElementById("direcciones").value,
+      direccionId: sessionStorage.getItem("cliente-direccion"), // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
       medioPago: "EFECTIVO", //String: vale 'PayPal' o 'Efectivo'
       total: Math.round((cartTotal + Number.EPSILON) * 100) / 100,
       ordenId: "", // Lo que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
@@ -177,7 +178,8 @@ export const Cart = () => {
     });
     const jsonPedido = {
       restaurante: sessionStorage.getItem("restauranteCart"), // Seria el correo del restaurante (esto es del cliente)
-      direccionId: document.getElementById("direcciones").value,
+      // document.getElementById("direcciones").value,
+      direccionId: sessionStorage.getItem("cliente-direccion"),
       medioPago: "PAYPAL",
       total: cartTotal,
       ordenId: cartId,
