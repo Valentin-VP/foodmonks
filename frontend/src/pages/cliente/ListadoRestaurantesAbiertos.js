@@ -64,7 +64,7 @@ function MyProvider({ children }) {
     categoria: "",
     nombre: "",
     calificacion: false,
-    idDireccion: null,
+    idDireccion: "",
   };
 
   useEffect(() => {

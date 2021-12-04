@@ -135,18 +135,13 @@ export default function BuscarRestaurantesAbiertos() {
     categoria: "",
     nombre: "",
     calificacion: false,
-    idDireccion: null,
+    idDireccion: "",
   });
 
   const fetchInfoCliente = () => {
     fetchUserData().then((response) => {
-      console.log(response.data);
-      setValues((values) => ({
-        ...values,
-        idDireccion: response.data.direcciones[0].id,
-      }));
       setCliente(response.data);
-      setCargando(false);
+      setearDireccion(response.data.direcciones);
     });
   };
 
@@ -163,6 +158,14 @@ export default function BuscarRestaurantesAbiertos() {
     { nombre: "Otros", value: "OTROS" },
   ];
 
+  const setearDireccion = (direcciones) => {
+    setValues((values) => ({
+      ...values,
+      idDireccion: direcciones[0].id,
+    }));
+    setCargando(false);
+  };
+
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
@@ -170,13 +173,10 @@ export default function BuscarRestaurantesAbiertos() {
       [e.target.name]:
         e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
-    console.log(e.target.value);
-    console.log(values);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(values);
     sessionStorage.setItem("restaurantes-categoria", values.categoria);
     sessionStorage.setItem("restaurantes-nombre", values.nombre);
     sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
@@ -262,7 +262,7 @@ export default function BuscarRestaurantesAbiertos() {
           <h2>Restaurantes</h2>
           <div className="container-lg">
             <div className="row align-items-center">
-              {values.idDireccion !== null ? (
+              {values.idDireccion !== "" ? (
                 <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
               ) : (
                 <h5 className="text-center h5 mb-3 fw-normal">
