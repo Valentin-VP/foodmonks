@@ -72,7 +72,6 @@ function MyProvider({ children }) {
     values.nombre = sessionStorage.getItem("restaurantes-nombre");
     values.calificacion = sessionStorage.getItem("restaurantes-calificacion");
     values.idDireccion = sessionStorage.getItem("cliente-direccion");
-    console.log(values);
     if (values.categoria === null) {
       values.categoria = "";
     }
@@ -173,14 +172,18 @@ function ListadoRestaurantesAbiertos() {
       <Styles>
         <Layout>
           <br />
+          {console.log(sessionStorage.getItem("cliente-calle"))}
+          <h3>
+            resultados de la busqueda para la direccion:{" "}
+            {sessionStorage.getItem("cliente-calle")}{" "}
+            {sessionStorage.getItem("cliente-numero")}
+          </h3>
           {sessionStorage.getItem("restaurantes-categoria") ? (
             <h3>
               resultados de la busqueda por categoria:
               {sessionStorage.getItem("restaurantes-categoria")}
             </h3>
-          ) : (
-            <h3> resultados de la busqueda </h3>
-          )}
+          ) : null}
           {sessionStorage.getItem("restaurantes-nombre") ? (
             <h3>
               resultados de la busqueda por nombre:

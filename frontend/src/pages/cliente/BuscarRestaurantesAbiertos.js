@@ -6,6 +6,7 @@ import { Layout } from "../../components/Layout";
 import ListadoRestaurantesAbiertos from "./ListadoRestaurantesAbiertos";
 import { fetchUserData } from "../../services/Requests";
 import { Loading } from "../../components/Loading";
+import { Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   .portada {
@@ -126,11 +127,6 @@ export default function BuscarRestaurantesAbiertos() {
   const [cliente, setCliente] = useState();
   const [cargando, setCargando] = useState(true);
 
-  useEffect(() => {
-    fetchInfoCliente();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const [values, setValues] = useState({
     categoria: "",
     nombre: "",
@@ -138,10 +134,16 @@ export default function BuscarRestaurantesAbiertos() {
     idDireccion: "",
   });
 
+  useEffect(() => {
+    values.idDireccion = sessionStorage.getItem("cliente-direccion");
+    fetchInfoCliente();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const fetchInfoCliente = () => {
     fetchUserData().then((response) => {
       setCliente(response.data);
-      setearDireccion(response.data.direcciones);
+      setCargando(false);
     });
   };
 
@@ -158,14 +160,6 @@ export default function BuscarRestaurantesAbiertos() {
     { nombre: "Otros", value: "OTROS" },
   ];
 
-  const setearDireccion = (direcciones) => {
-    setValues((values) => ({
-      ...values,
-      idDireccion: direcciones[0].id,
-    }));
-    setCargando(false);
-  };
-
   const handleChange = (e) => {
     e.persist();
     setValues((values) => ({
@@ -175,14 +169,45 @@ export default function BuscarRestaurantesAbiertos() {
     }));
   };
 
+  const handleChangeDireccion = (e) => {
+    e.persist();
+    setValues((values) => ({
+      ...values,
+      [e.target.name]: e.target.value,
+    }));
+    sessionStorage.setItem("cliente-direccion", e.target.value);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (values.idDireccion === "") {
+      Noti("Debe seleccionar una direccion");
+      return null;
+    }
     sessionStorage.setItem("restaurantes-categoria", values.categoria);
     sessionStorage.setItem("restaurantes-nombre", values.nombre);
     sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
     sessionStorage.setItem("cliente-direccion", values.idDireccion);
-    sessionStorage.setItem("cliente-calle", cliente.direcciones.calle);
-    sessionStorage.setItem("cliente-numero", cliente.direcciones.numero);
+    var iterador = 0;
+    console.log(cliente);
+    cliente.direcciones.map((dir) => {
+      console.log(dir);
+      console.log(values.idDireccion);
+      console.log(iterador);
+      if (dir.id == values.idDireccion) {
+        sessionStorage.setItem(
+          "cliente-calle",
+          cliente.direcciones[iterador].calle
+        );
+        sessionStorage.setItem(
+          "cliente-numero",
+          cliente.direcciones[iterador].numero
+        );
+      } else {
+        iterador++;
+      }
+      return null;
+    });
     window.location.reload();
   };
 
@@ -245,11 +270,13 @@ export default function BuscarRestaurantesAbiertos() {
             <select
               name="idDireccion"
               className="mt-2 form-select"
-              onChange={handleChange}
-              required
+              onChange={handleChangeDireccion}
               id="direcciones"
               defaultValue={"DEFAULT"}
             >
+              <option value="DEFAULT" disabled>
+                Direccion
+              </option>
               {cliente.direcciones.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.calle} {item.numero}
@@ -262,12 +289,12 @@ export default function BuscarRestaurantesAbiertos() {
           <h2>Restaurantes</h2>
           <div className="container-lg">
             <div className="row align-items-center">
-              {values.idDireccion !== "" ? (
+              {values.idDireccion !== null ? (
                 <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
               ) : (
                 <h5 className="text-center h5 mb-3 fw-normal">
-                  Elija una direccion y haga click en buscar para ver
-                  restaurantes abiertos cerca de su zona.
+                  Elija una direccion para ver restaurantes abiertos cerca de su
+                  zona.
                 </h5>
               )}
             </div>

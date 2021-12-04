@@ -74,6 +74,7 @@ export const clearState = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("react-use-cart");
+  sessionStorage.clear();
   window.location.replace("/");
 };
 
