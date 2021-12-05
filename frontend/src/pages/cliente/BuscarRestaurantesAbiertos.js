@@ -169,32 +169,14 @@ export default function BuscarRestaurantesAbiertos() {
     }));
   };
 
-  const handleChangeDireccion = (e) => {
-    e.persist();
-    setValues((values) => ({
-      ...values,
-      [e.target.name]: e.target.value,
-    }));
-    sessionStorage.setItem("cliente-direccion", e.target.value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (values.idDireccion === "") {
-      Noti("Debe seleccionar una direccion");
-      return null;
-    }
-    sessionStorage.setItem("restaurantes-categoria", values.categoria);
-    sessionStorage.setItem("restaurantes-nombre", values.nombre);
-    sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
-    sessionStorage.setItem("cliente-direccion", values.idDireccion);
+  const setCalleNumero = (id) => {
     var iterador = 0;
     console.log(cliente);
     cliente.direcciones.map((dir) => {
       console.log(dir);
-      console.log(values.idDireccion);
+      console.log(id);
       console.log(iterador);
-      if (dir.id == values.idDireccion) {
+      if (dir.id == id) {
         sessionStorage.setItem(
           "cliente-calle",
           cliente.direcciones[iterador].calle
@@ -208,6 +190,22 @@ export default function BuscarRestaurantesAbiertos() {
       }
       return null;
     });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sessionStorage.setItem(
+      "cliente-direccion",
+      document.getElementById("direcciones").value
+    );
+    if (document.getElementById("direcciones").value === "") {
+      Noti("Debe seleccionar una direccion");
+      return null;
+    }
+    setCalleNumero(document.getElementById("direcciones").value);
+    sessionStorage.setItem("restaurantes-categoria", values.categoria);
+    sessionStorage.setItem("restaurantes-nombre", values.nombre);
+    sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
     window.location.reload();
   };
 
@@ -270,13 +268,9 @@ export default function BuscarRestaurantesAbiertos() {
             <select
               name="idDireccion"
               className="mt-2 form-select"
-              onChange={handleChangeDireccion}
               id="direcciones"
-              defaultValue={"DEFAULT"}
             >
-              <option value="DEFAULT" disabled>
-                Direccion
-              </option>
+              <option value="">Direccion</option>
               {cliente.direcciones.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.calle} {item.numero}
@@ -289,13 +283,13 @@ export default function BuscarRestaurantesAbiertos() {
           <h2>Restaurantes</h2>
           <div className="container-lg">
             <div className="row align-items-center">
-              {values.idDireccion !== null ? (
-                <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
-              ) : (
+              {values.idDireccion === null ? (
                 <h5 className="text-center h5 mb-3 fw-normal">
                   Elija una direccion para ver restaurantes abiertos cerca de su
                   zona.
                 </h5>
+              ) : (
+                <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
               )}
             </div>
           </div>
