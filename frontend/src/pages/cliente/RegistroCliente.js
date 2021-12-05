@@ -153,7 +153,7 @@ function RegistroCliente() {
             registrarCliente(registro)
               .then((response) => {
                 if (response.status === 201) {
-                  setAlerta("Registro hecho con exito");
+                  setAlerta("Registro hecho con éxito");
                   setTipo("success");
                   setTimeout(() => {
                     window.location.replace("/");

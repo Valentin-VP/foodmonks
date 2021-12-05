@@ -139,22 +139,22 @@ function AltaMenu() {
               state.imgUrl = url;
               //ahora cargo el json y hago el alta
               menu.imagen = state.imgUrl;
-              altaMenu(menu).then((response) => {
-                if (response.status === 201) setUploadBar(null);
-                setSuccess(
-                  <Alert variant="success">Menú creado con exito!</Alert>
-                );
-                setTimeout(() => {
-                  window.location.replace("/menu");
-                }, 3000);
-              }).catch((error) => {
-                setComponente(<Error error={error.response.data} />);
-              });
+              altaMenu(menu)
+                .then((response) => {
+                  if (response.status === 201) setUploadBar(null);
+                  setSuccess(
+                    <Alert variant="success">Menú creado con éxito!</Alert>
+                  );
+                  setTimeout(() => {
+                    window.location.replace("/menu");
+                  }, 3000);
+                })
+                .catch((error) => {
+                  setComponente(<Error error={error.response.data} />);
+                });
             })
             .catch((error) => {
-              setComponente(
-                <Error error={error.response.data} />
-              );
+              setComponente(<Error error={error.response.data} />);
             });
         }
       );
