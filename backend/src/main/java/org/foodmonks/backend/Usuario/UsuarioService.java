@@ -80,7 +80,7 @@ public class UsuarioService {
 		if(!correo.isEmpty()) {//filtro por correo(cliente, restaurante o admin)
 			List<Usuario> auxList = new ArrayList<>();
 			for(Usuario user: listaUsuarios) {
-				if(user.getCorreo().equals(correo)) {
+				if(user.getCorreo().contains(correo)) {
 					auxList.add(user);
 				}
 			}
