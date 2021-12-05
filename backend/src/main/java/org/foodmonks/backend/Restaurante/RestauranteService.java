@@ -74,9 +74,10 @@ public class RestauranteService {
     private final PayPalService payPalService;
     private final DireccionService direccionService;
 
-    @Value("${google.api.key}")
+    @Value("${google.dm.api.key}")
     private String googleapikey;
-    private final long distanciaMaxima = 10000L;
+    @Value("${distancia.maxima}")
+    private long distanciaMaxima;
     private final long distanciaInvalida = 1000000L;
 
     @Autowired
