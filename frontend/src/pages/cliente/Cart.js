@@ -156,7 +156,7 @@ export const Cart = () => {
     hacerPedidoEfectivo(jsonPedido)
       .then((response) => {
         console.log(response);
-        Noti("Pedido realizado con exito");
+        Noti("Pedido realizado con éxito");
         emptyCart();
       })
       .catch((error) => {
@@ -188,7 +188,7 @@ export const Cart = () => {
     paypalEnviarCART(jsonPedido)
       .then((response) => {
         console.log(response);
-        Noti("Pedido realizado con exito");
+        Noti("Pedido realizado con éxito");
         emptyCart();
       })
       .catch((error) => {

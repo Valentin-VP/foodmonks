@@ -101,7 +101,7 @@ function Reclamo() {
       .then((response) => {
         console.log("entro al then");
         setSuccess(
-          <Alert variant="success">Reclamo realizado con exito!</Alert>
+          <Alert variant="success">Reclamo realizado con éxito!</Alert>
         );
         console.log(response);
         sessionStorage.removeItem("pedidoId");

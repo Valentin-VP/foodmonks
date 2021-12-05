@@ -174,7 +174,7 @@ function ModificarMenu() {
                   if (response.status === 200)
                     setSuccess(
                       <Alert variant="success">
-                        Menú modificado con exito!
+                        Menú modificado con éxito!
                       </Alert>
                     );
                   console.log(response);

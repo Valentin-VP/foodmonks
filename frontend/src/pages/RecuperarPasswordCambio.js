@@ -199,14 +199,14 @@ export default function ResetPasswordConfirm() {
                     onChange={handleChange64}
                     required
                   />
-                  <label htmlFor="floatingInput">Confirmar Password</label>
+                  <label htmlFor="floatingInput">Confirmar password</label>
                 </div>
                 <button
                   className="w-100 btn btn-lg btn-primary"
                   type="submit"
                   disabled={!validarPasswordForm()}
                 >
-                  Ingresar
+                  Confirmar
                 </button>
                 <div id="rpAlert">
                   {success}

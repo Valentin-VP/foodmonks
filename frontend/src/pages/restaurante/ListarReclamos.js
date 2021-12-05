@@ -307,7 +307,7 @@ function ListarReclamos() {
                         <th scope="col" />
                         <td>PEDIDO: {reclamo.idPedido}</td>
                         <th scope="col" />
-                        <td>RAZóN: {reclamo.razon}</td>
+                        <td>RAZÓN: {reclamo.razon}</td>
                         <th scope="col" />
                         <td>FECHA: {reclamo.fecha}</td>
                         <th scope="col" />
