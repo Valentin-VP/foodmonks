@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class RestauranteConfig {
 
-    @Bean
+/*    @Bean
     CommandLineRunner commandLineRunnerRestaurante(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder) {
         return args ->{
             Direccion dir = new Direccion(111, "calle1", "calle2", null, "2", "2");
@@ -24,6 +24,6 @@ public class RestauranteConfig {
             restauranteRepository.saveAll(List.of(restaurante));
             //ejemplo para dar de alta un restaurante
         };
-    }
+    }*/
 
 }
