@@ -33,7 +33,7 @@ const Styles = styled.div`
       border: none;
       margin-left: 10px;
       border-radius: 30px;
-      max-width: 20%;
+      max-width: 15%;
       &:focus{
           box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
       }
@@ -43,7 +43,7 @@ const Styles = styled.div`
       border: none;
       margin-left: 10px;
       border-radius: 30px;
-      max-width: 20%;
+      max-width: 15%;
       &:focus{
           box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
       }
@@ -243,6 +243,18 @@ export default function BuscarRestaurantesAbiertos() {
                   </option>
                 ))}
               </select>
+              <select
+                name="idDireccion"
+                className="form-select"
+                id="direcciones"
+              >
+                <option value="">Direccion</option>
+                {cliente.direcciones.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.calle} {item.numero}
+                  </option>
+                ))}
+              </select>
               <button
                 id="boton"
                 type="submit"
@@ -265,18 +277,6 @@ export default function BuscarRestaurantesAbiertos() {
                 Ordenar por Calificación
               </label>
             </div>
-            <select
-              name="idDireccion"
-              className="mt-2 form-select"
-              id="direcciones"
-            >
-              <option value="">Direccion</option>
-              {cliente.direcciones.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.calle} {item.numero}
-                </option>
-              ))}
-            </select>
           </Container>
         </Container>
         <Layout>
