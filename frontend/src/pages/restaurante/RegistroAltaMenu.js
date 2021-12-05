@@ -169,10 +169,12 @@ function RegistroAltaMenu() {
   };
 
   const onEnd = (event) => {
-    if(document.getElementById("categoria").value === "" ||
+    if (
+      document.getElementById("categoria").value === "" ||
       document.getElementById("nombre").value === "" ||
       document.getElementById("descripcion").value === "" ||
-      document.getElementById("price").value === ""){
+      document.getElementById("price").value === ""
+    ) {
       return null;
     }
     event.preventDefault();
@@ -269,7 +271,7 @@ function RegistroAltaMenu() {
   ) {
     botonTerminar = (
       <Button onClick={onEnd} id="terminar" type="submit">
-        Terminar Altas
+        Terminar altas
       </Button>
     );
   } else {
@@ -288,7 +290,7 @@ function RegistroAltaMenu() {
       <div id="page-container"></div>
       <section className="form-alta">
         <Form onSubmit={onSubmit}>
-          <h4>Alta Menú</h4>
+          <h4>Alta menú</h4>
           {/*nombre del menu*/}
           <div className="form-floating">
             <input
@@ -300,7 +302,7 @@ function RegistroAltaMenu() {
               onChange={handleChange}
               required
             />
-            <label htmlFor="floatingInput">Nombre del Menú</label>
+            <label htmlFor="floatingInput">Nombre del menú</label>
           </div>
           {/*Precio*/}
           <div className="form-floating">

@@ -205,7 +205,7 @@ export default function BuscarPedidosRealizados() {
                       max="100000"
                       value={values.minTotal}
                     ></input>
-                    <label htmlFor="minTotal">Total Inicial</label>
+                    <label htmlFor="minTotal">Total inicial</label>
                   </div>
                   <div className="form-floating">
                     <input
@@ -218,7 +218,7 @@ export default function BuscarPedidosRealizados() {
                       max="100000"
                       value={values.maxTotal}
                     ></input>
-                    <label htmlFor="maxTotal">Total Final</label>
+                    <label htmlFor="maxTotal">Total final</label>
                   </div>
                 </div>
                 <div className="col-lg">

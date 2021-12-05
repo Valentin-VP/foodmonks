@@ -108,7 +108,7 @@ export const NavigationBar = () => (
           <Nav className="items">
             <NavDropdown
               align="end"
-              title={sessionStorage.getItem("nombreUsuario") }
+              title={sessionStorage.getItem("nombreUsuario")}
               menuVariant="color"
             >
               <NavDropdown.Item href="/historico">Histórico</NavDropdown.Item>
@@ -117,11 +117,11 @@ export const NavigationBar = () => (
               <NavDropdown.Item href="/promocion">Promociones</NavDropdown.Item>
               <NavDropdown.Item href="/menu">Menús</NavDropdown.Item>
               <NavDropdown.Item href="/listadoPedidosEfectivo">
-                Cobrar Pedidos Efectivo
+                Cobrar pedidos efectivo
               </NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={clearState}>
-                Cerrar Sesion <FiLogOut color="black" />
+                Cerrar sesión <FiLogOut color="black" />
               </NavDropdown.Item>
             </NavDropdown>
             <Nav.Item>

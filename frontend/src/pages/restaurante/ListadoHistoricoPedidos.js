@@ -254,7 +254,7 @@ export default function ListadoHistoricoPedidos({ datos }) {
       <ModalProvider>
         <div className="container-lg">
           <main className="lista">
-            <h1 className="text-center h5 mb-3 fw-normal">Pedidos Recibidos</h1>
+            <h1 className="text-center h5 mb-3 fw-normal">Pedidos recibidos</h1>
             <div className="form-floating">
               <div className="table-responsive justify-content-center">
                 <table className="table table-hover">
@@ -290,7 +290,7 @@ export default function ListadoHistoricoPedidos({ datos }) {
                                     type="button"
                                     onClick={(e) => cargarModal2(item)}
                                   >
-                                    ver
+                                    Ver
                                   </button>
                                 }
                               </td>
@@ -345,7 +345,7 @@ export default function ListadoHistoricoPedidos({ datos }) {
           onBackgroundClick={toggleModal}
           onEscapeKeydown={toggleModal}
         >
-          <h2>Calificar Restaurante</h2>
+          <h2>Calificar restaurante</h2>
           <hr />
           <Form>
             <div className="cuerpo">
@@ -392,10 +392,10 @@ export default function ListadoHistoricoPedidos({ datos }) {
               <tr>
                 <th scope="col">Imágen</th>
                 <th scope="col">Menú</th>
-                <th scope="col">Precio Unitario</th>
+                <th scope="col">Precio unitario</th>
                 <th scope="col">Descuento</th>
-                <th scope="col">Total Parcial</th>
-                <th scope="col">Total Final</th>
+                <th scope="col">Total parcial</th>
+                <th scope="col">Total final</th>
               </tr>
             </thead>
             <tbody>

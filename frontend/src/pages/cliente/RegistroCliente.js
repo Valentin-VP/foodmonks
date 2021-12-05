@@ -193,7 +193,7 @@ function RegistroCliente() {
               <a href="/">
                 <img className="" src={logo} alt="" width="200" height="200" />
               </a>
-              <h2 className="mb-3">Regístrate como Cliente</h2>
+              <h2 className="mb-3">Regístrate como cliente</h2>
 
               <div className="form-floating">
                 <input

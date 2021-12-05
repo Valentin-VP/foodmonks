@@ -137,7 +137,7 @@ export default function ResetPassword() {
                   //value={values.email}
                   required
                 />
-                <label htmlFor="floatingInput">Correo electronico</label>
+                <label htmlFor="floatingInput">Correo electrónico</label>
               </div>
               <button className="w-100 btn btn-lg btn-primary" type="submit">
                 Solicitar nueva contraseña
@@ -147,7 +147,7 @@ export default function ResetPassword() {
                 {error}
               </div>
               <p className="mt-2 mb-3 text-muted">
-                ¿No tienes cuenta?<a href="/register">Registrate</a>
+                ¿No tienes cuenta?<a href="/register">Regístrate</a>
               </p>
             </form>
           </main>

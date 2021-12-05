@@ -207,7 +207,7 @@ function ModificarMenu() {
           //request al backend
           console.log("entro al then");
           setSuccess(
-            <Alert variant="success">Menú modificado con exito!</Alert>
+            <Alert variant="success">Menú modificado con éxito!</Alert>
           );
           console.log(response);
           sessionStorage.removeItem("menuId");
@@ -229,9 +229,9 @@ function ModificarMenu() {
       <section className="form-alta">
         <Form>
           {state.descuento === 0 ? (
-            <h4>Modificar Menú</h4>
+            <h4>Modificar menú</h4>
           ) : (
-            <h4>Modificar Promocion</h4>
+            <h4>Modificar promoción</h4>
           )}
           {/*nombre del menu*/}
           <div className="form-floating">

@@ -200,7 +200,7 @@ export default function Home() {
                       <th scope="col">#</th>
                       <th scope="col">Nombre</th>
                       <th scope="col">Precio</th>
-                      <th scope="col">Descripcion</th>
+                      <th scope="col">Descripción</th>
                       <th scope="col">Categoría</th>
                       <th scope="col">Imágen</th>
                     </tr>
@@ -250,14 +250,14 @@ export default function Home() {
                   type="submit"
                   onClick={() => onUpdate("CERRADO")}
                 >
-                  Aceptar Registro
+                  Aceptar registro
                 </Button>
                 <Button
                   variant="danger"
                   type="submit"
                   onClick={() => onUpdate("RECHAZADO")}
                 >
-                  Rechazar Registro
+                  Rechazar registro
                 </Button>
               </div>
             </Form>

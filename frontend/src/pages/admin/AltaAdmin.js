@@ -138,7 +138,7 @@ export default function AltaAdmin() {
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
               <h1 className="text-center h5 mb-3 fw-normal">
-                Dar de Alta un Admin
+                Dar de alta un admin
               </h1>
               <div className="col-lg">
                 <div className="form-floating">

@@ -198,7 +198,7 @@ export default function BuscarRestaurantesAbiertos() {
                   onChange={handleChange}
                   id="calificacion"
                 />{" "}
-                Ordenar por Calificación
+                Ordenar por calificación
               </label>
             </div>
           </Container>

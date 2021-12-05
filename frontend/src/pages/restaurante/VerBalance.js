@@ -170,7 +170,7 @@ export default function VerBalance() {
                         </option>
                       ))}
                     </select>
-                    <label htmlFor="categoria">Categoría Menú</label>
+                    <label htmlFor="categoria">Categoría menú</label>
                   </div>
                 </div>
                 <div className="col-lg">

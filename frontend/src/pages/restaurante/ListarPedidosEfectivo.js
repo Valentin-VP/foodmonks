@@ -215,7 +215,7 @@ function ListadoPedidosEfectivo() {
         <div className="container-lg">
           <main className="lista">
             <h1 className="text-center h5 mb-3 fw-normal">
-              Cobrar Pagos Efectivo
+              Cobrar pagos efectivo
             </h1>
             <div className="form-floating">
               <div className="table-responsive justify-content-center">
@@ -229,11 +229,11 @@ function ListadoPedidosEfectivo() {
                                 <tr key={item.id}>
                                   <td>ID Pedido: {item.id}</td>
                                   <td>
-                                    Fecha Confirmación:{" "}
+                                    Fecha confirmación:{" "}
                                     {item.fechaHoraProcesado}
                                   </td>
                                   <td>
-                                    Fecha Entrega: {item.fechaHoraEntrega}
+                                    Fecha entrega: {item.fechaHoraEntrega}
                                   </td>
                                   <td>Total: ${item.total}</td>
                                   <td>

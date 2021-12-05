@@ -44,17 +44,23 @@ const MenuCard = (props) => {
           <p className="card-text">{props.descripcion}</p>
           <div className="grupoBotones">
             <ButtonGroup aria-label="Basic example">
-              <Button id="eliminar" className="btn-primary margin-auto" onClick={() => {eliminarMenu(props.id).then((response) => {
-                console.log(response);
-                window.location.reload();
-              })}}>
+              <Button
+                id="eliminar"
+                className="btn-primary margin-auto"
+                onClick={() => {
+                  eliminarMenu(props.id).then((response) => {
+                    console.log(response);
+                    window.location.reload();
+                  });
+                }}
+              >
                 Eliminar
               </Button>
               <Button id="modificar" className="btn-primary margin-auto">
                 Modificar
               </Button>
               <Button id="promocion" className="btn-primary margin-auto">
-                Promocion
+                Promoción
               </Button>
             </ButtonGroup>
           </div>
