@@ -409,7 +409,7 @@ function PerfilCliente() {
             <div className="col-md-4 border-right">
               <div className="p-3 pt-5 mt-5">
                 <Form onSubmit={addDir}>
-                  <h4>Añadir una direccion</h4>
+                  <h4>Añadir una dirección</h4>
                   <Combobox className="busqueda mb-3" onSelect={handleSelect}>
                     <ComboboxInput
                       className="form-control"
@@ -527,7 +527,7 @@ function PerfilCliente() {
           onBackgroundClick={toggleModal}
           onEscapeKeydown={toggleModal}
         >
-          <h2>Eliminar Cuenta</h2>
+          <h2>Eliminar cuenta</h2>
           <hr />
           <div className="cuerpo">
             <span>¿Seguro que desea eliminar su cuenta?</span>

@@ -395,61 +395,26 @@ export const realizarDevolucion = (pedido, estado, motivo) => {
 };
 
 export const estadisticasUsuariosTotales = () => {
-  return axios({
-    method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerEstadisticasUsuarios`,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
+  return instance.get("api/v1/admin/obtenerEstadisticasUsuarios");
 };
 
-export const estadisticasUsuariosRegistrados = () => {
-  return axios({
-    method: "GET",
-    url: `${
-      process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasRegistros?anioPedidos=${new Date().getFullYear()}`,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
+export const estadisticasUsuariosRegistrados = (anio) => {
+  return instance.get(
+    `api/v1/admin/obtenerEstadisticasRegistros?anioPedidos=${anio}`
+  );
 };
 
 export const estadisticasPedidosRegistrados = (anio) => {
-  return axios({
-    method: "GET",
-    url: `${
-      process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${anio}`,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
+  return instance.get(
+    `api/v1/admin/obtenerEstadisticasPedidos?anioPedidos=${anio}`
+  );
 };
 export const estadisticasVentasRestaurante = (restaurante, anio) => {
-  return axios({
-    method: "GET",
-    url: `${
-      process.env.REACT_APP_BACKEND_URL_BASE
-    }api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${anio}`,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
+  return instance.get(
+    `api/v1/admin/obtenerEstadisticasVentas?correoRestaurante=${restaurante}&anioVentas=${anio}`
+  );
 };
 
 export const obtenerRestaurantes = () => {
-  return axios({
-    method: "GET",
-    url: `${process.env.REACT_APP_BACKEND_URL_BASE}api/v1/admin/obtenerRestaurantes`,
-    headers: {
-      Authorization: "Bearer " + getToken(),
-      RefreshAuthentication: "Bearer " + getRefreshToken(),
-    },
-  });
+  return instance.get("api/v1/admin/obtenerRestaurantes");
 };

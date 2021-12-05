@@ -133,7 +133,7 @@ function Login() {
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="floatingInput">Correo electronico</label>
+              <label htmlFor="floatingInput">Correo electrónico</label>
             </div>
             <div className="form-floating">
               <input

@@ -40,8 +40,9 @@ const Styles = styled.div`
   }
 
   #anio,
+  #anio1,
   #anio2 {
-    width: 5rem;
+    width: 6rem;
   }
 `;
 
@@ -50,11 +51,16 @@ export default function Estadisticas() {
   const [usuarios, setUsuarios] = useState(null);
   const [pedidos, setPedidos] = useState(null);
   const [fecha, setFecha] = useState(2021);
+  const [fecha1, setFecha1] = useState(2021);
   const [fecha2, setFecha2] = useState(2021);
   sessionStorage.setItem("fechaStat", fecha2);
 
   const onChange = () => {
     setFecha(document.getElementById("anio").value);
+  };
+
+  const onChange1 = () => {
+    setFecha1(document.getElementById("anio1").value);
   };
 
   const onChange2 = () => {
@@ -71,8 +77,9 @@ export default function Estadisticas() {
         NotiError(error.response.data);
       });
 
-    estadisticasUsuariosRegistrados()
+    estadisticasUsuariosRegistrados(fecha1)
       .then((response) => {
+        console.log(response.data);
         var clientesRegistrados = [];
         var restaurantesRegistrados = [];
         response.data.forEach((mes) => {
@@ -100,7 +107,7 @@ export default function Estadisticas() {
       .catch((error) => {
         NotiError(error.response);
       });
-  }, [fecha]);
+  }, [fecha, fecha1]);
 
   if (usuarios === null || usuariosRegistrados === null || pedidos === null) {
     return <Loading />;
@@ -109,10 +116,18 @@ export default function Estadisticas() {
   return (
     <Styles>
       <Layout>
-        <h1 className="titulo">Estadisticas</h1>
+        <h1 className="titulo">Estadísticas</h1>
         <div className="row">
           <div className="column myColumn">
-            <h3 className="gTitle text-center mb-2">Registro de usuarios</h3>
+            <h3 className="gTitle text-center mb-2">Registro de usuarios <input
+                id="anio1"
+                type="number"
+                min="1990"
+                max="2099"
+                step="1"
+                value={fecha1}
+                onChange={onChange1}
+              /></h3>
             <Bar
               data={{
                 labels: [

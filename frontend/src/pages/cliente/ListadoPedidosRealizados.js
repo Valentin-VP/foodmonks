@@ -256,7 +256,7 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
     e.preventDefault();
     if (rating === 0) {
       setError(
-        <Alert variant="danger">La calificación no puede estar vacia</Alert>
+        <Alert variant="danger">La calificación no puede estar vacía</Alert>
       );
       return null;
     }
@@ -301,7 +301,7 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
         <div className="container-lg">
           <main className="lista">
             <h1 className="text-center h5 mb-3 fw-normal">
-              Pedidos Realizados
+              Pedidos realizados
             </h1>
             <div className="table-responsive">
               <table className="table table-bordered table-striped">
@@ -411,7 +411,7 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
           onBackgroundClick={toggleModal}
           onEscapeKeydown={toggleModal}
         >
-          <h2>Calificar Restaurante</h2>
+          <h2>Calificar restaurante</h2>
           <hr />
           <Form>
             <div className="cuerpo">
@@ -457,10 +457,10 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
               <tr>
                 <th scope="col">Imágen</th>
                 <th scope="col">Menú</th>
-                <th scope="col">Precio Unitario</th>
+                <th scope="col">Precio unitario</th>
                 <th scope="col">Descuento</th>
-                <th scope="col">Total Parcial</th>
-                <th scope="col">Total Final</th>
+                <th scope="col">Total parcial</th>
+                <th scope="col">Total final</th>
               </tr>
             </thead>
             <tbody>
@@ -512,7 +512,7 @@ export default function ListadoPedidosRealizados({ datos, onVisibleReclamo }) {
               <h5>Comentario</h5>
               <label>{pedido.reclamo.comentario}</label>
               <hr />
-              <h5>Fecha Reclamo</h5>
+              <h5>Fecha reclamo</h5>
               <label>{pedido.reclamo.fecha}</label>
             </div>
           ) : null}

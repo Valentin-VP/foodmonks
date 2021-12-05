@@ -407,18 +407,18 @@ function ListadoPedidosPendientes(abierto) {
                                                 {menu.cantidad})
                                               </td>
                                               <td>
-                                                Precio Unitario: ${menu.precio}
+                                                Precio unitario: ${menu.precio}
                                               </td>
                                               <td>
                                                 Descuento:{" "}
                                                 {menu.multiplicadorPromocion} %
                                               </td>
                                               <td>
-                                                Total Parcial: $
+                                                Total parcial: $
                                                 {menu.precioPorCantidad}
                                               </td>
                                               <td>
-                                                Total Final: ${menu.calculado}
+                                                Total final: ${menu.calculado}
                                               </td>
                                               {/* <td>Cantidad: ${item.cantidad}</td> */}
                                             </tr>

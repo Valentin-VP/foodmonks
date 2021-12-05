@@ -78,7 +78,7 @@ function BuscarReclamos() {
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
               <h1 className="text-center h5 mb-3 fw-normal">
-                Búsqueda de Reclamos
+                Búsqueda de reclamos
               </h1>
               <div className="row align-items-center">
                 <div className="col-lg">
@@ -90,7 +90,7 @@ function BuscarReclamos() {
                       id="cliente"
                       value={values.cliente}
                     ></input>
-                    <label htmlFor="correo">Email del Cliente</label>
+                    <label htmlFor="correo">Email del cliente</label>
                   </div>
                 </div>
                 <div className="col-lg">
@@ -102,7 +102,7 @@ function BuscarReclamos() {
                       id="razon"
                       value={values.razon}
                     ></input>
-                    <label htmlFor="razon">Razon del Reclamo</label>
+                    <label htmlFor="razon">Razón del reclamo</label>
                   </div>
                 </div>
                 <div className="col-lg">
@@ -117,7 +117,7 @@ function BuscarReclamos() {
                           onChange={handleChange}
                           id="ordenar"
                         />{" "}
-                        Ordenar por Fecha
+                        Ordenar por fecha
                       </label>
                     </div>
                   </div>

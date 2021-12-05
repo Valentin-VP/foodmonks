@@ -1,9 +1,8 @@
-import React from 'react';
+import React from "react";
 
 export const Contact = () => (
-    <div>
-        <h2>Contacto</h2>
-        <p>foodMonks@gmail.com</p>
-
-    </div>
-)
+  <div>
+    <h2>Contacto</h2>
+    <p>foodmonksoficial@gmail.com</p>
+  </div>
+);

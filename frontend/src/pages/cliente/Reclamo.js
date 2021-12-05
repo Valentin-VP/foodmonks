@@ -123,7 +123,7 @@ function Reclamo() {
           <h4> Reclamo </h4>
           <Form onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="floatingInput"> Razon </label>
+              <label htmlFor="floatingInput"> Razón </label>
               <input
                 className="form-control"
                 type="text"

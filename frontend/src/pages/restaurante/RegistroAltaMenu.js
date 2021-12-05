@@ -169,6 +169,14 @@ function RegistroAltaMenu() {
   };
 
   const onEnd = (event) => {
+    if (
+      document.getElementById("categoria").value === "" ||
+      document.getElementById("nombre").value === "" ||
+      document.getElementById("descripcion").value === "" ||
+      document.getElementById("price").value === ""
+    ) {
+      return null;
+    }
     event.preventDefault();
     var json = JSON.parse(sessionStorage.getItem("registroRestaurante"));
     menu.nombre = document.getElementById("nombre").value;
@@ -219,12 +227,9 @@ function RegistroAltaMenu() {
                     }, 3000);
                   })
                   .catch((error) => {
+                    console.log("entro al catch");
                     setAlerta(error.response.data);
                     setTipo("danger");
-                    setTimeout(() => {
-                      window.location.replace("/");
-                      sessionStorage.clear();
-                    }, 3000);
                   });
               });
           }
@@ -254,7 +259,7 @@ function RegistroAltaMenu() {
           });
       }
     } else {
-      setAlerta("El nombre del menu debe ser unico");
+      setAlerta("El nombre del menú debe ser único");
       setTipo("danger");
     }
   };
@@ -266,7 +271,7 @@ function RegistroAltaMenu() {
   ) {
     botonTerminar = (
       <Button onClick={onEnd} id="terminar" type="submit">
-        Terminar Altas
+        Terminar altas
       </Button>
     );
   } else {
@@ -285,7 +290,7 @@ function RegistroAltaMenu() {
       <div id="page-container"></div>
       <section className="form-alta">
         <Form onSubmit={onSubmit}>
-          <h4>Alta Menú</h4>
+          <h4>Alta menú</h4>
           {/*nombre del menu*/}
           <div className="form-floating">
             <input
@@ -297,7 +302,7 @@ function RegistroAltaMenu() {
               onChange={handleChange}
               required
             />
-            <label htmlFor="floatingInput">Nombre del Menú</label>
+            <label htmlFor="floatingInput">Nombre del menú</label>
           </div>
           {/*Precio*/}
           <div className="form-floating">

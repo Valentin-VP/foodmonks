@@ -233,7 +233,7 @@ export default function ResetPasswordConfirm() {
             <img className="mb-4" src={logo} alt="" width="200" height="200" />
             <p>Password reestablecido con éxito.</p>
             <p>
-              <Link to="/">Clic acá para volver al formulario de login.</Link>
+              <Link to="/">Click acá para volver al formulario de login.</Link>
             </p>
           </div>
         </Fragment>

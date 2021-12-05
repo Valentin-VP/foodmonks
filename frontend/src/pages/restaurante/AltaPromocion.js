@@ -157,9 +157,7 @@ function AltaPromocion() {
       })
       .catch((error) => {
         console.log(error.response.data);
-        setSuccess(
-          <Alert variant="danger">{error.response.data}</Alert>
-        );
+        setSuccess(<Alert variant="danger">{error.response.data}</Alert>);
       });
   };
 
@@ -170,7 +168,7 @@ function AltaPromocion() {
         <Form onSubmit={onSubmit}>
           {/*nombre del menu a promocionar*/}
           <div className="text-center">
-            <h4>Promocionar Menú</h4>
+            <h4>Promocionar menú</h4>
             <img src={state.imgUrl} alt="productimg" height="150" />
           </div>
           {/*imagen del menu a promocionar*/}
