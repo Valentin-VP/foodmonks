@@ -192,8 +192,8 @@ export default function BuscarPedidosRealizados() {
         <div className="container-lg">
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
-              <div class="row align-items-center">
-                <div class="col-lg">
+              <div className="row align-items-center">
+                <div className="col-lg">
                   <div className="form-floating">
                     <input
                       name="minTotal"
@@ -205,7 +205,7 @@ export default function BuscarPedidosRealizados() {
                       max="100000"
                       value={values.minTotal}
                     ></input>
-                    <label htmlFor="minTotal">Total Inicial</label>
+                    <label htmlFor="minTotal">Total inicial</label>
                   </div>
                   <div className="form-floating">
                     <input
@@ -218,7 +218,7 @@ export default function BuscarPedidosRealizados() {
                       max="100000"
                       value={values.maxTotal}
                     ></input>
-                    <label htmlFor="maxTotal">Total Final</label>
+                    <label htmlFor="maxTotal">Total final</label>
                   </div>
                 </div>
                 <div className="col-lg">
@@ -252,7 +252,7 @@ export default function BuscarPedidosRealizados() {
                     <label htmlFor="ordenamiento">Ordenamiento</label>
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                   <div className="form-floating">
                     <input
                       name="nombreRestaurante"
@@ -275,7 +275,7 @@ export default function BuscarPedidosRealizados() {
                     <label htmlFor="nombreMenu">Menú</label>
                   </div>
                 </div>
-                <div class="col-lg">
+                <div className="col-lg">
                   <div className="form-floating">
                     <select
                       name="estadoPedido"
@@ -321,8 +321,8 @@ export default function BuscarPedidosRealizados() {
             </div>
 
             <div className="form-floating">
-              <div class="row align-items-center">
-                <div class="col-md">
+              <div className="row align-items-center">
+                <div className="col-md">
                   {
                     <ListadoPedidosRealizados
                       datos={data}

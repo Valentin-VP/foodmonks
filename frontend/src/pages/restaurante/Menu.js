@@ -106,7 +106,7 @@ function Menu() {
     <Styles>
       <Layout>
         <InputGroup id="cabecera">
-          <h2 id="titulo">Mis Menús</h2>
+          <h2 id="titulo">Mis menús</h2>
           <Button id="alta" variant="success" href="/altaMenu">
             <SiAddthis className="text-center" size="2.5rem" color="008f39" />
           </Button>
@@ -116,7 +116,9 @@ function Menu() {
             <table className="table table-light table-hover m-0">
               <thead>
                 <tr>
-                  <th className scope="col">Imágen</th>
+                  <th className scope="col">
+                    Imágen
+                  </th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Precio</th>
                   <th scope="col">Descripción</th>

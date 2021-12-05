@@ -83,7 +83,8 @@ function ModificarMenu() {
     return <div className="App">Cargando...</div>;
   }
 
-  const state = {//valores cargados del menu a modificar
+  const state = {
+    //valores cargados del menu a modificar
     id: menu.id,
     nombre: menu.nombre,
     price: menu.price,
@@ -102,8 +103,7 @@ function ModificarMenu() {
     multiplicador: "",
     categoria: "",
     imagen: "",
-  }
-
+  };
 
   let categorias = [
     { nombre: "PIZZAS" },
@@ -126,18 +126,29 @@ function ModificarMenu() {
 
   const handleChange = (e) => {
     e.persist();
-    state[e.target.name] = e.target.value;
+    menuRetorno[e.target.name] = e.target.value;
   };
 
   const onSubmit = () => {
     //cargo todo menos la imagen
     document.getElementById("submit").disabled = true;
-    menuRetorno.nombre = state.nombre;
-    menuRetorno.categoria = state.categoria;
-    menuRetorno.descripcion = state.descripcion;
-    menuRetorno.multiplicador = state.descuento;
-    menuRetorno.price = state.price;
-    if(state.img !== "") {//si se selecciona una imagen
+    if (menuRetorno.nombre === "") {
+      menuRetorno.nombre = state.nombre;
+    }
+    if (menuRetorno.categoria === "") {
+      menuRetorno.categoria = state.categoria;
+    }
+    if (menuRetorno.descripcion === "") {
+      menuRetorno.descripcion = state.descripcion;
+    }
+    if (menuRetorno.multiplicador === "") {
+      menuRetorno.multiplicador = state.descuento;
+    }
+    if (menuRetorno.price === "") {
+      menuRetorno.price = state.price;
+    }
+    if (state.img !== "") {
+      //si se selecciona una imagen
       const uploadTask = storage.ref(`/menus/${state.img.name}`).put(state.img);
       uploadTask.on(
         "state_changed",
@@ -157,40 +168,58 @@ function ModificarMenu() {
               //cambio la imagen
               state.imgUrl = url;
               menuRetorno.imagen = state.imgUrl;
-              console.log(menuRetorno);
-              console.log(state.id);
-              modMenu(menuRetorno, state.id).then((response) => {//request al backend
-                if (response.status === 200)
-                  setSuccess(<Alert variant="success">Menú modificado con exito!</Alert>);
-                console.log(response);
-                sessionStorage.removeItem("menuId");
-                setTimeout(() => {
-                  if(state.descuento === 0) {
-                    window.location.replace("/menu");
-                  } else {
-                    window.location.replace("/promocion");
-                  }
-                }, 3000);
-              }).catch((error) =>{
-                console.log(error.message);
-                setSuccess(<Alert variant="danger" error={error.response.data.detailMessage} />);
-              });
+              modMenu(menuRetorno, state.id)
+                .then((response) => {
+                  //request al backend
+                  if (response.status === 200)
+                    setSuccess(
+                      <Alert variant="success">
+                        Menú modificado con éxito!
+                      </Alert>
+                    );
+                  console.log(response);
+                  sessionStorage.removeItem("menuId");
+                  setTimeout(() => {
+                    if (state.descuento === 0) {
+                      window.location.replace("/menu");
+                    } else {
+                      window.location.replace("/promocion");
+                    }
+                  }, 3000);
+                })
+                .catch((error) => {
+                  console.log(error.message);
+                  setSuccess(
+                    <Alert
+                      variant="danger"
+                      error={error.response.data.detailMessage}
+                    />
+                  );
+                });
             });
         }
       );
-    } else {//sino
-      menuRetorno.imagen = state.imgUrl;//cargo la imagen que ya estaba
-      modMenu(menuRetorno, state.id).then((response) => {//request al backend
-        console.log("entro al then");
-        setSuccess(<Alert variant="success">Menú modificado con exito!</Alert>);
-        console.log(response);
-        sessionStorage.removeItem("menuId");
-        setTimeout(() => {
-          window.location.replace("/menu");
-        }, 3000);
-      }).catch((error) =>{
-        setSuccess(<Alert variant="danger" error={error.response.data.detailMessage} />);
-      });
+    } else {
+      //sino
+      menuRetorno.imagen = state.imgUrl; //cargo la imagen que ya estaba
+      modMenu(menuRetorno, state.id)
+        .then((response) => {
+          //request al backend
+          console.log("entro al then");
+          setSuccess(
+            <Alert variant="success">Menú modificado con éxito!</Alert>
+          );
+          console.log(response);
+          sessionStorage.removeItem("menuId");
+          setTimeout(() => {
+            window.location.replace("/menu");
+          }, 3000);
+        })
+        .catch((error) => {
+          setSuccess(
+            <Alert variant="danger" error={error.response.data.detailMessage} />
+          );
+        });
     }
   };
 
@@ -199,8 +228,11 @@ function ModificarMenu() {
       <div id="page-container"></div>
       <section className="form-alta">
         <Form>
-          {state.descuento === 0 ? <h4>Modificar Menú</h4>
-          : <h4>Modificar Promocion</h4>}
+          {state.descuento === 0 ? (
+            <h4>Modificar menú</h4>
+          ) : (
+            <h4>Modificar promoción</h4>
+          )}
           {/*nombre del menu*/}
           <div className="form-floating">
             <input
@@ -241,20 +273,20 @@ function ModificarMenu() {
           </div>
           {/*descuento*/}
           <div className="form-floating">
-              <input
-                className="form-control"
-                type="number"
-                name="descuento"
-                id="descuento"
-                placeholder="Descuento"
-                max="100"
-                min="1"
-                required
-                defaultValue={state.descuento}
-                onChange={handleChange}
-                disabled={state.descuento === 0}
-              />
-              <label htmlFor="floatingInput">Descuento</label>
+            <input
+              className="form-control"
+              type="number"
+              name="multiplicador"
+              id="descuento"
+              placeholder="Descuento"
+              max="100"
+              min="1"
+              required
+              defaultValue={state.descuento}
+              onChange={handleChange}
+              disabled={state.descuento === 0}
+            />
+            <label htmlFor="floatingInput">Descuento</label>
           </div>
           <FloatingLabel controlId="floatingSelect" label="Categoría">
             <Form.Select
@@ -272,10 +304,17 @@ function ModificarMenu() {
           </FloatingLabel>
           <label className="mb-2">Imágen</label>
           {/* image uploader */}
-          <Form.Control className="mb-3" type="file" size="lg" onChange={handleUpload} />
+          <Form.Control
+            className="mb-3"
+            type="file"
+            size="lg"
+            onChange={handleUpload}
+          />
           {success}
           {componente}
-          <Button id="submit" onClick={onSubmit}>Modificar</Button>
+          <Button id="submit" onClick={onSubmit}>
+            Modificar
+          </Button>
         </Form>
       </section>
     </Styles>

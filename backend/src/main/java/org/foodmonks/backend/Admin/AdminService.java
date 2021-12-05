@@ -4,7 +4,6 @@ package org.foodmonks.backend.Admin;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
-import com.google.gson.JsonObject;
 import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
 import org.foodmonks.backend.Usuario.Exceptions.UsuarioExisteException;
@@ -18,7 +17,6 @@ import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Usuario.Usuario;
 
@@ -34,25 +32,22 @@ public class AdminService {
     private final AdminConverter adminConverter;
     private final RestauranteRepository restauranteRepository;
     private final RestauranteConverter restauranteConverter;
-
-    @Autowired
-    private TemplateEngine templateEngine;
-
-    @Autowired
-    private EmailService emailService;
+    private final TemplateEngine templateEngine;
+    private final EmailService emailService;
 
     @Autowired
     public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder,
                         UsuarioRepository usuarioRepository, AdminConverter adminConverter,
-                        RestauranteRepository restauranteRepository,
-                        RestauranteConverter restauranteConverter) {
+                        RestauranteRepository restauranteRepository, RestauranteConverter restauranteConverter,
+                        TemplateEngine templateEngine, EmailService emailService) {
         this.adminRepository = adminRepository; this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = usuarioRepository; this.adminConverter = adminConverter;
         this.restauranteRepository = restauranteRepository; this.restauranteConverter = restauranteConverter;
+        this.templateEngine = templateEngine; this.emailService = emailService;
     }
 
     public void crearAdmin(String correo, String nombre, String apellido, String password) throws UsuarioExisteException {
-        if (usuarioRepository.findByCorreo(correo) != null){
+        if (usuarioRepository.findByCorreoIgnoreCase(correo) != null){
             throw new UsuarioExisteException("Ya existe un Usuario con el correo " + correo);
         }
         Admin admin = new Admin(nombre, apellido, correo, passwordEncoder.encode(password),LocalDate.now());
@@ -64,7 +59,7 @@ public class AdminService {
     }
 
     public Admin buscarAdmin(String correo) {
-        return adminRepository.findByCorreo(correo);
+        return adminRepository.findByCorreoIgnoreCase(correo);
     }
 
     public void modificarAdmin(Admin admin) {
@@ -72,16 +67,13 @@ public class AdminService {
     }
 
     public JsonArray listarRestaurantesPorEstado(String estadoRestaurante) {
-
-        List<Restaurante> restauranteAux = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.valueOf(estadoRestaurante));
-        JsonArray resultado = restauranteConverter.arrayJsonRestaurantes(restauranteAux);
-
-        return resultado;
+        List<Restaurante> restauranteAux = restauranteRepository.findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.valueOf(estadoRestaurante));
+        return restauranteConverter.arrayJsonRestaurantes(restauranteAux);
     }
 
     public JsonObject cambiarEstadoRestaurante(String correoRestaurante, String estadoRestaurante) throws RestauranteNoEncontradoException {
         System.out.println(estadoRestaurante);
-        Restaurante restauranteAux = restauranteRepository.findByCorreo(correoRestaurante);
+        Restaurante restauranteAux = restauranteRepository.findByCorreoIgnoreCase(correoRestaurante);
 
         if (restauranteAux == null) {
             throw new RestauranteNoEncontradoException("No existe el Restaurante " + correoRestaurante);
@@ -98,7 +90,7 @@ public class AdminService {
 
     public void enviarCorreo(String correoRestaurante, String resultadoCambioEstado, String comentariosCambioEstado) throws EmailNoEnviadoException {
 
-        Usuario usuarioAux = usuarioRepository.findByCorreo(correoRestaurante);
+        Usuario usuarioAux = usuarioRepository.findByCorreoIgnoreCase(correoRestaurante);
 
         String nombre = usuarioAux.getNombre() + ", " + usuarioAux.getApellido();
 
@@ -120,7 +112,7 @@ public class AdminService {
     }
 
     public JsonObject obtenerJsonAdmin (String correo) throws AdminNoEncontradoException {
-        Admin admin = adminRepository.findByCorreo(correo);
+        Admin admin = adminRepository.findByCorreoIgnoreCase(correo);
         if (admin == null) {
             throw new AdminNoEncontradoException("No existe el Admin " + correo);
         }

@@ -56,7 +56,7 @@ export default function BuscarMenusPromociones() {
     nombre: sessionStorage.getItem("restauranteNombre"),
     calificacion: sessionStorage.getItem("restauranteCalif"),
     logo: sessionStorage.getItem("restauranteImagen"),
-    cantCal: sessionStorage.getItem("restauranteCantCal")
+    cantCal: sessionStorage.getItem("restauranteCantCal"),
   };
 
   let categoria = [
@@ -123,7 +123,7 @@ export default function BuscarMenusPromociones() {
                       id="precioInicial"
                       value={values.precioInicial}
                     ></input>
-                    <label htmlFor="precioInicial">Precio Inicial</label>
+                    <label htmlFor="precioInicial">Precio inicial</label>
                   </div>
                 </div>
                 <div className="col-md-3">
@@ -135,7 +135,7 @@ export default function BuscarMenusPromociones() {
                       id="precioFinal"
                       value={values.precioFinal}
                     ></input>
-                    <label htmlFor="precioFinal">Precio Final</label>
+                    <label htmlFor="precioFinal">Precio final</label>
                   </div>
                 </div>
               </div>

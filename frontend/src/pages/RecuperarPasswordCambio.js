@@ -199,14 +199,14 @@ export default function ResetPasswordConfirm() {
                     onChange={handleChange64}
                     required
                   />
-                  <label htmlFor="floatingInput">Confirmar Password</label>
+                  <label htmlFor="floatingInput">Confirmar password</label>
                 </div>
                 <button
                   className="w-100 btn btn-lg btn-primary"
                   type="submit"
                   disabled={!validarPasswordForm()}
                 >
-                  Ingresar
+                  Confirmar
                 </button>
                 <div id="rpAlert">
                   {success}
@@ -233,7 +233,7 @@ export default function ResetPasswordConfirm() {
             <img className="mb-4" src={logo} alt="" width="200" height="200" />
             <p>Password reestablecido con éxito.</p>
             <p>
-              <Link to="/">Clic acá para volver al formulario de login.</Link>
+              <Link to="/">Click acá para volver al formulario de login.</Link>
             </p>
           </div>
         </Fragment>

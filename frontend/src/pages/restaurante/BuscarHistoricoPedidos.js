@@ -143,16 +143,16 @@ export default function BuscarHistoricoPedidos() {
     onPageChange(1);
   };
 
-  const onVisible = (id) => {
-    let items = [...data.pedidos];
-    //de paso le pregunto si tiene menus (normalmente deberia tener), sino tiene no hago nada
-    items.map((i) => {
-      if (i.id === id && i.menus) i.visible = !i.visible;
-      return i;
-    });
-    console.log(items);
-    setData({ ...data, pedidos: items });
-  };
+  // const onVisible = (id) => {
+  //   let items = [...data.pedidos];
+  //   //de paso le pregunto si tiene menus (normalmente deberia tener), sino tiene no hago nada
+  //   items.map((i) => {
+  //     if (i.id === id && i.menus) i.visible = !i.visible;
+  //     return i;
+  //   });
+  //   console.log(items);
+  //   setData({ ...data, pedidos: items });
+  // };
 
   const [page, setPage] = useState(1);
 
@@ -180,7 +180,7 @@ export default function BuscarHistoricoPedidos() {
                       max="100000"
                       value={values.minTotal}
                     ></input>
-                    <label htmlFor="minTotal">Total Inicial</label>
+                    <label htmlFor="minTotal">Total inicial</label>
                   </div>
                   <div className="form-floating">
                     <input
@@ -193,7 +193,7 @@ export default function BuscarHistoricoPedidos() {
                       max="100000"
                       value={values.maxTotal}
                     ></input>
-                    <label htmlFor="maxTotal">Total Final</label>
+                    <label htmlFor="maxTotal">Total final</label>
                   </div>
                 </div>
                 <div className="col-lg">
@@ -277,7 +277,6 @@ export default function BuscarHistoricoPedidos() {
                       datos={data}
                       cantidadPages={data.totalPages}
                       onPageChange={onPageChange}
-                      onVisible={onVisible}
                     />
                   }
                   {data.pedidos && data.pedidos.length > 0 ? (

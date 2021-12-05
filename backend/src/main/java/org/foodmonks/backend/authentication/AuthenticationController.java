@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import lombok.SneakyThrows;
 import org.foodmonks.backend.Admin.AdminService;
 import org.foodmonks.backend.Admin.Exceptions.AdminNoEncontradoException;
 import org.foodmonks.backend.Cliente.ClienteService;
@@ -18,8 +18,8 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteNoEncontradoException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Restaurante.Exceptions.RestauranteNoEncontradoException;
-import org.foodmonks.backend.Restaurante.Restaurante;
 import org.foodmonks.backend.Restaurante.RestauranteService;
+import org.foodmonks.backend.Usuario.Usuario;
 import org.foodmonks.backend.Usuario.UsuarioService;
 import org.foodmonks.backend.datatypes.EstadoCliente;
 import org.foodmonks.backend.datatypes.EstadoRestaurante;
@@ -123,6 +123,14 @@ public class AuthenticationController {
         }
     }
 
+    @Operation(summary = "Renovar Tokens",
+            description = "Se renuevan los tokens, solo se usa al momento de error 401",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            tags = { "autenticación" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
+    })
     @GetMapping(path = "/auth/refresh")
     public ResponseEntity<?> refreshTokens (@RequestHeader("RefreshAuthentication") String refreshToken) {
         String parsedToken = null;
@@ -161,7 +169,7 @@ public class AuthenticationController {
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "autenticación" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operación exitosa"),
+            @ApiResponse(responseCode = "200", description = "Operación exitosa", content = @Content(schema = @Schema(implementation = Usuario.class))),
             @ApiResponse(responseCode = "400", description = "Ha ocurrido un error")
     })
     public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) throws ClienteNoEncontradoException, RestauranteNoEncontradoException, AdminNoEncontradoException {
@@ -195,6 +203,11 @@ public class AuthenticationController {
     @PostMapping(path = "/password/recuperacion/solicitud")
     public ResponseEntity<?> solicitarCambioPassword(
             @Parameter(description = "Correo del usuario que requiere cambio de password", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo correo para cambio de contraseña",
+                                    value = "{\"email\": \"correo@gmail.com\"" + "}")}))
             @RequestBody String data)  {
         /*
         * chequear que existe usuario con correo
@@ -250,7 +263,13 @@ public class AuthenticationController {
     @PostMapping(path = "/password/recuperacion/cambio")
     public ResponseEntity<?> realizarCambioPassword(
             @Parameter(description = "Nuevos datos para cambio de password", required = true)
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"correo\": \"correo@gmail.com\","
+                                    + "\"password\": \"contraseña\","
+                                    + "\"token\": \"token\""
+                                    + "}")}))
             @RequestBody String resetRequest) {
         try{
             JsonObject jsonReset = new Gson().fromJson(resetRequest, JsonObject.class);
@@ -282,7 +301,8 @@ public class AuthenticationController {
             // Chequear que token coincida y exista en Firestore - Arroja excepcion si algo falla
             TokenReset tokenReset = new TokenReset(correo, resetToken);
             if (awsService.comprobarResetToken(tokenReset)){
-                // Todo ok, cambiar password
+                // Todo ok, cambiar password y eliminar Token de DynamoDB
+                awsService.eliminarResetToken(awsService.getToken(correo));
                 usuarioService.cambiarPassword(correo, password);
                 return ResponseEntity.ok("Nueva password cambiada con éxito");
             } else{
@@ -306,7 +326,12 @@ public class AuthenticationController {
     @PostMapping(path = "/password/recuperacion/check")
     public ResponseEntity<?> validarToken(
             @Parameter(description = "Email y token para validar en DB que coincidan", required = true)
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json"))
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class),
+                            examples = {@ExampleObject(name = "ejemplo calificacion a restaurante", value = "{\"correo\": \"correo@gmail.com\","
+                                    + "\"token\": \"token\""
+                                    + "}")}))
             @RequestBody String tokenResetRequest) {
         JsonObject jsonReset = new Gson().fromJson(tokenResetRequest, JsonObject.class);
         TokenReset tokenReset = new TokenReset(new String(Base64.getDecoder().decode(jsonReset.get("email").getAsString())), jsonReset.get("token").getAsString());
