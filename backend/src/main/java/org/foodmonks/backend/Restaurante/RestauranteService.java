@@ -203,14 +203,14 @@ public class RestauranteService {
                     .findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
                             EstadoRestaurante.ABIERTO);
             } else {
-                restaurantes = restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
+                restaurantes = restauranteRepository.findRestaurantesIgnoreCaseByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
             }
         } else {
             if (!nombreRestaurante.isBlank()) {
               restaurantes = restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstado(nombreRestaurante,
                                 EstadoRestaurante.ABIERTO);
             } else {
-                restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+                restaurantes = restauranteRepository.findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.ABIERTO);
             }
         }
         for (Restaurante restaurante : restaurantes){

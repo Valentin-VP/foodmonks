@@ -97,7 +97,7 @@ class ClienteServiceTest {
                 List.of(dir1), EstadoCliente.ACTIVO, null, null);
         when(usuarioService.ObtenerUsuario(anyString())).thenReturn(null);
         when(direccionService.crearDireccion(any(JsonObject.class))).thenReturn(dir1);
-        when(clienteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
+        //when(clienteRepository.findByCorreoIgnoreCase(anyString())).thenReturn(cliente1);
 
         clienteService.crearCliente("dummy", "dummy", "dummy", "dummy",
                 LocalDate.now(), 5.0f, new JsonObject(), "ACTIVO");
