@@ -101,7 +101,6 @@ public class ClienteService {
         direcciones.add(direccion);
         Cliente cliente = new Cliente(nombre,apellido,correo,passwordEncoder.encode(password),fechaRegistro,calificacion,0,direcciones,EstadoCliente.valueOf(activo),null,null);
         clienteRepository.save(cliente);
-        System.out.println("direccion " + clienteRepository.findByCorreoIgnoreCase(correo).getDirecciones().get(0).getCalle());
     }
 
 

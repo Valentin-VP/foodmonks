@@ -64,12 +64,14 @@ function MyProvider({ children }) {
     categoria: "",
     nombre: "",
     calificacion: false,
+    idDireccion: "",
   };
 
   useEffect(() => {
     values.categoria = sessionStorage.getItem("restaurantes-categoria");
     values.nombre = sessionStorage.getItem("restaurantes-nombre");
     values.calificacion = sessionStorage.getItem("restaurantes-calificacion");
+    values.idDireccion = sessionStorage.getItem("cliente-direccion");
     if (values.categoria === null) {
       values.categoria = "";
     }
@@ -87,6 +89,7 @@ function MyProvider({ children }) {
     fetchRestaurantesBusqueda(values)
       .then((response) => {
         if (response.status === 200) {
+          console.log(response);
           setDatos(response.data);
           isLoading(false);
         } else {
@@ -169,23 +172,27 @@ function ListadoRestaurantesAbiertos() {
       <Styles>
         <Layout>
           <br />
-          {data.length === 0 ? (
-            <h5 className="text-center h5 mb-3 fw-normal">
-              No hay ningún restaurante abierto en el momento
-            </h5>
-          ) : null}
-          {data.length > 0 &&
-          sessionStorage.getItem("restaurantes-categoria") ? (
+          {sessionStorage.getItem("cliente-calle") ? (
             <h3>
-              resultados de la búsqueda por categoría:
+              Resultados de la busqueda para la direccion:{" "}
+              {sessionStorage.getItem("cliente-calle")}{" "}
+              {sessionStorage.getItem("cliente-numero")}
+            </h3>
+          ) : null}
+          {sessionStorage.getItem("restaurantes-categoria") ? (
+            <h3>
+              Resultados de la busqueda por categoria:{" "}
               {sessionStorage.getItem("restaurantes-categoria")}
             </h3>
           ) : null}
-          {data.length > 0 && sessionStorage.getItem("restaurantes-nombre") ? (
+          {sessionStorage.getItem("restaurantes-nombre") ? (
             <h3>
-              resultados de la búsqueda por nombre:
+              Resultados de la busqueda por nombre:{" "}
               {sessionStorage.getItem("restaurantes-nombre")}
             </h3>
+          ) : null}
+          {sessionStorage.getItem("restaurantes-calificacion") === true ? (
+            <h3>ordenado por calificacion</h3>
           ) : null}
           <br />
           <div className="table-responsive justify-content-center" id="list">
