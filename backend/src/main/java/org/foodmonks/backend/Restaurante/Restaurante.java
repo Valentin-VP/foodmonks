@@ -12,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -25,6 +27,7 @@ public class Restaurante extends Usuario {
 
     private Float calificacion;
     private Integer cantidadCalificaciones;
+    @NotEmpty(message = "El nombre del Restaurante no puede ser vacio")
     private String nombreRestaurante;
     private Long rut;
     @OneToOne(cascade=CascadeType.ALL)
@@ -33,6 +36,7 @@ public class Restaurante extends Usuario {
     private EstadoRestaurante estado;
     private Integer telefono;
     private String descripcion;
+    @NotEmpty(message = "La cuentaPaypal no puede ser vacia")
     private String cuentaPaypal;
     private String imagen;
     @OneToMany(mappedBy="restaurante")//,cascade=CascadeType.ALL,orphanRemoval=true)

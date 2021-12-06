@@ -15,13 +15,13 @@ public class RestauranteConfig {
 /*    @Bean
     CommandLineRunner commandLineRunnerRestaurante(RestauranteRepository restauranteRepository, PasswordEncoder passwordEncoder) {
         return args ->{
-            Direccion dir = new Direccion(111, "calle1", "calle2", null, "2", "2");
-            Float calificacion = 5.0f;
-            LocalDate ahora = LocalDate.now();
-            Restaurante  restaurante =  new Restaurante("nombreDelRestaurante",
-                    "apellidoDelRestaurante", "restaurante@gmail.com",
-                    passwordEncoder.encode("restaurante123"), ahora, calificacion, 0, "NombreRestaurante", 123456L, dir, EstadoRestaurante.ABIERTO, 23487123, "DescripcionRestaurante", "CuentaDePaypal", null);
-            restauranteRepository.saveAll(List.of(restaurante));
+//            Direccion dir = new Direccion(111, "calle1", "calle2", null, "2", "2");
+//            Float calificacion = 5.0f;
+//            LocalDate ahora = LocalDate.now();
+//            Restaurante  restaurante =  new Restaurante("nombreDelRestaurante",
+//                    "apellidoDelRestaurante", "restaurante@gmail.com",
+//                    passwordEncoder.encode("restaurante123"), ahora, calificacion, 0, "NombreRestaurante", 123456L, dir, EstadoRestaurante.ABIERTO, 23487123, "DescripcionRestaurante", "CuentaDePaypal", null);
+//            restauranteRepository.saveAll(List.of(restaurante));
             //ejemplo para dar de alta un restaurante
         };
     }*/

@@ -153,7 +153,7 @@ function RegistroCliente() {
             registrarCliente(registro)
               .then((response) => {
                 if (response.status === 201) {
-                  setAlerta("Registro hecho con exito");
+                  setAlerta("Registro hecho con éxito");
                   setTipo("success");
                   setTimeout(() => {
                     window.location.replace("/");
@@ -193,7 +193,7 @@ function RegistroCliente() {
               <a href="/">
                 <img className="" src={logo} alt="" width="200" height="200" />
               </a>
-              <h2 className="mb-3">Regístrate como Cliente</h2>
+              <h2 className="mb-3">Regístrate como cliente</h2>
 
               <div className="form-floating">
                 <input

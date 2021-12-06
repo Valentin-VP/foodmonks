@@ -50,7 +50,7 @@ const Styles = styled.div`
       box-shadow: 0 0 0 0.25rem rgba(232, 113, 33, 0.25);
     }
   }
-  #fecha{
+  #fecha {
     height: 58px;
   }
   .MuiPaginationItem-page.Mui-selected {
@@ -96,8 +96,8 @@ export default function BuscarRegistrados() {
   let tipoUser = [
     { tipo: "N/A", value: "" },
     { tipo: "Restaurante", value: "restaurante" },
-    { tipo: "Cliente", value: "cliente"},
-    { tipo: "Admin", value: "admin"},
+    { tipo: "Cliente", value: "cliente" },
+    { tipo: "Admin", value: "admin" },
   ];
 
   let estado = [
@@ -146,7 +146,7 @@ export default function BuscarRegistrados() {
   };
 
   const handleSubmit = (e) => {
-     e.preventDefault();
+    e.preventDefault();
     setPage(1);
     onPageChange(1);
     // dependiendo de la respuesta del servidor para el request de buscar, muestro una tabla con
@@ -166,7 +166,7 @@ export default function BuscarRegistrados() {
           <main className="form">
             <form id="inputs" onSubmit={handleSubmit}>
               <h1 className="text-center h5 mb-3 fw-normal">
-                Búsqueda de Usuarios Registrados
+                Búsqueda de usuarios registrados
               </h1>
               <div className="row align-items-center">
                 <div className="col-lg">
@@ -211,7 +211,7 @@ export default function BuscarRegistrados() {
                         </option>
                       ))}
                     </select>
-                    <label htmlFor="tipoUser">Tipo de Usuario</label>
+                    <label htmlFor="tipoUser">Tipo de usuario</label>
                   </div>
                 </div>
                 <div className="col-lg">
@@ -222,7 +222,7 @@ export default function BuscarRegistrados() {
                       onChange={handleChange}
                       id="estado"
                     >
-                      {estado.map((item,index) => (
+                      {estado.map((item, index) => (
                         <option key={index} value={item.value}>
                           {item.estado}
                         </option>
@@ -232,23 +232,30 @@ export default function BuscarRegistrados() {
                   </div>
                 </div>
                 <div className="col-lg">
-                      <div className="form-floating">
-                          <div className="checkbox">
-                              <label>
-                                  <input
-                                      name="ordenar"
-                                      className="form-check-input"
-                                      type="checkbox"
-                                      checked={values.ordenar}
-                                      onChange={handleChange}
-                                      id="ordenar"
-                                      disabled={!values.tipoUser || values.tipoUser==="admin"}
-                                  /> Ordenar por Calificación según {values.tipoUser==="restaurante" ? values.tipoUser : 
-                                  values.tipoUser==="cliente" ? values.tipoUser : "tipo de usuario"}
-                              </label>
-                          </div>
-                      </div>
+                  <div className="form-floating">
+                    <div className="checkbox">
+                      <label>
+                        <input
+                          name="ordenar"
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={values.ordenar}
+                          onChange={handleChange}
+                          id="ordenar"
+                          disabled={
+                            !values.tipoUser || values.tipoUser === "admin"
+                          }
+                        />{" "}
+                        Ordenar por calificación según{" "}
+                        {values.tipoUser === "restaurante"
+                          ? values.tipoUser
+                          : values.tipoUser === "cliente"
+                          ? values.tipoUser
+                          : "tipo de usuario"}
+                      </label>
+                    </div>
                   </div>
+                </div>
               </div>
 
               <button className="w-100 btn btn-md btn-primary" type="submit">

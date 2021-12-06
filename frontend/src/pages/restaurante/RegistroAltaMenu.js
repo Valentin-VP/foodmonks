@@ -79,16 +79,16 @@ function RegistroAltaMenu() {
   };
 
   let categorias = [
-    { nombre: "PIZZAS" },
-    { nombre: "HAMBURGUESAS" },
-    { nombre: "BEBIDAS" },
-    { nombre: "COMBOS" },
-    { nombre: "MINUTAS" },
-    { nombre: "POSTRES" },
-    { nombre: "PASTAS" },
-    { nombre: "COMIDAARABE" },
-    { nombre: "SUSHI" },
-    { nombre: "OTROS" },
+    { value: "PIZZAS", nombre: "Pizzas" },
+    { value: "HAMBURGUESAS", nombre: "Hamburguesas" },
+    { value: "BEBIDAS", nombre: "Bebidas" },
+    { value: "COMBOS", nombre: "Combos" },
+    { value: "MINUTAS", nombre: "Minutas" },
+    { value: "POSTRES", nombre: "Postres" },
+    { value: "PASTAS", nombre: "Pastas" },
+    { value: "COMIDAARABE", nombre: "Comida arabe" },
+    { value: "SUSHI", nombre: "Sushi" },
+    { value: "OTROS", nombre: "Otros" },
   ];
 
   const [alerta, setAlerta] = useState(null);
@@ -169,6 +169,14 @@ function RegistroAltaMenu() {
   };
 
   const onEnd = (event) => {
+    if (
+      document.getElementById("categoria").value === "" ||
+      document.getElementById("nombre").value === "" ||
+      document.getElementById("descripcion").value === "" ||
+      document.getElementById("price").value === ""
+    ) {
+      return null;
+    }
     event.preventDefault();
     var json = JSON.parse(sessionStorage.getItem("registroRestaurante"));
     menu.nombre = document.getElementById("nombre").value;
@@ -180,9 +188,6 @@ function RegistroAltaMenu() {
         unico = false;
     });
     if (unico) {
-      document.getElementById("cancelar").disabled = true;
-      document.getElementById("agregar").disabled = true;
-      document.getElementById("terminar").disabled = true;
       menu.categoria = document.getElementById("categoria").value;
       menu.descripcion = document.getElementById("descripcion").value;
       menu.price = document.getElementById("price").value;
@@ -211,6 +216,9 @@ function RegistroAltaMenu() {
                 //aca hago el rest
                 registrarRestaurante(json.restaurante)
                   .then(() => {
+                    document.getElementById("cancelar").disabled = true;
+                    document.getElementById("agregar").disabled = true;
+                    document.getElementById("terminar").disabled = true;
                     setAlerta("Registro exitoso");
                     setTipo("success");
                     setTimeout(() => {
@@ -219,12 +227,9 @@ function RegistroAltaMenu() {
                     }, 3000);
                   })
                   .catch((error) => {
+                    console.log("entro al catch");
                     setAlerta(error.response.data);
                     setTipo("danger");
-                    setTimeout(() => {
-                      window.location.replace("/");
-                      sessionStorage.clear();
-                    }, 3000);
                   });
               });
           }
@@ -234,6 +239,9 @@ function RegistroAltaMenu() {
         json.restaurante.menus.push(menu);
         registrarRestaurante(json.restaurante)
           .then(() => {
+            document.getElementById("cancelar").disabled = true;
+            document.getElementById("agregar").disabled = true;
+            document.getElementById("terminar").disabled = true;
             setAlerta("Registro exitoso");
             setTipo("success");
             setTimeout(() => {
@@ -251,7 +259,7 @@ function RegistroAltaMenu() {
           });
       }
     } else {
-      setAlerta("El nombre del menu debe ser unico");
+      setAlerta("El nombre del menú debe ser único");
       setTipo("danger");
     }
   };
@@ -263,7 +271,7 @@ function RegistroAltaMenu() {
   ) {
     botonTerminar = (
       <Button onClick={onEnd} id="terminar" type="submit">
-        Terminar Altas
+        Terminar altas
       </Button>
     );
   } else {
@@ -282,7 +290,7 @@ function RegistroAltaMenu() {
       <div id="page-container"></div>
       <section className="form-alta">
         <Form onSubmit={onSubmit}>
-          <h4>Alta Menú</h4>
+          <h4>Alta menú</h4>
           {/*nombre del menu*/}
           <div className="form-floating">
             <input
@@ -294,7 +302,7 @@ function RegistroAltaMenu() {
               onChange={handleChange}
               required
             />
-            <label htmlFor="floatingInput">Nombre del Menú</label>
+            <label htmlFor="floatingInput">Nombre del menú</label>
           </div>
           {/*Precio*/}
           <div className="form-floating">
@@ -328,9 +336,9 @@ function RegistroAltaMenu() {
               onChange={handleChange}
               required
             >
-              <option>Seleccione una categoría</option>
+              <option value="">Seleccione una categoría</option>
               {categorias.map((categoria) => (
-                <option key={categoria.nombre} value={categoria.nombre}>
+                <option key={categoria.nombre} value={categoria.value}>
                   {categoria.nombre}
                 </option>
               ))}

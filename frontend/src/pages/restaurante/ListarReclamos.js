@@ -277,22 +277,22 @@ function ListarReclamos() {
       <Styles>
         <ModalProvider>
           <br />
-          {sessionStorage.getItem("reclamos-razon") ? (
+          {data.length === 0 ? (
+            <h5 className="text-center h5 mb-3 fw-normal">
+              No hay ningún reclamo
+            </h5>
+          ) : null}
+          {data.length > 0 && sessionStorage.getItem("reclamos-razon") ? (
             <h3>
-              resultados de la busqueda por razon del reclamo:
+              Resultados de la búsqueda por razón:
               {sessionStorage.getItem("reclamos-razon")}
             </h3>
-          ) : (
-            <h3> resultados de la busqueda </h3>
-          )}
-          {sessionStorage.getItem("reclamos-cliente") ? (
+          ) : null}
+          {data.length > 0 && sessionStorage.getItem("reclamos-cliente") ? (
             <h3>
-              resultados de la busqueda por cliente del reclamo:
+              Resultados de la búsqueda por cliente:
               {sessionStorage.getItem("reclamos-cliente")}
             </h3>
-          ) : null}
-          {sessionStorage.getItem("reclamos-ordenar") ? (
-            <h3>resultados de la busqueda ordenados</h3>
           ) : null}
           <br />
           <div className="table-responsive justify-content-center" id="list">
@@ -307,7 +307,7 @@ function ListarReclamos() {
                         <th scope="col" />
                         <td>PEDIDO: {reclamo.idPedido}</td>
                         <th scope="col" />
-                        <td>RAZON: {reclamo.razon}</td>
+                        <td>RAZÓN: {reclamo.razon}</td>
                         <th scope="col" />
                         <td>FECHA: {reclamo.fecha}</td>
                         <th scope="col" />
@@ -382,7 +382,7 @@ function ListarReclamos() {
               onEscapeKeydown={toggleModal}
               pedido={pedido}
             >
-              <h2>Información Pedido</h2>
+              <h2>Información pedido</h2>
               <hr />
               <div className="cuerpo">
                 <p>Precio: {pedido.total}$</p>
@@ -403,7 +403,7 @@ function ListarReclamos() {
             onBackgroundClick={toggleModalAceptar}
             onEscapeKeydown={toggleModalAceptar}
           >
-            <h2>Aceptar Reclamo</h2>
+            <h2>Aceptar reclamo</h2>
             <hr />
             <div className="cuerpo">
               <span>
@@ -432,11 +432,11 @@ function ListarReclamos() {
             onBackgroundClick={toggleModalRechazar}
             onEscapeKeydown={toggleModalRechazar}
           >
-            <h2>Rechazar Reclamo</h2>
+            <h2>Rechazar reclamo</h2>
             <hr />
             <div className="cuerpo">
               <br />
-              <span> ¿Cual es la razon de el rechazo? </span>
+              <span> ¿Cual es la razón de el rechazo? </span>
               <textarea
                 id="inputRechazar"
                 name="motivoDevolucion"

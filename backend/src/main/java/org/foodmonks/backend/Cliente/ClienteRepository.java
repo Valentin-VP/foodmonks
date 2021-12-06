@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, String> {
 
-    Cliente findByCorreo(String correo);
+    Cliente findByCorreoIgnoreCase(String correo);
     List<Cliente> findAllByRolesOrderByCalificacionDesc(String role);
     Long countClientesByFechaRegistroBetween(LocalDate fechaIni, LocalDate fechaFin);
     Long countClientesByEstado(EstadoCliente estadoCliente);

@@ -22,7 +22,7 @@ public class MenuConfig {
 //        return args ->{
 //
 //            Menu menu = new Menu("papas fritas",123.34F,"",true,0F,"", CategoriaMenu.OTROS);
-//            menu.setRestaurante(restauranteRepository.findByCorreo("restaurante@gmail.com"));
+//            menu.setRestaurante(restauranteRepository.findByCorreoIgnoreCase("restaurante@gmail.com"));
 //
 //            menuRepository.save(menu);
 //            // ejemplo dar de alta menu

@@ -135,7 +135,7 @@ function ModificarDireccion() {
       <div id="page-container"></div>
       <section className="form-alta">
         <Form onSubmit={onSubmit}>
-          <h4>Modificar Dirección</h4>
+          <h4>Modificar dirección</h4>
           <div className="mb-2">
             <Combobox className="busqueda mb-3" onSelect={handleSelect}>
               <ComboboxInput

@@ -125,7 +125,7 @@ export const Cart = () => {
   if (isEmpty)
     return (
       <Styles>
-        <h1 className="text-center mt-5">El carrito esta vacio</h1>
+        <h1 className="text-center mt-5">El carrito está vacío</h1>
       </Styles>
     );
 
@@ -157,7 +157,7 @@ export const Cart = () => {
     hacerPedidoEfectivo(jsonPedido)
       .then((response) => {
         console.log(response);
-        Noti("Pedido realizado con exito");
+        Noti("Pedido realizado con éxito");
         emptyCart();
       })
       .catch((error) => {
@@ -190,7 +190,7 @@ export const Cart = () => {
     paypalEnviarCART(jsonPedido)
       .then((response) => {
         console.log(response);
-        Noti("Pedido realizado con exito");
+        Noti("Pedido realizado con éxito");
         emptyCart();
       })
       .catch((error) => {
@@ -235,7 +235,7 @@ export const Cart = () => {
                         </td>
                         <td className="font-weight-bold">{item.nombre}</td>
                         <td>Cantidad: {item.quantity}</td>
-                        <td>Precio Total: {item.price * item.quantity}</td>
+                        <td>Precio total: {item.price * item.quantity}</td>
                         <td>
                           <button
                             className="btn btn-info ms-2"
@@ -280,23 +280,10 @@ export const Cart = () => {
                   {sessionStorage.getItem("cliente-calle")}{" "}
                   {sessionStorage.getItem("cliente-numero")}
                 </p>
-                {/* <Form.Select
-                  aria-label="Default select example"
-                  id="direcciones"
-                  required
-                >
-                  {perfil.direcciones.map((direccion, index) => {
-                    return (
-                      <option key={index} className="dir" value={direccion.id}>
-                        {direccion.calle + " " + direccion.numero}
-                      </option>
-                    );
-                  })}
-                </Form.Select> */}
                 <br />
 
                 <label className="mb-2">Total de items: {totalItems}</label>
-                <h4>Finalizar Compra</h4>
+                <h4>Finalizar compra</h4>
                 <h5 className="mb-4">
                   Precio final: ${" "}
                   {Math.round((cartTotal + Number.EPSILON) * 100) / 100}

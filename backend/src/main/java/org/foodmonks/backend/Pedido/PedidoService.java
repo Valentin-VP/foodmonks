@@ -50,37 +50,23 @@ public class PedidoService {
             }else{
                 querys.add(new CriterioQuery("estado",":",estadoPedido, false));
             }
-//            result = pedidoRepository.findAll(estadoSpec);
-            //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
         }else{
             querys.add(new CriterioQuery("estado",":",EstadoPedido.DEVUELTO, true));
             querys.add(new CriterioQuery("estado",":",EstadoPedido.FINALIZADO, true));
             querys.add(new CriterioQuery("estado",":",EstadoPedido.RECLAMORECHAZADO, true));
-//            result = pedidoRepository.findAll(estadoSpecF.and(estadoSpecD));
-            //result = pedidos.stream().filter(p -> (p.getEstado().equals(EstadoPedido.DEVUELTO) || p.getEstado().equals(EstadoPedido.FINALIZADO))).collect(Collectors.toList());
         }
-//        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         if (medioPago != null) {
             querys.add(new CriterioQuery("medioPago",":",medioPago, false));
-            //result = pedidos.stream().filter(p -> p.getMedioPago().equals(medioPago)).collect(Collectors.toList());
-            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
 
         if (total != null){
             querys.add(new CriterioQuery("total",">",total[0], false));
             querys.add(new CriterioQuery("total","<",total[1], false));
-            //result = pedidos.stream().filter(p -> (p.getTotal() >= total[0] && p.getTotal() <= total[1])).collect(Collectors.toList());
-            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
 
         if (fecha != null){
             querys.add(new CriterioQuery("fechaHoraEntrega",">",fecha[0], false));
             querys.add(new CriterioQuery("fechaHoraEntrega","<",fecha[1].plusDays(1), false));
-//            result = pedidos.stream().filter(p -> (
-//                    p.getFechaHoraEntrega().isAfter(LocalDateTime.from(fecha[0]))
-//                            && p.getFechaHoraEntrega().isBefore(LocalDateTime.from(fecha[1]))
-//            )).collect(Collectors.toList());
-//            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
         querys.add(new CriterioQuery("correo", "p:ru", restaurante.getCorreo(), false));
         for(CriterioQuery c : querys){
@@ -91,10 +77,10 @@ public class PedidoService {
         if (orden != null){
             if (orden.equals("asc"))
                 orders.add(new Order(Sort.Direction.ASC, "total"));
-                //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal)).collect(Collectors.toList());
             else if (orden.equals("desc"))
                 orders.add(new Order(Sort.Direction.DESC, "total"));
-                //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal).reversed()).collect(Collectors.toList());
+            else if (orden.isBlank())
+                orders.add(new Order(Sort.Direction.DESC, "id"));
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
         Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);
@@ -121,8 +107,6 @@ public class PedidoService {
             }else{
                 querys.add(new CriterioQuery("estado",":",estadoPedido, false));
             }
-//            result = pedidoRepository.findAll(estadoSpec);
-            //result = pedidos.stream().filter(p -> p.getEstado().equals(estadoPedido)).collect(Collectors.toList());
         }
 
         if (nombreRestaurante != null) {
@@ -132,28 +116,18 @@ public class PedidoService {
         if (nombreMenu != null) {
             querys.add(new CriterioQuery("nombre","p:mc",nombreMenu, false));
         }
-//        pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         if (medioPago != null) {
             querys.add(new CriterioQuery("medioPago",":",medioPago, false));
-            //result = pedidos.stream().filter(p -> p.getMedioPago().equals(medioPago)).collect(Collectors.toList());
-            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
 
         if (total != null){
             querys.add(new CriterioQuery("total",">",total[0], false));
             querys.add(new CriterioQuery("total","<",total[1], false));
-            //result = pedidos.stream().filter(p -> (p.getTotal() >= total[0] && p.getTotal() <= total[1])).collect(Collectors.toList());
-            //pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
 
         if (fecha != null){
             querys.add(new CriterioQuery("fechaHoraEntrega",">",fecha[0], false));
             querys.add(new CriterioQuery("fechaHoraEntrega","<",fecha[1].plusDays(1), false));
-//            result = pedidos.stream().filter(p -> (
-//                    p.getFechaHoraEntrega().isAfter(LocalDateTime.from(fecha[0]))
-//                            && p.getFechaHoraEntrega().isBefore(LocalDateTime.from(fecha[1]))
-//            )).collect(Collectors.toList());
-//            pedidos = Optional.ofNullable(result).map(List::stream).orElseGet(Stream::empty).collect(Collectors.toList());
         }
         querys.add(new CriterioQuery("cliente", ":", cliente,false));
         for(CriterioQuery c : querys){
@@ -164,10 +138,10 @@ public class PedidoService {
         if (orden != null){
             if (orden.equals("asc"))
                 orders.add(new Order(Sort.Direction.ASC, "total"));
-                //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal)).collect(Collectors.toList());
             else if (orden.equals("desc"))
                 orders.add(new Order(Sort.Direction.DESC, "total"));
-            //result = pedidos.stream().sorted(Comparator.comparing(Pedido::getTotal).reversed()).collect(Collectors.toList());
+            else if (orden.isBlank())
+                orders.add(new Order(Sort.Direction.DESC, "id"));
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
         Page<Pedido> pedidoPage = pedidoRepository.findAll(p, pageable);

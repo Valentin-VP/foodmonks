@@ -97,7 +97,7 @@ function Promocion() {
   return (
     <Styles>
       <Layout>
-        <h2 id="titulo">Mis Promos</h2>
+        <h2 id="titulo">Mis promociones</h2>
         <div className="row justify-content-center">
           <div className="col-12">
             <table className="table table-light table-hover m-0">

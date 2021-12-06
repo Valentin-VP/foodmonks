@@ -192,7 +192,7 @@ function RegistroRestaurante() {
               },
               (error) => {
                 console.log(error.message);
-                setAlerta("Error al subir la imagen");
+                setAlerta("Error al subir la imágen");
                 setTipo("danger");
               },
               () => {
@@ -329,7 +329,7 @@ function RegistroRestaurante() {
                 min="0"
                 required
               />
-              <label htmlFor="floatingInput">Telefono</label>
+              <label htmlFor="floatingInput">Teléfono</label>
             </div>
             <div className="form-floating">
               <input

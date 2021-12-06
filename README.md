@@ -1,6 +1,7 @@
 # FoodMonks
-- Mejoras y correciones en GUI WEB
-## Release 4.1
+- Prototipo estable
+- Varias correcciones
+## Release 5.0
 
 ## Funcionalidades:
 
