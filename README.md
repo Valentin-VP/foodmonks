@@ -1,7 +1,6 @@
 # FoodMonks
-- Prototipo estable
-- Varias correcciones
-## Release 5.0
+- Cálculo de distancias para mostrar restaurantes
+## Release 5.1
 
 ## Funcionalidades:
 
