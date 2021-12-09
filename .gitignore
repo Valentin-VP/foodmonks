@@ -97,3 +97,4 @@ docker/.env_react_aws_dev
 docker/.env_java_aws_prod
 docker/.env_react_aws_prod
 Demo.md
+Demo.pdf

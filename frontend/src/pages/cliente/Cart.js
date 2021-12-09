@@ -145,7 +145,8 @@ export const Cart = () => {
     });
     const jsonPedido = {
       restaurante: sessionStorage.getItem("restauranteCart"), //falta arreglar el restaurante
-      direccionId: document.getElementById("direcciones").value, // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
+      //document.getElementById("direcciones").value,
+      direccionId: sessionStorage.getItem("cliente-direccion"), // Long: direccion seleccionada del cliente, ya se cuenta con las direcciones del cliente en el front, entiendo se podría enviar solamente el ID
       medioPago: "EFECTIVO", //String: vale 'PayPal' o 'Efectivo'
       total: Math.round((cartTotal + Number.EPSILON) * 100) / 100,
       ordenId: "", // Lo que la API de PayPal nuestra responde al front desde el CU PAgar con PayPal. vacío si el pago fue en efectivo: ''
@@ -177,7 +178,8 @@ export const Cart = () => {
     });
     const jsonPedido = {
       restaurante: sessionStorage.getItem("restauranteCart"), // Seria el correo del restaurante (esto es del cliente)
-      direccionId: document.getElementById("direcciones").value,
+      // document.getElementById("direcciones").value,
+      direccionId: sessionStorage.getItem("cliente-direccion"),
       medioPago: "PAYPAL",
       total: cartTotal,
       ordenId: cartId,
@@ -273,20 +275,11 @@ export const Cart = () => {
               <div className="card">
                 <h2>Realizar pedido</h2>
                 <br />
-                <h5 className="mb-2">Dirección del envío</h5>
-                <Form.Select
-                  aria-label="Default select example"
-                  id="direcciones"
-                  required
-                >
-                  {perfil.direcciones.map((direccion, index) => {
-                    return (
-                      <option key={index} className="dir" value={direccion.id}>
-                        {direccion.calle + " " + direccion.numero}
-                      </option>
-                    );
-                  })}
-                </Form.Select>
+                <h5 className="mb-2">Dirección del envio</h5>
+                <p>
+                  {sessionStorage.getItem("cliente-calle")}{" "}
+                  {sessionStorage.getItem("cliente-numero")}
+                </p>
                 <br />
 
                 <label className="mb-2">Total de items: {totalItems}</label>

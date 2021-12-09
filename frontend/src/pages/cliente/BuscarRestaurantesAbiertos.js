@@ -1,9 +1,12 @@
-import { React, Fragment, useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import { Container, InputGroup } from "react-bootstrap";
 import styled from "styled-components";
 import food from "../../assets/food2.jpg";
 import { Layout } from "../../components/Layout";
 import ListadoRestaurantesAbiertos from "./ListadoRestaurantesAbiertos";
+import { fetchUserData } from "../../services/Requests";
+import { Loading } from "../../components/Loading";
+import { Noti } from "../../components/Notification";
 
 const Styles = styled.div`
   .portada {
@@ -30,7 +33,17 @@ const Styles = styled.div`
       border: none;
       margin-left: 10px;
       border-radius: 30px;
-      max-width: 20%;
+      max-width: 15%;
+      &:focus{
+          box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
+      }
+    }
+
+    #direcciones {
+      border: none;
+      margin-left: 10px;
+      border-radius: 30px;
+      max-width: 15%;
       &:focus{
           box-shadow: 0 0 0 .25rem rgba(232, 113, 33,.25);
       }
@@ -111,11 +124,28 @@ const Styles = styled.div`
 `;
 
 export default function BuscarRestaurantesAbiertos() {
+  const [cliente, setCliente] = useState();
+  const [cargando, setCargando] = useState(true);
+
   const [values, setValues] = useState({
     categoria: "",
     nombre: "",
     calificacion: false,
+    idDireccion: "",
   });
+
+  useEffect(() => {
+    values.idDireccion = sessionStorage.getItem("cliente-direccion");
+    fetchInfoCliente();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchInfoCliente = () => {
+    fetchUserData().then((response) => {
+      setCliente(response.data);
+      setCargando(false);
+    });
+  };
 
   let categoria = [
     { nombre: "Pizzas", value: "PIZZAS" },
@@ -137,17 +167,51 @@ export default function BuscarRestaurantesAbiertos() {
       [e.target.name]:
         e.target.type === "checkbox" ? e.target.checked : e.target.value,
     }));
-    console.log(e.target);
-    console.log(e.target.value);
+  };
+
+  const setCalleNumero = (id) => {
+    var iterador = 0;
+    console.log(cliente);
+    cliente.direcciones.map((dir) => {
+      console.log(dir);
+      console.log(id);
+      console.log(iterador);
+      if (dir.id == id) {
+        sessionStorage.setItem(
+          "cliente-calle",
+          cliente.direcciones[iterador].calle
+        );
+        sessionStorage.setItem(
+          "cliente-numero",
+          cliente.direcciones[iterador].numero
+        );
+      } else {
+        iterador++;
+      }
+      return null;
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    sessionStorage.setItem(
+      "cliente-direccion",
+      document.getElementById("direcciones").value
+    );
+    if (document.getElementById("direcciones").value === "") {
+      Noti("Debe seleccionar una direccion");
+      return null;
+    }
+    setCalleNumero(document.getElementById("direcciones").value);
     sessionStorage.setItem("restaurantes-categoria", values.categoria);
     sessionStorage.setItem("restaurantes-nombre", values.nombre);
     sessionStorage.setItem("restaurantes-calificacion", values.calificacion);
     window.location.reload();
   };
+
+  if (cargando) {
+    return <Loading />;
+  }
 
   return (
     <Styles>
@@ -179,6 +243,18 @@ export default function BuscarRestaurantesAbiertos() {
                   </option>
                 ))}
               </select>
+              <select
+                name="idDireccion"
+                className="form-select"
+                id="direcciones"
+              >
+                <option value="">Direccion</option>
+                {cliente.direcciones.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.calle} {item.numero}
+                  </option>
+                ))}
+              </select>
               <button
                 id="boton"
                 type="submit"
@@ -207,7 +283,14 @@ export default function BuscarRestaurantesAbiertos() {
           <h2>Restaurantes</h2>
           <div className="container-lg">
             <div className="row align-items-center">
-              <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
+              {values.idDireccion === null ? (
+                <h5 className="text-center h5 mb-3 fw-normal">
+                  Elija una direccion para ver restaurantes abiertos cerca de su
+                  zona.
+                </h5>
+              ) : (
+                <div className="col-md">{<ListadoRestaurantesAbiertos />}</div>
+              )}
             </div>
           </div>
         </Layout>
