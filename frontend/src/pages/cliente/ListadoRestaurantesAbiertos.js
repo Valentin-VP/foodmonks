@@ -174,20 +174,20 @@ function ListadoRestaurantesAbiertos() {
           <br />
           {sessionStorage.getItem("cliente-calle") ? (
             <h3>
-              Resultados de la busqueda para la direccion:{" "}
+              Resultados de la búsqueda para la dirección:{" "}
               {sessionStorage.getItem("cliente-calle")}{" "}
               {sessionStorage.getItem("cliente-numero")}
             </h3>
           ) : null}
           {sessionStorage.getItem("restaurantes-categoria") ? (
             <h3>
-              Resultados de la busqueda por categoria:{" "}
+              Resultados de la búsqueda por categoría:{" "}
               {sessionStorage.getItem("restaurantes-categoria")}
             </h3>
           ) : null}
           {sessionStorage.getItem("restaurantes-nombre") ? (
             <h3>
-              Resultados de la busqueda por nombre:{" "}
+              Resultados de la búsqueda por nombre:{" "}
               {sessionStorage.getItem("restaurantes-nombre")}
             </h3>
           ) : null}
