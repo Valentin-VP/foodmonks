@@ -209,8 +209,8 @@ public class AdminController {
         return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
     }
 
-    @Operation(summary = "consulta informacion para la estadistica de los pedidos de un restaurante",
-            description = "devuelve la informacion de los pedidos de un restaurante",
+    @Operation(summary = "Consulta información para la estadística de los pedidos de un restaurante",
+            description = "Devuelve la información de los pedidos de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
@@ -228,8 +228,8 @@ public class AdminController {
         return new ResponseEntity<>(estadisticasPedidos, HttpStatus.OK);
     }
 
-    @Operation(summary = "consulta informacion para la estadistica de ventas de un restaurante",
-            description = "devuelve la informacion de las ventas de un restaurante",
+    @Operation(summary = "Consulta información para la estadística de ventas de un restaurante",
+            description = "Retorna la información de las ventas de un restaurante",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
@@ -249,8 +249,8 @@ public class AdminController {
     }
 
 
-    @Operation(summary = "consulta informacion para la estadistica de los usuarios activos en el sistema",
-            description = "devuelve la informacion de los usuarios activos en el sistema",
+    @Operation(summary = "Consulta información para la estadística de los usuarios activos en el sistema",
+            description = "Retorna la información de los usuarios activos en el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
@@ -268,8 +268,8 @@ public class AdminController {
         return new ResponseEntity<>(estadisticasUsuarios, HttpStatus.OK);
     }
 
-    @Operation(summary = "consulta informacion para la estadistica de los registros de usuarios en el sistema",
-            description = "devuelve la informacion de los registros de usuarios en el sistema",
+    @Operation(summary = "Consulta información para la estadística de los registros de usuarios en el sistema",
+            description = "Retorna la información de los registros de usuarios en el sistema",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
@@ -287,8 +287,8 @@ public class AdminController {
         return new ResponseEntity<>(estadisticasRegistros, HttpStatus.OK);
     }
 
-    @Operation(summary = "lista de todos los restaurantes del sistema",
-            description = "devuelve un listado de todos los restaurantes registrados",
+    @Operation(summary = "Lista de todos los restaurantes del sistema",
+            description = "Retorna un listado de todos los restaurantes registrados",
             security = @SecurityRequirement(name = "bearerAuth"),
             tags = { "admin" })
     @ApiResponses(value = {
