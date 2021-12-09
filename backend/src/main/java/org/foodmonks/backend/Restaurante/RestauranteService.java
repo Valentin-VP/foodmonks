@@ -1,5 +1,6 @@
 package org.foodmonks.backend.Restaurante;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.jav.exposerversdk.PushClientException;
@@ -7,7 +8,6 @@ import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.Direccion.Exceptions.DireccionNoExisteException;
-import org.foodmonks.backend.Direccion.Exceptions.DireccionNumeroException;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
@@ -203,14 +203,14 @@ public class RestauranteService {
                     .findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstadoOrderByCalificacionDesc(nombreRestaurante,
                             EstadoRestaurante.ABIERTO);
             } else {
-                restaurantes = restauranteRepository.findRestaurantesByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
+                restaurantes = restauranteRepository.findRestaurantesIgnoreCaseByEstadoOrderByCalificacionDesc(EstadoRestaurante.ABIERTO);
             }
         } else {
             if (!nombreRestaurante.isBlank()) {
               restaurantes = restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstado(nombreRestaurante,
                                 EstadoRestaurante.ABIERTO);
             } else {
-                restaurantes = restauranteRepository.findRestaurantesByEstado(EstadoRestaurante.ABIERTO);
+                restaurantes = restauranteRepository.findRestaurantesIgnoreCaseByEstado(EstadoRestaurante.ABIERTO);
             }
         }
         for (Restaurante restaurante : restaurantes){
@@ -918,26 +918,31 @@ public class RestauranteService {
     }
 
     public Long calcularDistancia(String source, String destination) throws Exception {
-        var url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + source + "&destinations=" + destination + "&key=" + googleapikey;
-        var request = HttpRequest.newBuilder().GET().uri(URI.create(url)).build();
-        var client = HttpClient.newBuilder().build();
-        var response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-        JSONParser jp = new JSONParser();
-        JSONObject jo = (JSONObject) jp.parse(response);
-        JSONArray ja = (JSONArray) jo.get("rows");
-        jo = (JSONObject) ja.get(0);
-        ja = (JSONArray) jo.get("elements");
-        jo = (JSONObject) ja.get(0);
-        JSONObject je = (JSONObject) jo.get("distance");
-        JSONObject jf = (JSONObject) jo.get("duration");
-        Long distancia;
-        if (je == null){
-            System.out.println("Hay una direccion incorrecta en la bd y no puede calcularse la distancia");
-            distancia = distanciaInvalida;
-        } else {
-            distancia = (long) je.get("value");
+        try {
+            var url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + source + "&destinations=" + destination + "&key=" + googleapikey;
+            var request = HttpRequest.newBuilder().GET().uri(URI.create(url)).build();
+            var client = HttpClient.newBuilder().build();
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            JSONParser jp = new JSONParser();
+            JSONObject jo = (JSONObject) jp.parse(response);
+            JSONArray ja = (JSONArray) jo.get("rows");
+            jo = (JSONObject) ja.get(0);
+            ja = (JSONArray) jo.get("elements");
+            jo = (JSONObject) ja.get(0);
+            JSONObject je = (JSONObject) jo.get("distance");
+            JSONObject jf = (JSONObject) jo.get("duration");
+            Long distancia;
+            if (je == null){
+                System.out.println("Hay una direccion incorrecta en la bd y no puede calcularse la distancia");
+                distancia = distanciaInvalida;
+            } else {
+                distancia = (long) je.get("value");
+            }
+            return distancia;
+        } catch (Exception e){
+            throw new Exception("Error al consultar distancia con la API de Google");
         }
-        return distancia;
+
     }
 
 }

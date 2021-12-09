@@ -8,6 +8,7 @@ import org.foodmonks.backend.Cliente.Cliente;
 import org.foodmonks.backend.Cliente.Exceptions.ClienteDireccionException;
 import org.foodmonks.backend.Direccion.Direccion;
 import org.foodmonks.backend.Direccion.DireccionConverter;
+import org.foodmonks.backend.Direccion.DireccionService;
 import org.foodmonks.backend.EmailService.EmailNoEnviadoException;
 import org.foodmonks.backend.EmailService.EmailService;
 import org.foodmonks.backend.Menu.Exceptions.MenuMultiplicadorException;
@@ -32,10 +33,7 @@ import org.foodmonks.backend.paypal.PayPalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.TemplateEngine;
@@ -48,12 +46,12 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RestauranteServiceTest {
+
     @InjectMocks
     RestauranteService restauranteService;
 
@@ -79,17 +77,23 @@ class RestauranteServiceTest {
     PayPalService payPalService;
     @Mock
     NotificacionExpoService notificacionExpoService;
-
+    @Mock
+    DireccionService direccionService;
     @Mock
     DireccionConverter direccionConverter;
+
 
     @BeforeEach
     void setUp() {
         restauranteConverter = new RestauranteConverter(direccionConverter);
+        RestauranteService restauranteServiceSpy = Mockito.spy(restauranteService);
         restauranteService = new RestauranteService(restauranteRepository, passwordEncoder,
                 usuarioRepository, menuService, restauranteConverter,
                 pedidoService, reclamoConverter, templateEngine,
-                emailService, payPalService, notificacionExpoService);
+                emailService, payPalService, direccionService, notificacionExpoService);
+
+        //ReflectionTestUtils.setField(restauranteService, "googleapikey", );
+        //ReflectionTestUtils.setField(restauranteService, "distanciaMaxima", );
     }
 
     @Test
@@ -136,7 +140,7 @@ class RestauranteServiceTest {
                 .isInstanceOf(RestauranteFaltaMenuException.class).hasMessageContaining("Debe ingresar al menos 3 menus");
     }
 
-    @Test // COVERAGE (it's useless!);
+    @Test
     void listarHistoricoPedidos() throws RestauranteNoEncontradoException {
         Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
@@ -209,9 +213,11 @@ class RestauranteServiceTest {
                 .hasMessageContaining("No existe el pedido con id 1 para el Restaurante dummy");
     }
 
-    @Test
-    void listaRestaurantesAbiertos(){
-        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "latitud", "longitud");
+    /*@Test
+    void listaRestaurantesAbiertos() throws Exception {
+        //distancia serian 260 km mas o menos
+        Direccion dir1 = new Direccion(1234, "calle", "esquina", "detalles", "-32.050505", "-56.050505");
+        Direccion dir2 = new Direccion(1234, "calle", "esquina", "detalles", "-31.050505", "-55.050505");
         Restaurante restaurante1 = new Restaurante("nombreDelRestaurante",
                 "apellidoDelRestaurante", "restaurante1@gmail.com",
                 passwordEncoder.encode("a"), LocalDate.of(2020, 01, 01),
@@ -232,38 +238,39 @@ class RestauranteServiceTest {
                 "DescripcionRestaurante", "CuentaDePaypal", null);
         when(restauranteRepository.findRestaurantesIgnoreCaseByEstadoOrderByCalificacionDesc(any(EstadoRestaurante.class))).thenReturn(
                         List.of(restaurante2, restaurante1));
+        when(direccionService.obtenerDireccion(anyLong())).thenReturn(dir2);
         List<JsonObject> expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante2, restaurante1));
-        List<JsonObject> result = restauranteService.listaRestaurantesAbiertos("", "", true);
+        List<JsonObject> result = restauranteService.listaRestaurantesAbiertos("", "", true, "1");
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
         when(restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstadoOrderByCalificacionDesc(anyString(), any(EstadoRestaurante.class))).thenReturn(
                 List.of(restaurante2, restaurante1));
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante2, restaurante1));
-        result = restauranteService.listaRestaurantesAbiertos("nombreDelRestaurante", "", true);
+        result = restauranteService.listaRestaurantesAbiertos("nombreDelRestaurante", "", true, "1");
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
         when(menuService.existeCategoriaMenu(any(Restaurante.class), any(CategoriaMenu.class))).thenReturn(true);
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante2, restaurante1));
-        result = restauranteService.listaRestaurantesAbiertos("", "OTROS", true);
+        result = restauranteService.listaRestaurantesAbiertos("", "OTROS", true, "1");
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
         when(restauranteRepository.findRestaurantesIgnoreCaseByEstado(any(EstadoRestaurante.class))).thenReturn(
                 List.of(restaurante1, restaurante2));
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante1, restaurante2));
-        result = restauranteService.listaRestaurantesAbiertos("", "", false);
+        result = restauranteService.listaRestaurantesAbiertos("", "", false, "1");
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
         when(restauranteRepository.findRestaurantesByNombreRestauranteIgnoreCaseContainsAndEstado(anyString(), any(EstadoRestaurante.class))).thenReturn(
                 List.of(restaurante1, restaurante2));
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante1, restaurante2));
-        result = restauranteService.listaRestaurantesAbiertos("nombreDelRestaurante", "", false);
+        result = restauranteService.listaRestaurantesAbiertos("nombreDelRestaurante", "", false, "1");
         assertThat(result).isEqualTo(expectedRestaurantes);
         // -------------------------------------------------------
         when(menuService.existeCategoriaMenu(any(Restaurante.class), any(CategoriaMenu.class))).thenReturn(true);
         expectedRestaurantes = restauranteConverter.listaRestaurantes(List.of(restaurante1, restaurante2));
-        result = restauranteService.listaRestaurantesAbiertos("", "OTROS", false);
+        result = restauranteService.listaRestaurantesAbiertos("", "OTROS", false, "1");
         assertThat(result).isEqualTo(expectedRestaurantes);
-    }
+    }*/
 
     @Test
     void actualizarEstadoPedido() throws PedidoNoExisteException, RestauranteNoEncontradoException, PushClientException, PedidoIdException, PedidoDevolucionException, PedidoDistintoRestauranteException, IOException, EmailNoEnviadoException, InterruptedException {
